@@ -11,6 +11,7 @@ import {
   PhoneCall,
   Menu,
   X,
+  Cat,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -28,6 +29,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+const categories = [
+  "Nature",
+  "Business",
+  "Technology",
+  "Travel",
+  "Sports",
+  "Art",
+];
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -206,7 +216,6 @@ export default function HomePage() {
       <section className="relative min-h-screen bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 py-12 md:pb-20 md:pt-8 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-grid-pattern opacity-35"></div>
-
         <div className="container mx-auto max-w-7xl px-5 relative z-10">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center min-h-[80vh]">
             {/* Left Content */}
@@ -218,14 +227,12 @@ export default function HomePage() {
                     Creative Resources
                   </span>
                 </h1>
-
                 <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
                   Download high-quality stock photos, vectors, illustrations,
                   and videos. Get credits to access premium content from top
                   creative platforms worldwide.
                 </p>
               </div>
-
               {/* Search Bar */}
               <div className="w-full max-w-2xl">
                 {/* Mobile Layout */}
@@ -249,7 +256,6 @@ export default function HomePage() {
                     Search
                   </Button>
                 </div>
-
                 {/* Desktop Layout */}
                 <div className="hidden sm:block">
                   <div className="relative">
@@ -272,7 +278,6 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-
               {/* Popular Searches */}
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground font-medium">
@@ -300,8 +305,7 @@ export default function HomePage() {
                   ))}
                 </div>
               </div>
-
-              {/* CTA Button */}
+              {/* CTA Buttons */}
               <div className="pt-4 flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="!px-8 py-6 font-semibold">
                   <Eye className="size-5" />
@@ -317,7 +321,6 @@ export default function HomePage() {
                 </Button>
               </div>
             </div>
-
             {/* Right Image */}
             <div className="flex justify-center lg:justify-end">
               <div className="relative w-full max-w-lg lg:max-w-xl">
@@ -331,15 +334,159 @@ export default function HomePage() {
                     priority
                   />
                   {/* Floating elements for visual appeal */}
-                  <div className="absolute -top-3 -right-3 w-16 h-16 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
+                  <div className="absolute -top-3 right-3 sm:-right-3 w-16 h-16 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
                     <ImageIcon className="w-8 h-8 text-primary" />
                   </div>
-                  <div className="absolute -bottom-8 -left-5 sm:-left-8 w-16 h-16 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
+                  <div className="absolute -bottom-8 -left-1 sm:-left-8 w-16 h-16 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
                     <Video className="w-8 h-8 text-primary" />
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </div>
+      </section>
+      {/* Categories Section */}
+      <section className="py-12 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+              Popular{" "}
+              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                Categories
+              </span>
+            </h2>
+            <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
+              Discover trending content across our most popular categories and
+              find exactly what you&apos;re looking for
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-w-5xl mx-auto">
+            {categories.map((category, index) => {
+              // Function to render appropriate icon for each category
+              const renderCategoryIcon = () => {
+                switch (category) {
+                  case "Art":
+                    return <Cat className="w-8 h-8 text-primary" />;
+                  case "Nature":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                        />
+                      </svg>
+                    );
+                  case "Business":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
+                    );
+                  case "Technology":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                        />
+                      </svg>
+                    );
+                  case "Travel":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    );
+                  case "Sports":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                    );
+                  default:
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                        />
+                      </svg>
+                    );
+                }
+              };
+              return (
+                <div
+                  key={index}
+                  onClick={() => {
+                    window.location.href = `/search?q=${encodeURIComponent(category)}`;
+                  }}
+                  className="group relative bg-background/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col items-center text-center"
+                >
+                  {/* Category icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                    {renderCategoryIcon()}
+                  </div>
+
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors">
+                    {category}
+                  </h3>
+                  {/* Hover effect overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
