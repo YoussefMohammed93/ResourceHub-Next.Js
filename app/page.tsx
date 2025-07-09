@@ -2,9 +2,6 @@
 
 import {
   Search,
-  ChevronDown,
-  Settings,
-  LogOut,
   Image as ImageIcon,
   Video,
   Eye,
@@ -38,18 +35,11 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import Footer from "@/components/footer";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Footer from "@/components/footer";
+import { UserDropdown } from "@/components/user-dropdown";
 
 const categories = [
   "Nature",
@@ -185,52 +175,7 @@ export default function HomePage() {
               </Link>
             </nav>
             {/* User Dropdown */}
-            <div className="flex items-center space-x-4">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <div className="flex items-center space-x-2 cursor-pointer hover:bg-muted/75 rounded-lg px-2 py-1 transition-colors">
-                    <Avatar className="w-8 h-8">
-                      <AvatarImage
-                        src="/placeholder.svg?height=32&width=32"
-                        alt="avatar"
-                      />
-                      <AvatarFallback className="bg-secondary text-secondary-foreground">
-                        YM
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="hidden sm:block text-sm text-muted-foreground">
-                      Youssef Mohammed
-                    </span>
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium text-foreground">
-                      Youssef Mohammed
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      youssef.mohammed@example.com
-                    </p>
-                  </div>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <a
-                      href="/settings"
-                      className="flex items-center cursor-pointer"
-                    >
-                      <Settings className="w-4 h-4" />
-                      Settings
-                    </a>
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer">
-                    <LogOut className="w-4 h-4 text-destructive" />
-                    Sign out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <UserDropdown />
           </div>
         </div>
       </header>
@@ -856,7 +801,7 @@ export default function HomePage() {
                   onClick={() => {
                     window.location.href = `/search?q=${encodeURIComponent(category)}`;
                   }}
-                  className="group relative bg-background/50 shadow-2xs backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col items-center text-center"
+                  className="group relative dark:bg-card bg-background/50 shadow-2xs backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col items-center text-center"
                 >
                   {/* Category icon */}
                   <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
@@ -891,7 +836,7 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
             {/* Basic Plan */}
-            <div className="group relative bg-background backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
+            <div className="group relative dark:bg-card bg-background backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
               {/* Hover effect overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
@@ -960,7 +905,7 @@ export default function HomePage() {
                           </span>
                         </div>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
+                      <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>
                             Supported Sites - Basic Plan
@@ -969,25 +914,25 @@ export default function HomePage() {
                             These are the websites you can access with this plan
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
                           {supportedSites.basic.map((site) => (
                             <div
                               key={site.id}
-                              className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30"
+                              className="flex flex-col items-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                             >
                               <Image
                                 src={site.icon}
                                 alt={`${site.name} icon`}
-                                width={32}
-                                height={32}
-                                className="w-8 h-8 rounded-sm"
+                                width={96}
+                                height={96}
+                                className="w-24 h-24 rounded-lg mb-3 object-contain"
                                 onError={(e) => {
                                   e.currentTarget.src =
-                                    "https://via.placeholder.com/32x32/6366f1/ffffff?text=" +
+                                    "https://via.placeholder.com/96x96/6366f1/ffffff?text=" +
                                     site.name.charAt(0);
                                 }}
                               />
-                              <span className="text-sm font-medium text-foreground">
+                              <span className="text-sm font-medium text-foreground text-center">
                                 {site.name}
                               </span>
                             </div>
@@ -1037,7 +982,7 @@ export default function HomePage() {
               </div>
             </div>
             {/* Advanced Plan */}
-            <div className="group relative bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
+            <div className="group relative dark:bg-card bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
               {/* Hover effect overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
@@ -1109,7 +1054,7 @@ export default function HomePage() {
                           </span>
                         </div>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
+                      <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>
                             Supported Sites - Advanced Plan
@@ -1118,25 +1063,25 @@ export default function HomePage() {
                             These are the websites you can access with this plan
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
                           {supportedSites.advanced.map((site) => (
                             <div
                               key={site.id}
-                              className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30"
+                              className="flex flex-col items-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                             >
                               <Image
                                 src={site.icon}
                                 alt={`${site.name} icon`}
-                                width={32}
-                                height={32}
-                                className="w-8 h-8 rounded-sm"
+                                width={96}
+                                height={96}
+                                className="w-24 h-24 rounded-lg mb-3 object-contain"
                                 onError={(e) => {
                                   e.currentTarget.src =
-                                    "https://via.placeholder.com/32x32/6366f1/ffffff?text=" +
+                                    "https://via.placeholder.com/96x96/6366f1/ffffff?text=" +
                                     site.name.charAt(0);
                                 }}
                               />
-                              <span className="text-sm font-medium text-foreground">
+                              <span className="text-sm font-medium text-foreground text-center">
                                 {site.name}
                               </span>
                             </div>
@@ -1177,7 +1122,7 @@ export default function HomePage() {
               </div>
             </div>
             {/* Premium Plan */}
-            <div className="group relative bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
+            <div className="group relative dark:bg-card bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
               {/* Hover effect overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
 
@@ -1249,7 +1194,7 @@ export default function HomePage() {
                           </span>
                         </div>
                       </DialogTrigger>
-                      <DialogContent className="sm:max-w-md">
+                      <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>
                             Supported Sites - Premium Plan
@@ -1258,25 +1203,25 @@ export default function HomePage() {
                             These are the websites you can access with this plan
                           </DialogDescription>
                         </DialogHeader>
-                        <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
                           {supportedSites.premium.map((site) => (
                             <div
                               key={site.id}
-                              className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30"
+                              className="flex flex-col items-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
                             >
                               <Image
                                 src={site.icon}
                                 alt={`${site.name} icon`}
-                                width={32}
-                                height={32}
-                                className="w-8 h-8 rounded-sm"
+                                width={96}
+                                height={96}
+                                className="w-24 h-24 rounded-lg mb-3 object-contain"
                                 onError={(e) => {
                                   e.currentTarget.src =
-                                    "https://via.placeholder.com/32x32/6366f1/ffffff?text=" +
+                                    "https://via.placeholder.com/96x96/6366f1/ffffff?text=" +
                                     site.name.charAt(0);
                                 }}
                               />
-                              <span className="text-sm font-medium text-foreground">
+                              <span className="text-sm font-medium text-foreground text-center">
                                 {site.name}
                               </span>
                             </div>

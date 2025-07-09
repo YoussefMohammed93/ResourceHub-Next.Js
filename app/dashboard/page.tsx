@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  ChevronDown,
   ArrowUp,
   ArrowDown,
   UserPlus,
@@ -30,10 +29,10 @@ import {
   Link as LinkIcon,
   Settings,
   Check,
-  LogOut,
   Menu,
 } from "lucide-react";
 import type React from "react";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -52,13 +51,6 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -73,9 +65,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sidebar } from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserDropdown } from "@/components/user-dropdown";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Image from "next/image";
 
 // Type definitions
 interface PricingPlan {
@@ -188,9 +180,6 @@ export default function DashboardPage() {
   // Delete package states
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
   const [isDeletingPackage, setIsDeletingPackage] = useState<boolean>(false);
-
-  // User dropdown state
-  const [isUserDropdownOpen, setIsUserDropdownOpen] = useState<boolean>(false);
 
   // Email validation
   const validateEmail = (email: string) => {
@@ -615,10 +604,10 @@ export default function DashboardPage() {
   const [sites, setSites] = useState([
     {
       id: 1,
-      name: "Premium Design Hub",
-      url: "https://premiumdesign.com",
+      name: "Creative Resources",
+      url: "https://creativeresources.net",
       price: 25,
-      icon: "https://premiumdesign.com/favicon.ico",
+      icon: "https://creativeresources.net/favicon.ico",
       status: "Active",
       addedDate: "2024-01-15",
     },
@@ -803,57 +792,7 @@ export default function DashboardPage() {
               ResourceHub
             </span>
           </div>
-          <DropdownMenu
-            open={isUserDropdownOpen}
-            onOpenChange={setIsUserDropdownOpen}
-          >
-            <DropdownMenuTrigger asChild>
-              <div className="flex items-center space-x-2 cursor-pointer hover:bg-muted/50 rounded-lg px-2 py-1 transition-colors">
-                <Avatar className="w-8 h-8">
-                  <AvatarImage
-                    src="/placeholder.svg?height=32&width=32"
-                    alt="avatar"
-                  />
-                  <AvatarFallback className="bg-secondary text-secondary-foreground">
-                    YM
-                  </AvatarFallback>
-                </Avatar>
-                <span className="hidden sm:block text-sm text-muted-foreground">
-                  Youssef Mohammed
-                </span>
-                <ChevronDown
-                  className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${
-                    isUserDropdownOpen ? "rotate-180" : "rotate-0"
-                  }`}
-                />
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <div className="px-2 py-1.5">
-                <p className="text-sm font-medium text-foreground">
-                  Youssef Mohammed
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  youssef.mohammed@example.com
-                </p>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <a
-                  href="/settings"
-                  className="flex items-center cursor-pointer"
-                >
-                  <Settings className="w-4 h-4" />
-                  Settings
-                </a>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer">
-                <LogOut className="w-4 h-4 text-destructive" />
-                Sign out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserDropdown />
         </div>
       </header>
       <div className="flex">
@@ -867,7 +806,7 @@ export default function DashboardPage() {
           {/* Enhanced Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {/* Total Users Card */}
-            <Card className="group">
+            <Card className="group dark:bg-muted/50">
               <CardContent>
                 <div className="flex items-start justify-between">
                   <div className="space-y-3 sm:space-y-4 flex-1">
@@ -896,7 +835,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
             {/* Active Sites Card */}
-            <Card className="group">
+            <Card className="group dark:bg-muted/50">
               <CardContent>
                 <div className="flex items-start justify-between">
                   <div className="space-y-3 sm:space-y-4 flex-1">
@@ -925,7 +864,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
             {/* Online Users Card */}
-            <Card className="group">
+            <Card className="group dark:bg-muted/50">
               <CardContent>
                 <div className="flex items-start justify-between">
                   <div className="space-y-3 sm:space-y-4 flex-1">
@@ -956,7 +895,7 @@ export default function DashboardPage() {
             </Card>
           </div>
           {/* Users Management Table */}
-          <Card>
+          <Card className="dark:bg-muted/50">
             <CardHeader className="w-full flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
               <div className="w-full max-w-lg">
                 <CardTitle className="text-lg font-semibold text-foreground">
@@ -1235,7 +1174,7 @@ export default function DashboardPage() {
           {/* Bottom Section */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
             {/* Add Subscription */}
-            <Card>
+            <Card className="dark:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
@@ -1382,7 +1321,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
             {/* Credit History */}
-            <Card>
+            <Card className="dark:bg-muted/50">
               <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
@@ -1407,7 +1346,7 @@ export default function DashboardPage() {
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Credit Usage Transaction */}
-                <div className="flex items-center justify-between p-3 sm:p-5 bg-red-50/50 border border-red-400/10 rounded-xl hover:bg-red-50/70 transition-colors">
+                <div className="flex items-center justify-between p-3 sm:p-5 bg-red-50/50 dark:bg-red-50/5 border border-red-400/10 dark:border-red-50/10 rounded-xl hover:bg-red-50/70 transition-colors">
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
@@ -1427,7 +1366,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 {/* Credit Purchase Transaction */}
-                <div className="flex items-center justify-between p-3 sm:p-5 bg-green-50/50 border border-green-400/10 rounded-xl hover:bg-green-50/70 transition-colors">
+                <div className="flex items-center justify-between p-3 sm:p-5 bg-green-50/50 dark:bg-green-50/5 border border-green-400/10 dark:border-green-400/10 rounded-xl hover:bg-green-50/70 transition-colors">
                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                     <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                       <ArrowUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
@@ -1447,14 +1386,14 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 {/* Credit Usage Transaction */}
-                <div className="flex items-center justify-between p-5 bg-red-50/50 border border-red-400/10 rounded-xl hover:bg-red-50/70 transition-colors">
+                <div className="flex items-center justify-between p-5 bg-red-50/50 dark:bg-red-50/5 border border-red-400/10 dark:border-red-50/10 rounded-xl transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
                       <ArrowDown className="w-4 h-4 text-red-600" />
                     </div>
                     <div>
                       <div className="text-sm font-semibold text-foreground">
-                        mhmd waly
+                        Mohamd Waly
                       </div>
                       <div className="text-xs text-muted-foreground truncate w-36">
                         Site access • premium-site.com
@@ -1467,7 +1406,7 @@ export default function DashboardPage() {
                   </div>
                 </div>
                 {/* Credit Purchase Transaction */}
-                <div className="flex items-center justify-between p-5 bg-blue-50/50 border border-blue-400/10 rounded-xl hover:bg-blue-50/70 transition-colors">
+                <div className="flex items-center justify-between p-5 bg-blue-50/50 dark:bg-blue-50/5 border border-blue-400/10 dark:border-blue-400/10 rounded-xl hover:bg-blue-50/70 transition-colors">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                       <ArrowUp className="w-4 h-4 text-blue-600" />
@@ -1489,7 +1428,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
             {/* Credit Analytics */}
-            <Card>
+            <Card className="dark:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
@@ -1581,7 +1520,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
             {/* Upgrade Subscription */}
-            <Card>
+            <Card className="dark:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
@@ -1725,7 +1664,7 @@ export default function DashboardPage() {
             </Card>
 
             {/* Extend Subscription */}
-            <Card>
+            <Card className="dark:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
@@ -1858,7 +1797,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
             {/* Delete Subscription */}
-            <Card>
+            <Card className="dark:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-destructive/10 border border-destructive/5 rounded-lg flex items-center justify-center">
@@ -1948,7 +1887,7 @@ export default function DashboardPage() {
             </Card>
           </div>
           {/* Supported Sites */}
-          <Card>
+          <Card className="dark:bg-muted/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg font-semibold text-foreground">
                 Supported Sites
@@ -2172,6 +2111,8 @@ export default function DashboardPage() {
                                     <Image
                                       src={site.icon}
                                       alt={`${site.name} icon`}
+                                      width={20}
+                                      height={20}
                                       className="w-5 h-5 object-contain"
                                       onError={(e) => {
                                         e.currentTarget.style.display = "none";
@@ -2251,7 +2192,9 @@ export default function DashboardPage() {
                                 <Image
                                   src={site.icon}
                                   alt={`${site.name} icon`}
-                                  className="w-6 h-6 object-contain"
+                                  width={20}
+                                  height={20}
+                                  className="w-5 h-5 object-contain"
                                   onError={(e) => {
                                     e.currentTarget.style.display = "none";
                                     const nextElement = e.currentTarget
@@ -2333,7 +2276,7 @@ export default function DashboardPage() {
             </CardContent>
           </Card>
           {/* Pricing Management */}
-          <Card>
+          <Card className="dark:bg-muted/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg font-semibold text-foreground">
                 Pricing Management
@@ -2899,9 +2842,9 @@ export default function DashboardPage() {
                     key={plan.id}
                     className="relative overflow-hidden border-border/50 p-0"
                   >
-                    <CardContent className="p-0">
+                    <CardContent className="p-0 dark:bg-secondary">
                       {/* Header Section */}
-                      <div className="bg-secondary/50 p-4 sm:p-6 border-b border-border/50">
+                      <div className="bg-secondary/50 dark:bg-secondary p-4 sm:p-6 border-b border-border/50">
                         <div className="flex items-start justify-between">
                           <div className="space-y-2 flex-1 min-w-0">
                             <h3 className="text-lg sm:text-xl font-bold text-foreground truncate">
@@ -2948,19 +2891,17 @@ export default function DashboardPage() {
                                 <span>Supported Sites</span>
                               </div>
                               <div className="flex flex-wrap gap-2">
-                                {plan.supportedSites
-                                  .slice(0, 3)
-                                  .map((site, index) => (
-                                    <span
-                                      key={index}
-                                      className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg bg-secondary/50 border border-secondary text-sm font-medium text-foreground"
-                                    >
-                                      <div className="w-4 h-4 bg-primary/10 border border-primary/10 rounded flex items-center justify-center">
-                                        <Globe className="w-3 h-3 text-primary" />
-                                      </div>
-                                      <span>{site}</span>
-                                    </span>
-                                  ))}
+                                {plan.supportedSites.map((site, index) => (
+                                  <span
+                                    key={index}
+                                    className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg bg-secondary/50 dark:bg-card/50 border border-secondary text-sm font-medium text-foreground"
+                                  >
+                                    <div className="w-4 h-4 bg-primary/10 border border-primary/10 rounded flex items-center justify-center">
+                                      <Globe className="w-3 h-3 text-primary" />
+                                    </div>
+                                    <span>{site}</span>
+                                  </span>
+                                ))}
                               </div>
                             </div>
                           )}
@@ -2974,7 +2915,7 @@ export default function DashboardPage() {
                             {plan.features.map((feature, index) => (
                               <div
                                 key={index}
-                                className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-green-50 border border-green-100"
+                                className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-50/10 border border-green-100 dark:border-green-100/10"
                               >
                                 <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                                   <Check className="w-4 h-4 text-white" />
