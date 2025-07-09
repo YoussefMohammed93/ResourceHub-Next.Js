@@ -329,7 +329,7 @@ export default function HomePage() {
           </svg>
         </div>
         {/* Shape 2 - Square Grid Pattern (Left Side) */}
-        <div className="absolute top-1/3 left-4 md:left-8">
+        <div className="hidden md:block absolute top-1/3 left-4 md:left-8">
           <svg
             width="100"
             height="120"
@@ -416,7 +416,7 @@ export default function HomePage() {
           </svg>
         </div>
         {/* Shape 5 - Top Center Right Floating Icon */}
-        <div className="absolute top-8 right-1/3 md:top-12 md:right-2/5">
+        <div className="hidden md:block absolute top-8 right-1/3 md:top-12 md:right-2/5">
           <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
             <Shield className="w-5 h-5 text-primary" />
           </div>
@@ -524,6 +524,7 @@ export default function HomePage() {
                     "Technology",
                     "People",
                     "Abstract",
+                    "Astronomy"
                   ].map((term) => (
                     <Badge
                       key={term}
