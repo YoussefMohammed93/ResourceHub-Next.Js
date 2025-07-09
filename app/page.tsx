@@ -29,6 +29,14 @@ import {
 import Link from "next/link";
 import Image from "next/image";
 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useState } from "react";
 import {
   DropdownMenu,
@@ -41,14 +49,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 const categories = [
   "Nature",
@@ -156,29 +156,33 @@ export default function HomePage() {
                 ResourceHub
               </Link>
             </div>
-
             {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <Link
-                href="/categories"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                Categories
+            <nav className="hidden md:flex items-center gap-1">
+              <Link href="/categories">
+                <Button
+                  variant="ghost"
+                  className="hover:bg-primary hover:text-white"
+                >
+                  Categories
+                </Button>
               </Link>
-              <Link
-                href="/pricing"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                Pricing
+              <Link href="/pricing">
+                <Button
+                  variant="ghost"
+                  className="hover:bg-primary hover:text-white"
+                >
+                  Pricing
+                </Button>
               </Link>
-              <Link
-                href="/about"
-                className="text-muted-foreground hover:text-primary transition-colors"
-              >
-                About
+              <Link href="/about">
+                <Button
+                  variant="ghost"
+                  className="hover:bg-primary hover:text-white"
+                >
+                  About
+                </Button>
               </Link>
             </nav>
-
             {/* User Dropdown */}
             <div className="flex items-center space-x-4">
               <DropdownMenu>
@@ -296,6 +300,156 @@ export default function HomePage() {
       <section className="relative min-h-screen bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 py-12 md:pb-20 md:pt-8 overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-grid-pattern opacity-35"></div>
+        {/* Shape 1 - Grid Dots Pattern (like your reference image) */}
+        <div className="absolute bottom-32 left-5/12 transform -translate-x-1/2 md:bottom-40">
+          <svg
+            width="120"
+            height="120"
+            viewBox="0 0 120 120"
+            fill="none"
+            className="text-primary/60"
+          >
+            {/* Grid of dots - 8 rows x 10 columns */}
+            {Array.from({ length: 8 }, (_, row) =>
+              Array.from({ length: 10 }, (_, col) => (
+                <circle
+                  key={`${row}-${col}`}
+                  cx={10 + col * 14}
+                  cy={10 + row * 12}
+                  r="2"
+                  fill="currentColor"
+                  className="animate-pulse-slow"
+                  style={{
+                    animationDelay: `${(row + col) * 0.1}s`,
+                    opacity: Math.random() * 0.5 + 0.3,
+                  }}
+                />
+              ))
+            )}
+          </svg>
+        </div>
+        {/* Shape 2 - Square Grid Pattern (Left Side) */}
+        <div className="absolute top-1/3 left-4 md:left-8">
+          <svg
+            width="100"
+            height="120"
+            viewBox="0 0 100 120"
+            fill="none"
+            className="text-primary/40"
+          >
+            {/* Grid of squares - 8 rows x 8 columns */}
+            {Array.from({ length: 8 }, (_, row) =>
+              Array.from({ length: 8 }, (_, col) => (
+                <rect
+                  key={`square-${row}-${col}`}
+                  x={8 + col * 16}
+                  y={8 + row * 14}
+                  width="3"
+                  height="3"
+                  fill="currentColor"
+                  className="animate-pulse-slow"
+                  style={{
+                    animationDelay: `${(row + col) * 0.08}s`,
+                    opacity: Math.random() * 0.5 + 0.25,
+                  }}
+                />
+              ))
+            )}
+          </svg>
+        </div>
+        {/* Shape 3 - Diamond Grid Pattern (Bottom Right) */}
+        <div className="absolute bottom-20 right-12 md:bottom-32 md:right-20">
+          <svg
+            width="90"
+            height="90"
+            viewBox="0 0 90 90"
+            fill="none"
+            className="text-primary/45"
+          >
+            {/* Grid of diamonds - 5 rows x 5 columns */}
+            {Array.from({ length: 5 }, (_, row) =>
+              Array.from({ length: 5 }, (_, col) => (
+                <rect
+                  key={`diamond-${row}-${col}`}
+                  x={10 + col * 16}
+                  y={10 + row * 16}
+                  width="4"
+                  height="4"
+                  transform={`rotate(45 ${12 + col * 16} ${12 + row * 16})`}
+                  fill="currentColor"
+                  className="animate-pulse-slow"
+                  style={{
+                    animationDelay: `${(row + col) * 0.15}s`,
+                    opacity: Math.random() * 0.4 + 0.4,
+                  }}
+                />
+              ))
+            )}
+          </svg>
+        </div>
+        {/* Shape 4 - Top Center Left Dots */}
+        <div className="absolute top-12 left-1/3 md:top-16 md:left-2/5 opacity-30">
+          <svg
+            width="60"
+            height="40"
+            viewBox="0 0 60 40"
+            fill="none"
+            className="text-primary/40"
+          >
+            {/* Small grid of dots - 3 rows x 4 columns */}
+            {Array.from({ length: 3 }, (_, row) =>
+              Array.from({ length: 4 }, (_, col) => (
+                <circle
+                  key={`top-center-${row}-${col}`}
+                  cx={8 + col * 12}
+                  cy={8 + row * 12}
+                  r="1.5"
+                  fill="currentColor"
+                  className="animate-pulse-slow"
+                  style={{
+                    animationDelay: `${(row + col) * 0.2}s`,
+                    opacity: Math.random() * 0.5 + 0.4,
+                  }}
+                />
+              ))
+            )}
+          </svg>
+        </div>
+        {/* Shape 5 - Top Center Right Floating Icon */}
+        <div className="absolute top-8 right-1/3 md:top-12 md:right-2/5">
+          <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
+            <Shield className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+        {/* Shape 6 - Top Center Right Small Squares */}
+        <div className="absolute top-16 right-1/4 md:top-20 md:right-1/3 opacity-35">
+          <svg
+            width="40"
+            height="40"
+            viewBox="0 0 40 40"
+            fill="none"
+            className="text-primary/30"
+          >
+            {/* Small squares grid - 3x3 */}
+            {Array.from({ length: 3 }, (_, row) =>
+              Array.from({ length: 3 }, (_, col) => (
+                <rect
+                  key={`square-top-${row}-${col}`}
+                  x={6 + col * 12}
+                  y={6 + row * 12}
+                  width="3"
+                  height="3"
+                  fill="currentColor"
+                  className="animate-pulse-slow"
+                  style={{
+                    animationDelay: `${(row + col) * 0.15}s`,
+                    opacity: Math.random() * 0.5 + 0.3,
+                  }}
+                />
+              ))
+            )}
+          </svg>
+        </div>
         <div className="container mx-auto max-w-7xl px-5 relative z-10">
           <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center min-h-[80vh]">
             {/* Left Content */}
@@ -346,11 +500,11 @@ export default function HomePage() {
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                      className="pl-4 sm:pl-8 pr-32 py-6 text-lg border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm"
+                      className="pl-4 sm:pl-8 pr-32 py-7 text-lg border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm"
                     />
                     <Button
                       onClick={handleSearch}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 py-2 bg-primary hover:bg-primary/90"
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 !h-11 bg-primary hover:bg-primary/90"
                     >
                       <Search className="w-4 h-4 stroke-3" />
                       Search
@@ -414,11 +568,23 @@ export default function HomePage() {
                     priority
                   />
                   {/* Floating elements for visual appeal */}
-                  <div className="absolute -top-3 right-3 sm:-right-3 w-16 h-16 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
-                    <ImageIcon className="w-8 h-8 text-primary" />
+                  <div className="absolute -top-3 right-3 sm:-right-3 w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center animate-float">
+                    <ImageIcon className="w-7 h-7 text-primary" />
                   </div>
-                  <div className="absolute -bottom-8 -left-1 sm:-left-8 w-16 h-16 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
-                    <Video className="w-8 h-8 text-primary" />
+                  <div className="absolute -bottom-8 -left-1 sm:-left-8 w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center animate-float-delayed">
+                    <Video className="w-7 h-7 text-primary" />
+                  </div>
+                  <div className="absolute top-1/4 -left-6 sm:-left-10 w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center animate-bounce-slow">
+                    <Download className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="absolute top-5/8 -right-4 sm:-right-8 w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center animate-float-delayed">
+                    <Star className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="absolute top-3/4 -left-8 sm:-left-12 w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="absolute bottom-5/8 -right-6 sm:-right-10 w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-bounce-slow">
+                    <Globe className="w-5 h-5 text-primary" />
                   </div>
                 </div>
               </div>
