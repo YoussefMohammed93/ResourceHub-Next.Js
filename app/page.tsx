@@ -12,6 +12,13 @@ import {
   Menu,
   X,
   Cat,
+  Check,
+  Zap,
+  Crown,
+  Globe,
+  Timer,
+  Coins,
+  ExternalLink,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -29,6 +36,14 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const categories = [
   "Nature",
@@ -38,6 +53,66 @@ const categories = [
   "Sports",
   "Art",
 ];
+
+// Fake site data for supported sites
+const supportedSites = {
+  basic: [
+    {
+      id: 1,
+      name: "Freepik",
+      icon: "https://cdn.worldvectorlogo.com/logos/freepik-1.svg",
+    },
+    {
+      id: 2,
+      name: "Shutterstock",
+      icon: "https://cdn.worldvectorlogo.com/logos/shutterstock.svg",
+    },
+  ],
+  advanced: [
+    {
+      id: 1,
+      name: "Freepik",
+      icon: "https://cdn.worldvectorlogo.com/logos/freepik-1.svg",
+    },
+    {
+      id: 2,
+      name: "Shutterstock",
+      icon: "https://cdn.worldvectorlogo.com/logos/shutterstock.svg",
+    },
+    {
+      id: 3,
+      name: "Adobe Stock",
+      icon: "https://cdn.worldvectorlogo.com/logos/adobe-2.svg",
+    },
+  ],
+  premium: [
+    {
+      id: 1,
+      name: "Freepik",
+      icon: "https://cdn.worldvectorlogo.com/logos/freepik-1.svg",
+    },
+    {
+      id: 2,
+      name: "Shutterstock",
+      icon: "https://cdn.worldvectorlogo.com/logos/shutterstock.svg",
+    },
+    {
+      id: 3,
+      name: "Adobe Stock",
+      icon: "https://cdn.worldvectorlogo.com/logos/adobe-2.svg",
+    },
+    {
+      id: 4,
+      name: "Getty Images",
+      icon: "https://cdn.worldvectorlogo.com/logos/getty-images-1.svg",
+    },
+    {
+      id: 5,
+      name: "Unsplash",
+      icon: "https://cdn.worldvectorlogo.com/logos/unsplash-1.svg",
+    },
+  ],
+};
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -103,7 +178,7 @@ export default function HomePage() {
             <div className="flex items-center space-x-4">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <div className="flex items-center space-x-2 cursor-pointer hover:bg-muted/50 rounded-lg px-2 py-1 transition-colors">
+                  <div className="flex items-center space-x-2 cursor-pointer hover:bg-muted/75 rounded-lg px-2 py-1 transition-colors">
                     <Avatar className="w-8 h-8">
                       <AvatarImage
                         src="/placeholder.svg?height=32&width=32"
@@ -347,7 +422,7 @@ export default function HomePage() {
         </div>
       </section>
       {/* Categories Section */}
-      <section className="py-12 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
+      <section className="py-12 pb-16 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-10">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
@@ -358,7 +433,7 @@ export default function HomePage() {
             </h2>
             <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
               Discover trending content across our most popular categories and
-              find exactly what you&apos;re looking for
+              find exactly what you&apos;re looking for.
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-w-5xl mx-auto">
@@ -472,7 +547,7 @@ export default function HomePage() {
                   onClick={() => {
                     window.location.href = `/search?q=${encodeURIComponent(category)}`;
                   }}
-                  className="group relative bg-background/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col items-center text-center"
+                  className="group relative bg-background/50 shadow-2xs backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col items-center text-center"
                 >
                   {/* Category icon */}
                   <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
@@ -487,6 +562,474 @@ export default function HomePage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+      {/* Pricing Section */}
+      <section className="py-16 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+        <div className="container mx-auto max-w-7xl px-5 relative z-10">
+          <div className="text-center mb-12">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+              Choose Your{" "}
+              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                Perfect Plan
+              </span>
+            </h2>
+            <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
+              Get access to millions of premium resources with our flexible
+              pricing plans designed for every need.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
+            {/* Basic Plan */}
+            <div className="group relative bg-background backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
+              {/* Hover effect overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              <div className="relative z-10 flex flex-col h-full space-y-6">
+                {/* Plan Header */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Zap className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        Basic Plan
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Perfect for getting started
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-baseline space-x-2">
+                      <span className="text-3xl font-bold text-foreground">
+                        Contact Us
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Custom pricing available
+                    </p>
+                  </div>
+                </div>
+
+                {/* Plan Features */}
+                <div className="space-y-4 flex-1">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Credits:
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        <Coins className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold text-foreground">
+                          50
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Validity:
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        <Timer className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold text-foreground">
+                          15 days
+                        </span>
+                      </div>
+                    </div>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
+                          <span className="text-sm text-muted-foreground">
+                            Supported Sites:
+                          </span>
+                          <span className="text-sm font-semibold text-foreground">
+                            2 sites
+                          </span>
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>
+                            Supported Sites - Basic Plan
+                          </DialogTitle>
+                          <DialogDescription>
+                            These are the websites you can access with this plan
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          {supportedSites.basic.map((site) => (
+                            <div
+                              key={site.id}
+                              className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30"
+                            >
+                              <Image
+                                src={site.icon}
+                                alt={`${site.name} icon`}
+                                width={32}
+                                height={32}
+                                className="w-8 h-8 rounded-sm"
+                                onError={(e) => {
+                                  e.currentTarget.src =
+                                    "https://via.placeholder.com/32x32/6366f1/ffffff?text=" +
+                                    site.name.charAt(0);
+                                }}
+                              />
+                              <span className="text-sm font-medium text-foreground">
+                                {site.name}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <div className="pt-4 border-t border-border">
+                    <h4 className="text-sm font-medium text-foreground mb-3">
+                      Features included:
+                    </h4>
+                    <ul className="space-y-2">
+                      {[
+                        "Access to all sites",
+                        "24/7 Support",
+                        "Admin Management",
+                      ].map((feature, index) => (
+                        <li key={index} className="flex items-center space-x-2">
+                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <span className="text-sm text-muted-foreground">
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* CTA Button - Now at bottom */}
+                <div className="mt-auto pt-4">
+                  <Button
+                    className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    asChild
+                  >
+                    <a
+                      href="https://example.com/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="w-4 h-4 stroke-3" />
+                      Contact Us
+                    </a>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {/* Advanced Plan */}
+            <div className="group relative bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
+              {/* Hover effect overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              <div className="relative z-10 flex flex-col h-full space-y-6">
+                {/* Plan Header */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Crown className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        Advanced Plan
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        Perfect for management
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-baseline space-x-2">
+                      <span className="text-4xl font-bold text-primary">
+                        $99
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        /month
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Best value for professionals
+                    </p>
+                  </div>
+                </div>
+
+                {/* Plan Features */}
+                <div className="space-y-4 flex-1">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Credits:
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        <Coins className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold text-foreground">
+                          1,000
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Validity:
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        <Timer className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold text-foreground">
+                          30 days
+                        </span>
+                      </div>
+                    </div>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
+                          <span className="text-sm text-muted-foreground">
+                            Supported Sites:
+                          </span>
+                          <span className="text-sm font-semibold text-foreground">
+                            3 sites
+                          </span>
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>
+                            Supported Sites - Advanced Plan
+                          </DialogTitle>
+                          <DialogDescription>
+                            These are the websites you can access with this plan
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          {supportedSites.advanced.map((site) => (
+                            <div
+                              key={site.id}
+                              className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30"
+                            >
+                              <Image
+                                src={site.icon}
+                                alt={`${site.name} icon`}
+                                width={32}
+                                height={32}
+                                className="w-8 h-8 rounded-sm"
+                                onError={(e) => {
+                                  e.currentTarget.src =
+                                    "https://via.placeholder.com/32x32/6366f1/ffffff?text=" +
+                                    site.name.charAt(0);
+                                }}
+                              />
+                              <span className="text-sm font-medium text-foreground">
+                                {site.name}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <div className="pt-4 border-t border-border">
+                    <h4 className="text-sm font-medium text-foreground mb-3">
+                      Features included:
+                    </h4>
+                    <ul className="space-y-2">
+                      {[
+                        "Access to all sites",
+                        "24/7 Support",
+                        "Admin Management",
+                      ].map((feature, index) => (
+                        <li key={index} className="flex items-center space-x-2">
+                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <span className="text-sm text-muted-foreground">
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* CTA Button - Now at bottom */}
+                <div className="mt-auto pt-4">
+                  <Button className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
+                    <Crown className="w-4 h-4" />
+                    Get Started
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {/* Premium Plan */}
+            <div className="group relative bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
+              {/* Hover effect overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+              <div className="relative z-10 flex flex-col h-full space-y-6">
+                {/* Plan Header */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Globe className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        Premium Plan
+                      </h3>
+                      <p className="text-sm text-muted-foreground">
+                        For power users and teams
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex items-baseline space-x-2">
+                      <span className="text-3xl font-bold text-foreground">
+                        $199
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        /month
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      Maximum resources and features
+                    </p>
+                  </div>
+                </div>
+
+                {/* Plan Features */}
+                <div className="space-y-4 flex-1">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Credits:
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        <Coins className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold text-foreground">
+                          5,000
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Validity:
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        <Timer className="w-4 h-4 text-primary" />
+                        <span className="text-sm font-semibold text-foreground">
+                          60 days
+                        </span>
+                      </div>
+                    </div>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
+                          <span className="text-sm text-muted-foreground">
+                            Supported Sites:
+                          </span>
+                          <span className="text-sm font-semibold text-foreground">
+                            All sites
+                          </span>
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle>
+                            Supported Sites - Premium Plan
+                          </DialogTitle>
+                          <DialogDescription>
+                            These are the websites you can access with this plan
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-3">
+                          {supportedSites.premium.map((site) => (
+                            <div
+                              key={site.id}
+                              className="flex items-center space-x-3 p-3 rounded-lg bg-muted/30"
+                            >
+                              <Image
+                                src={site.icon}
+                                alt={`${site.name} icon`}
+                                width={32}
+                                height={32}
+                                className="w-8 h-8 rounded-sm"
+                                onError={(e) => {
+                                  e.currentTarget.src =
+                                    "https://via.placeholder.com/32x32/6366f1/ffffff?text=" +
+                                    site.name.charAt(0);
+                                }}
+                              />
+                              <span className="text-sm font-medium text-foreground">
+                                {site.name}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+
+                  <div className="pt-4 border-t border-border">
+                    <h4 className="text-sm font-medium text-foreground mb-3">
+                      Features included:
+                    </h4>
+                    <ul className="space-y-2">
+                      {[
+                        "Access to all sites",
+                        "Priority Support",
+                        "Advanced Analytics",
+                        "Team Management",
+                        "API Access",
+                      ].map((feature, index) => (
+                        <li key={index} className="flex items-center space-x-2">
+                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <span className="text-sm text-muted-foreground">
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* CTA Button - Now at bottom */}
+                <div className="mt-auto pt-4">
+                  <Button className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
+                    <Globe className="w-4 h-4" />
+                    Get Premium
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+          {/* Additional Info */}
+          <div className="pt-14 text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              All plans include access to our premium resource library and
+              customer support.
+            </p>
+            <div className="flex flex-wrap justify-center items-center gap-6 text-xs text-muted-foreground">
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span>30-day money-back guarantee</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-destructive rounded-full"></div>
+                <span>Cancel anytime</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                <span>24/7 customer support</span>
+              </div>
+            </div>
           </div>
         </div>
       </section>
