@@ -75,6 +75,20 @@ import { Sidebar } from "@/components/sidebar";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Image from "next/image";
+
+// Type definitions
+interface PricingPlan {
+  id: number;
+  name: string;
+  description: string;
+  price: string;
+  credits: number;
+  daysValidity: number;
+  contactUsUrl: string;
+  supportedSites: string[];
+  features: string[];
+}
 
 export default function DashboardPage() {
   const [selectedPlan, setSelectedPlan] = useState<string>("");
@@ -146,7 +160,9 @@ export default function DashboardPage() {
   // Edit package states
   const [isEditPackageDialogOpen, setIsEditPackageDialogOpen] =
     useState<boolean>(false);
-  const [editingPackage, setEditingPackage] = useState<any>(null);
+  const [editingPackage, setEditingPackage] = useState<PricingPlan | null>(
+    null
+  );
   const [editPackageName, setEditPackageName] = useState<string>("");
   const [editPackagePrice, setEditPackagePrice] = useState<string>("");
   const [editPackageDescription, setEditPackageDescription] =
@@ -339,7 +355,7 @@ export default function DashboardPage() {
   };
 
   // Handle edit package
-  const handleEditPackage = (plan: any) => {
+  const handleEditPackage = (plan: PricingPlan) => {
     setEditingPackage(plan);
     setEditPackageName(plan.name);
     setEditPackagePrice(plan.price || "");
@@ -407,7 +423,9 @@ export default function DashboardPage() {
 
     // Simulate API call
     setTimeout(() => {
-      const updatedPackage = {
+      if (!editingPackage) return;
+
+      const updatedPackage: PricingPlan = {
         ...editingPackage,
         name: editPackageName,
         description: editPackageDescription,
@@ -418,6 +436,7 @@ export default function DashboardPage() {
         supportedSites: editPackageSupportedSites.trim()
           ? editPackageSupportedSites.split(",").map((site) => site.trim())
           : [],
+        features: editingPackage.features || [],
       };
 
       setPricingPlans(
@@ -442,6 +461,8 @@ export default function DashboardPage() {
 
   // Handle delete package
   const handleDeletePackage = async () => {
+    if (!editingPackage) return;
+
     setIsDeletingPackage(true);
 
     // Simulate API call
@@ -458,7 +479,7 @@ export default function DashboardPage() {
       setTimeout(() => {
         setIsEditPackageDialogOpen(false);
 
-        // Reset form
+        // Reset form~~
         setEditingPackage(null);
         setEditPackageName("");
         setEditPackagePrice("");
@@ -1899,7 +1920,7 @@ export default function DashboardPage() {
                       </p>
                       <p className="text-xs text-muted-foreground">
                         Deleting a subscription will permanently remove the
-                        user's access and cannot be recovered.
+                        user&apos;s access and cannot be recovered.
                       </p>
                     </div>
                   </div>
@@ -2062,7 +2083,7 @@ export default function DashboardPage() {
                         className="focus-visible:ring-primary/20"
                       />
                       <p className="text-xs text-muted-foreground">
-                        If not provided, we'll use the site's favicon
+                        If not provided, we&apos;ll use the site&apos;s favicon
                       </p>
                     </div>
                   </div>
@@ -2148,7 +2169,7 @@ export default function DashboardPage() {
                               <div className="flex items-center space-x-3">
                                 <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center overflow-hidden">
                                   {site.icon ? (
-                                    <img
+                                    <Image
                                       src={site.icon}
                                       alt={`${site.name} icon`}
                                       className="w-5 h-5 object-contain"
@@ -2227,7 +2248,7 @@ export default function DashboardPage() {
                           <div className="flex items-center space-x-3 flex-1 min-w-0">
                             <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
                               {site.icon ? (
-                                <img
+                                <Image
                                   src={site.icon}
                                   alt={`${site.name} icon`}
                                   className="w-6 h-6 object-contain"
@@ -2385,7 +2406,7 @@ export default function DashboardPage() {
                         className="transition-all focus-visible:ring-primary/20"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Leave empty to display "Contact Us" instead of a price
+                        Leave empty to display Contact Us instead of a price
                       </p>
                     </div>
                     {/* Description */}
@@ -2632,7 +2653,7 @@ export default function DashboardPage() {
                         className="transition-all focus-visible:ring-primary/20"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Leave empty to display "Contact Us" instead of a price
+                        Leave empty to display Contact Us instead of a price
                       </p>
                     </div>
                     {/* Description */}
@@ -2808,8 +2829,8 @@ export default function DashboardPage() {
                           <AlertDialogHeader>
                             <AlertDialogTitle>Delete Package</AlertDialogTitle>
                             <AlertDialogDescription>
-                              Are you sure you want to delete "
-                              {editingPackage?.name}"? This action cannot be
+                              Are you sure you want to delete
+                              {editingPackage?.name}? This action cannot be
                               undone and will permanently remove this pricing
                               package.
                             </AlertDialogDescription>
