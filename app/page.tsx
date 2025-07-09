@@ -49,6 +49,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Footer from "@/components/footer";
 
 const categories = [
   "Nature",
@@ -524,7 +525,7 @@ export default function HomePage() {
                     "Technology",
                     "People",
                     "Abstract",
-                    "Astronomy"
+                    "Astronomy",
                   ].map((term) => (
                     <Badge
                       key={term}
@@ -1341,6 +1342,8 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
