@@ -19,6 +19,11 @@ import {
   Timer,
   Coins,
   ExternalLink,
+  Shield,
+  Download,
+  Sparkles,
+  Users,
+  Star,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -416,6 +421,142 @@ export default function HomePage() {
                     <Video className="w-8 h-8 text-primary" />
                   </div>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Features Section */}
+      <section className="py-16 lg:py-20 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+        <div className="container mx-auto max-w-7xl px-5 relative z-10">
+          {/* Section Header */}
+          <div className="text-center mb-12 lg:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
+              Why Choose{" "}
+              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
+                Resource Hub
+              </span>
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+              Everything you need to access premium creative resources from top
+              platforms worldwide.
+            </p>
+          </div>
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+            {/* Feature 1 - High Quality Resources */}
+            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+              {/* Hover effect overlay - diagonal sweep */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+              <div className="relative z-10">
+                {/* Icon */}
+                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                  <Star className="w-7 h-7 text-primary" />
+                </div>
+                {/* Content */}
+                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                  Premium Quality
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                  Access millions of high-resolution images, vectors, and videos
+                  from top creative platforms with guaranteed quality.
+                </p>
+              </div>
+            </div>
+            {/* Feature 2 - Fast Downloads */}
+            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+              {/* Hover effect overlay - diagonal sweep */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+              <div className="relative z-10">
+                {/* Icon */}
+                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                  <Download className="w-7 h-7 text-primary" />
+                </div>
+                {/* Content */}
+                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                  Instant Downloads
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                  Download your favorite resources instantly with our optimized
+                  servers and lightning-fast delivery system.
+                </p>
+              </div>
+            </div>
+            {/* Feature 3 - Multiple Platforms */}
+            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+              {/* Hover effect overlay - diagonal sweep */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+              <div className="relative z-10">
+                {/* Icon */}
+                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                  <Globe className="w-7 h-7 text-primary" />
+                </div>
+                {/* Content */}
+                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                  All Platforms
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                  One subscription gives you access to Freepik, Shutterstock,
+                  Adobe Stock, and many more premium platforms.
+                </p>
+              </div>
+            </div>
+            {/* Feature 4 - Secure & Safe */}
+            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+              {/* Hover effect overlay - diagonal sweep */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+              <div className="relative z-10">
+                {/* Icon */}
+                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                  <Shield className="w-7 h-7 text-primary" />
+                </div>
+
+                {/* Content */}
+                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                  Secure & Safe
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                  Your data is protected with enterprise-grade security. Safe
+                  downloads with no malware or unwanted software.
+                </p>
+              </div>
+            </div>
+            {/* Feature 5 - 24/7 Support */}
+            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+              {/* Hover effect overlay - diagonal sweep */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+              <div className="relative z-10">
+                {/* Icon */}
+                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                  <Users className="w-7 h-7 text-primary" />
+                </div>
+                {/* Content */}
+                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                  24/7 Support
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                  Get help whenever you need it with our dedicated support team
+                  available around the clock.
+                </p>
+              </div>
+            </div>
+            {/* Feature 6 - Easy to Use */}
+            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+              {/* Hover effect overlay - diagonal sweep */}
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+              <div className="relative z-10">
+                {/* Icon */}
+                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                  <Sparkles className="w-7 h-7 text-primary" />
+                </div>
+                {/* Content */}
+                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                  Easy to Use
+                </h3>
+                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                  Simple and intuitive interface designed for creators. Search,
+                  preview, and download in just a few clicks.
+                </p>
               </div>
             </div>
           </div>
