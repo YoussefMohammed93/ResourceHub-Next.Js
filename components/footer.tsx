@@ -6,13 +6,15 @@ import {
   Instagram,
   Linkedin,
   Github,
-  Heart,
 } from "lucide-react";
 import Link from "next/link";
+import { useTranslation } from "react-i18next";
 
 export default function Footer() {
+  const { t } = useTranslation("common");
+
   return (
-    <footer className="bg-muted border-t border-border py-16 lg:py-20 relative overflow-hidden">
+    <footer className="bg-foreground dark:bg-muted border-t border-border py-16 lg:py-20 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-20 dark:opacity-10"></div>
       <div className="container mx-auto max-w-7xl px-5 relative z-10">
@@ -24,27 +26,25 @@ export default function Footer() {
                 <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                   <div className="w-5 h-5 bg-primary-foreground rounded-sm"></div>
                 </div>
-                <span className="text-xl font-bold text-foreground">
-                  ResourceHub
+                <span className="text-xl font-bold text-background dark:text-foreground">
+                  {t("header.logo")}
                 </span>
               </div>
-              <p className="text-muted-foreground leading-relaxed text-sm lg:text-base">
-                Your ultimate destination for premium creative resources. Access
-                millions of high-quality images, vectors, and videos from top
-                platforms worldwide.
+              <p className="text-background/80 dark:text-muted-foreground leading-relaxed text-sm lg:text-base">
+                {t("footer.description")}
               </p>
             </div>
             {/* Contact Info */}
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-muted-foreground text-sm">
+                <span className="text-background/80 dark:text-muted-foreground text-sm">
                   support@resourcehub.com
                 </span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-muted-foreground text-sm">
+                <span className="text-background/80 dark:text-muted-foreground text-sm">
                   123 Creative Street, Design City
                 </span>
               </div>
@@ -52,21 +52,21 @@ export default function Footer() {
           </div>
           {/* Quick Links */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-foreground">
-              Quick Links
+            <h3 className="text-lg font-semibold text-background dark:text-foreground">
+              {t("footer.quickLinks")}
             </h3>
             <ul className="space-y-3">
               {[
-                { name: "Home", href: "/" },
-                { name: "Categories", href: "/categories" },
-                { name: "Pricing", href: "/pricing" },
-                { name: "About Us", href: "/about" },
-                { name: "Contact", href: "/contact" },
+                { name: t("footer.links.home"), href: "/" },
+                { name: t("footer.links.categories"), href: "/categories" },
+                { name: t("footer.links.pricing"), href: "/pricing" },
+                { name: t("footer.links.about"), href: "/about" },
+                { name: t("footer.links.contactSupport"), href: "/contact" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-muted-foreground hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base"
+                    className="text-background/80 dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base"
                   >
                     {link.name}
                   </Link>
@@ -76,19 +76,30 @@ export default function Footer() {
           </div>
           {/* Resources */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-foreground">Resources</h3>
+            <h3 className="text-lg font-semibold text-background dark:text-foreground">
+              {t("footer.resources")}
+            </h3>
             <ul className="space-y-3">
               {[
-                { name: "Stock Photos", href: "/search?q=photos" },
-                { name: "Vectors", href: "/search?q=vectors" },
-                { name: "Illustrations", href: "/search?q=illustrations" },
-                { name: "Videos", href: "/search?q=videos" },
-                { name: "Templates", href: "/search?q=templates" },
+                {
+                  name: t("footer.links.stockPhotos"),
+                  href: "/search?q=photos",
+                },
+                { name: t("footer.links.vectors"), href: "/search?q=vectors" },
+                {
+                  name: t("footer.links.illustrations"),
+                  href: "/search?q=illustrations",
+                },
+                { name: t("footer.links.videos"), href: "/search?q=videos" },
+                {
+                  name: t("footer.links.templates"),
+                  href: "/search?q=templates",
+                },
               ].map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-muted-foreground hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base"
+                    className="text-background/80 dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base"
                   >
                     {link.name}
                   </Link>
@@ -98,21 +109,21 @@ export default function Footer() {
           </div>
           {/* Support & Legal */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-foreground">
-              Support & Legal
+            <h3 className="text-lg font-semibold text-background dark:text-foreground">
+              {t("footer.support")} & {t("footer.legal")}
             </h3>
             <ul className="space-y-3">
               {[
-                { name: "Help Center", href: "/help" },
-                { name: "Terms of Service", href: "/terms" },
-                { name: "Privacy Policy", href: "/privacy" },
-                { name: "Cookie Policy", href: "/cookies" },
-                { name: "Refund Policy", href: "/refund" },
+                { name: t("footer.links.helpCenter"), href: "/help" },
+                { name: t("footer.links.termsOfService"), href: "/terms" },
+                { name: t("footer.links.privacyPolicy"), href: "/privacy" },
+                { name: t("footer.links.cookiePolicy"), href: "/cookies" },
+                { name: t("footer.links.faq"), href: "/faq" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-muted-foreground hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base"
+                    className="text-background/80 dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base"
                   >
                     {link.name}
                   </Link>
@@ -122,12 +133,12 @@ export default function Footer() {
           </div>
         </div>
         {/* Social Media & Bottom Section */}
-        <div className="mt-12 pt-8 border-t border-border">
+        <div className="mt-12 pt-8 border-t border-background/10 dark:border-border">
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-6 lg:space-y-0">
             {/* Social Media Links */}
             <div className="flex items-center space-x-4">
-              <span className="text-muted-foreground text-sm font-medium">
-                Follow us:
+              <span className="text-background/80 dark:text-muted-foreground text-sm font-medium">
+                {t("footer.followUs")}:
               </span>
               <div className="flex items-center space-x-3">
                 {[
@@ -162,19 +173,20 @@ export default function Footer() {
                     href={social.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-9 h-9 bg-secondary hover:bg-primary/10 border border-border hover:border-primary/30 rounded-lg flex items-center justify-center transition-all duration-300 group"
+                    className="w-9 h-9 bg-muted/15 dark:bg-background/20 hover:bg-primary/10 border border-transparent hover:border-primary/30 rounded-lg flex items-center justify-center transition-all duration-300 group"
                     aria-label={social.label}
                   >
-                    <social.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    <social.icon className="w-4 h-4 text-background/70 dark:text-muted-foreground group-hover:text-primary transition-colors" />
                   </a>
                 ))}
               </div>
             </div>
             {/* Copyright */}
-            <div className="flex items-center space-x-2 text-muted-foreground text-sm">
-              <span>©{new Date().getFullYear()} ResourceHub. Made with</span>
-              <Heart className="w-4 h-4 text-primary fill-current" />
-              <span>by our team.</span>
+            <div className="flex items-center space-x-2 text-background/80 dark:text-muted-foreground text-sm">
+              <span>
+                ©{new Date().getFullYear()} {t("header.logo")},{" "}
+                {t("footer.allRightsReserved")}
+              </span>
             </div>
           </div>
         </div>

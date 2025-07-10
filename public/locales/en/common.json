@@ -1,0 +1,169 @@
+{
+  "header": {
+    "logo": "ResourceHub",
+    "navigation": {
+      "aboutUs": "About Us",
+      "categories": "Categories",
+      "pricingPlans": "Pricing Plans"
+    }
+  },
+  "hero": {
+    "title": "Discover Millions of",
+    "titleHighlight": "Creative Resources",
+    "description": "Download high-quality stock photos, vectors, illustrations, and videos. Get credits to access premium content from top creative platforms worldwide.",
+    "searchPlaceholder": "Search for photos, vectors, illustrations...",
+    "searchPlaceholderMobile": "Search photos, vectors...",
+    "searchButton": "Search",
+    "popularSearches": "Popular searches :",
+    "viewPricing": "View Pricing",
+    "contactUs": "Contact Us"
+  },
+  "features": {
+    "title": "Why Choose",
+    "titleHighlight": "Resource Hub",
+    "description": "Everything you need to access premium creative resources from top platforms worldwide.",
+    "premiumQuality": {
+      "title": "Premium Quality",
+      "description": "Access millions of high-resolution images, vectors, and videos from top creative platforms with guaranteed quality."
+    },
+    "instantDownloads": {
+      "title": "Instant Downloads",
+      "description": "Download your favorite resources instantly with our optimized servers and lightning-fast delivery system."
+    },
+    "allPlatforms": {
+      "title": "All Platforms",
+      "description": "One subscription gives you access to Freepik, Shutterstock, Adobe Stock, and many more premium platforms."
+    },
+    "secureAndSafe": {
+      "title": "Secure & Safe",
+      "description": "Your data is protected with enterprise-grade security. Safe downloads with no malware or unwanted software."
+    },
+    "support24": {
+      "title": "24/7 Support",
+      "description": "Get help whenever you need it with our dedicated support team available around the clock."
+    },
+    "easyToUse": {
+      "title": "Easy to Use",
+      "description": "Simple and intuitive interface designed for creators. Search, preview, and download in just a few clicks."
+    }
+  },
+  "categories": {
+    "title": "Popular",
+    "titleHighlight": "Categories",
+    "description": "Discover trending content across our most popular categories and find exactly what you're looking for.",
+    "items": {
+      "nature": "Nature",
+      "business": "Business",
+      "technology": "Technology",
+      "travel": "Travel",
+      "sports": "Sports",
+      "art": "Art"
+    }
+  },
+  "pricing": {
+    "title": "Choose Your",
+    "titleHighlight": "Perfect Plan",
+    "description": "Get access to millions of premium resources with our flexible pricing plans designed for every need.",
+    "basic": {
+      "title": "Basic Plan",
+      "subtitle": "Perfect for getting started",
+      "price": "Contact Us",
+      "priceSubtitle": "Custom pricing available",
+      "credits": "50",
+      "validity": "15 days",
+      "supportedSites": "2 sites",
+      "features": ["Access to all sites", "24/7 Support", "Admin Management"],
+      "button": "Contact Us"
+    },
+    "advanced": {
+      "title": "Advanced Plan",
+      "subtitle": "Perfect for management",
+      "price": "$99",
+      "priceSubtitle": "Best value for professionals",
+      "credits": "1,000",
+      "validity": "30 days",
+      "supportedSites": "3 sites",
+      "features": [
+        "Everything in Basic",
+        "Priority Support",
+        "Advanced Analytics",
+        "Team Management"
+      ],
+      "button": "Get Started"
+    },
+    "premium": {
+      "title": "Premium Plan",
+      "subtitle": "Perfect for teams",
+      "price": "$199",
+      "priceSubtitle": "Ultimate creative freedom",
+      "credits": "5,000",
+      "validity": "30 days",
+      "supportedSites": "5 sites",
+      "features": [
+        "Everything in Advanced",
+        "Unlimited Downloads",
+        "Custom Integrations",
+        "Dedicated Account Manager"
+      ],
+      "button": "Get Started"
+    },
+    "labels": {
+      "credits": "Credits:",
+      "validity": "Validity:",
+      "supportedSites": "Supported Sites:",
+      "featuresIncluded": "Features included:",
+      "supportedSitesDialog": {
+        "title": "Supported Sites",
+        "description": "These are the websites you can access with this plan"
+      }
+    },
+    "features": {
+      "main": "All plans include access to our premium resource library and customer support.",
+      "moneyBack": "30-day money-back guarantee",
+      "support24": "24/7 Support",
+      "cancelAnytime": "Cancel anytime"
+    }
+  },
+  "footer": {
+    "description": "Your ultimate destination for premium creative resources. Access millions of high-quality images, vectors, and videos from top platforms worldwide.",
+    "quickLinks": "Quick Links",
+    "resources": "Resources",
+    "support": "Support",
+    "legal": "Legal",
+    "followUs": "Follow Us",
+    "allRightsReserved": "All rights reserved.",
+    "links": {
+      "home": "Home",
+      "categories": "Categories",
+      "pricing": "Pricing",
+      "about": "About",
+      "helpCenter": "Help Center",
+      "contactSupport": "Contact Support",
+      "faq": "FAQ",
+      "privacyPolicy": "Privacy Policy",
+      "termsOfService": "Terms of Service",
+      "cookiePolicy": "Cookie Policy",
+      "stockPhotos": "Stock Photos",
+      "vectors": "Vectors",
+      "illustrations": "Illustrations",
+      "videos": "Videos",
+      "templates": "Templates"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "viewAll": "View All",
+    "learnMore": "Learn More",
+    "month": "Month"
+  }
+}

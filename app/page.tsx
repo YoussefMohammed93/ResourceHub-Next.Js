@@ -36,18 +36,28 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import Footer from "@/components/footer";
+import {
+  HeaderSkeleton,
+  HeroSkeleton,
+  FeaturesSkeleton,
+  CategoriesSkeleton,
+  FooterSkeleton,
+  PricingSkeleton,
+} from "@/components/home-page-skeletons";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/i18n-provider";
 import { UserDropdown } from "@/components/user-dropdown";
 
-const categories = [
-  "Nature",
-  "Business",
-  "Technology",
-  "Travel",
-  "Sports",
-  "Art",
+const categoryKeys = [
+  "nature",
+  "business",
+  "technology",
+  "travel",
+  "sports",
+  "art",
 ];
 
 // Fake site data for supported sites
@@ -111,6 +121,8 @@ const supportedSites = {
 };
 
 export default function HomePage() {
+  const { t } = useTranslation("common");
+  const { isRTL, isLoading } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -120,6 +132,20 @@ export default function HomePage() {
     }
   };
 
+  // Show loading skeletons while language data is loading
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background font-sans">
+        <HeaderSkeleton />
+        <HeroSkeleton />
+        <FeaturesSkeleton />
+        <CategoriesSkeleton />
+        <PricingSkeleton />
+        <FooterSkeleton />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background font-sans">
       {/* Header */}
@@ -127,7 +153,7 @@ export default function HomePage() {
         <div className="container mx-auto max-w-7xl px-5">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Mobile Menu Button */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -136,7 +162,6 @@ export default function HomePage() {
               >
                 <Menu className="w-5 h-5 text-muted-foreground" />
               </button>
-
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
               </div>
@@ -144,33 +169,33 @@ export default function HomePage() {
                 href="/"
                 className="text-lg sm:text-xl font-semibold text-foreground"
               >
-                ResourceHub
+                {t("header.logo")}
               </Link>
             </div>
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center gap-1">
-              <Link href="/categories">
+              <Link href="#about">
                 <Button
                   variant="ghost"
-                  className="hover:bg-primary hover:text-white"
+                  className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
                 >
-                  Categories
+                  {t("header.navigation.aboutUs")}
                 </Button>
               </Link>
-              <Link href="/pricing">
+              <Link href="#categories">
                 <Button
                   variant="ghost"
-                  className="hover:bg-primary hover:text-white"
+                  className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
                 >
-                  Pricing
+                  {t("header.navigation.categories")}
                 </Button>
               </Link>
-              <Link href="/about">
+              <Link href="#pricing">
                 <Button
                   variant="ghost"
-                  className="hover:bg-primary hover:text-white"
+                  className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
                 >
-                  About
+                  {t("header.navigation.pricingPlans")}
                 </Button>
               </Link>
             </nav>
@@ -194,7 +219,9 @@ export default function HomePage() {
       >
         <div className="p-6 h-full overflow-y-auto">
           {/* Mobile Close Button */}
-          <div className="absolute right-6 top-5">
+          <div
+            className={`absolute right-6 top-5 ${isRTL && "left-6 right-auto"}`}
+          >
             <button
               onClick={() => setIsMobileMenuOpen(false)}
               className="cursor-pointer p-2 hover:bg-muted rounded-lg transition-colors min-h-[33px] min-w-[33px] flex items-center justify-center"
@@ -211,32 +238,38 @@ export default function HomePage() {
                 <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
               </div>
               <span className="text-lg font-semibold text-foreground">
-                ResourceHub
+                {t("header.logo")}
               </span>
             </div>
 
             {/* Navigation Links */}
             <div className="space-y-1">
               <Link
+                href="/about"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <span className="text-base">
+                  {t("header.navigation.aboutUs")}
+                </span>
+              </Link>
+              <Link
                 href="/categories"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
-                <span className="text-base">Categories</span>
+                <span className="text-base">
+                  {t("header.navigation.categories")}
+                </span>
               </Link>
               <Link
                 href="/pricing"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
               >
-                <span className="text-base">Pricing</span>
-              </Link>
-              <Link
-                href="/about"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <span className="text-base">About</span>
+                <span className="text-base">
+                  {t("header.navigation.pricingPlans")}
+                </span>
               </Link>
             </div>
           </div>
@@ -247,7 +280,9 @@ export default function HomePage() {
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-grid-pattern opacity-35"></div>
         {/* Shape 1 - Grid Dots Pattern (like your reference image) */}
-        <div className="absolute bottom-32 left-5/12 transform -translate-x-1/2 md:bottom-40">
+        <div
+          className={`absolute bottom-32 ${isRTL ? "right-5/12" : "left-5/12"} transform -translate-x-1/2 md:bottom-40`}
+        >
           <svg
             width="120"
             height="120"
@@ -334,7 +369,9 @@ export default function HomePage() {
           </svg>
         </div>
         {/* Shape 4 - Top Center Left Dots */}
-        <div className="absolute top-12 left-1/3 md:top-16 md:left-2/5 opacity-30">
+        <div
+          className={`absolute top-12 ${isRTL ? "right-1/3 md:right-2/5" : "left-1/3 md:left-2/5"} md:top-16 opacity-30`}
+        >
           <svg
             width="60"
             height="40"
@@ -362,13 +399,17 @@ export default function HomePage() {
           </svg>
         </div>
         {/* Shape 5 - Top Center Right Floating Icon */}
-        <div className="hidden md:block absolute top-8 right-1/3 md:top-12 md:right-2/5">
+        <div
+          className={`hidden md:block absolute top-8 ${isRTL ? "left-1/3 md:left-2/12" : "right-1/3 md:right-2/5"} md:top-12`}
+        >
           <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
             <Shield className="w-5 h-5 text-primary" />
           </div>
         </div>
         {/* Shape 6 - Top Center Right Small Squares */}
-        <div className="absolute top-16 right-1/4 md:top-20 md:right-1/3 opacity-35">
+        <div
+          className={`absolute top-16 ${isRTL ? "left-1/4 md:left-1/3" : "right-1/4 md:right-1/3"} md:top-20 opacity-35`}
+        >
           <svg
             width="40"
             height="40"
@@ -402,15 +443,13 @@ export default function HomePage() {
             <div className="space-y-8 lg:space-y-10">
               <div className="space-y-6">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground font-sans">
-                  Discover Millions of{" "}
+                  {t("hero.title")}{" "}
                   <span className="text-primary sm:text-6xl">
-                    Creative Resources
+                    {t("hero.titleHighlight")}
                   </span>
                 </h1>
                 <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                  Download high-quality stock photos, vectors, illustrations,
-                  and videos. Get credits to access premium content from top
-                  creative platforms worldwide.
+                  {t("hero.description")}
                 </p>
               </div>
               {/* Search Bar */}
@@ -421,7 +460,7 @@ export default function HomePage() {
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 stroke-3 text-muted-foreground w-5 h-5" />
                     <Input
                       type="text"
-                      placeholder="Search photos, vectors..."
+                      placeholder={t("hero.searchPlaceholderMobile")}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleSearch()}
@@ -433,7 +472,7 @@ export default function HomePage() {
                     className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
                   >
                     <Search className="w-5 h-5 stroke-3" />
-                    Search
+                    {t("hero.searchButton")}
                   </Button>
                 </div>
                 {/* Desktop Layout */}
@@ -442,26 +481,28 @@ export default function HomePage() {
                     <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
                     <Input
                       type="text"
-                      placeholder="Search for photos, vectors, illustrations..."
+                      placeholder={t("hero.searchPlaceholder")}
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                      className="pl-4 sm:pl-8 pr-32 py-7 text-lg border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm"
+                      className={`pl-4 sm:pl-8 pr-32 py-7 text-lg border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm ${isRTL && "placeholder:text-lg"}`}
                     />
                     <Button
                       onClick={handleSearch}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 px-6 !h-11 bg-primary hover:bg-primary/90"
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 !px-6 !h-11 bg-primary hover:bg-primary/90 ${isRTL && "text-base"}`}
                     >
                       <Search className="w-4 h-4 stroke-3" />
-                      Search
+                      {t("hero.searchButton")}
                     </Button>
                   </div>
                 </div>
               </div>
               {/* Popular Searches */}
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground font-medium">
-                  Popular searches :
+                <p
+                  className={`text-sm text-muted-foreground font-medium ${isRTL && "!text-base"}`}
+                >
+                  {t("hero.popularSearches")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {[
@@ -479,7 +520,7 @@ export default function HomePage() {
                         setSearchQuery(term);
                         window.location.href = `/search?q=${encodeURIComponent(term)}`;
                       }}
-                      className="px-3 py-2 cursor-pointer bg-background hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors"
+                      className="px-3 py-2 cursor-pointer bg-background dark:bg-background/20 dark:hover:bg-primary hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors"
                     >
                       {term}
                     </Badge>
@@ -490,7 +531,7 @@ export default function HomePage() {
               <div className="pt-4 flex flex-col sm:flex-row gap-4">
                 <Button size="lg" className="!px-8 py-6 font-semibold">
                   <Eye className="size-5" />
-                  View Pricing
+                  {t("hero.viewPricing")}
                 </Button>
                 <Button
                   size="lg"
@@ -498,7 +539,7 @@ export default function HomePage() {
                   className="!px-8 py-6 font-semibold"
                 >
                   <PhoneCall className="size-5" />
-                  Contact Us
+                  {t("hero.contactUs")}
                 </Button>
               </div>
             </div>
@@ -545,14 +586,15 @@ export default function HomePage() {
           {/* Section Header */}
           <div className="text-center mb-12 lg:mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
-              Why Choose{" "}
-              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                Resource Hub
+              {t("features.title")}{" "}
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {t("features.titleHighlight")}
               </span>
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              Everything you need to access premium creative resources from top
-              platforms worldwide.
+            <p
+              className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+            >
+              {t("features.description")}
             </p>
           </div>
           {/* Features Grid */}
@@ -568,11 +610,10 @@ export default function HomePage() {
                 </div>
                 {/* Content */}
                 <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  Premium Quality
+                  {t("features.premiumQuality.title")}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  Access millions of high-resolution images, vectors, and videos
-                  from top creative platforms with guaranteed quality.
+                  {t("features.premiumQuality.description")}
                 </p>
               </div>
             </div>
@@ -587,11 +628,10 @@ export default function HomePage() {
                 </div>
                 {/* Content */}
                 <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  Instant Downloads
+                  {t("features.instantDownloads.title")}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  Download your favorite resources instantly with our optimized
-                  servers and lightning-fast delivery system.
+                  {t("features.instantDownloads.description")}
                 </p>
               </div>
             </div>
@@ -606,11 +646,10 @@ export default function HomePage() {
                 </div>
                 {/* Content */}
                 <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  All Platforms
+                  {t("features.allPlatforms.title")}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  One subscription gives you access to Freepik, Shutterstock,
-                  Adobe Stock, and many more premium platforms.
+                  {t("features.allPlatforms.description")}
                 </p>
               </div>
             </div>
@@ -626,11 +665,10 @@ export default function HomePage() {
 
                 {/* Content */}
                 <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  Secure & Safe
+                  {t("features.secureAndSafe.title")}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  Your data is protected with enterprise-grade security. Safe
-                  downloads with no malware or unwanted software.
+                  {t("features.secureAndSafe.description")}
                 </p>
               </div>
             </div>
@@ -645,11 +683,10 @@ export default function HomePage() {
                 </div>
                 {/* Content */}
                 <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  24/7 Support
+                  {t("features.support24.title")}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  Get help whenever you need it with our dedicated support team
-                  available around the clock.
+                  {t("features.support24.description")}
                 </p>
               </div>
             </div>
@@ -664,11 +701,10 @@ export default function HomePage() {
                 </div>
                 {/* Content */}
                 <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  Easy to Use
+                  {t("features.easyToUse.title")}
                 </h3>
                 <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  Simple and intuitive interface designed for creators. Search,
-                  preview, and download in just a few clicks.
+                  {t("features.easyToUse.description")}
                 </p>
               </div>
             </div>
@@ -680,24 +716,26 @@ export default function HomePage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-10">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Popular{" "}
-              <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                Categories
+              {t("categories.title")}{" "}
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {t("categories.titleHighlight")}
               </span>
             </h2>
-            <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-              Discover trending content across our most popular categories and
-              find exactly what you&apos;re looking for.
+            <p
+              className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+            >
+              {t("categories.description")}
             </p>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-w-5xl mx-auto">
-            {categories.map((category, index) => {
+            {categoryKeys.map((categoryKey, index) => {
+              const categoryName = t(`categories.items.${categoryKey}`);
               // Function to render appropriate icon for each category
               const renderCategoryIcon = () => {
-                switch (category) {
-                  case "Art":
+                switch (categoryKey) {
+                  case "art":
                     return <Cat className="w-8 h-8 text-primary" />;
-                  case "Nature":
+                  case "nature":
                     return (
                       <svg
                         className="w-8 h-8 text-primary"
@@ -713,7 +751,7 @@ export default function HomePage() {
                         />
                       </svg>
                     );
-                  case "Business":
+                  case "business":
                     return (
                       <svg
                         className="w-8 h-8 text-primary"
@@ -729,7 +767,7 @@ export default function HomePage() {
                         />
                       </svg>
                     );
-                  case "Technology":
+                  case "technology":
                     return (
                       <svg
                         className="w-8 h-8 text-primary"
@@ -745,7 +783,7 @@ export default function HomePage() {
                         />
                       </svg>
                     );
-                  case "Travel":
+                  case "travel":
                     return (
                       <svg
                         className="w-8 h-8 text-primary"
@@ -761,7 +799,7 @@ export default function HomePage() {
                         />
                       </svg>
                     );
-                  case "Sports":
+                  case "sports":
                     return (
                       <svg
                         className="w-8 h-8 text-primary"
@@ -799,7 +837,7 @@ export default function HomePage() {
                 <div
                   key={index}
                   onClick={() => {
-                    window.location.href = `/search?q=${encodeURIComponent(category)}`;
+                    window.location.href = `/search?q=${encodeURIComponent(categoryName)}`;
                   }}
                   className="group relative dark:bg-card bg-background/50 shadow-2xs backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col items-center text-center"
                 >
@@ -809,7 +847,7 @@ export default function HomePage() {
                   </div>
 
                   <h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors">
-                    {category}
+                    {categoryName}
                   </h3>
                   {/* Hover effect overlay */}
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -824,14 +862,15 @@ export default function HomePage() {
         <div className="container mx-auto max-w-7xl px-5 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
-              Choose Your{" "}
+              {t("pricing.title")}{" "}
               <span className="bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent">
-                Perfect Plan
+                {t("pricing.titleHighlight")}
               </span>
             </h2>
-            <p className="text-muted-foreground text-base sm:text-lg md:text-xl max-w-3xl mx-auto leading-relaxed">
-              Get access to millions of premium resources with our flexible
-              pricing plans designed for every need.
+            <p
+              className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+            >
+              {t("pricing.description")}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
@@ -839,7 +878,6 @@ export default function HomePage() {
             <div className="group relative dark:bg-card bg-background backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
               {/* Hover effect overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
               <div className="relative z-10 flex flex-col h-full space-y-6">
                 {/* Plan Header */}
                 <div className="space-y-4">
@@ -849,69 +887,86 @@ export default function HomePage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        Basic Plan
+                        {t("pricing.basic.title")}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Perfect for getting started
+                      <p
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.basic.subtitle")}
                       </p>
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <div className="flex items-baseline space-x-2">
                       <span className="text-3xl font-bold text-foreground">
-                        Contact Us
+                        {t("pricing.basic.price")}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Custom pricing available
+                    <p
+                      className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                    >
+                      {t("pricing.basic.priceSubtitle")}
                     </p>
                   </div>
                 </div>
-
                 {/* Plan Features */}
                 <div className="space-y-4 flex-1">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        Credits:
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.labels.credits")}
                       </span>
                       <div className="flex items-center space-x-1">
                         <Coins className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-semibold text-foreground">
-                          50
+                        <span
+                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                        >
+                          {t("pricing.basic.credits")}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        Validity:
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.labels.validity")}
                       </span>
                       <div className="flex items-center space-x-1">
                         <Timer className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-semibold text-foreground">
-                          15 days
+                        <span
+                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                        >
+                          {t("pricing.basic.validity")}
                         </span>
                       </div>
                     </div>
                     <Dialog>
                       <DialogTrigger asChild>
                         <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
-                          <span className="text-sm text-muted-foreground">
-                            Supported Sites:
+                          <span
+                            className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                          >
+                            {t("pricing.labels.supportedSites")}
                           </span>
-                          <span className="text-sm font-semibold text-foreground">
-                            2 sites
+                          <span
+                            className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                          >
+                            {t("pricing.basic.supportedSites")}
                           </span>
                         </div>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>
-                            Supported Sites - Basic Plan
+                            {t("pricing.labels.supportedSitesDialog.title")} -{" "}
+                            {t("pricing.basic.title")}
                           </DialogTitle>
                           <DialogDescription>
-                            These are the websites you can access with this plan
+                            {t(
+                              "pricing.labels.supportedSitesDialog.description"
+                            )}
                           </DialogDescription>
                         </DialogHeader>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
@@ -941,20 +996,23 @@ export default function HomePage() {
                       </DialogContent>
                     </Dialog>
                   </div>
-
                   <div className="pt-4 border-t border-border">
-                    <h4 className="text-sm font-medium text-foreground mb-3">
-                      Features included:
+                    <h4
+                      className={`text-sm font-medium text-foreground mb-3 ${isRTL && "!text-lg"}`}
+                    >
+                      {t("pricing.labels.featuresIncluded")}
                     </h4>
                     <ul className="space-y-2">
-                      {[
-                        "Access to all sites",
-                        "24/7 Support",
-                        "Admin Management",
-                      ].map((feature, index) => (
+                      {(
+                        t("pricing.basic.features", {
+                          returnObjects: true,
+                        }) as string[]
+                      ).map((feature: string, index: number) => (
                         <li key={index} className="flex items-center space-x-2">
                           <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                          <span className="text-sm text-muted-foreground">
+                          <span
+                            className={`text-sm text-muted-foreground  ${isRTL && "!text-base"}`}
+                          >
                             {feature}
                           </span>
                         </li>
@@ -962,7 +1020,6 @@ export default function HomePage() {
                     </ul>
                   </div>
                 </div>
-
                 {/* CTA Button - Now at bottom */}
                 <div className="mt-auto pt-4">
                   <Button
@@ -975,7 +1032,7 @@ export default function HomePage() {
                       rel="noopener noreferrer"
                     >
                       <ExternalLink className="w-4 h-4 stroke-3" />
-                      Contact Us
+                      {t("pricing.basic.button")}
                     </a>
                   </Button>
                 </div>
@@ -985,7 +1042,6 @@ export default function HomePage() {
             <div className="group relative dark:bg-card bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
               {/* Hover effect overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
               <div className="relative z-10 flex flex-col h-full space-y-6">
                 {/* Plan Header */}
                 <div className="space-y-4">
@@ -995,72 +1051,91 @@ export default function HomePage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        Advanced Plan
+                        {t("pricing.advanced.title")}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
-                        Perfect for management
+                      <p
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.advanced.subtitle")}
                       </p>
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <div className="flex items-baseline space-x-2">
                       <span className="text-4xl font-bold text-primary">
-                        $99
+                        {t("pricing.advanced.price")}
                       </span>
-                      <span className="text-sm text-muted-foreground">
-                        /month
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg font-medium"}`}
+                      >
+                        /{t("common.month")}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Best value for professionals
+                    <p
+                      className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                    >
+                      {t("pricing.advanced.priceSubtitle")}
                     </p>
                   </div>
                 </div>
-
                 {/* Plan Features */}
                 <div className="space-y-4 flex-1">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        Credits:
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.labels.credits")}
                       </span>
                       <div className="flex items-center space-x-1">
                         <Coins className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-semibold text-foreground">
-                          1,000
+                        <span
+                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                        >
+                          {t("pricing.advanced.credits")}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        Validity:
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.labels.validity")}
                       </span>
                       <div className="flex items-center space-x-1">
                         <Timer className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-semibold text-foreground">
-                          30 days
+                        <span
+                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                        >
+                          {t("pricing.advanced.validity")}
                         </span>
                       </div>
                     </div>
                     <Dialog>
                       <DialogTrigger asChild>
                         <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
-                          <span className="text-sm text-muted-foreground">
-                            Supported Sites:
+                          <span
+                            className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                          >
+                            {t("pricing.labels.supportedSites")}
                           </span>
-                          <span className="text-sm font-semibold text-foreground">
-                            3 sites
+                          <span
+                            className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                          >
+                            {t("pricing.advanced.supportedSites")}
                           </span>
                         </div>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>
-                            Supported Sites - Advanced Plan
+                            {t("pricing.labels.supportedSitesDialog.title")} -{" "}
+                            {t("pricing.advanced.title")}
                           </DialogTitle>
                           <DialogDescription>
-                            These are the websites you can access with this plan
+                            {t(
+                              "pricing.labels.supportedSitesDialog.description"
+                            )}
                           </DialogDescription>
                         </DialogHeader>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
@@ -1090,20 +1165,23 @@ export default function HomePage() {
                       </DialogContent>
                     </Dialog>
                   </div>
-
                   <div className="pt-4 border-t border-border">
-                    <h4 className="text-sm font-medium text-foreground mb-3">
-                      Features included:
+                    <h4
+                      className={`text-sm font-medium text-foreground mb-3 ${isRTL && "!text-lg"}`}
+                    >
+                      {t("pricing.labels.featuresIncluded")}
                     </h4>
                     <ul className="space-y-2">
-                      {[
-                        "Access to all sites",
-                        "24/7 Support",
-                        "Admin Management",
-                      ].map((feature, index) => (
+                      {(
+                        t("pricing.advanced.features", {
+                          returnObjects: true,
+                        }) as string[]
+                      ).map((feature: string, index: number) => (
                         <li key={index} className="flex items-center space-x-2">
                           <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                          <span className="text-sm text-muted-foreground">
+                          <span
+                            className={`text-sm text-muted-foreground  ${isRTL && "!text-base"}`}
+                          >
                             {feature}
                           </span>
                         </li>
@@ -1111,12 +1189,11 @@ export default function HomePage() {
                     </ul>
                   </div>
                 </div>
-
                 {/* CTA Button - Now at bottom */}
                 <div className="mt-auto pt-4">
                   <Button className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
                     <Crown className="w-4 h-4" />
-                    Get Started
+                    {t("pricing.advanced.button")}
                   </Button>
                 </div>
               </div>
@@ -1125,7 +1202,6 @@ export default function HomePage() {
             <div className="group relative dark:bg-card bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
               {/* Hover effect overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-
               <div className="relative z-10 flex flex-col h-full space-y-6">
                 {/* Plan Header */}
                 <div className="space-y-4">
@@ -1135,72 +1211,91 @@ export default function HomePage() {
                     </div>
                     <div>
                       <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        Premium Plan
+                        {t("pricing.premium.title")}
                       </h3>
-                      <p className="text-sm text-muted-foreground">
-                        For power users and teams
+                      <p
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.premium.subtitle")}
                       </p>
                     </div>
                   </div>
-
                   <div className="space-y-2">
                     <div className="flex items-baseline space-x-2">
                       <span className="text-3xl font-bold text-foreground">
-                        $199
+                        {t("pricing.premium.price")}
                       </span>
-                      <span className="text-sm text-muted-foreground">
-                        /month
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg font-medium"}`}
+                      >
+                        /{t("common.month")}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground">
-                      Maximum resources and features
+                    <p
+                      className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                    >
+                      {t("pricing.premium.priceSubtitle")}
                     </p>
                   </div>
                 </div>
-
                 {/* Plan Features */}
                 <div className="space-y-4 flex-1">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        Credits:
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.labels.credits")}
                       </span>
                       <div className="flex items-center space-x-1">
                         <Coins className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-semibold text-foreground">
-                          5,000
+                        <span
+                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                        >
+                          {t("pricing.premium.credits")}
                         </span>
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        Validity:
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.labels.validity")}
                       </span>
                       <div className="flex items-center space-x-1">
                         <Timer className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-semibold text-foreground">
-                          60 days
+                        <span
+                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                        >
+                          {t("pricing.premium.validity")}
                         </span>
                       </div>
                     </div>
                     <Dialog>
                       <DialogTrigger asChild>
                         <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
-                          <span className="text-sm text-muted-foreground">
-                            Supported Sites:
+                          <span
+                            className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                          >
+                            {t("pricing.labels.supportedSites")}
                           </span>
-                          <span className="text-sm font-semibold text-foreground">
-                            All sites
+                          <span
+                            className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                          >
+                            {t("pricing.premium.supportedSites")}
                           </span>
                         </div>
                       </DialogTrigger>
                       <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
                         <DialogHeader>
                           <DialogTitle>
-                            Supported Sites - Premium Plan
+                            {t("pricing.labels.supportedSitesDialog.title")} -{" "}
+                            {t("pricing.premium.title")}
                           </DialogTitle>
                           <DialogDescription>
-                            These are the websites you can access with this plan
+                            {t(
+                              "pricing.labels.supportedSitesDialog.description"
+                            )}
                           </DialogDescription>
                         </DialogHeader>
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
@@ -1230,22 +1325,23 @@ export default function HomePage() {
                       </DialogContent>
                     </Dialog>
                   </div>
-
                   <div className="pt-4 border-t border-border">
-                    <h4 className="text-sm font-medium text-foreground mb-3">
-                      Features included:
+                    <h4
+                      className={`text-sm font-medium text-foreground mb-3 ${isRTL && "!text-lg"}`}
+                    >
+                      {t("pricing.labels.featuresIncluded")}
                     </h4>
                     <ul className="space-y-2">
-                      {[
-                        "Access to all sites",
-                        "Priority Support",
-                        "Advanced Analytics",
-                        "Team Management",
-                        "API Access",
-                      ].map((feature, index) => (
+                      {(
+                        t("pricing.premium.features", {
+                          returnObjects: true,
+                        }) as string[]
+                      ).map((feature: string, index: number) => (
                         <li key={index} className="flex items-center space-x-2">
                           <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                          <span className="text-sm text-muted-foreground">
+                          <span
+                            className={`text-sm text-muted-foreground  ${isRTL && "!text-base"}`}
+                          >
                             {feature}
                           </span>
                         </li>
@@ -1253,12 +1349,11 @@ export default function HomePage() {
                     </ul>
                   </div>
                 </div>
-
                 {/* CTA Button - Now at bottom */}
                 <div className="mt-auto pt-4">
                   <Button className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
                     <Globe className="w-4 h-4" />
-                    Get Premium
+                    {t("pricing.premium.button")}
                   </Button>
                 </div>
               </div>
@@ -1266,22 +1361,29 @@ export default function HomePage() {
           </div>
           {/* Additional Info */}
           <div className="pt-14 text-center">
-            <p className="text-sm text-muted-foreground mb-4">
-              All plans include access to our premium resource library and
-              customer support.
+            <p
+              className={`text-sm text-muted-foreground mb-4 ${isRTL && "!text-lg"}`}
+            >
+              {t("pricing.features.main")}
             </p>
             <div className="flex flex-wrap justify-center items-center gap-6 text-xs text-muted-foreground">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span>30-day money-back guarantee</span>
+                <span className={`${isRTL && "text-base"}`}>
+                  {t("pricing.features.moneyBack")}
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-destructive rounded-full"></div>
-                <span>Cancel anytime</span>
+                <span className={`${isRTL && "text-base"}`}>
+                  {t("pricing.features.cancelAnytime")}
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-primary rounded-full"></div>
-                <span>24/7 customer support</span>
+                <span className={`${isRTL && "text-base"}`}>
+                  {t("pricing.features.support24")}
+                </span>
               </div>
             </div>
           </div>

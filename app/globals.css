@@ -163,6 +163,14 @@
       "Noto Color Emoji";
   }
 
+  /* Arabic font for RTL direction */
+  [dir="rtl"] .font-sans {
+    font-family:
+      var(--font-tajawal), ui-sans-serif, system-ui, sans-serif,
+      "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+      "Noto Color Emoji";
+  }
+
   .bg-grid-pattern {
     background-image:
       linear-gradient(rgba(10, 10, 10, 0.1) 1px, transparent 1px),

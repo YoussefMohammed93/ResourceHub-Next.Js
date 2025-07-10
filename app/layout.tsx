@@ -1,10 +1,19 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
+
+import { Tajawal } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
+import { I18nProvider } from "@/components/i18n-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = GeistSans;
+
+const tajawal = Tajawal({
+  subsets: ["arabic"],
+  weight: ["200", "300", "400", "500", "700", "800", "900"],
+  variable: "--font-tajawal",
+});
 
 export const metadata: Metadata = {
   title: "Resource Hub",
@@ -18,15 +27,38 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} font-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                try {
+                  const savedLanguage = localStorage.getItem('language') || 'en';
+                  document.documentElement.lang = savedLanguage;
+                  document.documentElement.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+                } catch (e) {
+                  // Fallback if localStorage is not available
+                  document.documentElement.lang = 'en';
+                  document.documentElement.dir = 'ltr';
+                }
+              })();
+            `,
+          }}
+        />
+      </head>
+      <body
+        className={`${geistSans.className} ${tajawal.variable} font-sans antialiased`}
+      >
+        <I18nProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </I18nProvider>
       </body>
     </html>
   );
