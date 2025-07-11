@@ -4,11 +4,11 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 // Dashboard Header Skeleton
 export function DashboardHeaderSkeleton() {
   return (
-    <header className="bg-background border-b border-border px-4 sm:px-6 py-4 lg:ml-72">
+    <header className="bg-background border-b border-border px-4 sm:px-5 py-4 lg:ml-72">
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-1 sm:gap-2">
           {/* Mobile Hamburger Menu */}
-          <div className="cursor-pointer lg:hidden p-2 hover:bg-muted rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
+          <div className="cursor-pointer lg:hidden p-2 hover:bg-muted rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center">
             <Skeleton className="w-5 h-5" />
           </div>
           <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">

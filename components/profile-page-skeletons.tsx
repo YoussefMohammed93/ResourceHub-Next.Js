@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 // Profile Header Skeleton
 export function ProfileHeaderSkeleton({ isRTL }: { isRTL: boolean }) {
   return (
-    <header className="bg-background border-b border-border px-4 sm:px-6 py-4">
+    <header className="bg-background border-b border-border px-4 sm:px-5 py-4">
       <div className="flex items-center justify-between">
         <div
           className={`flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"}`}

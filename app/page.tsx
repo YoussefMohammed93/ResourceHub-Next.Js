@@ -150,14 +150,14 @@ export default function HomePage() {
     <div className="min-h-screen bg-background font-sans">
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto max-w-7xl px-5">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-5">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Mobile Menu Button */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="cursor-pointer md:hidden p-2 hover:bg-muted rounded-lg transition-colors min-h-[38px] min-w-[38px] flex items-center justify-center"
+                className="cursor-pointer md:hidden p-2 hover:bg-muted rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                 aria-label="Toggle navigation menu"
               >
                 <Menu className="w-5 h-5 text-muted-foreground" />
@@ -167,7 +167,7 @@ export default function HomePage() {
               </div>
               <Link
                 href="/"
-                className="text-lg sm:text-xl font-semibold text-foreground"
+                className="text-base sm:text-xl font-semibold text-foreground"
               >
                 {t("header.logo")}
               </Link>

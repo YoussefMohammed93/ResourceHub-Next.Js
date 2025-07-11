@@ -4,14 +4,14 @@ import {
   CalendarDays,
   CreditCard,
   Download,
-  ExternalLink,
   Filter,
-  ImageIcon,
-  Video,
   TrendingUp,
   Settings,
   Activity,
+  Search,
+  Copy,
 } from "lucide-react";
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -34,13 +34,13 @@ import {
   ProfilePageSkeleton,
   DownloadHistoryItemSkeleton,
 } from "@/components/profile-page-skeletons";
+import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import Link from "next/link";
 
 // Fake data
 const userData = {
@@ -69,6 +69,16 @@ const downloadHistory = [
     downloadDate: "2024-01-15",
     url: "https://freepik.com/example-1",
     thumbnail: "/placeholder.png",
+    source: "shutterstock",
+    sourceIcon: "🖼️",
+    debugId: "f8240...",
+    fileId: "410883247",
+    fileUrl: "https://shutterstock.com/410883247",
+    format: "JPG",
+    size: "0.5",
+    previewImage: "/placeholder.png",
+    sourceUrl: "shutterstock.com • 410883247",
+    downloadUrl: "https://shutterstock.com/download/410883247",
   },
   {
     id: 2,
@@ -78,6 +88,16 @@ const downloadHistory = [
     downloadDate: "2024-01-14",
     url: "https://freepik.com/example-2",
     thumbnail: "/placeholder.png",
+    source: "shutterstock",
+    sourceIcon: "🖼️",
+    debugId: "6ac79...",
+    fileId: "2174049579",
+    fileUrl: "https://shutterstock.com/2174049579",
+    format: "EPS",
+    size: "0.5",
+    previewImage: "/placeholder.png",
+    sourceUrl: "shutterstock.com • 2174049579",
+    downloadUrl: "https://shutterstock.com/download/2174049579",
   },
   {
     id: 3,
@@ -87,6 +107,16 @@ const downloadHistory = [
     downloadDate: "2024-01-13",
     url: "https://freepik.com/example-3",
     thumbnail: "/placeholder.png",
+    source: "shutterstock",
+    sourceIcon: "🖼️",
+    debugId: "a1b2c...",
+    fileId: "123456789",
+    fileUrl: "https://shutterstock.com/123456789",
+    format: "JPG",
+    size: "1.2",
+    previewImage: "/placeholder.png",
+    sourceUrl: "shutterstock.com • 123456789",
+    downloadUrl: "https://shutterstock.com/download/123456789",
   },
   {
     id: 4,
@@ -96,6 +126,16 @@ const downloadHistory = [
     downloadDate: "2024-01-12",
     url: "https://freepik.com/example-4",
     thumbnail: "/placeholder.png",
+    source: "freepik",
+    sourceIcon: "🎨",
+    debugId: "d4e5f...",
+    fileId: "987654321",
+    fileUrl: "https://freepik.com/987654321",
+    format: "AI",
+    size: "2.1",
+    previewImage: "/placeholder.png",
+    sourceUrl: "freepik.com • 987654321",
+    downloadUrl: "https://freepik.com/download/987654321",
   },
   {
     id: 5,
@@ -105,6 +145,16 @@ const downloadHistory = [
     downloadDate: "2024-01-11",
     url: "https://freepik.com/example-5",
     thumbnail: "/placeholder.png",
+    source: "shutterstock",
+    sourceIcon: "🖼️",
+    debugId: "g7h8i...",
+    fileId: "555666777",
+    fileUrl: "https://shutterstock.com/555666777",
+    format: "MP4",
+    size: "15.3",
+    previewImage: "/placeholder.png",
+    sourceUrl: "shutterstock.com • 555666777",
+    downloadUrl: "https://shutterstock.com/download/555666777",
   },
   {
     id: 6,
@@ -114,6 +164,16 @@ const downloadHistory = [
     downloadDate: "2024-01-10",
     url: "https://freepik.com/example-6",
     thumbnail: "/placeholder.png",
+    source: "freepik",
+    sourceIcon: "🎨",
+    debugId: "j9k0l...",
+    fileId: "111222333",
+    fileUrl: "https://freepik.com/111222333",
+    format: "PSD",
+    size: "8.7",
+    previewImage: "/placeholder.png",
+    sourceUrl: "freepik.com • 111222333",
+    downloadUrl: "https://freepik.com/download/111222333",
   },
   {
     id: 7,
@@ -123,6 +183,16 @@ const downloadHistory = [
     downloadDate: "2024-01-10",
     url: "https://freepik.com/example-6",
     thumbnail: "/placeholder.png",
+    source: "freepik",
+    sourceIcon: "🎨",
+    debugId: "j9k0l...",
+    fileId: "111222333",
+    fileUrl: "https://freepik.com/111222333",
+    format: "PSD",
+    size: "8.7",
+    previewImage: "/placeholder.png",
+    sourceUrl: "freepik.com • 111222333",
+    downloadUrl: "https://freepik.com/download/111222333",
   },
 ];
 
@@ -131,6 +201,7 @@ export default function ProfilePage() {
   const [isProfileLoading, setIsProfileLoading] = useState(true);
   const [isDownloadHistoryLoading, setIsDownloadHistoryLoading] =
     useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { isRTL, isLoading } = useLanguage();
   const { t } = useTranslation("common");
 
@@ -158,7 +229,22 @@ export default function ProfilePage() {
     return <ProfilePageSkeleton />;
   }
 
-  const sortedDownloads = [...downloadHistory].sort((a, b) => {
+  // Filter downloads based on search query
+  const filteredDownloads = downloadHistory.filter((item) => {
+    if (!searchQuery.trim()) return true;
+
+    const query = searchQuery.toLowerCase();
+    return (
+      item.source.toLowerCase().includes(query) ||
+      item.debugId.toLowerCase().includes(query) ||
+      item.fileId.toLowerCase().includes(query) ||
+      item.fileUrl.toLowerCase().includes(query) ||
+      item.title.toLowerCase().includes(query) ||
+      item.format.toLowerCase().includes(query)
+    );
+  });
+
+  const sortedDownloads = [...filteredDownloads].sort((a, b) => {
     switch (sortFilter) {
       case "newest":
         return (
@@ -187,6 +273,15 @@ export default function ProfilePage() {
     });
   };
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      // You could add a toast notification here
+    } catch (err) {
+      console.error("Failed to copy text: ", err);
+    }
+  };
+
   const creditsUsedPercentage =
     (userData.credits.used / userData.credits.total) * 100;
 
@@ -196,7 +291,7 @@ export default function ProfilePage() {
     >
       {/* Header */}
       <header className="bg-background border-b border-border">
-        <header className="max-w-6xl mx-auto px-5 py-4">
+        <header className="max-w-6xl mx-auto px-4 sm:px-5 py-4">
           <div className="flex items-center justify-between">
             <Link
               href="/"
@@ -205,7 +300,7 @@ export default function ProfilePage() {
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
               </div>
-              <span className="text-lg sm:text-xl font-semibold text-foreground">
+              <span className="text-base sm:text-xl font-semibold text-foreground">
                 {t("header.logo")}
               </span>
             </Link>
@@ -441,7 +536,7 @@ export default function ProfilePage() {
                     <span className="text-sm font-medium text-foreground">
                       {t("profile.subscription.currentPlan")}
                     </span>
-                    <Badge variant="secondary" className="font-medium">
+                    <Badge variant="outline" className="font-medium">
                       {userData.subscription.plan}
                     </Badge>
                   </div>
@@ -542,129 +637,163 @@ export default function ProfilePage() {
           </div>
           {/* Download History */}
           <Card className="lg:col-span-2 dark:bg-muted/50">
-            <CardHeader className="w-full flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-              <div className="w-full max-w-lg">
-                <div
-                  className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
-                >
-                  <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                    <Download className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {t("profile.downloadHistory.title")}
-                    </CardTitle>
-                    <CardDescription className="text-sm text-muted-foreground mt-1">
-                      {t("profile.downloadHistory.description")}
-                    </CardDescription>
-                  </div>
+            <CardHeader className="space-y-6">
+              <div
+                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
+              >
+                <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                  <Download className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-semibold text-foreground">
+                    {t("profile.downloadHistory.title")}
+                  </CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground mt-1">
+                    {t("profile.downloadHistory.description")}
+                  </CardDescription>
                 </div>
               </div>
-              <div
-                className={`w-full flex flex-col sm:flex-row items-stretch md:justify-end space-y-3 sm:space-y-0 ${isRTL ? "sm:space-x-reverse sm:!space-x-3" : "sm:space-x-3"}`}
-              >
-                <Select value={sortFilter} onValueChange={setSortFilter}>
-                  <SelectTrigger className="w-full md:w-48">
-                    <Filter className="w-4 h-4" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="newest">
-                      {t("profile.downloadHistory.filters.newest")}
-                    </SelectItem>
-                    <SelectItem value="oldest">
-                      {t("profile.downloadHistory.filters.oldest")}
-                    </SelectItem>
-                    <SelectItem value="credits-high">
-                      {t("profile.downloadHistory.filters.creditsHigh")}
-                    </SelectItem>
-                    <SelectItem value="credits-low">
-                      {t("profile.downloadHistory.filters.creditsLow")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex items-center gap-5">
+                {/* Search Bar */}
+                <div className="relative flex-1">
+                  <Search
+                    className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground ${isRTL ? "right-3" : "left-3"}`}
+                  />
+                  <Input
+                    type="text"
+                    placeholder="Source / Source ID / URL / Tag / Debug ID"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className={`${isRTL ? "pr-10 pl-3" : "pl-10 pr-3"} h-10`}
+                  />
+                </div>
+                {/* Filter */}
+                <div className="flex justify-end">
+                  <Select value={sortFilter} onValueChange={setSortFilter}>
+                    <SelectTrigger className="w-48">
+                      <Filter className="w-4 h-4" />
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="newest">
+                        {t("profile.downloadHistory.filters.newest")}
+                      </SelectItem>
+                      <SelectItem value="oldest">
+                        {t("profile.downloadHistory.filters.oldest")}
+                      </SelectItem>
+                      <SelectItem value="credits-high">
+                        {t("profile.downloadHistory.filters.creditsHigh")}
+                      </SelectItem>
+                      <SelectItem value="credits-low">
+                        {t("profile.downloadHistory.filters.creditsLow")}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3 max-h-[520px] overflow-y-auto">
-                {isDownloadHistoryLoading ? (
-                  // Show loading skeletons while download history is loading
-                  Array.from({ length: 5 }, (_, i) => (
+              {isDownloadHistoryLoading ? (
+                // Show loading skeletons while download history is loading
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {Array.from({ length: 4 }, (_, i) => (
                     <DownloadHistoryItemSkeleton key={i} isRTL={isRTL} />
-                  ))
-                ) : sortedDownloads.length === 0 ? (
-                  <div className="py-12 text-center">
-                    <div className="flex flex-col items-center space-y-3">
-                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                        <Download className="w-6 h-6 text-muted-foreground" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">
-                          {t("profile.downloadHistory.empty.title")}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {t("profile.downloadHistory.empty.description")}
-                        </p>
-                      </div>
+                  ))}
+                </div>
+              ) : sortedDownloads.length === 0 ? (
+                <div className="py-12 text-center">
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
+                      <Download className="w-9 h-9 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <p className="text-lg sm:text-2xl font-medium text-foreground">
+                        {t("profile.downloadHistory.empty.title")}
+                      </p>
+                      <p className="text-base sm:text-lg pt-2 text-muted-foreground">
+                        {t("profile.downloadHistory.empty.description")}
+                      </p>
                     </div>
                   </div>
-                ) : (
-                  sortedDownloads.map((item) => (
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[450px] overflow-y-auto">
+                  {sortedDownloads.map((item) => (
                     <div
                       key={item.id}
-                      className="flex items-center gap-4 p-4 rounded-lg border bg-card hover:bg-muted/50 transition-all duration-200 group"
+                      className="bg-secondary/50 dark:bg-muted border rounded-lg p-4 space-y-4 hover:bg-muted/50 transition-all duration-200"
                     >
-                      <div className="relative shrink-0">
-                        <Image
-                          src={item.thumbnail || "/placeholder.svg"}
-                          alt={item.title}
-                          width={56}
-                          height={56}
-                          className="h-14 w-14 rounded-lg object-cover border"
-                        />
-                        <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground rounded-full p-1.5">
-                          {item.type === "image" ? (
-                            <ImageIcon className="h-3 w-3" />
-                          ) : (
-                            <Video className="h-3 w-3" />
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-sm sm:text-base truncate group-hover:text-primary transition-colors">
-                          {item.title}
-                        </h4>
-                        <div
-                          className={`flex flex-wrap items-center gap-2 mt-2 ${isRTL ? "justify-end" : ""}`}
-                        >
-                          <Badge variant="outline" className="text-xs">
-                            {item.credits}{" "}
-                            {t("profile.downloadHistory.credits")}
-                          </Badge>
-                          <span className="text-xs text-muted-foreground">
-                            {formatDate(item.downloadDate)}
+                      {/* Header with source and debug ID */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{item.sourceIcon}</span>
+                          <span className="font-medium text-foreground">
+                            {item.source}
                           </span>
-                          <Badge
-                            variant="secondary"
-                            className="text-xs capitalize"
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm text-muted-foreground">
+                            debugID: {item.debugId}
+                          </span>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => copyToClipboard(item.debugId)}
+                            className="h-6 w-6 p-0"
                           >
-                            {t(`profile.downloadHistory.types.${item.type}`)}
-                          </Badge>
+                            <Copy className="h-3 w-3" />
+                          </Button>
                         </div>
                       </div>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => window.open(item.url, "_blank")}
-                        className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
+                      {/* File ID and format info */}
+                      <div className="flex items-center justify-between">
+                        <Button
+                          variant="link"
+                          className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                          onClick={() => window.open(item.fileUrl, "_blank")}
+                        >
+                          {item.fileId}
+                        </Button>
+                        <div className="flex items-center gap-3">
+                          <Badge variant="secondary" className="text-xs">
+                            {item.format}
+                          </Badge>
+                          <span className="text-sm text-muted-foreground">
+                            {item.size}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Preview Image */}
+                      <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                        <Image
+                          src={item.previewImage || "/placeholder.svg"}
+                          alt={item.title}
+                          fill
+                          className="object-cover"
+                        />
+                      </div>
+                      {/* Footer with source URL and download button */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">
+                          {item.sourceUrl}
+                        </span>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            window.open(item.downloadUrl, "_blank")
+                          }
+                          className="flex items-center gap-2"
+                        >
+                          <Download className="h-4 w-4" />
+                          {t("common.download")}
+                        </Button>
+                      </div>
                     </div>
-                  ))
-                )}
-              </div>
-              {!isDownloadHistoryLoading && sortedDownloads.length > 6 && (
+                  ))}
+                </div>
+              )}
+              {!isDownloadHistoryLoading && sortedDownloads.length > 4 && (
                 <div className="mt-6 text-center">
                   <Button variant="outline">
                     {t("profile.downloadHistory.loadMore")}

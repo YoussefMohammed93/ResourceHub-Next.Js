@@ -31,6 +31,7 @@ import {
   Check,
   Menu,
 } from "lucide-react";
+import Link from "next/link";
 import type React from "react";
 import Image from "next/image";
 import {
@@ -840,7 +841,7 @@ export default function DashboardPage() {
     >
       {/* Header */}
       <header
-        className={`bg-background border-b border-border px-4 sm:px-6 py-4 ${isRTL ? "lg:mr-72" : "lg:ml-72"}`}
+        className={`bg-background border-b border-border px-4 sm:px-5 py-4 ${isRTL ? "lg:mr-72" : "lg:ml-72"}`}
       >
         <div className="flex items-center justify-between">
           <div
@@ -849,19 +850,21 @@ export default function DashboardPage() {
             {/* Mobile Hamburger Menu */}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="cursor-pointer lg:hidden p-2 hover:bg-muted rounded-lg transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="cursor-pointer lg:hidden p-2 hover:bg-muted rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
               aria-label="Toggle navigation menu"
             >
               <Menu className="w-5 h-5 text-muted-foreground" />
             </button>
-            <div
-              className={`${isRTL && "ml-2"} w-8 h-8 bg-primary rounded-lg flex items-center justify-center`}
-            >
-              <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
-            </div>
-            <span className="text-lg sm:text-xl font-semibold text-foreground">
-              {t("header.logo")}
-            </span>
+            <Link href="/" className="flex items-center gap-1 sm:gap-2 cursor-pointer">
+              <div
+                className={`${isRTL && "ml-2"} w-8 h-8 bg-primary rounded-lg flex items-center justify-center`}
+              >
+                <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
+              </div>
+              <span className="text-base sm:text-xl font-semibold text-foreground">
+                {t("header.logo")}
+              </span>
+            </Link>
           </div>
           <HeaderControls />
         </div>
