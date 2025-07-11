@@ -49,7 +49,7 @@ import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/i18n-provider";
-import { UserDropdown } from "@/components/user-dropdown";
+import { HeaderControls } from "@/components/header-controls";
 
 const categoryKeys = [
   "nature",
@@ -199,8 +199,8 @@ export default function HomePage() {
                 </Button>
               </Link>
             </nav>
-            {/* User Dropdown */}
-            <UserDropdown />
+            {/* Header Controls */}
+            <HeaderControls />
           </div>
         </div>
       </header>
@@ -278,7 +278,7 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative min-h-screen bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 py-12 md:pb-20 md:pt-8 overflow-hidden">
         {/* Background Pattern */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-35"></div>
+        <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
         {/* Shape 1 - Grid Dots Pattern (like your reference image) */}
         <div
           className={`absolute bottom-32 ${isRTL ? "right-5/12" : "left-5/12"} transform -translate-x-1/2 md:bottom-40`}

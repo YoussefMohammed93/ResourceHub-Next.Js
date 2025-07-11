@@ -400,8 +400,76 @@
       "usersManagement": "Users Management",
       "sitesManagement": "Sites Management",
       "pricingManagement": "Pricing Management",
+      "profile": "Profile",
       "settings": "Settings",
       "signOut": "Sign Out"
+    }
+  },
+  "profile": {
+    "title": "Profile",
+    "userInfo": {
+      "member": "Member",
+      "active": "Active",
+      "editProfile": "Edit Profile",
+      "creditsLeft": "Credits Left",
+      "downloads": "Downloads",
+      "memberSince": "Member Since",
+      "onlineStatus": "Online"
+    },
+    "stats": {
+      "totalDownloads": {
+        "title": "Total Downloads",
+        "description": "All time downloads"
+      },
+      "creditsUsed": {
+        "title": "Credits Used",
+        "description": "Total consumed"
+      },
+      "creditsRemaining": {
+        "title": "Credits Left",
+        "description": "Available balance"
+      },
+      "planStatus": {
+        "title": "Plan Status",
+        "description": "Current subscription"
+      }
+    },
+    "subscription": {
+      "title": "Subscription Details",
+      "description": "Your current plan information",
+      "currentPlan": "Current Plan",
+      "status": "Status",
+      "validUntil": "Valid Until",
+      "manageSubscription": "Manage Subscription"
+    },
+    "credits": {
+      "title": "Credits Overview",
+      "description": "Your credit usage and balance",
+      "remaining": "Credits Remaining",
+      "usageProgress": "Usage Progress",
+      "used": "Used",
+      "total": "Total",
+      "buyMore": "Buy More Credits"
+    },
+    "downloadHistory": {
+      "title": "Download History",
+      "description": "Your recent downloads and credit usage",
+      "filters": {
+        "newest": "Newest First",
+        "oldest": "Oldest First",
+        "creditsHigh": "Credits: High to Low",
+        "creditsLow": "Credits: Low to High"
+      },
+      "empty": {
+        "title": "No downloads found",
+        "description": "Your download history will appear here"
+      },
+      "loadMore": "Load More Downloads",
+      "credits": "credits",
+      "types": {
+        "image": "image",
+        "video": "video"
+      }
     }
   },
   "common": {

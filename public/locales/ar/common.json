@@ -400,8 +400,75 @@
       "usersManagement": "إدارة المستخدمين",
       "sitesManagement": "إدارة المواقع",
       "pricingManagement": "إدارة الأسعار",
+      "profile": "الملف الشخصي",
       "settings": "الإعدادات",
       "signOut": "تسجيل الخروج"
+    }
+  },
+  "profile": {
+    "title": "الملف الشخصي",
+    "userInfo": {
+      "member": "عضو",
+      "editProfile": "تعديل الملف الشخصي",
+      "creditsLeft": "النقاط المتبقية",
+      "downloads": "التحميلات",
+      "memberSince": "عضو منذ",
+      "onlineStatus": "متصل"
+    },
+    "stats": {
+      "totalDownloads": {
+        "title": "إجمالي التحميلات",
+        "description": "جميع التحميلات"
+      },
+      "creditsUsed": {
+        "title": "النقاط المستخدمة",
+        "description": "إجمالي المستهلك"
+      },
+      "creditsRemaining": {
+        "title": "النقاط المتبقية",
+        "description": "الرصيد المتاح"
+      },
+      "planStatus": {
+        "title": "حالة الخطة",
+        "description": "الاشتراك الحالي"
+      }
+    },
+    "subscription": {
+      "title": "تفاصيل الاشتراك",
+      "description": "معلومات خطتك الحالية",
+      "currentPlan": "الخطة الحالية",
+      "status": "الحالة",
+      "validUntil": "صالح حتى",
+      "manageSubscription": "إدارة الاشتراك"
+    },
+    "credits": {
+      "title": "نظرة عامة على النقاط",
+      "description": "استخدام النقاط والرصيد",
+      "remaining": "النقاط المتبقية",
+      "usageProgress": "تقدم الاستخدام",
+      "used": "مستخدم",
+      "total": "الإجمالي",
+      "buyMore": "شراء المزيد من النقاط"
+    },
+    "downloadHistory": {
+      "title": "سجل التحميلات",
+      "description": "تحميلاتك الأخيرة واستخدام النقاط",
+      "filters": {
+        "newest": "الأحدث أولاً",
+        "oldest": "الأقدم أولاً",
+        "creditsHigh": "النقاط: من الأعلى إلى الأقل",
+        "creditsLow": "النقاط: من الأقل إلى الأعلى"
+      },
+      "empty": {
+        "title": "لا توجد تحميلات",
+        "description": "سيظهر سجل التحميلات هنا"
+      },
+      "loadMore": "تحميل المزيد",
+      "credits": "نقطة",
+      "types": {
+        "image": "صورة",
+        "video": "فيديو"
+      }
     }
   },
   "common": {

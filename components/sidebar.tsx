@@ -8,6 +8,7 @@ import {
   Settings,
   LogOut,
   X,
+  User,
 } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -211,12 +212,36 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
               </div>
               <div className="space-y-1">
                 <Link
+                  href="/profile"
+                  onClick={handleLinkClick}
+                  className={cn(
+                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
+                    pathname === "/profile"
+                      ? "bg-secondary text-foreground"
+                      : "hover:bg-muted text-muted-foreground"
+                  )}
+                >
+                  <div className="size-8 bg-purple-500 flex items-center justify-center">
+                    <User className="size-4 text-white" />
+                  </div>
+                  <span
+                    className={cn(
+                      "text-base",
+                      pathname === "/profile"
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    )}
+                  >
+                    {t("sidebar.navigation.profile")}
+                  </span>
+                </Link>
+                <Link
                   href="/settings"
                   onClick={handleLinkClick}
                   className={cn(
                     `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
                     pathname === "/settings"
-                      ? "bg-primary/20 text-foreground"
+                      ? "bg-secondary text-foreground"
                       : "hover:bg-muted text-muted-foreground"
                   )}
                 >

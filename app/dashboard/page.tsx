@@ -67,7 +67,7 @@ import { Sidebar } from "@/components/sidebar";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/i18n-provider";
-import { UserDropdown } from "@/components/user-dropdown";
+import { HeaderControls } from "@/components/header-controls";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DashboardSkeleton } from "@/components/dashboard-skeletons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -863,7 +863,7 @@ export default function DashboardPage() {
               {t("header.logo")}
             </span>
           </div>
-          <UserDropdown />
+          <HeaderControls />
         </div>
       </header>
       <div className="flex">
