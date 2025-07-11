@@ -13,6 +13,8 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/components/i18n-provider";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -22,6 +24,8 @@ interface SidebarProps {
 export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
   const pathname = usePathname();
   const [isMobile, setIsMobile] = useState(false);
+  const { t } = useTranslation("common");
+  const { isRTL } = useLanguage();
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -52,18 +56,22 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed left-0 top-0 w-72 h-screen bg-background border-r border-border z-50 transition-transform duration-300 ease-in-out",
+          `fixed ${isRTL ? "right-0 border-l" : "left-0 border-r"} top-0 w-72 h-screen bg-background border-border z-50 transition-transform duration-300 ease-in-out ${isRTL ? "font-tajawal" : "font-sans"}`,
           isMobile
             ? isOpen
               ? "translate-x-0"
-              : "-translate-x-full"
+              : isRTL
+                ? "translate-x-full"
+                : "-translate-x-full"
             : "translate-x-0"
         )}
       >
         <div className="p-6 h-full overflow-y-auto">
           {/* Mobile Close Button */}
           {isMobile && (
-            <div className="absolute right-6 top-2 lg:hidden">
+            <div
+              className={`absolute ${isRTL ? "left-6" : "right-6"} top-2 lg:hidden`}
+            >
               <button
                 onClick={onToggle}
                 className="cursor-pointer p-2 hover:bg-muted rounded-lg transition-colors min-h-[33px] min-w-[33px] flex items-center justify-center"
@@ -75,16 +83,20 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
           )}
           <div className="space-y-6">
             <div>
-              <div className="flex items-center space-x-2 text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              <div
+                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3`}
+              >
                 <div className="size-3 bg-primary rounded-full"></div>
-                <span className="text-sm">OVERVIEW</span>
+                <span className="text-sm">
+                  {t("sidebar.sections.overview")}
+                </span>
               </div>
               <div className="space-y-1">
                 <Link
                   href="/dashboard"
                   onClick={handleLinkClick}
                   className={cn(
-                    "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
                     pathname === "/dashboard"
                       ? "bg-secondary text-foreground"
                       : "hover:bg-muted text-muted-foreground"
@@ -101,22 +113,26 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
                         : "text-muted-foreground"
                     )}
                   >
-                    Dashboard
+                    {t("sidebar.navigation.dashboard")}
                   </span>
                 </Link>
               </div>
             </div>
             <div>
-              <div className="flex items-center space-x-2 text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              <div
+                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3`}
+              >
                 <div className="size-3 bg-primary rounded-full"></div>
-                <span className="text-sm">MANAGEMENT</span>
+                <span className="text-sm">
+                  {t("sidebar.sections.management")}
+                </span>
               </div>
               <div className="space-y-1">
                 <Link
                   href="/users"
                   onClick={handleLinkClick}
                   className={cn(
-                    "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
                     pathname === "/users"
                       ? "bg-secondary text-foreground"
                       : "hover:bg-muted text-muted-foreground"
@@ -133,14 +149,14 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
                         : "text-muted-foreground"
                     )}
                   >
-                    Users Management
+                    {t("sidebar.navigation.usersManagement")}
                   </span>
                 </Link>
                 <Link
                   href="/sites"
                   onClick={handleLinkClick}
                   className={cn(
-                    "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
                     pathname === "/sites"
                       ? "bg-secondary text-foreground"
                       : "hover:bg-muted text-muted-foreground"
@@ -157,14 +173,14 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
                         : "text-muted-foreground"
                     )}
                   >
-                    Sites Management
+                    {t("sidebar.navigation.sitesManagement")}
                   </span>
                 </Link>
                 <Link
                   href="/pricing"
                   onClick={handleLinkClick}
                   className={cn(
-                    "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
                     pathname === "/pricing"
                       ? "bg-secondary text-foreground"
                       : "hover:bg-muted text-muted-foreground"
@@ -181,22 +197,24 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
                         : "text-muted-foreground"
                     )}
                   >
-                    Pricing Management
+                    {t("sidebar.navigation.pricingManagement")}
                   </span>
                 </Link>
               </div>
             </div>
             <div>
-              <div className="flex items-center space-x-2 text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+              <div
+                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3`}
+              >
                 <div className="size-3 bg-primary rounded-full"></div>
-                <span className="text-sm">ACCOUNT</span>
+                <span className="text-sm">{t("sidebar.sections.account")}</span>
               </div>
               <div className="space-y-1">
                 <Link
                   href="/settings"
                   onClick={handleLinkClick}
                   className={cn(
-                    "flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors",
+                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
                     pathname === "/settings"
                       ? "bg-primary/20 text-foreground"
                       : "hover:bg-muted text-muted-foreground"
@@ -213,18 +231,18 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
                         : "text-muted-foreground"
                     )}
                   >
-                    Settings
+                    {t("sidebar.navigation.settings")}
                   </span>
                 </Link>
                 <button
                   onClick={handleLinkClick}
-                  className="cursor-pointer flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-muted w-full text-left"
+                  className={`cursor-pointer flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg hover:bg-muted w-full ${isRTL ? "text-right" : "text-left"}`}
                 >
                   <div className="size-8 bg-pink-500 flex items-center justify-center">
                     <LogOut className="size-4 text-white" />
                   </div>
                   <span className="text-base text-muted-foreground">
-                    Sign Out
+                    {t("sidebar.navigation.signOut")}
                   </span>
                 </button>
               </div>

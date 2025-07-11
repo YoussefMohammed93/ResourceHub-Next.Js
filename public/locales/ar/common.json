@@ -150,6 +150,260 @@
       "templates": "القوالب"
     }
   },
+  "dashboard": {
+    "title": "لوحة التحكم",
+    "stats": {
+      "totalUsers": {
+        "title": "إجمالي المستخدمين",
+        "description": "الحسابات المسجلة"
+      },
+      "activeSites": {
+        "title": "المواقع النشطة",
+        "description": "المواقع المباشرة"
+      },
+      "onlineUsers": {
+        "title": "المستخدمون المتصلون",
+        "description": "النشطون حالياً"
+      }
+    },
+    "usersManagement": {
+      "title": "إدارة المستخدمين",
+      "description": "إدارة اشتراكات المستخدمين ومراقبة النشاط",
+      "searchPlaceholder": "البحث عن المستخدمين...",
+      "filters": {
+        "allStatus": "جميع الحالات",
+        "active": "نشط",
+        "expired": "منتهي الصلاحية",
+        "suspended": "معلق"
+      },
+      "table": {
+        "headers": {
+          "user": "المستخدم",
+          "planCredits": "الخطة والنقاط",
+          "status": "الحالة",
+          "expiry": "انتهاء الصلاحية",
+          "actions": "الإجراءات"
+        },
+        "credits": "نقطة",
+        "deleteUser": "حذف المستخدم",
+        "noUsersFound": "لم يتم العثور على مستخدمين",
+        "noUsersDescription": "حاول تعديل معايير البحث أو التصفية",
+        "showingUsers": "عرض {{filtered}} من {{total}} مستخدم",
+        "lastActive": "آخر نشاط: {{time}}",
+        "joined": "انضم",
+        "expires": "ينتهي"
+      }
+    },
+    "addSubscription": {
+      "title": "إضافة اشتراك جديد",
+      "description": "إنشاء اشتراك للمستخدم",
+      "userEmail": "بريد المستخدم الإلكتروني",
+      "subscriptionPlan": "خطة الاشتراك",
+      "planPreview": "معاينة الخطة",
+      "planName": "اسم الخطة :",
+      "credits": "النقاط :",
+      "addingSubscription": "جاري إضافة الاشتراك...",
+      "addSubscription": "إضافة اشتراك",
+      "choosePlan": "اختر خطة اشتراك",
+      "emailPlaceholder": "user@example.com",
+      "validation": {
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+        "planRequired": "يرجى اختيار خطة اشتراك"
+      }
+    },
+    "creditHistory": {
+      "title": "سجل النقاط",
+      "description": "تتبع استخدام النقاط والمعاملات",
+      "recentActivity": "النشاط الأخير",
+      "noActivity": "لا يوجد نشاط حديث",
+      "noActivityDescription": "ستظهر معاملات النقاط هنا",
+      "transactions": {
+        "siteAccess": "الوصول للموقع",
+        "creditPurchase": "شراء نقاط",
+        "planUpgrade": "ترقية الخطة",
+        "timeAgo": {
+          "now": "الآن",
+          "minutesAgo": "منذ {{count}} دقيقة",
+          "hoursAgo": "منذ {{count}} ساعة",
+          "daysAgo": "منذ {{count}} يوم"
+        }
+      }
+    },
+    "upgradeSubscription": {
+      "title": "ترقية الاشتراك",
+      "description": "ترقية المستخدم إلى خطة أعلى",
+      "userEmail": "بريد المستخدم الإلكتروني",
+      "newPlan": "الخطة الجديدة",
+      "upgrading": "جاري الترقية...",
+      "upgrade": "ترقية",
+      "validation": {
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+        "planRequired": "يرجى اختيار خطة جديدة"
+      }
+    },
+    "extendSubscription": {
+      "title": "تمديد الاشتراك",
+      "description": "تمديد صلاحية اشتراك المستخدم",
+      "userEmail": "بريد المستخدم الإلكتروني",
+      "additionalDays": "أيام إضافية",
+      "extending": "جاري التمديد...",
+      "extend": "تمديد",
+      "estimatedNewExpiry": "تاريخ انتهاء الصلاحية المتوقع",
+      "validation": {
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+        "daysRequired": "يرجى إدخال عدد صحيح من الأيام"
+      }
+    },
+    "deleteSubscription": {
+      "title": "حذف الاشتراك",
+      "description": "إزالة اشتراك المستخدم نهائياً",
+      "userEmail": "بريد المستخدم الإلكتروني",
+      "deleting": "جاري الحذف...",
+      "delete": "حذف",
+      "warning": "تحذير: هذا الإجراء لا يمكن التراجع عنه. سيتم حذف جميع بيانات الاشتراك والنقاط المرتبطة بهذا المستخدم نهائياً.",
+      "validation": {
+        "emailRequired": "البريد الإلكتروني مطلوب",
+        "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح"
+      }
+    },
+    "siteManagement": {
+      "title": "إدارة المواقع",
+      "description": "إدارة المواقع المدعومة",
+      "addSite": "إضافة موقع جديد",
+      "siteName": "اسم الموقع",
+      "siteUrl": "رابط الموقع",
+      "price": "السعر",
+      "siteIcon": "رابط أيقونة الموقع (اختياري)",
+      "adding": "جاري إضافة الموقع...",
+      "add": "إضافة موقع",
+      "status": "الحالة",
+      "addedDate": "تاريخ الإضافة",
+      "table": {
+        "headers": {
+          "site": "الموقع",
+          "url": "الرابط",
+          "price": "السعر",
+          "status": "الحالة",
+          "actions": "الإجراءات"
+        },
+        "noSites": "لا توجد مواقع",
+        "noSitesDescription": "ابدأ بإضافة موقع جديد",
+        "accessPrice": "سعر الوصول",
+        "credits": "نقطة",
+        "active": "نشط",
+        "delete": "حذف"
+      },
+      "placeholders": {
+        "siteName": "أدخل اسم الموقع",
+        "siteUrl": "https://example.com",
+        "sitePrice": "أدخل السعر بالنقاط",
+        "siteIcon": "https://example.com/icon.png",
+        "siteIconHelp": "اختياري - سيتم استخدام أيقونة افتراضية إذا لم يتم توفيرها"
+      },
+      "validation": {
+        "nameRequired": "اسم الموقع مطلوب",
+        "urlRequired": "رابط الموقع مطلوب",
+        "invalidUrl": "يرجى إدخال رابط صحيح",
+        "priceRequired": "السعر مطلوب",
+        "invalidPrice": "يرجى إدخال سعر صحيح"
+      }
+    },
+    "packageManagement": {
+      "title": "إدارة خطط الأسعار",
+      "description": "إدارة خطط الاشتراك والأسعار",
+      "addPackage": "إضافة خطة جديدة",
+      "editPackage": "تعديل الخطة",
+      "packageName": "اسم الخطة",
+      "packagePrice": "سعر الخطة (اختياري - اتركه فارغاً لعرض 'تواصل معنا')",
+      "packageDescription": "وصف الخطة",
+      "daysValidity": "مدة الصلاحية (بالأيام)",
+      "credits": "عدد النقاط",
+      "contactUrl": "رابط تواصل معنا (اختياري)",
+      "supportedSites": "المواقع المدعومة (مفصولة بفواصل)",
+      "adding": "جاري إضافة الخطة...",
+      "updating": "جاري تحديث الخطة...",
+      "deleting": "جاري حذف الخطة...",
+      "add": "إضافة خطة",
+      "update": "تحديث الخطة",
+      "delete": "حذف الخطة",
+      "edit": "تعديل",
+      "confirmDelete": "هل أنت متأكد من أنك تريد حذف هذه الخطة؟",
+      "deleteDescription": "لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف الخطة نهائياً وقد يؤثر على المستخدمين المشتركين بها.",
+      "noPackages": "لا توجد خطط متاحة",
+      "noPackagesDescription": "ابدأ بإضافة خطة جديدة لإدارة الاشتراكات",
+      "editDescription": "تعديل تفاصيل الخطة",
+      "planDetails": {
+        "name": "اسم الخطة:",
+        "price": "السعر:",
+        "description": "الوصف:",
+        "validity": "مدة الصلاحية:",
+        "credits": "النقاط:",
+        "contactUs": "تواصل معنا:",
+        "supportedSites": "المواقع المدعومة:",
+        "days": "يوم",
+        "contactUsLabel": "تواصل معنا"
+      },
+      "placeholders": {
+        "packageName": "أدخل اسم الخطة",
+        "packageDescription": "أدخل وصف الخطة",
+        "packagePrice": "اتركه فارغاً لعرض 'تواصل معنا'",
+        "packagePriceHelp": "اتركه فارغاً لعرض تواصل معنا بدلاً من السعر",
+        "daysValidity": "30",
+        "credits": "100",
+        "contactUrl": "https://example.com/contact",
+        "supportedSites": "الموقع أ، الموقع ب، الموقع ج",
+        "supportedSitesHelp": "أدخل قائمة مفصولة بفواصل للمواقع المدعومة"
+      },
+      "buttons": {
+        "cancel": "إلغاء",
+        "adding": "جاري الإضافة...",
+        "updating": "جاري التحديث...",
+        "addPackage": "إضافة حزمة",
+        "updatePackage": "تحديث الحزمة"
+      },
+      "validation": {
+        "nameRequired": "اسم الخطة مطلوب",
+        "descriptionRequired": "الوصف مطلوب",
+        "daysRequired": "مدة الصلاحية مطلوبة",
+        "invalidDays": "يرجى إدخال عدد صحيح من الأيام",
+        "creditsRequired": "عدد النقاط مطلوب",
+        "invalidCredits": "يرجى إدخال عدد صحيح من النقاط",
+        "invalidUrl": "يرجى إدخال رابط صحيح"
+      },
+      "features": {
+        "accessToSites": "الوصول للمواقع المدعومة",
+        "support": "دعم فني 24/7",
+        "adminManagement": "إدارة المشرفين"
+      }
+    },
+    "creditAnalytics": {
+      "title": "سجل النقاط",
+      "description": "مراقبة استخدام النقاط والإحصائيات",
+      "totalIssued": "إجمالي المُصدر",
+      "remaining": "المتبقي",
+      "used": "المُستخدم",
+      "dailyAvg": "المتوسط اليومي",
+      "lastUpdated": "آخر تحديث"
+    }
+  },
+  "sidebar": {
+    "sections": {
+      "overview": "نظرة عامة",
+      "management": "الإدارة",
+      "account": "الحساب"
+    },
+    "navigation": {
+      "dashboard": "لوحة التحكم",
+      "usersManagement": "إدارة المستخدمين",
+      "sitesManagement": "إدارة المواقع",
+      "pricingManagement": "إدارة الأسعار",
+      "settings": "الإعدادات",
+      "signOut": "تسجيل الخروج"
+    }
+  },
   "common": {
     "loading": "جاري التحميل...",
     "error": "خطأ",

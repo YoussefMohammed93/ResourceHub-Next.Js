@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "../i18n-provider";
 import { buttonVariants } from "@/components/ui/button";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 
@@ -66,10 +67,16 @@ function AlertDialogHeader({
   className,
   ...props
 }: React.ComponentProps<"div">) {
+  const { isRTL } = useLanguage();
+
   return (
     <div
       data-slot="alert-dialog-header"
-      className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
+      className={cn(
+        "flex flex-col gap-2 text-center sm:text-left",
+        className,
+        `${isRTL && "sm:text-right"}`
+      )}
       {...props}
     />
   );

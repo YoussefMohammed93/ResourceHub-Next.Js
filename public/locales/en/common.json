@@ -150,6 +150,260 @@
       "templates": "Templates"
     }
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "stats": {
+      "totalUsers": {
+        "title": "Total Users",
+        "description": "Registered accounts"
+      },
+      "activeSites": {
+        "title": "Active Sites",
+        "description": "Live websites"
+      },
+      "onlineUsers": {
+        "title": "Online Users",
+        "description": "Currently active"
+      }
+    },
+    "usersManagement": {
+      "title": "Users Management",
+      "description": "Manage user subscriptions and monitor activity",
+      "searchPlaceholder": "Search users...",
+      "filters": {
+        "allStatus": "All Status",
+        "active": "Active",
+        "expired": "Expired",
+        "suspended": "Suspended"
+      },
+      "table": {
+        "headers": {
+          "user": "USER",
+          "planCredits": "PLAN & CREDITS",
+          "status": "STATUS",
+          "expiry": "EXPIRY",
+          "actions": "ACTIONS"
+        },
+        "credits": "credits",
+        "deleteUser": "Delete User",
+        "noUsersFound": "No users found",
+        "noUsersDescription": "Try adjusting your search or filter criteria",
+        "showingUsers": "Showing {{filtered}} of {{total}} users",
+        "lastActive": "Last active: {{time}}",
+        "joined": "Joined",
+        "expires": "Expires"
+      }
+    },
+    "addSubscription": {
+      "title": "Add New Subscription",
+      "description": "Create a subscription for a user",
+      "userEmail": "User Email",
+      "subscriptionPlan": "Subscription Plan",
+      "planPreview": "Plan Preview",
+      "planName": "Plan Name :",
+      "credits": "Credits :",
+      "addingSubscription": "Adding Subscription...",
+      "addSubscription": "Add Subscription",
+      "choosePlan": "Choose a subscription plan",
+      "emailPlaceholder": "user@example.com",
+      "validation": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Please enter a valid email address",
+        "planRequired": "Please select a subscription plan"
+      }
+    },
+    "creditHistory": {
+      "title": "Credit History",
+      "description": "Track credit usage and transactions",
+      "recentActivity": "Recent Activity",
+      "noActivity": "No recent activity",
+      "noActivityDescription": "Credit transactions will appear here",
+      "transactions": {
+        "siteAccess": "Site access",
+        "creditPurchase": "Credit Purchase",
+        "planUpgrade": "Plan Upgrade",
+        "timeAgo": {
+          "now": "now",
+          "minutesAgo": "{{count}}m ago",
+          "hoursAgo": "{{count}}h ago",
+          "daysAgo": "{{count}}d ago"
+        }
+      }
+    },
+    "upgradeSubscription": {
+      "title": "Upgrade Subscription",
+      "description": "Upgrade user to a higher plan",
+      "userEmail": "User Email",
+      "newPlan": "New Plan",
+      "upgrading": "Upgrading...",
+      "upgrade": "Upgrade",
+      "validation": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Please enter a valid email address",
+        "planRequired": "Please select a new plan"
+      }
+    },
+    "extendSubscription": {
+      "title": "Extend Subscription",
+      "description": "Extend user subscription validity",
+      "userEmail": "User Email",
+      "additionalDays": "Additional Days",
+      "extending": "Extending...",
+      "extend": "Extend",
+      "estimatedNewExpiry": "Estimated New Expiry",
+      "validation": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Please enter a valid email address",
+        "daysRequired": "Please enter a valid number of days"
+      }
+    },
+    "deleteSubscription": {
+      "title": "Delete Subscription",
+      "description": "Remove user subscription",
+      "warning": "Warning: This action is irreversible. All subscription data and points associated with this user will be permanently deleted.",
+      "userEmail": "User Email",
+      "deleting": "Deleting...",
+      "delete": "Delete",
+      "validation": {
+        "emailRequired": "Email is required",
+        "invalidEmail": "Please enter a valid email address"
+      }
+    },
+    "siteManagement": {
+      "title": "Site Management",
+      "description": "Manage supported websites",
+      "addSite": "Add New Site",
+      "siteName": "Site Name",
+      "siteUrl": "Site URL",
+      "price": "Price",
+      "siteIcon": "Site Icon URL (Optional)",
+      "adding": "Adding Site...",
+      "add": "Add Site",
+      "status": "Status",
+      "addedDate": "Added Date",
+      "table": {
+        "headers": {
+          "site": "Site",
+          "url": "URL",
+          "price": "Price",
+          "status": "Status",
+          "actions": "Actions"
+        },
+        "noSites": "No sites found",
+        "noSitesDescription": "Add your first site to get started",
+        "accessPrice": "Access Price",
+        "credits": "credits",
+        "active": "Active",
+        "delete": "Delete"
+      },
+      "placeholders": {
+        "siteName": "Enter site name",
+        "siteUrl": "https://example.com",
+        "sitePrice": "Enter price in credits",
+        "siteIcon": "https://example.com/icon.png",
+        "siteIconHelp": "Optional - we'll use a default icon if not provided"
+      },
+      "validation": {
+        "nameRequired": "Site name is required",
+        "urlRequired": "Site URL is required",
+        "invalidUrl": "Please enter a valid URL",
+        "priceRequired": "Price is required",
+        "invalidPrice": "Please enter a valid price"
+      }
+    },
+    "packageManagement": {
+      "title": "Pricing Management",
+      "description": "Manage subscription plans and pricing",
+      "addPackage": "Add New Plan",
+      "editPackage": "Edit Plan",
+      "packageName": "Plan Name",
+      "packagePrice": "Plan Price (Optional - leave empty to show 'Contact Us')",
+      "packageDescription": "Plan Description",
+      "daysValidity": "Validity Period (in days)",
+      "credits": "Number of Credits",
+      "contactUrl": "Contact Us URL (Optional)",
+      "supportedSites": "Supported Sites (comma-separated)",
+      "adding": "Adding Plan...",
+      "updating": "Updating Plan...",
+      "deleting": "Deleting Plan...",
+      "add": "Add Plan",
+      "update": "Update Plan",
+      "delete": "Delete Plan",
+      "edit": "Edit",
+      "confirmDelete": "Are you sure you want to delete this plan?",
+      "deleteDescription": "This action cannot be undone. This will permanently delete the plan and may affect users subscribed to it.",
+      "noPackages": "No plans available",
+      "noPackagesDescription": "Start by adding a new plan to manage subscriptions",
+      "editDescription": "Edit plan details",
+      "planDetails": {
+        "name": "Plan Name:",
+        "price": "Price:",
+        "description": "Description:",
+        "validity": "Validity Period:",
+        "credits": "Credits:",
+        "contactUs": "Contact Us:",
+        "supportedSites": "Supported Sites:",
+        "days": "days",
+        "contactUsLabel": "Contact Us"
+      },
+      "placeholders": {
+        "packageName": "Enter plan name",
+        "packageDescription": "Enter plan description",
+        "packagePrice": "Leave empty to show 'Contact Us'",
+        "packagePriceHelp": "Leave empty to display Contact Us instead of a price",
+        "daysValidity": "30",
+        "credits": "100",
+        "contactUrl": "https://example.com/contact",
+        "supportedSites": "Site A, Site B, Site C",
+        "supportedSitesHelp": "Enter comma-separated list of supported sites"
+      },
+      "buttons": {
+        "cancel": "Cancel",
+        "adding": "Adding...",
+        "updating": "Updating...",
+        "addPackage": "Add Package",
+        "updatePackage": "Update Package"
+      },
+      "validation": {
+        "nameRequired": "Plan name is required",
+        "descriptionRequired": "Description is required",
+        "daysRequired": "Validity period is required",
+        "invalidDays": "Please enter a valid number of days",
+        "creditsRequired": "Number of credits is required",
+        "invalidCredits": "Please enter a valid number of credits",
+        "invalidUrl": "Please enter a valid URL"
+      },
+      "features": {
+        "accessToSites": "Access to supported sites",
+        "support": "24/7 Support",
+        "adminManagement": "Admin Management"
+      }
+    },
+    "creditAnalytics": {
+      "title": "Credit Analytics",
+      "description": "Monitor credit usage and statistics",
+      "totalIssued": "Total Issued",
+      "remaining": "Remaining",
+      "used": "Used",
+      "dailyAvg": "Daily Avg",
+      "lastUpdated": "Last Updated"
+    }
+  },
+  "sidebar": {
+    "sections": {
+      "overview": "Overview",
+      "management": "Management",
+      "account": "Account"
+    },
+    "navigation": {
+      "dashboard": "Dashboard",
+      "usersManagement": "Users Management",
+      "sitesManagement": "Sites Management",
+      "pricingManagement": "Pricing Management",
+      "settings": "Settings",
+      "signOut": "Sign Out"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

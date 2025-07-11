@@ -64,9 +64,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Sidebar } from "@/components/sidebar";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/i18n-provider";
 import { UserDropdown } from "@/components/user-dropdown";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { DashboardSkeleton } from "@/components/dashboard-skeletons";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Type definitions
@@ -83,6 +86,9 @@ interface PricingPlan {
 }
 
 export default function DashboardPage() {
+  const { t } = useTranslation("common");
+  const { isRTL, isLoading } = useLanguage();
+
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -206,27 +212,27 @@ export default function DashboardPage() {
 
     // Validate site name
     if (!siteName.trim()) {
-      setSiteNameError("Site name is required");
+      setSiteNameError(t("dashboard.siteManagement.validation.nameRequired"));
       return;
     }
 
     // Validate site URL
     if (!siteUrl.trim()) {
-      setSiteUrlError("Site URL is required");
+      setSiteUrlError(t("dashboard.siteManagement.validation.urlRequired"));
       return;
     }
     if (!validateUrl(siteUrl)) {
-      setSiteUrlError("Please enter a valid URL");
+      setSiteUrlError(t("dashboard.siteManagement.validation.invalidUrl"));
       return;
     }
 
     // Validate price
     if (!sitePrice.trim()) {
-      setSitePriceError("Price is required");
+      setSitePriceError(t("dashboard.siteManagement.validation.priceRequired"));
       return;
     }
     if (isNaN(Number(sitePrice)) || Number(sitePrice) <= 0) {
-      setSitePriceError("Please enter a valid price");
+      setSitePriceError(t("dashboard.siteManagement.validation.invalidPrice"));
       return;
     }
 
@@ -267,42 +273,56 @@ export default function DashboardPage() {
 
     // Validate package name
     if (!packageName.trim()) {
-      setPackageNameError("Package name is required");
+      setPackageNameError(
+        t("dashboard.packageManagement.validation.nameRequired")
+      );
       return;
     }
 
     // Validate description
     if (!packageDescription.trim()) {
-      setPackageDescriptionError("Description is required");
+      setPackageDescriptionError(
+        t("dashboard.packageManagement.validation.descriptionRequired")
+      );
       return;
     }
 
     // Validate days validity
     if (!packageDaysValidity.trim()) {
-      setPackageDaysValidityError("Days validity is required");
+      setPackageDaysValidityError(
+        t("dashboard.packageManagement.validation.daysRequired")
+      );
       return;
     }
     if (
       isNaN(Number(packageDaysValidity)) ||
       Number(packageDaysValidity) <= 0
     ) {
-      setPackageDaysValidityError("Please enter a valid number of days");
+      setPackageDaysValidityError(
+        t("dashboard.packageManagement.validation.invalidDays")
+      );
       return;
     }
 
     // Validate credits
     if (!packageCredits.trim()) {
-      setPackageCreditsError("Credits are required");
+      setPackageCreditsError(
+        t("dashboard.packageManagement.validation.creditsRequired")
+      );
       return;
     }
     if (isNaN(Number(packageCredits)) || Number(packageCredits) <= 0) {
-      setPackageCreditsError("Please enter a valid number of credits");
+      setPackageCreditsError(
+        t("dashboard.packageManagement.validation.invalidCredits")
+      );
       return;
     }
 
     // Validate contact URL if provided
     if (packageContactUrl.trim() && !validateUrl(packageContactUrl)) {
-      setPackageContactUrlError("Please enter a valid URL");
+      setPackageContactUrlError(
+        t("dashboard.packageManagement.validation.invalidUrl")
+      );
       return;
     }
 
@@ -322,9 +342,9 @@ export default function DashboardPage() {
           ? packageSupportedSites.split(",").map((site) => site.trim())
           : [],
         features: [
-          "Access to supported sites",
-          "24/7 Support",
-          "Admin Management",
+          t("dashboard.packageManagement.features.accessToSites"),
+          t("dashboard.packageManagement.features.support"),
+          t("dashboard.packageManagement.features.adminManagement"),
         ],
       };
 
@@ -369,42 +389,56 @@ export default function DashboardPage() {
 
     // Validate package name
     if (!editPackageName.trim()) {
-      setEditPackageNameError("Package name is required");
+      setEditPackageNameError(
+        t("dashboard.packageManagement.validation.nameRequired")
+      );
       return;
     }
 
     // Validate description
     if (!editPackageDescription.trim()) {
-      setEditPackageDescriptionError("Description is required");
+      setEditPackageDescriptionError(
+        t("dashboard.packageManagement.validation.descriptionRequired")
+      );
       return;
     }
 
     // Validate days validity
     if (!editPackageDaysValidity.trim()) {
-      setEditPackageDaysValidityError("Days validity is required");
+      setEditPackageDaysValidityError(
+        t("dashboard.packageManagement.validation.daysRequired")
+      );
       return;
     }
     if (
       isNaN(Number(editPackageDaysValidity)) ||
       Number(editPackageDaysValidity) <= 0
     ) {
-      setEditPackageDaysValidityError("Please enter a valid number of days");
+      setEditPackageDaysValidityError(
+        t("dashboard.packageManagement.validation.invalidDays")
+      );
       return;
     }
 
     // Validate credits
     if (!editPackageCredits.trim()) {
-      setEditPackageCreditsError("Credits are required");
+      setEditPackageCreditsError(
+        t("dashboard.packageManagement.validation.creditsRequired")
+      );
       return;
     }
     if (isNaN(Number(editPackageCredits)) || Number(editPackageCredits) <= 0) {
-      setEditPackageCreditsError("Please enter a valid number of credits");
+      setEditPackageCreditsError(
+        t("dashboard.packageManagement.validation.invalidCredits")
+      );
       return;
     }
 
     // Validate contact URL if provided
     if (editPackageContactUrl.trim() && !validateUrl(editPackageContactUrl)) {
-      setEditPackageContactUrlError("Please enter a valid URL");
+      setEditPackageContactUrlError(
+        t("dashboard.packageManagement.validation.invalidUrl")
+      );
       return;
     }
 
@@ -489,17 +523,17 @@ export default function DashboardPage() {
 
     // Validate email
     if (!email.trim()) {
-      setEmailError("Email is required");
+      setEmailError(t("dashboard.addSubscription.validation.emailRequired"));
       return;
     }
     if (!validateEmail(email)) {
-      setEmailError("Please enter a valid email address");
+      setEmailError(t("dashboard.addSubscription.validation.invalidEmail"));
       return;
     }
 
     // Validate plan selection
     if (!selectedPlan) {
-      setPlanError("Please select a subscription plan");
+      setPlanError(t("dashboard.addSubscription.validation.planRequired"));
       return;
     }
 
@@ -520,15 +554,21 @@ export default function DashboardPage() {
     setUpgradeNewPlanError("");
 
     if (!upgradeEmail.trim()) {
-      setUpgradeEmailError("Email is required");
+      setUpgradeEmailError(
+        t("dashboard.upgradeSubscription.validation.emailRequired")
+      );
       return;
     }
     if (!validateEmail(upgradeEmail)) {
-      setUpgradeEmailError("Please enter a valid email address");
+      setUpgradeEmailError(
+        t("dashboard.upgradeSubscription.validation.invalidEmail")
+      );
       return;
     }
     if (!upgradeNewPlan) {
-      setUpgradeNewPlanError("Please select a new plan");
+      setUpgradeNewPlanError(
+        t("dashboard.upgradeSubscription.validation.planRequired")
+      );
       return;
     }
 
@@ -546,15 +586,21 @@ export default function DashboardPage() {
     setExtendDaysError("");
 
     if (!extendEmail.trim()) {
-      setExtendEmailError("Email is required");
+      setExtendEmailError(
+        t("dashboard.extendSubscription.validation.emailRequired")
+      );
       return;
     }
     if (!validateEmail(extendEmail)) {
-      setExtendEmailError("Please enter a valid email address");
+      setExtendEmailError(
+        t("dashboard.extendSubscription.validation.invalidEmail")
+      );
       return;
     }
     if (!extendDays.trim() || parseInt(extendDays) <= 0) {
-      setExtendDaysError("Please enter a valid number of days");
+      setExtendDaysError(
+        t("dashboard.extendSubscription.validation.daysRequired")
+      );
       return;
     }
 
@@ -571,11 +617,15 @@ export default function DashboardPage() {
     setDeleteEmailError("");
 
     if (!deleteEmail.trim()) {
-      setDeleteEmailError("Email is required");
+      setDeleteEmailError(
+        t("dashboard.deleteSubscription.validation.emailRequired")
+      );
       return;
     }
     if (!validateEmail(deleteEmail)) {
-      setDeleteEmailError("Please enter a valid email address");
+      setDeleteEmailError(
+        t("dashboard.deleteSubscription.validation.invalidEmail")
+      );
       return;
     }
 
@@ -714,7 +764,11 @@ export default function DashboardPage() {
       daysValidity: 30,
       contactUsUrl: "",
       supportedSites: ["Site A", "Site B", "Site C"],
-      features: ["Access to all sites", "24/7 Support", "Admin Management"],
+      features: [
+        "dashboard.packageManagement.features.accessToSites",
+        "dashboard.packageManagement.features.support",
+        "dashboard.packageManagement.features.adminManagement",
+      ],
     },
     {
       id: 2,
@@ -725,7 +779,11 @@ export default function DashboardPage() {
       daysValidity: 15,
       contactUsUrl: "https://example.com/contact",
       supportedSites: ["Site A", "Site B"],
-      features: ["Access to all sites", "24/7 Support", "Admin Management"],
+      features: [
+        "dashboard.packageManagement.features.accessToSites",
+        "dashboard.packageManagement.features.support",
+        "dashboard.packageManagement.features.adminManagement",
+      ],
     },
   ]);
 
@@ -771,12 +829,23 @@ export default function DashboardPage() {
     }
   };
 
+  // Show loading skeleton while language data is loading
+  if (isLoading) {
+    return <DashboardSkeleton />;
+  }
+
   return (
-    <div className="min-h-screen bg-background">
+    <div
+      className={`min-h-screen bg-background ${isRTL ? "font-tajawal" : "font-sans"}`}
+    >
       {/* Header */}
-      <header className="bg-background border-b border-border px-4 sm:px-6 py-4 lg:ml-72">
+      <header
+        className={`bg-background border-b border-border px-4 sm:px-6 py-4 ${isRTL ? "lg:mr-72" : "lg:ml-72"}`}
+      >
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <div
+            className={`flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"}`}
+          >
             {/* Mobile Hamburger Menu */}
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -785,11 +854,13 @@ export default function DashboardPage() {
             >
               <Menu className="w-5 h-5 text-muted-foreground" />
             </button>
-            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+            <div
+              className={`${isRTL && "ml-2"} w-8 h-8 bg-primary rounded-lg flex items-center justify-center`}
+            >
               <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
             </div>
             <span className="text-lg sm:text-xl font-semibold text-foreground">
-              ResourceHub
+              {t("header.logo")}
             </span>
           </div>
           <UserDropdown />
@@ -802,7 +873,9 @@ export default function DashboardPage() {
           onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
         />
         {/* Main Content */}
-        <main className="flex-1 lg:ml-72 p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50">
+        <main
+          className={`flex-1 ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
+        >
           {/* Enhanced Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {/* Total Users Card */}
@@ -816,10 +889,10 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
-                          Total Users
+                          {t("dashboard.stats.totalUsers.title")}
                         </h3>
                         <p className="text-xs sm:text-sm text-muted-foreground/80">
-                          Registered accounts
+                          {t("dashboard.stats.totalUsers.description")}
                         </p>
                       </div>
                     </div>
@@ -845,10 +918,10 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
-                          Active Sites
+                          {t("dashboard.stats.activeSites.title")}
                         </h3>
                         <p className="text-xs sm:text-sm text-muted-foreground/80">
-                          Live websites
+                          {t("dashboard.stats.activeSites.description")}
                         </p>
                       </div>
                     </div>
@@ -875,10 +948,10 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
-                          Online Users
+                          {t("dashboard.stats.onlineUsers.title")}
                         </h3>
                         <p className="text-xs sm:text-sm text-muted-foreground/80">
-                          Currently active
+                          {t("dashboard.stats.onlineUsers.description")}
                         </p>
                       </div>
                     </div>
@@ -899,17 +972,19 @@ export default function DashboardPage() {
             <CardHeader className="w-full flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
               <div className="w-full max-w-lg">
                 <CardTitle className="text-lg font-semibold text-foreground">
-                  Users Management
+                  {t("dashboard.usersManagement.title")}
                 </CardTitle>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Manage user subscriptions and monitor activity
+                  {t("dashboard.usersManagement.description")}
                 </p>
               </div>
               <div className="w-full flex flex-col sm:flex-row items-stretch md:justify-end space-y-3 sm:space-y-0 sm:space-x-3">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search users..."
+                    placeholder={t(
+                      "dashboard.usersManagement.searchPlaceholder"
+                    )}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-9 w-full md:w-64"
@@ -921,10 +996,18 @@ export default function DashboardPage() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="expired">Expired</SelectItem>
-                    <SelectItem value="suspended">Suspended</SelectItem>
+                    <SelectItem value="all">
+                      {t("dashboard.usersManagement.filters.allStatus")}
+                    </SelectItem>
+                    <SelectItem value="active">
+                      {t("dashboard.usersManagement.filters.active")}
+                    </SelectItem>
+                    <SelectItem value="expired">
+                      {t("dashboard.usersManagement.filters.expired")}
+                    </SelectItem>
+                    <SelectItem value="suspended">
+                      {t("dashboard.usersManagement.filters.suspended")}
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -935,20 +1018,32 @@ export default function DashboardPage() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        USER
+                      <th
+                        className={`${isRTL ? "text-right" : "text-left"} py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                      >
+                        {t("dashboard.usersManagement.table.headers.user")}
                       </th>
-                      <th className="text-left py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        PLAN & CREDITS
+                      <th
+                        className={`${isRTL ? "text-right" : "text-left"} py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                      >
+                        {t(
+                          "dashboard.usersManagement.table.headers.planCredits"
+                        )}
                       </th>
-                      <th className="text-left py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        STATUS
+                      <th
+                        className={`${isRTL ? "text-right" : "text-left"} py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                      >
+                        {t("dashboard.usersManagement.table.headers.status")}
                       </th>
-                      <th className="text-left py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        EXPIRY
+                      <th
+                        className={`${isRTL ? "text-right" : "text-left"} py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                      >
+                        {t("dashboard.usersManagement.table.headers.expiry")}
                       </th>
-                      <th className="text-right py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                        ACTIONS
+                      <th
+                        className={`${isRTL ? "text-left" : "text-right"} py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                      >
+                        {t("dashboard.usersManagement.table.headers.actions")}
                       </th>
                     </tr>
                   </thead>
@@ -962,10 +1057,14 @@ export default function DashboardPage() {
                             </div>
                             <div>
                               <p className="text-sm font-medium text-foreground">
-                                No users found
+                                {t(
+                                  "dashboard.usersManagement.table.noUsersFound"
+                                )}
                               </p>
                               <p className="text-xs text-muted-foreground">
-                                Try adjusting your search or filter criteria
+                                {t(
+                                  "dashboard.usersManagement.table.noUsersDescription"
+                                )}
                               </p>
                             </div>
                           </div>
@@ -1001,7 +1100,8 @@ export default function DashboardPage() {
                               </div>
                               <div className="flex items-center space-x-2">
                                 <span className="text-sm font-medium text-primary">
-                                  {user.credits} credits
+                                  {user.credits}{" "}
+                                  {t("dashboard.usersManagement.table.credits")}
                                 </span>
                               </div>
                             </div>
@@ -1027,7 +1127,7 @@ export default function DashboardPage() {
                                 className="h-8 px-3"
                               >
                                 <Trash2 className="w-4 h-4 mr-1" />
-                                Delete
+                                {t("common.delete")}
                               </Button>
                             </div>
                           </td>
@@ -1047,10 +1147,12 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <p className="text-sm font-medium text-foreground">
-                          No users found
+                          {t("dashboard.usersManagement.table.noUsersFound")}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Try adjusting your search or filter criteria
+                          {t(
+                            "dashboard.usersManagement.table.noUsersDescription"
+                          )}
                         </p>
                       </div>
                     </div>
@@ -1077,7 +1179,9 @@ export default function DashboardPage() {
                               {user.email}
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
-                              Last active: {user.lastActive}
+                              {t("dashboard.usersManagement.table.lastActive", {
+                                time: user.lastActive,
+                              })}
                             </div>
                           </div>
                         </div>
@@ -1092,7 +1196,11 @@ export default function DashboardPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Plan
+                            {
+                              t(
+                                "dashboard.usersManagement.table.headers.planCredits"
+                              ).split(" & ")[0]
+                            }
                           </div>
                           <div className="text-sm font-semibold text-foreground">
                             {user.plan}
@@ -1100,7 +1208,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="space-y-1">
                           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Credits
+                            {t("dashboard.usersManagement.table.credits")}
                           </div>
                           <div className="text-sm font-semibold text-primary flex items-center">
                             <Coins className="w-3 h-3 mr-1" />
@@ -1109,7 +1217,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="space-y-1">
                           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Expires
+                            {t("dashboard.usersManagement.table.expires")}
                           </div>
                           <div className="text-sm font-semibold text-foreground flex items-center">
                             <Calendar className="w-3 h-3 mr-1" />
@@ -1118,7 +1226,7 @@ export default function DashboardPage() {
                         </div>
                         <div className="space-y-1">
                           <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                            Joined
+                            {t("dashboard.usersManagement.table.joined")}
                           </div>
                           <div className="text-sm font-semibold text-foreground">
                             {user.joinDate}
@@ -1133,7 +1241,7 @@ export default function DashboardPage() {
                           className="w-full h-10 text-sm font-medium"
                         >
                           <Trash2 className="w-4 h-4" />
-                          Delete User
+                          {t("dashboard.usersManagement.table.deleteUser")}
                         </Button>
                       </div>
                     </div>
@@ -1143,28 +1251,31 @@ export default function DashboardPage() {
               {/* Table Footer with Stats */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-4 border-t border-border space-y-3 sm:space-y-0">
                 <div className="text-sm text-muted-foreground">
-                  Showing {filteredUsers.length} of {fakeUsers.length} users
+                  {t("dashboard.usersManagement.table.showingUsers", {
+                    filtered: filteredUsers.length,
+                    total: fakeUsers.length,
+                  })}
                 </div>
                 <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-muted-foreground">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span>
                       {fakeUsers.filter((u) => u.status === "Active").length}{" "}
-                      Active
+                      {t("dashboard.usersManagement.filters.active")}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-destructive rounded-full"></div>
                     <span>
                       {fakeUsers.filter((u) => u.status === "Expired").length}{" "}
-                      Expired
+                      {t("dashboard.usersManagement.filters.expired")}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
                     <span>
                       {fakeUsers.filter((u) => u.status === "Suspended").length}{" "}
-                      Suspended
+                      {t("dashboard.usersManagement.filters.suspended")}
                     </span>
                   </div>
                 </div>
@@ -1182,10 +1293,10 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <CardTitle className="text-lg font-semibold text-foreground">
-                      Add New Subscription
+                      {t("dashboard.addSubscription.title")}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      Create a subscription for a user
+                      {t("dashboard.addSubscription.description")}
                     </p>
                   </div>
                 </div>
@@ -1198,7 +1309,7 @@ export default function DashboardPage() {
                     className="text-sm font-medium text-foreground flex items-center space-x-2"
                   >
                     <Mail className="w-4 h-4" />
-                    <span>User Email</span>
+                    <span>{t("dashboard.addSubscription.userEmail")}</span>
                   </Label>
                   <Input
                     id="email"
@@ -1208,7 +1319,9 @@ export default function DashboardPage() {
                       setEmail(e.target.value);
                       if (emailError) setEmailError("");
                     }}
-                    placeholder="user@example.com"
+                    placeholder={t(
+                      "dashboard.addSubscription.emailPlaceholder"
+                    )}
                     className={`transition-all ${
                       emailError
                         ? "border-destructive focus-visible:ring-destructive/20"
@@ -1229,7 +1342,9 @@ export default function DashboardPage() {
                     className="text-sm font-medium text-foreground flex items-center space-x-2"
                   >
                     <CreditCard className="w-4 h-4" />
-                    <span>Subscription Plan</span>
+                    <span>
+                      {t("dashboard.addSubscription.subscriptionPlan")}
+                    </span>
                   </Label>
                   <Select
                     value={selectedPlan}
@@ -1245,7 +1360,9 @@ export default function DashboardPage() {
                           : "focus-visible:ring-primary/20"
                       }`}
                     >
-                      <SelectValue placeholder="Choose a subscription plan" />
+                      <SelectValue
+                        placeholder={t("dashboard.addSubscription.choosePlan")}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {pricingPlans.map((plan) => (
@@ -1257,7 +1374,8 @@ export default function DashboardPage() {
                           <div className="flex items-center justify-between w-full">
                             <span className="font-medium">{plan.name}</span>
                             <span className="text-xs text-muted-foreground ml-2">
-                              {plan.credits.toLocaleString()} Credits
+                              {plan.credits.toLocaleString()}{" "}
+                              {t("dashboard.usersManagement.table.credits")}
                             </span>
                           </div>
                         </SelectItem>
@@ -1277,13 +1395,13 @@ export default function DashboardPage() {
                     <div className="flex items-center space-x-2">
                       <CheckCircle2 className="w-4 h-4 text-green-600" />
                       <span className="text-sm font-medium text-foreground">
-                        Plan Preview
+                        {t("dashboard.addSubscription.planPreview")}
                       </span>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-muted-foreground">
-                          Plan Name :
+                          {t("dashboard.addSubscription.planName")}
                         </span>
                         <span className="text-sm font-medium text-foreground">
                           {getSelectedPlanDetails()?.name}
@@ -1291,7 +1409,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-muted-foreground">
-                          Credits :
+                          {t("dashboard.addSubscription.credits")}
                         </span>
                         <span className="text-sm font-medium text-primary">
                           {getSelectedPlanDetails()?.credits}
@@ -1309,12 +1427,16 @@ export default function DashboardPage() {
                   {isSubmitting ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
-                      <span>Adding Subscription...</span>
+                      <span>
+                        {t("dashboard.addSubscription.addingSubscription")}
+                      </span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
                       <UserPlus className="w-4 h-4" />
-                      <span>Add Subscription</span>
+                      <span>
+                        {t("dashboard.addSubscription.addSubscription")}
+                      </span>
                     </div>
                   )}
                 </Button>
@@ -1329,10 +1451,10 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <CardTitle className="text-lg font-semibold text-foreground">
-                      Credit History
+                      {t("dashboard.creditHistory.title")}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      Track credit transactions and usage
+                      {t("dashboard.creditHistory.description")}
                     </p>
                   </div>
                 </div>
@@ -1341,7 +1463,7 @@ export default function DashboardPage() {
                   size="sm"
                   className="text-xs w-full sm:w-auto"
                 >
-                  View All
+                  {t("common.viewAll")}
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -1356,13 +1478,19 @@ export default function DashboardPage() {
                         Sarah Yasser
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
-                        Site access • example.com
+                        {t("dashboard.creditHistory.transactions.siteAccess")} •
+                        example.com
                       </div>
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="text-sm font-bold text-red-600">-15</div>
-                    <div className="text-xs text-muted-foreground">1h ago</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t(
+                        "dashboard.creditHistory.transactions.timeAgo.hoursAgo",
+                        { count: 1 }
+                      )}
+                    </div>
                   </div>
                 </div>
                 {/* Credit Purchase Transaction */}
@@ -1376,13 +1504,19 @@ export default function DashboardPage() {
                         Mohammed Ahmed
                       </div>
                       <div className="text-xs text-muted-foreground truncate">
-                        Plan upgrade • Basic Plan
+                        {t("dashboard.creditHistory.transactions.planUpgrade")}{" "}
+                        • Basic Plan
                       </div>
                     </div>
                   </div>
                   <div className="text-right flex-shrink-0">
                     <div className="text-sm font-bold text-green-600">+50</div>
-                    <div className="text-xs text-muted-foreground">2h ago</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t(
+                        "dashboard.creditHistory.transactions.timeAgo.hoursAgo",
+                        { count: 2 }
+                      )}
+                    </div>
                   </div>
                 </div>
                 {/* Credit Usage Transaction */}
@@ -1396,13 +1530,19 @@ export default function DashboardPage() {
                         Mohamd Waly
                       </div>
                       <div className="text-xs text-muted-foreground truncate w-36">
-                        Site access • premium-site.com
+                        {t("dashboard.creditHistory.transactions.siteAccess")} •
+                        premium-site.com
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-bold text-red-600">-25</div>
-                    <div className="text-xs text-muted-foreground">3h ago</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t(
+                        "dashboard.creditHistory.transactions.timeAgo.hoursAgo",
+                        { count: 3 }
+                      )}
+                    </div>
                   </div>
                 </div>
                 {/* Credit Purchase Transaction */}
@@ -1416,13 +1556,21 @@ export default function DashboardPage() {
                         Sarah Yasser
                       </div>
                       <div className="text-xs text-muted-foreground truncate w-36">
-                        New subscription • Test Plan
+                        {t(
+                          "dashboard.creditHistory.transactions.creditPurchase"
+                        )}{" "}
+                        • Test Plan
                       </div>
                     </div>
                   </div>
                   <div className="text-right">
                     <div className="text-sm font-bold text-blue-600">+1000</div>
-                    <div className="text-xs text-muted-foreground">5h ago</div>
+                    <div className="text-xs text-muted-foreground">
+                      {t(
+                        "dashboard.creditHistory.transactions.timeAgo.hoursAgo",
+                        { count: 5 }
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -1436,10 +1584,10 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <CardTitle className="text-lg font-semibold text-foreground">
-                      Credit Analytics
+                      {t("dashboard.creditAnalytics.title")}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      Monitor credit usage and statistics
+                      {t("dashboard.creditAnalytics.description")}
                     </p>
                   </div>
                 </div>
@@ -1451,7 +1599,7 @@ export default function DashboardPage() {
                       50
                     </div>
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Total Issued
+                      {t("dashboard.creditAnalytics.totalIssued")}
                     </div>
                   </div>
                   <div className="text-center p-4 bg-green-400/10 border border-green-400/10 rounded-xl">
@@ -1459,7 +1607,7 @@ export default function DashboardPage() {
                       0
                     </div>
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Remaining
+                      {t("dashboard.creditAnalytics.remaining")}
                     </div>
                   </div>
                   <div className="text-center p-4 bg-blue-400/10 border border-blue-400/10 rounded-xl">
@@ -1467,7 +1615,7 @@ export default function DashboardPage() {
                       0
                     </div>
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Used
+                      {t("dashboard.creditAnalytics.used")}
                     </div>
                   </div>
                   <div className="text-center p-4 bg-pink-400/10 border border-pink-400/10 rounded-xl">
@@ -1475,7 +1623,7 @@ export default function DashboardPage() {
                       0
                     </div>
                     <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      Daily Avg
+                      {t("dashboard.creditAnalytics.dailyAvg")}
                     </div>
                   </div>
                 </div>
@@ -1509,7 +1657,7 @@ export default function DashboardPage() {
                   <div className="mt-6 pt-4 border-t border-border/50">
                     <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">
-                        Last Updated :
+                        {t("dashboard.creditAnalytics.lastUpdated")} :
                       </span>
                       <span className="text-xs font-medium text-foreground">
                         2023-07-06 11:44:30
@@ -1528,10 +1676,10 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <CardTitle className="text-lg font-semibold text-foreground">
-                      Upgrade Subscription
+                      {t("dashboard.upgradeSubscription.title")}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      Upgrade user to a higher plan
+                      {t("dashboard.upgradeSubscription.description")}
                     </p>
                   </div>
                 </div>
@@ -1544,7 +1692,7 @@ export default function DashboardPage() {
                     className="text-sm font-medium text-foreground flex items-center"
                   >
                     <Mail className="w-4 h-4" />
-                    <span>User Email</span>
+                    <span>{t("dashboard.upgradeSubscription.userEmail")}</span>
                   </Label>
                   <Input
                     id="upgrade-email"
@@ -1571,7 +1719,7 @@ export default function DashboardPage() {
                     className="text-sm font-medium text-foreground flex items-center"
                   >
                     <CreditCard className="w-4 h-4" />
-                    <span>New Plan</span>
+                    <span>{t("dashboard.upgradeSubscription.newPlan")}</span>
                   </Label>
                   <Select
                     value={upgradeNewPlan}
@@ -1587,7 +1735,9 @@ export default function DashboardPage() {
                           : "focus-visible:ring-primary/20"
                       }`}
                     >
-                      <SelectValue placeholder="Choose new plan" />
+                      <SelectValue
+                        placeholder={t("dashboard.upgradeSubscription.newPlan")}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       {pricingPlans.map((plan) => (
@@ -1599,7 +1749,8 @@ export default function DashboardPage() {
                           <div className="flex items-center justify-between w-full">
                             <span className="font-medium">{plan.name}</span>
                             <span className="text-xs text-muted-foreground ml-2">
-                              {plan.credits.toLocaleString()} Credits
+                              {plan.credits.toLocaleString()}{" "}
+                              {t("dashboard.usersManagement.table.credits")}
                             </span>
                           </div>
                         </SelectItem>
@@ -1619,13 +1770,13 @@ export default function DashboardPage() {
                     <div className="flex items-center space-x-2">
                       <CheckCircle2 className="w-4 h-4 text-green-600" />
                       <span className="text-sm font-medium text-foreground">
-                        Upgrade Preview
+                        {t("dashboard.addSubscription.planPreview")}
                       </span>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-muted-foreground">
-                          New Plan :
+                          {t("dashboard.upgradeSubscription.newPlan")} :
                         </span>
                         <span className="text-sm font-medium text-foreground">
                           {getUpgradePlanDetails()?.name}
@@ -1633,7 +1784,7 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-muted-foreground">
-                          Credits :
+                          {t("dashboard.addSubscription.credits")}
                         </span>
                         <span className="text-sm font-medium text-primary">
                           {getUpgradePlanDetails()?.credits}
@@ -1651,12 +1802,14 @@ export default function DashboardPage() {
                   {isUpgradeSubmitting ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Upgrading...</span>
+                      <span>
+                        {t("dashboard.upgradeSubscription.upgrading")}
+                      </span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
                       <TrendingUp className="w-4 h-4" />
-                      <span>Upgrade Subscription</span>
+                      <span>{t("dashboard.upgradeSubscription.upgrade")}</span>
                     </div>
                   )}
                 </Button>
@@ -1672,10 +1825,10 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <CardTitle className="text-lg font-semibold text-foreground">
-                      Extend Subscription
+                      {t("dashboard.extendSubscription.title")}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      Add more days to user subscription
+                      {t("dashboard.extendSubscription.description")}
                     </p>
                   </div>
                 </div>
@@ -1688,7 +1841,7 @@ export default function DashboardPage() {
                     className="text-sm font-medium text-foreground flex items-center"
                   >
                     <Mail className="w-4 h-4" />
-                    <span>User Email</span>
+                    <span>{t("dashboard.extendSubscription.userEmail")}</span>
                   </Label>
                   <Input
                     id="extend-email"
@@ -1719,7 +1872,9 @@ export default function DashboardPage() {
                     className="text-sm font-medium text-foreground flex items-center"
                   >
                     <Clock className="w-4 h-4" />
-                    <span>Additional Days</span>
+                    <span>
+                      {t("dashboard.extendSubscription.additionalDays")}
+                    </span>
                   </Label>
                   <Input
                     id="extend-days"
@@ -1750,13 +1905,13 @@ export default function DashboardPage() {
                     <div className="flex items-center space-x-2">
                       <CheckCircle2 className="w-4 h-4 text-green-600" />
                       <span className="text-sm font-medium text-foreground">
-                        Extension Preview
+                        {t("dashboard.addSubscription.planPreview")}
                       </span>
                     </div>
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-muted-foreground">
-                          Additional Days :
+                          {t("dashboard.extendSubscription.additionalDays")} :
                         </span>
                         <span className="text-sm font-medium text-primary">
                           +{extendDays} days
@@ -1764,7 +1919,8 @@ export default function DashboardPage() {
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-sm text-muted-foreground">
-                          Estimated New Expiry :
+                          {t("dashboard.extendSubscription.estimatedNewExpiry")}{" "}
+                          :
                         </span>
                         <span className="text-sm font-medium text-foreground">
                           {new Date(
@@ -1785,12 +1941,12 @@ export default function DashboardPage() {
                   {isExtendSubmitting ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
-                      <span>Extending...</span>
+                      <span>{t("dashboard.extendSubscription.extending")}</span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
                       <Calendar className="w-4 h-4" />
-                      <span>Extend Subscription</span>
+                      <span>{t("dashboard.extendSubscription.extend")}</span>
                     </div>
                   )}
                 </Button>
@@ -1805,10 +1961,10 @@ export default function DashboardPage() {
                   </div>
                   <div>
                     <CardTitle className="text-lg font-semibold text-foreground">
-                      Delete Subscription
+                      {t("dashboard.deleteSubscription.title")}
                     </CardTitle>
                     <p className="text-xs text-muted-foreground">
-                      Permanently remove user subscription
+                      {t("dashboard.deleteSubscription.description")}
                     </p>
                   </div>
                 </div>
@@ -1821,7 +1977,7 @@ export default function DashboardPage() {
                     className="text-sm font-medium text-foreground flex items-center"
                   >
                     <Mail className="w-4 h-4" />
-                    <span>User Email</span>
+                    <span>{t("dashboard.deleteSubscription.userEmail")}</span>
                   </Label>
                   <Input
                     id="delete-email"
@@ -1854,12 +2010,8 @@ export default function DashboardPage() {
                       </span>
                     </div>
                     <div className="space-y-1">
-                      <p className="text-sm font-medium text-destructive">
-                        Warning: This action cannot be undone
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        Deleting a subscription will permanently remove the
-                        user&apos;s access and cannot be recovered.
+                      <p className="text-sm font-medium text-destructive text-center">
+                        {t("dashboard.deleteSubscription.warning")}
                       </p>
                     </div>
                   </div>
@@ -1874,12 +2026,12 @@ export default function DashboardPage() {
                   {isDeleteSubmitting ? (
                     <div className="flex items-center space-x-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                      <span>Deleting...</span>
+                      <span>{t("dashboard.deleteSubscription.deleting")}</span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
                       <Trash2 className="w-4 h-4" />
-                      <span>Delete Subscription</span>
+                      <span>{t("dashboard.deleteSubscription.delete")}</span>
                     </div>
                   )}
                 </Button>
@@ -1890,7 +2042,7 @@ export default function DashboardPage() {
           <Card className="dark:bg-muted/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg font-semibold text-foreground">
-                Supported Sites
+                {t("dashboard.siteManagement.title")}
               </CardTitle>
               <Dialog
                 open={isAddSiteDialogOpen}
@@ -1899,17 +2051,18 @@ export default function DashboardPage() {
                 <DialogTrigger asChild>
                   <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     <Plus className="w-4 h-4 stroke-3" />
-                    Add New Site
+                    {t("dashboard.siteManagement.addSite")}
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
+                <DialogContent
+                  className={`sm:max-w-[425px] ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
+                >
+                  <DialogHeader className={`${isRTL && "sm:text-right"}`}>
                     <DialogTitle className="text-lg font-semibold text-foreground">
-                      Add New Site
+                      {t("dashboard.siteManagement.addSite")}
                     </DialogTitle>
                     <DialogDescription className="text-xs text-muted-foreground">
-                      Add a new site to your resource hub. Fill in the details
-                      below.
+                      {t("dashboard.siteManagement.description")}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="space-y-4 py-4">
@@ -1920,7 +2073,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <Globe className="w-4 h-4" />
-                        Site Name
+                        {t("dashboard.siteManagement.siteName")}
                       </Label>
                       <Input
                         id="site-name"
@@ -1929,7 +2082,9 @@ export default function DashboardPage() {
                           setSiteName(e.target.value);
                           if (siteNameError) setSiteNameError("");
                         }}
-                        placeholder="Enter site name"
+                        placeholder={t(
+                          "dashboard.siteManagement.placeholders.siteName"
+                        )}
                         className={`transition-all ${
                           siteNameError
                             ? "border-destructive focus-visible:ring-destructive/20"
@@ -1950,7 +2105,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <ExternalLink className="w-4 h-4" />
-                        Site URL
+                        {t("dashboard.siteManagement.siteUrl")}
                       </Label>
                       <Input
                         id="site-url"
@@ -1959,7 +2114,9 @@ export default function DashboardPage() {
                           setSiteUrl(e.target.value);
                           if (siteUrlError) setSiteUrlError("");
                         }}
-                        placeholder="https://example.com"
+                        placeholder={t(
+                          "dashboard.siteManagement.placeholders.siteUrl"
+                        )}
                         className={`transition-all ${
                           siteUrlError
                             ? "border-destructive focus-visible:ring-destructive/20"
@@ -1980,7 +2137,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <CreditCard className="w-4 h-4" />
-                        Price (Credits)
+                        {t("dashboard.siteManagement.price")}
                       </Label>
                       <Input
                         id="site-price"
@@ -1991,7 +2148,9 @@ export default function DashboardPage() {
                           setSitePrice(e.target.value);
                           if (sitePriceError) setSitePriceError("");
                         }}
-                        placeholder="Enter price in credits"
+                        placeholder={t(
+                          "dashboard.siteManagement.placeholders.sitePrice"
+                        )}
                         className={`transition-all ${
                           sitePriceError
                             ? "border-destructive focus-visible:ring-destructive/20"
@@ -2012,17 +2171,21 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <Activity className="w-4 h-4" />
-                        Icon URL (Optional)
+                        {t("dashboard.siteManagement.siteIcon")}
                       </Label>
                       <Input
                         id="site-icon"
                         value={siteIcon}
                         onChange={(e) => setSiteIcon(e.target.value)}
-                        placeholder="https://example.com/icon.png"
+                        placeholder={t(
+                          "dashboard.siteManagement.placeholders.siteIcon"
+                        )}
                         className="focus-visible:ring-primary/20"
                       />
                       <p className="text-xs text-muted-foreground">
-                        If not provided, we&apos;ll use the site&apos;s favicon
+                        {t(
+                          "dashboard.siteManagement.placeholders.siteIconHelp"
+                        )}
                       </p>
                     </div>
                   </div>
@@ -2033,7 +2196,7 @@ export default function DashboardPage() {
                       onClick={() => setIsAddSiteDialogOpen(false)}
                       disabled={isAddingSite}
                     >
-                      Cancel
+                      {t("common.cancel")}
                     </Button>
                     <Button
                       type="button"
@@ -2044,12 +2207,12 @@ export default function DashboardPage() {
                       {isAddingSite ? (
                         <div className="flex items-center space-x-2">
                           <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
-                          <span>Adding...</span>
+                          <span>{t("dashboard.siteManagement.adding")}</span>
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
                           <Plus className="w-4 h-4" />
-                          <span>Add Site</span>
+                          <span>{t("dashboard.siteManagement.add")}</span>
                         </div>
                       )}
                     </Button>
@@ -2066,10 +2229,10 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-foreground">
-                        No sites found
+                        {t("dashboard.siteManagement.table.noSites")}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        Add your first site to get started
+                        {t("dashboard.siteManagement.table.noSitesDescription")}
                       </p>
                     </div>
                   </div>
@@ -2078,23 +2241,35 @@ export default function DashboardPage() {
                 <>
                   {/* Desktop Table View */}
                   <div className="hidden md:block overflow-x-auto max-h-[240px] overflow-y-auto">
-                    <table className="w-full min-w-[800px]">
+                    <table className="w-full">
                       <thead>
                         <tr className="border-b border-border">
-                          <th className="text-left py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider min-w-[200px]">
-                            SITE
+                          <th
+                            className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                          >
+                            {t("dashboard.siteManagement.table.headers.site")}
                           </th>
-                          <th className="text-left py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider min-w-[200px]">
-                            URL
+                          <th
+                            className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                          >
+                            {t("dashboard.siteManagement.table.headers.url")}
                           </th>
-                          <th className="text-left py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider min-w-[100px]">
-                            PRICE
+                          <th
+                            className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                          >
+                            {t("dashboard.siteManagement.table.headers.price")}
                           </th>
-                          <th className="text-left py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider min-w-[100px]">
-                            STATUS
+                          <th
+                            className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                          >
+                            {t("dashboard.siteManagement.table.headers.status")}
                           </th>
-                          <th className="text-right py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider min-w-[150px]">
-                            ACTIONS
+                          <th
+                            className={`${isRTL ? "text-left" : "text-right"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                          >
+                            {t(
+                              "dashboard.siteManagement.table.headers.actions"
+                            )}
                           </th>
                         </tr>
                       </thead>
@@ -2151,24 +2326,29 @@ export default function DashboardPage() {
                             </td>
                             <td className="py-4 px-4">
                               <div className="text-sm font-medium text-foreground">
-                                {site.price} credits
+                                {site.price}{" "}
+                                {t("dashboard.siteManagement.table.credits")}
                               </div>
                             </td>
                             <td className="py-4 px-4">
                               <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 border border-green-200">
                                 <CheckCircle className="w-3 h-3" />
-                                <span>{site.status}</span>
+                                <span>
+                                  {t("dashboard.siteManagement.table.active")}
+                                </span>
                               </div>
                             </td>
                             <td className="py-4 px-4">
-                              <div className="flex items-center justify-end space-x-2">
+                              <div
+                                className={`flex items-center ${isRTL ? "justify-end" : "justify-end"} space-x-2`}
+                              >
                                 <Button
                                   size="sm"
                                   variant="destructive"
                                   className="h-8 px-3"
                                 >
                                   <Trash2 className="w-4 h-4" />
-                                  Delete
+                                  {t("dashboard.siteManagement.table.delete")}
                                 </Button>
                               </div>
                             </td>
@@ -2230,13 +2410,13 @@ export default function DashboardPage() {
                         <div className="space-y-3">
                           <div className="space-y-1">
                             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              Website URL
+                              {t("dashboard.siteManagement.table.headers.url")}
                             </div>
                             <a
                               href={site.url}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="text-sm text-primary hover:text-primary/80 transition-colors flex items-center space-x-2 p-2 bg-primary/5 rounded-lg border border-primary/10"
+                              className={`text-sm text-primary hover:text-primary/80 transition-colors flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"} p-2 bg-primary/5 rounded-lg border border-primary/10`}
                             >
                               <Globe className="w-4 h-4 flex-shrink-0" />
                               <span className="truncate flex-1 font-medium">
@@ -2247,12 +2427,15 @@ export default function DashboardPage() {
                           </div>
                           <div className="space-y-1">
                             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              Access Price
+                              {t("dashboard.siteManagement.table.accessPrice")}
                             </div>
-                            <div className="flex items-center space-x-2 p-2 bg-secondary/50 rounded-lg">
+                            <div
+                              className={`flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"} p-2 bg-secondary/50 rounded-lg`}
+                            >
                               <Coins className="w-4 h-4 text-primary" />
                               <span className="text-sm font-semibold text-foreground">
-                                {site.price} credits
+                                {site.price}{" "}
+                                {t("dashboard.siteManagement.table.credits")}
                               </span>
                             </div>
                           </div>
@@ -2279,7 +2462,7 @@ export default function DashboardPage() {
           <Card className="dark:bg-muted/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="text-lg font-semibold text-foreground">
-                Pricing Management
+                {t("dashboard.packageManagement.title")}
               </CardTitle>
               <Dialog
                 open={isAddPackageDialogOpen}
@@ -2288,17 +2471,18 @@ export default function DashboardPage() {
                 <DialogTrigger asChild>
                   <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     <Package className="w-4 h-4 stroke-3" />
-                    New Package
+                    {t("dashboard.packageManagement.addPackage")}
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
-                  <DialogHeader>
+                <DialogContent
+                  className={`sm:max-w-[475px] max-h-[85vh] overflow-y-auto ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
+                >
+                  <DialogHeader className={`${isRTL && "sm:text-right"}`}>
                     <DialogTitle className="text-lg font-semibold text-foreground">
-                      Add New Package
+                      {t("dashboard.packageManagement.addPackage")}
                     </DialogTitle>
                     <DialogDescription className="text-xs text-muted-foreground">
-                      Create a new pricing package for your resource hub. Fill
-                      in the details below.
+                      {t("dashboard.packageManagement.description")}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
@@ -2309,7 +2493,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <Package className="w-4 h-4" />
-                        Plan Name
+                        {t("dashboard.packageManagement.packageName")}
                       </Label>
                       <Input
                         id="package-name"
@@ -2318,7 +2502,9 @@ export default function DashboardPage() {
                           setPackageName(e.target.value);
                           if (packageNameError) setPackageNameError("");
                         }}
-                        placeholder="Enter package name"
+                        placeholder={t(
+                          "dashboard.packageManagement.placeholders.packageName"
+                        )}
                         className={`transition-all ${
                           packageNameError
                             ? "border-destructive focus-visible:ring-destructive/20"
@@ -2339,17 +2525,21 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <DollarSign className="w-4 h-4" />
-                        Price
+                        {t("dashboard.packageManagement.packagePrice")}
                       </Label>
                       <Input
                         id="package-price"
                         value={packagePrice}
                         onChange={(e) => setPackagePrice(e.target.value)}
-                        placeholder="Leave empty to show 'Contact Us'"
+                        placeholder={t(
+                          "dashboard.packageManagement.placeholders.packagePrice"
+                        )}
                         className="transition-all focus-visible:ring-primary/20"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Leave empty to display Contact Us instead of a price
+                        {t(
+                          "dashboard.packageManagement.placeholders.packagePriceHelp"
+                        )}
                       </p>
                     </div>
                     {/* Description */}
@@ -2359,7 +2549,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <FileText className="w-4 h-4" />
-                        Description
+                        {t("dashboard.packageManagement.packageDescription")}
                       </Label>
                       <Input
                         id="package-description"
@@ -2369,7 +2559,9 @@ export default function DashboardPage() {
                           if (packageDescriptionError)
                             setPackageDescriptionError("");
                         }}
-                        placeholder="Enter package description"
+                        placeholder={t(
+                          "dashboard.packageManagement.placeholders.packageDescription"
+                        )}
                         className={`transition-all ${
                           packageDescriptionError
                             ? "border-destructive focus-visible:ring-destructive/20"
@@ -2403,7 +2595,9 @@ export default function DashboardPage() {
                             if (packageDaysValidityError)
                               setPackageDaysValidityError("");
                           }}
-                          placeholder="30"
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.daysValidity"
+                          )}
                           className={`transition-all ${
                             packageDaysValidityError
                               ? "border-destructive focus-visible:ring-destructive/20"
@@ -2434,7 +2628,9 @@ export default function DashboardPage() {
                             setPackageCredits(e.target.value);
                             if (packageCreditsError) setPackageCreditsError("");
                           }}
-                          placeholder="100"
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.credits"
+                          )}
                           className={`transition-all ${
                             packageCreditsError
                               ? "border-destructive focus-visible:ring-destructive/20"
@@ -2456,7 +2652,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <LinkIcon className="w-4 h-4" />
-                        Contact Us URL
+                        {t("dashboard.packageManagement.contactUrl")}
                       </Label>
                       <Input
                         id="package-contact-url"
@@ -2467,7 +2663,9 @@ export default function DashboardPage() {
                           if (packageContactUrlError)
                             setPackageContactUrlError("");
                         }}
-                        placeholder="https://example.com/contact"
+                        placeholder={t(
+                          "dashboard.packageManagement.placeholders.contactUrl"
+                        )}
                         className={`transition-all ${
                           packageContactUrlError
                             ? "border-destructive focus-visible:ring-destructive/20"
@@ -2488,7 +2686,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <Globe className="w-4 h-4" />
-                        Supported Sites
+                        {t("dashboard.packageManagement.supportedSites")}
                       </Label>
                       <Input
                         id="package-sites"
@@ -2496,11 +2694,15 @@ export default function DashboardPage() {
                         onChange={(e) =>
                           setPackageSupportedSites(e.target.value)
                         }
-                        placeholder="Site A, Site B, Site C"
+                        placeholder={t(
+                          "dashboard.packageManagement.placeholders.supportedSites"
+                        )}
                         className="transition-all focus-visible:ring-primary/20"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Enter comma-separated list of supported sites
+                        {t(
+                          "dashboard.packageManagement.placeholders.supportedSitesHelp"
+                        )}
                       </p>
                     </div>
                   </div>
@@ -2511,7 +2713,7 @@ export default function DashboardPage() {
                       onClick={() => setIsAddPackageDialogOpen(false)}
                       disabled={isAddingPackage}
                     >
-                      Cancel
+                      {t("dashboard.packageManagement.buttons.cancel")}
                     </Button>
                     <Button
                       type="button"
@@ -2522,12 +2724,12 @@ export default function DashboardPage() {
                       {isAddingPackage ? (
                         <>
                           <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          Adding...
+                          {t("dashboard.packageManagement.buttons.adding")}
                         </>
                       ) : (
                         <>
                           <Package className="w-4 h-4" />
-                          Add Package
+                          {t("dashboard.packageManagement.buttons.addPackage")}
                         </>
                       )}
                     </Button>
@@ -2539,13 +2741,15 @@ export default function DashboardPage() {
                 open={isEditPackageDialogOpen}
                 onOpenChange={setIsEditPackageDialogOpen}
               >
-                <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
-                  <DialogHeader>
+                <DialogContent
+                  className={`sm:max-w-[500px] max-h-[85vh] overflow-y-auto ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
+                >
+                  <DialogHeader className={`${isRTL && "sm:text-right"}`}>
                     <DialogTitle className="text-lg font-semibold text-foreground">
-                      Edit Package
+                      {t("dashboard.packageManagement.editPackage")}
                     </DialogTitle>
                     <DialogDescription className="text-xs text-muted-foreground">
-                      Update the pricing package details below.
+                      {t("dashboard.packageManagement.editDescription")}
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
@@ -2556,7 +2760,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <Package className="w-4 h-4" />
-                        Plan Name
+                        {t("dashboard.packageManagement.packageName")}
                       </Label>
                       <Input
                         id="edit-package-name"
@@ -2586,17 +2790,21 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <DollarSign className="w-4 h-4" />
-                        Price
+                        {t("dashboard.packageManagement.packagePrice")}
                       </Label>
                       <Input
                         id="edit-package-price"
                         value={editPackagePrice}
                         onChange={(e) => setEditPackagePrice(e.target.value)}
-                        placeholder="Leave empty to show 'Contact Us'"
+                        placeholder={t(
+                          "dashboard.packageManagement.placeholders.packagePrice"
+                        )}
                         className="transition-all focus-visible:ring-primary/20"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Leave empty to display Contact Us instead of a price
+                        {t(
+                          "dashboard.packageManagement.placeholders.packagePriceHelp"
+                        )}
                       </p>
                     </div>
                     {/* Description */}
@@ -2606,7 +2814,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <FileText className="w-4 h-4" />
-                        Description
+                        {t("dashboard.packageManagement.packageDescription")}
                       </Label>
                       <Input
                         id="edit-package-description"
@@ -2616,7 +2824,9 @@ export default function DashboardPage() {
                           if (editPackageDescriptionError)
                             setEditPackageDescriptionError("");
                         }}
-                        placeholder="Enter package description"
+                        placeholder={t(
+                          "dashboard.packageManagement.placeholders.packageDescription"
+                        )}
                         className={`transition-all ${
                           editPackageDescriptionError
                             ? "border-destructive focus-visible:ring-destructive/20"
@@ -2704,7 +2914,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <LinkIcon className="w-4 h-4" />
-                        Contact Us URL
+                        {t("dashboard.packageManagement.contactUrl")}
                       </Label>
                       <Input
                         id="edit-package-contact-url"
@@ -2736,7 +2946,7 @@ export default function DashboardPage() {
                         className="text-sm font-medium text-foreground flex items-center"
                       >
                         <Globe className="w-4 h-4" />
-                        Supported Sites
+                        {t("dashboard.packageManagement.supportedSites")}
                       </Label>
                       <Input
                         id="edit-package-sites"
@@ -2744,11 +2954,15 @@ export default function DashboardPage() {
                         onChange={(e) =>
                           setEditPackageSupportedSites(e.target.value)
                         }
-                        placeholder="Site A, Site B, Site C"
+                        placeholder={t(
+                          "dashboard.packageManagement.placeholders.supportedSites"
+                        )}
                         className="transition-all focus-visible:ring-primary/20"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Enter comma-separated list of supported sites
+                        {t(
+                          "dashboard.packageManagement.placeholders.supportedSitesHelp"
+                        )}
                       </p>
                     </div>
                   </div>
@@ -2770,17 +2984,18 @@ export default function DashboardPage() {
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
-                            <AlertDialogTitle>Delete Package</AlertDialogTitle>
+                            <AlertDialogTitle>
+                              {t("dashboard.packageManagement.confirmDelete")}
+                            </AlertDialogTitle>
                             <AlertDialogDescription>
-                              Are you sure you want to delete
-                              {editingPackage?.name}? This action cannot be
-                              undone and will permanently remove this pricing
-                              package.
+                              {t(
+                                "dashboard.packageManagement.deleteDescription"
+                              )}
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel disabled={isDeletingPackage}>
-                              Cancel
+                              {t("dashboard.packageManagement.buttons.cancel")}
                             </AlertDialogCancel>
                             <AlertDialogAction
                               onClick={handleDeletePackage}
@@ -2790,12 +3005,12 @@ export default function DashboardPage() {
                               {isDeletingPackage ? (
                                 <>
                                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                  Deleting...
+                                  {t("dashboard.packageManagement.deleting")}
                                 </>
                               ) : (
                                 <>
                                   <Trash2 className="w-4 h-4" />
-                                  Delete Package
+                                  {t("dashboard.packageManagement.delete")}
                                 </>
                               )}
                             </AlertDialogAction>
@@ -2810,7 +3025,7 @@ export default function DashboardPage() {
                         onClick={() => setIsEditPackageDialogOpen(false)}
                         disabled={isEditingPackage}
                       >
-                        Cancel
+                        {t("dashboard.packageManagement.buttons.cancel")}
                       </Button>
                       <Button
                         type="button"
@@ -2821,12 +3036,14 @@ export default function DashboardPage() {
                         {isEditingPackage ? (
                           <>
                             <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                            Updating...
+                            {t("dashboard.packageManagement.buttons.updating")}
                           </>
                         ) : (
                           <>
                             <Settings className="w-4 h-4" />
-                            Update Package
+                            {t(
+                              "dashboard.packageManagement.buttons.updatePackage"
+                            )}
                           </>
                         )}
                       </Button>
@@ -2864,21 +3081,36 @@ export default function DashboardPage() {
                         {/* Credits and Validity */}
                         <div className="grid grid-cols-2 gap-3 sm:gap-4">
                           <div className="space-y-1">
-                            <div className="flex items-center space-x-2 text-xs sm:text-sm text-muted-foreground">
+                            <div
+                              className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
+                            >
                               <Coins className="w-4 h-4" />
-                              <span>Credits</span>
+                              <span>
+                                {t(
+                                  "dashboard.packageManagement.planDetails.credits"
+                                )}
+                              </span>
                             </div>
                             <p className="text-base sm:text-lg font-semibold text-foreground">
                               {plan.credits.toLocaleString()}
                             </p>
                           </div>
                           <div className="space-y-1">
-                            <div className="flex items-center space-x-2 text-xs sm:text-sm text-muted-foreground">
+                            <div
+                              className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
+                            >
                               <Timer className="w-4 h-4" />
-                              <span>Validity</span>
+                              <span>
+                                {t(
+                                  "dashboard.packageManagement.planDetails.validity"
+                                )}
+                              </span>
                             </div>
                             <p className="text-base sm:text-lg font-semibold text-foreground">
-                              {plan.daysValidity} days
+                              {plan.daysValidity}{" "}
+                              {t(
+                                "dashboard.packageManagement.planDetails.days"
+                              )}
                             </p>
                           </div>
                         </div>
@@ -2886,15 +3118,21 @@ export default function DashboardPage() {
                         {plan.supportedSites &&
                           plan.supportedSites.length > 0 && (
                             <div className="space-y-3">
-                              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                              <div
+                                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
+                              >
                                 <Globe className="w-4 h-4" />
-                                <span>Supported Sites</span>
+                                <span>
+                                  {t(
+                                    "dashboard.packageManagement.planDetails.supportedSites"
+                                  )}
+                                </span>
                               </div>
                               <div className="flex flex-wrap gap-2">
                                 {plan.supportedSites.map((site, index) => (
                                   <span
                                     key={index}
-                                    className="inline-flex items-center space-x-2 px-3 py-2 rounded-lg bg-secondary/50 dark:bg-card/50 border border-secondary text-sm font-medium text-foreground"
+                                    className={`inline-flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} px-3 py-2 rounded-lg bg-secondary/50 dark:bg-card/50 border border-secondary text-sm font-medium text-foreground`}
                                   >
                                     <div className="w-4 h-4 bg-primary/10 border border-primary/10 rounded flex items-center justify-center">
                                       <Globe className="w-3 h-3 text-primary" />
@@ -2905,9 +3143,11 @@ export default function DashboardPage() {
                               </div>
                             </div>
                           )}
-                        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                        <div
+                          className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
+                        >
                           <Check className="w-4 h-4 stroke-3" />
-                          <span>Features</span>
+                          <span>{t("pricing.labels.featuresIncluded")}</span>
                         </div>
                         {/* Features */}
                         <div className="space-y-3">
@@ -2915,13 +3155,13 @@ export default function DashboardPage() {
                             {plan.features.map((feature, index) => (
                               <div
                                 key={index}
-                                className="flex items-center space-x-3 px-3 py-2 rounded-lg bg-green-50 dark:bg-green-50/10 border border-green-100 dark:border-green-100/10"
+                                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg bg-green-50 dark:bg-green-50/10 border border-green-100 dark:border-green-100/10`}
                               >
                                 <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
                                   <Check className="w-4 h-4 text-white" />
                                 </div>
                                 <span className="text-foreground font-medium text-sm">
-                                  {feature}
+                                  {t(feature)}
                                 </span>
                               </div>
                             ))}
@@ -2929,13 +3169,13 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       {/* Footer Section */}
-                      <div className="p-6 pt-0 space-y-3">
+                      <div className="p-4 sm:p-6 !pt-0 space-y-3">
                         <Button
                           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                           onClick={() => handleEditPackage(plan)}
                         >
                           <Settings className="w-4 h-4" />
-                          Manage Plan
+                          {t("dashboard.packageManagement.edit")}
                         </Button>
                       </div>
                     </CardContent>
