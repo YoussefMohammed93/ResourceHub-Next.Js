@@ -653,9 +653,9 @@ export default function ProfilePage() {
                   </CardDescription>
                 </div>
               </div>
-              <div className="flex items-center gap-5">
+              <div className="flex flex-col sm:flex-row items-center gap-5">
                 {/* Search Bar */}
-                <div className="relative flex-1">
+                <div className="relative flex-1 w-full">
                   <Search
                     className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground ${isRTL ? "right-3" : "left-3"}`}
                   />
@@ -668,9 +668,9 @@ export default function ProfilePage() {
                   />
                 </div>
                 {/* Filter */}
-                <div className="flex justify-end">
+                <div className="flex sm:justify-end w-full sm:w-auto">
                   <Select value={sortFilter} onValueChange={setSortFilter}>
-                    <SelectTrigger className="w-48">
+                    <SelectTrigger className="w-full sm:w-48">
                       <Filter className="w-4 h-4" />
                       <SelectValue />
                     </SelectTrigger>
