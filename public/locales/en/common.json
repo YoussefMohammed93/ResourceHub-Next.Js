@@ -452,6 +452,20 @@
       "total": "Total",
       "buyMore": "Buy More Credits"
     },
+    "changePassword": {
+      "title": "Change Password",
+      "description": "Update your account password",
+      "currentPassword": "Current Password",
+      "newPassword": "New Password",
+      "confirmPassword": "Confirm New Password",
+      "currentPasswordPlaceholder": "Enter your current password",
+      "newPasswordPlaceholder": "Enter your new password",
+      "confirmPasswordPlaceholder": "Confirm your new password",
+      "updatePassword": "Update Password",
+      "passwordRequirements": "Password must be at least 8 characters long",
+      "success": "Password updated successfully",
+      "error": "Failed to update password"
+    },
     "downloadHistory": {
       "title": "Download History",
       "description": "Your recent downloads and credit usage",

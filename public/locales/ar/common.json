@@ -451,6 +451,20 @@
       "total": "الإجمالي",
       "buyMore": "شراء المزيد من النقاط"
     },
+    "changePassword": {
+      "title": "تغيير كلمة المرور",
+      "description": "تحديث كلمة مرور حسابك",
+      "currentPassword": "كلمة المرور الحالية",
+      "newPassword": "كلمة المرور الجديدة",
+      "confirmPassword": "تأكيد كلمة المرور الجديدة",
+      "currentPasswordPlaceholder": "أدخل كلمة المرور الحالية",
+      "newPasswordPlaceholder": "أدخل كلمة المرور الجديدة",
+      "confirmPasswordPlaceholder": "أكد كلمة المرور الجديدة",
+      "updatePassword": "تحديث كلمة المرور",
+      "passwordRequirements": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+      "success": "تم تحديث كلمة المرور بنجاح",
+      "error": "فشل في تحديث كلمة المرور"
+    },
     "downloadHistory": {
       "title": "سجل التحميلات",
       "description": "تحميلاتك الأخيرة واستخدام النقاط",

@@ -9,6 +9,9 @@ import {
   Settings,
   Activity,
   Search,
+  Lock,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -32,6 +35,7 @@ import {
   DownloadHistoryItemSkeleton,
 } from "@/components/profile-page-skeletons";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -203,6 +207,61 @@ export default function ProfilePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const { isRTL, isLoading } = useLanguage();
   const { t } = useTranslation("common");
+
+  // Password change state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+  const [isPasswordLoading, setIsPasswordLoading] = useState(false);
+
+  // Password change handlers
+  const handlePasswordChange = (field: string, value: string) => {
+    setPasswordData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const togglePasswordVisibility = (field: "current" | "new" | "confirm") => {
+    setShowPasswords((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert(t("profile.changePassword.error"));
+      return;
+    }
+
+    if (passwordData.newPassword.length < 8) {
+      alert(t("profile.changePassword.passwordRequirements"));
+      return;
+    }
+
+    setIsPasswordLoading(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      alert(t("profile.changePassword.success"));
+      setPasswordData({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      });
+      setIsPasswordLoading(false);
+    }, 1500);
+  };
 
   // Simulate profile data loading
   useEffect(() => {
@@ -497,291 +556,454 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
-        {/* Main Content Grid */}
+        {/* Download History - Full Width */}
+        <Card className="dark:bg-muted/50 h-fit">
+          <CardHeader className="space-y-6">
+            <div
+              className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
+            >
+              <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                <Download className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold text-foreground">
+                  {t("profile.downloadHistory.title")}
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground mt-1">
+                  {t("profile.downloadHistory.description")}
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-5">
+              {/* Search Bar */}
+              <div className="relative flex-1 w-full">
+                <Search
+                  className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground ${isRTL ? "right-3" : "left-3"}`}
+                />
+                <Input
+                  type="text"
+                  placeholder="Source / Source ID / URL / Tag / Debug ID"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`${isRTL ? "pr-10 pl-3" : "pl-10 pr-3"} h-10`}
+                />
+              </div>
+              {/* Filter */}
+              <div className="flex sm:justify-end w-full sm:w-auto">
+                <Select value={sortFilter} onValueChange={setSortFilter}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <Filter className="w-4 h-4" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">
+                      {t("profile.downloadHistory.filters.newest")}
+                    </SelectItem>
+                    <SelectItem value="oldest">
+                      {t("profile.downloadHistory.filters.oldest")}
+                    </SelectItem>
+                    <SelectItem value="credits-high">
+                      {t("profile.downloadHistory.filters.creditsHigh")}
+                    </SelectItem>
+                    <SelectItem value="credits-low">
+                      {t("profile.downloadHistory.filters.creditsLow")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isDownloadHistoryLoading ? (
+              // Show loading skeletons while download history is loading
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {Array.from({ length: 4 }, (_, i) => (
+                  <DownloadHistoryItemSkeleton key={i} isRTL={isRTL} />
+                ))}
+              </div>
+            ) : sortedDownloads.length === 0 ? (
+              <div className="py-12 text-center">
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
+                    <Download className="w-9 h-9 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-lg sm:text-2xl font-medium text-foreground">
+                      {t("profile.downloadHistory.empty.title")}
+                    </p>
+                    <p className="text-base sm:text-lg pt-2 text-muted-foreground">
+                      {t("profile.downloadHistory.empty.description")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[450px] overflow-y-auto">
+                {sortedDownloads.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-secondary/50 dark:bg-muted border rounded-lg p-4 space-y-4 hover:bg-muted/50 transition-all duration-200"
+                  >
+                    {/* Header with source and debug ID */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{item.sourceIcon}</span>
+                        <span className="font-medium text-foreground">
+                          {item.source}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          debugID: {item.debugId}
+                        </span>
+                      </div>
+                    </div>
+                    {/* File ID and format info */}
+                    <div className="flex items-center justify-between">
+                      <Button
+                        variant="link"
+                        className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                        onClick={() => window.open(item.fileUrl, "_blank")}
+                      >
+                        {item.fileId}
+                      </Button>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="secondary" className="text-xs">
+                          {item.format}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {item.size}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Preview Image */}
+                    <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                      <Image
+                        src={item.previewImage || "/placeholder.svg"}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    {/* Footer with source URL and download button */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        {item.sourceUrl}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(item.downloadUrl, "_blank")}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        {t("common.download")}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!isDownloadHistoryLoading && sortedDownloads.length > 4 && (
+              <div className="mt-6 text-center">
+                <Button variant="outline">
+                  {t("profile.downloadHistory.loadMore")}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Subscription, Credits & Change Password Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
-          {/* Subscription & Credits */}
-          <div className="lg:col-span-1 space-y-4 sm:space-y-5">
-            {/* Subscription Card */}
-            <Card className="dark:bg-muted/50">
-              <CardHeader>
-                <div
-                  className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
-                >
-                  <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {t("profile.subscription.title")}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {t("profile.subscription.description")}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">
-                      {t("profile.subscription.currentPlan")}
-                    </span>
-                    <Badge variant="outline" className="font-medium">
-                      {userData.subscription.plan}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">
-                      {t("profile.subscription.status")}
-                    </span>
-                    <Badge
-                      variant={
-                        userData.subscription.status === "active"
-                          ? "default"
-                          : "destructive"
-                      }
-                      className={
-                        userData.subscription.status === "active"
-                          ? "bg-green-100 text-green-800 border border-green-200"
-                          : ""
-                      }
-                    >
-                      {t("profile.userInfo.active")}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">
-                      {t("profile.subscription.validUntil")}
-                    </span>
-                    <div
-                      className={`flex items-center gap-1 text-sm text-foreground ${isRTL ? "flex-row-reverse" : ""}`}
-                    >
-                      <CalendarDays className="h-4 w-4" />
-                      {formatDate(userData.subscription.validUntil)}
-                    </div>
-                  </div>
-                </div>
-                <Separator />
-                <Button className="w-full" variant="outline">
-                  <Settings className="w-4 h-4" />
-                  {t("profile.subscription.manageSubscription")}
-                </Button>
-              </CardContent>
-            </Card>
-            {/* Credits Card */}
-            <Card className="dark:bg-muted/50">
-              <CardHeader>
-                <div
-                  className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
-                >
-                  <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {t("profile.credits.title")}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {t("profile.credits.description")}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="flex justify-center">
-                  <div className="text-center space-y-2 w-fit bg-secondary/75 dark:bg-secondary  p-4 rounded-xl">
-                    <div className="text-3xl font-bold text-primary">
-                      {userData.credits.remaining}
-                    </div>
-                    <p className="text-sm text-muted-foreground">
-                      {t("profile.credits.remaining")}
-                    </p>
-                  </div>
-                </div>
-                <div className="space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-foreground">
-                      {t("profile.credits.usageProgress")}
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {Math.round(creditsUsedPercentage)}%
-                    </span>
-                  </div>
-                  <Progress value={creditsUsedPercentage} className="h-2" />
-                  <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>
-                      {userData.credits.used} {t("profile.credits.used")}
-                    </span>
-                    <span>
-                      {userData.credits.total} {t("profile.credits.total")}
-                    </span>
-                  </div>
-                </div>
-                <Separator />
-                <Button className="w-full">
-                  <CreditCard className="w-4 h-4" />
-                  {t("profile.credits.buyMore")}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-          {/* Download History */}
-          <Card className="lg:col-span-2 dark:bg-muted/50">
-            <CardHeader className="space-y-6">
+          {/* Subscription Card */}
+          <Card className="dark:bg-muted/50">
+            <CardHeader>
               <div
                 className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
               >
                 <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                  <Download className="w-5 h-5 text-primary" />
+                  <CreditCard className="w-5 h-5 text-primary" />
                 </div>
                 <div>
                   <CardTitle className="text-lg font-semibold text-foreground">
-                    {t("profile.downloadHistory.title")}
+                    {t("profile.subscription.title")}
                   </CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground mt-1">
-                    {t("profile.downloadHistory.description")}
-                  </CardDescription>
+                  <p className="text-xs text-muted-foreground">
+                    {t("profile.subscription.description")}
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-col sm:flex-row items-center gap-5">
-                {/* Search Bar */}
-                <div className="relative flex-1 w-full">
-                  <Search
-                    className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground ${isRTL ? "right-3" : "left-3"}`}
-                  />
-                  <Input
-                    type="text"
-                    placeholder="Source / Source ID / URL / Tag / Debug ID"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`${isRTL ? "pr-10 pl-3" : "pl-10 pr-3"} h-10`}
-                  />
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">
+                    {t("profile.subscription.currentPlan")}
+                  </span>
+                  <Badge variant="outline" className="font-medium">
+                    {userData.subscription.plan}
+                  </Badge>
                 </div>
-                {/* Filter */}
-                <div className="flex sm:justify-end w-full sm:w-auto">
-                  <Select value={sortFilter} onValueChange={setSortFilter}>
-                    <SelectTrigger className="w-full sm:w-48">
-                      <Filter className="w-4 h-4" />
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="newest">
-                        {t("profile.downloadHistory.filters.newest")}
-                      </SelectItem>
-                      <SelectItem value="oldest">
-                        {t("profile.downloadHistory.filters.oldest")}
-                      </SelectItem>
-                      <SelectItem value="credits-high">
-                        {t("profile.downloadHistory.filters.creditsHigh")}
-                      </SelectItem>
-                      <SelectItem value="credits-low">
-                        {t("profile.downloadHistory.filters.creditsLow")}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">
+                    {t("profile.subscription.status")}
+                  </span>
+                  <Badge
+                    variant={
+                      userData.subscription.status === "active"
+                        ? "default"
+                        : "destructive"
+                    }
+                    className={
+                      userData.subscription.status === "active"
+                        ? "bg-green-100 text-green-800 border border-green-200"
+                        : ""
+                    }
+                  >
+                    {t("profile.userInfo.active")}
+                  </Badge>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">
+                    {t("profile.subscription.validUntil")}
+                  </span>
+                  <div
+                    className={`flex items-center gap-1 text-sm text-foreground ${isRTL ? "flex-row-reverse" : ""}`}
+                  >
+                    <CalendarDays className="h-4 w-4" />
+                    {formatDate(userData.subscription.validUntil)}
+                  </div>
+                </div>
+              </div>
+              <Separator />
+              <Button className="w-full" variant="outline">
+                <Settings className="w-4 h-4" />
+                {t("profile.subscription.manageSubscription")}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Credits Card */}
+          <Card className="dark:bg-muted/50">
+            <CardHeader>
+              <div
+                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
+              >
+                <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-semibold text-foreground">
+                    {t("profile.credits.title")}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    {t("profile.credits.description")}
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="flex justify-center">
+                <div className="text-center space-y-2 w-fit bg-secondary/75 dark:bg-secondary  p-4 rounded-xl">
+                  <div className="text-3xl font-bold text-primary">
+                    {userData.credits.remaining}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {t("profile.credits.remaining")}
+                  </p>
+                </div>
+              </div>
+              <div className="space-y-3">
+                <div className="flex justify-between text-sm">
+                  <span className="text-foreground">
+                    {t("profile.credits.usageProgress")}
+                  </span>
+                  <span className="font-medium text-foreground">
+                    {Math.round(creditsUsedPercentage)}%
+                  </span>
+                </div>
+                <Progress value={creditsUsedPercentage} className="h-2" />
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>
+                    {userData.credits.used} {t("profile.credits.used")}
+                  </span>
+                  <span>
+                    {userData.credits.total} {t("profile.credits.total")}
+                  </span>
+                </div>
+              </div>
+              <Separator />
+              <Button className="w-full">
+                <CreditCard className="w-4 h-4" />
+                {t("profile.credits.buyMore")}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Change Password Card */}
+          <Card className="dark:bg-muted/50">
+            <CardHeader>
+              <div
+                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
+              >
+                <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                  <Lock className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg font-semibold text-foreground">
+                    {t("profile.changePassword.title")}
+                  </CardTitle>
+                  <p className="text-xs text-muted-foreground">
+                    {t("profile.changePassword.description")}
+                  </p>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              {isDownloadHistoryLoading ? (
-                // Show loading skeletons while download history is loading
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {Array.from({ length: 4 }, (_, i) => (
-                    <DownloadHistoryItemSkeleton key={i} isRTL={isRTL} />
-                  ))}
-                </div>
-              ) : sortedDownloads.length === 0 ? (
-                <div className="py-12 text-center">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
-                      <Download className="w-9 h-9 text-muted-foreground" />
-                    </div>
-                    <div>
-                      <p className="text-lg sm:text-2xl font-medium text-foreground">
-                        {t("profile.downloadHistory.empty.title")}
-                      </p>
-                      <p className="text-base sm:text-lg pt-2 text-muted-foreground">
-                        {t("profile.downloadHistory.empty.description")}
-                      </p>
+              <form onSubmit={handlePasswordSubmit} className="space-y-6">
+                <div className="space-y-4">
+                  {/* Current Password */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="currentPassword"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      {t("profile.changePassword.currentPassword")}
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="currentPassword"
+                        type={showPasswords.current ? "text" : "password"}
+                        value={passwordData.currentPassword}
+                        onChange={(e) =>
+                          handlePasswordChange(
+                            "currentPassword",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t(
+                          "profile.changePassword.currentPasswordPlaceholder"
+                        )}
+                        className={`${isRTL ? "pr-10 pl-3" : "pl-3 pr-10"}`}
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className={`absolute top-1/2 transform -translate-y-1/2 h-8 w-8 ${isRTL ? "left-1" : "right-1"}`}
+                        onClick={() => togglePasswordVisibility("current")}
+                      >
+                        {showPasswords.current ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[450px] overflow-y-auto">
-                  {sortedDownloads.map((item) => (
-                    <div
-                      key={item.id}
-                      className="bg-secondary/50 dark:bg-muted border rounded-lg p-4 space-y-4 hover:bg-muted/50 transition-all duration-200"
+
+                  {/* New Password */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="newPassword"
+                      className="text-sm font-medium text-foreground"
                     >
-                      {/* Header with source and debug ID */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{item.sourceIcon}</span>
-                          <span className="font-medium text-foreground">
-                            {item.source}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm text-muted-foreground">
-                            debugID: {item.debugId}
-                          </span>
-                        </div>
-                      </div>
-                      {/* File ID and format info */}
-                      <div className="flex items-center justify-between">
-                        <Button
-                          variant="link"
-                          className="p-0 h-auto text-blue-600 hover:text-blue-800"
-                          onClick={() => window.open(item.fileUrl, "_blank")}
-                        >
-                          {item.fileId}
-                        </Button>
-                        <div className="flex items-center gap-3">
-                          <Badge variant="secondary" className="text-xs">
-                            {item.format}
-                          </Badge>
-                          <span className="text-sm text-muted-foreground">
-                            {item.size}
-                          </span>
-                        </div>
-                      </div>
-                      {/* Preview Image */}
-                      <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-                        <Image
-                          src={item.previewImage || "/placeholder.svg"}
-                          alt={item.title}
-                          fill
-                          className="object-cover"
-                        />
-                      </div>
-                      {/* Footer with source URL and download button */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          {item.sourceUrl}
-                        </span>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() =>
-                            window.open(item.downloadUrl, "_blank")
-                          }
-                          className="flex items-center gap-2"
-                        >
-                          <Download className="h-4 w-4" />
-                          {t("common.download")}
-                        </Button>
-                      </div>
+                      {t("profile.changePassword.newPassword")}
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="newPassword"
+                        type={showPasswords.new ? "text" : "password"}
+                        value={passwordData.newPassword}
+                        onChange={(e) =>
+                          handlePasswordChange("newPassword", e.target.value)
+                        }
+                        placeholder={t(
+                          "profile.changePassword.newPasswordPlaceholder"
+                        )}
+                        className={`${isRTL ? "pr-10 pl-3" : "pl-3 pr-10"}`}
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className={`absolute top-1/2 transform -translate-y-1/2 h-8 w-8 ${isRTL ? "left-1" : "right-1"}`}
+                        onClick={() => togglePasswordVisibility("new")}
+                      >
+                        {showPasswords.new ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Confirm Password */}
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="confirmPassword"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      {t("profile.changePassword.confirmPassword")}
+                    </Label>
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        type={showPasswords.confirm ? "text" : "password"}
+                        value={passwordData.confirmPassword}
+                        onChange={(e) =>
+                          handlePasswordChange(
+                            "confirmPassword",
+                            e.target.value
+                          )
+                        }
+                        placeholder={t(
+                          "profile.changePassword.confirmPasswordPlaceholder"
+                        )}
+                        className={`${isRTL ? "pr-10 pl-3" : "pl-3 pr-10"}`}
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className={`absolute top-1/2 transform -translate-y-1/2 h-8 w-8 ${isRTL ? "left-1" : "right-1"}`}
+                        onClick={() => togglePasswordVisibility("confirm")}
+                      >
+                        {showPasswords.confirm ? (
+                          <EyeOff className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <Eye className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Password Requirements */}
+                  <p className="text-xs text-muted-foreground">
+                    {t("profile.changePassword.passwordRequirements")}
+                  </p>
                 </div>
-              )}
-              {!isDownloadHistoryLoading && sortedDownloads.length > 4 && (
-                <div className="mt-6 text-center">
-                  <Button variant="outline">
-                    {t("profile.downloadHistory.loadMore")}
-                  </Button>
-                </div>
-              )}
+
+                <Separator />
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isPasswordLoading}
+                >
+                  {isPasswordLoading ? (
+                    <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Lock className="w-4 h-4" />
+                  )}
+                  {t("profile.changePassword.updatePassword")}
+                </Button>
+              </form>
             </CardContent>
           </Card>
         </div>

@@ -23,7 +23,7 @@ export function ProfileHeaderSkeleton({ isRTL }: { isRTL: boolean }) {
 }
 
 // User Info Card Skeleton
-export function UserInfoCardSkeleton({ isRTL }: { isRTL: boolean }) {
+export function UserInfoCardSkeleton({}: { isRTL: boolean }) {
   return (
     <Card className="overflow-hidden dark:bg-muted/50 border-none shadow-xs py-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
       <div className="relative p-6 sm:p-8">
@@ -164,10 +164,56 @@ export function CreditsCardSkeleton({ isRTL }: { isRTL: boolean }) {
   );
 }
 
-// Download History Card Skeleton
+// Change Password Card Skeleton
+export function ChangePasswordCardSkeleton({ isRTL }: { isRTL: boolean }) {
+  return (
+    <Card className="dark:bg-muted/50">
+      <CardHeader>
+        <div
+          className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
+        >
+          <Skeleton className="w-10 h-10 rounded-lg" />
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-32" />
+            <Skeleton className="h-3 w-48" />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="space-y-4">
+          {/* Current Password Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-32" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+
+          {/* New Password Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+
+          {/* Confirm Password Field */}
+          <div className="space-y-2">
+            <Skeleton className="h-4 w-36" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+
+          {/* Password Requirements */}
+          <Skeleton className="h-3 w-64" />
+        </div>
+
+        <Skeleton className="h-px w-full" />
+        <Skeleton className="h-10 w-full" />
+      </CardContent>
+    </Card>
+  );
+}
+
+// Download History Card Skeleton - Full Width
 export function DownloadHistoryCardSkeleton({ isRTL }: { isRTL: boolean }) {
   return (
-    <Card className="lg:col-span-2 dark:bg-muted/50">
+    <Card className="dark:bg-muted/50">
       <CardHeader className="space-y-6">
         <div
           className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
@@ -204,7 +250,7 @@ export function DownloadHistoryCardSkeleton({ isRTL }: { isRTL: boolean }) {
 }
 
 // Download History Item Skeleton (for individual items)
-export function DownloadHistoryItemSkeleton({ isRTL }: { isRTL: boolean }) {
+export function DownloadHistoryItemSkeleton({}: { isRTL: boolean }) {
   return (
     <div className="bg-secondary/50 dark:bg-muted border rounded-lg p-4 space-y-4 hover:bg-muted/50 transition-all duration-200">
       {/* Header with source and debug ID */}
@@ -268,12 +314,14 @@ export function ProfilePageSkeleton() {
         <UserInfoCardSkeleton isRTL={isRTL} />
         <StatsCardsSkeleton isRTL={isRTL} />
 
+        {/* Download History - Full Width */}
+        <DownloadHistoryCardSkeleton isRTL={isRTL} />
+
+        {/* Subscription, Credits & Change Password Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
-          <div className="lg:col-span-1 space-y-4 sm:space-y-5">
-            <SubscriptionCardSkeleton isRTL={isRTL} />
-            <CreditsCardSkeleton isRTL={isRTL} />
-          </div>
-          <DownloadHistoryCardSkeleton isRTL={isRTL} />
+          <SubscriptionCardSkeleton isRTL={isRTL} />
+          <CreditsCardSkeleton isRTL={isRTL} />
+          <ChangePasswordCardSkeleton isRTL={isRTL} />
         </div>
       </main>
     </div>
