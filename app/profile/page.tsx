@@ -9,7 +9,6 @@ import {
   Settings,
   Activity,
   Search,
-  Copy,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -28,14 +27,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   ProfilePageSkeleton,
   DownloadHistoryItemSkeleton,
 } from "@/components/profile-page-skeletons";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/components/i18n-provider";
@@ -273,15 +272,6 @@ export default function ProfilePage() {
     });
   };
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      // You could add a toast notification here
-    } catch (err) {
-      console.error("Failed to copy text: ", err);
-    }
-  };
-
   const creditsUsedPercentage =
     (userData.credits.used / userData.credits.total) * 100;
 
@@ -291,7 +281,7 @@ export default function ProfilePage() {
     >
       {/* Header */}
       <header className="bg-background border-b border-border">
-        <header className="max-w-6xl mx-auto px-4 sm:px-5 py-4">
+        <header className="px-4 sm:px-5 py-4">
           <div className="flex items-center justify-between">
             <Link
               href="/"
@@ -309,7 +299,7 @@ export default function ProfilePage() {
         </header>
       </header>
       {/* Main Content */}
-      <main className="container mx-auto max-w-6xl px-5 py-6 sm:py-8 space-y-4 sm:space-y-5">
+      <main className="px-5 py-6 sm:py-8 space-y-4 sm:space-y-5">
         {/* User Info Section */}
         <Card className="overflow-hidden dark:bg-muted/50 border-none shadow-xs py-0 bg-gradient-to-br from-primary/5 via-background to-secondary/5">
           <div className="relative p-6 sm:p-8">
@@ -717,7 +707,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[450px] overflow-y-auto">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[450px] overflow-y-auto">
                   {sortedDownloads.map((item) => (
                     <div
                       key={item.id}
@@ -735,14 +725,6 @@ export default function ProfilePage() {
                           <span className="text-sm text-muted-foreground">
                             debugID: {item.debugId}
                           </span>
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => copyToClipboard(item.debugId)}
-                            className="h-6 w-6 p-0"
-                          >
-                            <Copy className="h-3 w-3" />
-                          </Button>
                         </div>
                       </div>
                       {/* File ID and format info */}

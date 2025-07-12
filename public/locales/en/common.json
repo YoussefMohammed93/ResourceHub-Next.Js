@@ -400,6 +400,7 @@
       "usersManagement": "Users Management",
       "sitesManagement": "Sites Management",
       "pricingManagement": "Pricing Management",
+      "cookiesManagement": "Cookies Management",
       "profile": "Profile",
       "settings": "Settings",
       "signOut": "Sign Out"
@@ -471,6 +472,25 @@
         "video": "video"
       }
     }
+  },
+  "cookies": {
+    "title": "Cookies Control",
+    "description": "Manage your website cookies and user sessions.",
+    "fields": {
+      "username": "Username",
+      "credit": "Credit",
+      "lastUpdate": "Last Update",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Yes",
+      "inactive": "No"
+    },
+    "deleteDialog": {
+      "title": "Delete Cookie",
+      "description": "Are you sure you want to delete the cookie for {{domain}}? This action cannot be undone."
+    },
+    "deleting": "Deleting..."
   },
   "common": {
     "loading": "Loading...",
