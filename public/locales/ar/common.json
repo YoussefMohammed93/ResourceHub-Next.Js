@@ -505,6 +505,83 @@
     },
     "deleting": "جاري الحذف..."
   },
+  "login": {
+    "title": "مرحباً بعودتك",
+    "subtitle": "سجل الدخول للوصول إلى حسابك",
+    "form": {
+      "email": {
+        "label": "عنوان البريد الإلكتروني",
+        "placeholder": "أدخل عنوان بريدك الإلكتروني"
+      },
+      "password": {
+        "label": "كلمة المرور",
+        "placeholder": "أدخل كلمة المرور"
+      },
+      "rememberMe": "تذكرني",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "submitButton": "تسجيل الدخول",
+      "submitting": "جاري تسجيل الدخول..."
+    },
+    "validation": {
+      "emailRequired": "عنوان البريد الإلكتروني مطلوب",
+      "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+      "passwordRequired": "كلمة المرور مطلوبة"
+    },
+    "footer": {
+      "noAccount": "ليس لديك حساب؟",
+      "registerLink": "سجل الآن"
+    }
+  },
+  "register": {
+    "title": "إنشاء حسابك",
+    "subtitle": "انضم إلى مجتمعنا اليوم.",
+    "form": {
+      "firstName": {
+        "label": "الاسم الأول",
+        "placeholder": "أدخل اسمك الأول"
+      },
+      "lastName": {
+        "label": "اسم العائلة",
+        "placeholder": "أدخل اسم العائلة"
+      },
+      "email": {
+        "label": "عنوان البريد الإلكتروني",
+        "placeholder": "أدخل عنوان بريدك الإلكتروني"
+      },
+      "password": {
+        "label": "كلمة المرور",
+        "placeholder": "أنشئ كلمة مرور قوية"
+      },
+      "confirmPassword": {
+        "label": "تأكيد كلمة المرور",
+        "placeholder": "أكد كلمة المرور"
+      },
+      "terms": {
+        "label": "أوافق على",
+        "termsLink": "شروط الخدمة",
+        "and": "و",
+        "privacyLink": "سياسة الخصوصية"
+      },
+      "submitButton": "إنشاء الحساب",
+      "submitting": "جاري إنشاء الحساب..."
+    },
+    "validation": {
+      "firstNameRequired": "الاسم الأول مطلوب",
+      "lastNameRequired": "اسم العائلة مطلوب",
+      "emailRequired": "عنوان البريد الإلكتروني مطلوب",
+      "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
+      "passwordRequired": "كلمة المرور مطلوبة",
+      "passwordTooShort": "يجب أن تكون كلمة المرور 8 أحرف على الأقل",
+      "passwordWeak": "يجب أن تحتوي كلمة المرور على حرف كبير واحد على الأقل وحرف صغير ورقم",
+      "confirmPasswordRequired": "يرجى تأكيد كلمة المرور",
+      "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+      "termsRequired": "يجب الموافقة على شروط الخدمة وسياسة الخصوصية"
+    },
+    "footer": {
+      "alreadyHaveAccount": "لديك حساب بالفعل؟",
+      "loginLink": "تسجيل الدخول"
+    }
+  },
   "common": {
     "loading": "جاري التحميل...",
     "error": "خطأ",

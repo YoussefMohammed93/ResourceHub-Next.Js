@@ -1,0 +1,435 @@
+"use client";
+
+import {
+  Eye,
+  EyeOff,
+  Mail,
+  Lock,
+  LogIn,
+  Loader2,
+  Download,
+  Image as ImageIcon,
+  Video,
+  Palette,
+  Layers,
+  Camera,
+  Zap,
+  Heart,
+  Star,
+} from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useLanguage } from "@/components/i18n-provider";
+import { HeaderControls } from "@/components/header-controls";
+
+// Email validation function
+const validateEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+export default function LoginPage() {
+  const { t } = useTranslation("common");
+  const { isRTL, isLoading } = useLanguage();
+
+  // Form state
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    rememberMe: false,
+  });
+
+  // Error state
+  const [errors, setErrors] = useState({
+    email: "",
+    password: "",
+  });
+
+  // UI state
+  const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Handle input changes
+  const handleInputChange = (field: string, value: string | boolean) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+
+    // Clear error when user starts typing
+    if (errors[field as keyof typeof errors]) {
+      setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  // Validate form
+  const validateForm = () => {
+    const newErrors = {
+      email: "",
+      password: "",
+    };
+
+    // Email validation
+    if (!formData.email.trim()) {
+      newErrors.email = t("login.validation.emailRequired");
+    } else if (!validateEmail(formData.email)) {
+      newErrors.email = t("login.validation.invalidEmail");
+    }
+
+    // Password validation
+    if (!formData.password) {
+      newErrors.password = t("login.validation.passwordRequired");
+    }
+
+    setErrors(newErrors);
+    return Object.values(newErrors).every((error) => error === "");
+  };
+
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsSubmitting(false);
+      // Here you would typically handle the login response
+      console.log("Login data:", formData);
+    }, 2000);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-secondary/50 flex items-center justify-center">
+        <Loader2 className="animate-spin w-6 h-6" />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`min-h-screen relative overflow-hidden ${isRTL ? "font-tajawal" : "font-sans"}`}
+    >
+      {/* Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-orange-50 via-orange-100/50 to-orange-200/30 dark:from-orange-950/20 dark:via-orange-900/10 dark:to-orange-800/5"></div>
+
+      {/* Floating Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {/* Animated Dots Grid */}
+        <svg
+          className="absolute top-20 left-4 sm:left-10 w-24 sm:w-32 h-18 sm:h-24 opacity-20 sm:opacity-30"
+          viewBox="0 0 140 100"
+          fill="none"
+        >
+          {Array.from({ length: 6 }, (_, row) =>
+            Array.from({ length: 8 }, (_, col) => (
+              <circle
+                key={`${row}-${col}`}
+                cx={10 + col * 16}
+                cy={10 + row * 14}
+                r="2"
+                fill="currentColor"
+                className="text-primary animate-pulse"
+                style={{
+                  animationDelay: `${(row + col) * 0.2}s`,
+                  animationDuration: "3s",
+                }}
+              />
+            ))
+          )}
+        </svg>
+
+        {/* Floating Icons - Hidden on mobile for better UX */}
+        <div className="hidden md:block absolute top-32 right-64 animate-float">
+          <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Download className="w-6 h-6 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden sm:block absolute top-64 left-20 animate-float-delayed">
+          <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <ImageIcon className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute bottom-32 right-64 animate-float">
+          <div className="w-14 h-14 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Video className="w-7 h-7 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden md:block absolute top-48 left-1/4 animate-float-delayed">
+          <div className="w-8 h-8 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Palette className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden sm:block absolute bottom-48 left-16 animate-float">
+          <div className="w-11 h-11 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Layers className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute top-80 right-1/4 animate-float-delayed">
+          <div className="w-9 h-9 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Camera className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        {/* New Icons - 2 on left, 1 on right */}
+        <div className="hidden md:block absolute top-96 left-6 animate-float">
+          <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Zap className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden sm:block absolute bottom-64 left-64 animate-float-delayed">
+          <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Heart className="w-6 h-6 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute top-40 right-8 animate-float">
+          <div className="w-8 h-8 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Star className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        {/* Additional Dots Shape - Center */}
+        <svg
+          className="absolute top-1/4 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-20 sm:w-28 h-16 sm:h-20 opacity-10 sm:opacity-15"
+          viewBox="0 0 120 80"
+          fill="none"
+        >
+          {Array.from({ length: 5 }, (_, row) =>
+            Array.from({ length: 7 }, (_, col) => (
+              <circle
+                key={`center-${row}-${col}`}
+                cx={8 + col * 16}
+                cy={8 + row * 14}
+                r="1.5"
+                fill="currentColor"
+                className="text-primary animate-pulse"
+                style={{
+                  animationDelay: `${(row + col) * 0.4}s`,
+                  animationDuration: "5s",
+                }}
+              />
+            ))
+          )}
+        </svg>
+
+        {/* Additional Dots */}
+        <svg
+          className="absolute bottom-20 right-4 sm:right-20 w-16 sm:w-24 h-14 sm:h-20 opacity-15 sm:opacity-20"
+          viewBox="0 0 100 80"
+          fill="none"
+        >
+          {Array.from({ length: 4 }, (_, row) =>
+            Array.from({ length: 6 }, (_, col) => (
+              <circle
+                key={`bottom-${row}-${col}`}
+                cx={8 + col * 14}
+                cy={8 + row * 16}
+                r="1.5"
+                fill="currentColor"
+                className="text-primary animate-pulse"
+                style={{
+                  animationDelay: `${(row + col) * 0.3}s`,
+                  animationDuration: "4s",
+                }}
+              />
+            ))
+          )}
+        </svg>
+      </div>
+
+      {/* Header */}
+      <header className="relative z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+        <div className="px-4 sm:px-5 py-4">
+          <div className="flex items-center justify-between">
+            <Link
+              href="/"
+              className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"}`}
+            >
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
+              </div>
+              <span className="text-base sm:text-xl font-semibold text-foreground">
+                {t("header.logo")}
+              </span>
+            </Link>
+            <HeaderControls />
+          </div>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10 flex items-center justify-center min-h-[85vh] px-4 py-8 sm:py-12">
+        <div className="w-full max-w-lg">
+          <Card className="border-border dark:bg-muted/80 shadow-xs">
+            <CardHeader className="space-y-1 text-center">
+              <CardTitle
+                className={`text-2xl font-bold text-foreground ${isRTL ? "text-right" : "text-left"}`}
+              >
+                {t("login.title")}
+              </CardTitle>
+              <CardDescription
+                className={`text-muted-foreground ${isRTL ? "text-right" : "text-left"}`}
+              >
+                {t("login.subtitle")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                {/* Email */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="email"
+                    className={isRTL ? "text-right" : "text-left"}
+                  >
+                    <Mail className="w-4 h-4 inline" />
+                    {t("login.form.email.label")}
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder={t("login.form.email.placeholder")}
+                    value={formData.email}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
+                    className={`${isRTL ? "text-right" : "text-left"} ${errors.email ? "border-destructive" : ""}`}
+                    dir={isRTL ? "rtl" : "ltr"}
+                  />
+                  {errors.email && (
+                    <p
+                      className={`text-sm text-destructive ${isRTL ? "text-right" : "text-left"}`}
+                    >
+                      {errors.email}
+                    </p>
+                  )}
+                </div>
+
+                {/* Password */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="password"
+                    className={isRTL ? "text-right" : "text-left"}
+                  >
+                    <Lock className="w-4 h-4 inline" />
+                    {t("login.form.password.label")}
+                  </Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? "text" : "password"}
+                      placeholder={t("login.form.password.placeholder")}
+                      value={formData.password}
+                      onChange={(e) =>
+                        handleInputChange("password", e.target.value)
+                      }
+                      className={`${isRTL ? "text-right pr-10" : "text-left pr-10"} ${errors.password ? "border-destructive" : ""}`}
+                      dir={isRTL ? "rtl" : "ltr"}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className={`absolute top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground ${isRTL ? "left-3" : "right-3"}`}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="w-4 h-4" />
+                      ) : (
+                        <Eye className="w-4 h-4" />
+                      )}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p
+                      className={`text-sm text-destructive ${isRTL ? "text-right" : "text-left"}`}
+                    >
+                      {errors.password}
+                    </p>
+                  )}
+                </div>
+
+                {/* Remember Me and Forgot Password */}
+                <div
+                  className={`flex items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}
+                >
+                  <div
+                    className={`flex items-center space-x-2 ${isRTL ? "space-x-reverse !space-x-2" : ""}`}
+                  >
+                    <Checkbox
+                      id="rememberMe"
+                      checked={formData.rememberMe}
+                      onCheckedChange={(checked) =>
+                        handleInputChange("rememberMe", checked)
+                      }
+                    />
+                    <Label
+                      htmlFor="rememberMe"
+                      className="text-sm cursor-pointer"
+                    >
+                      {t("login.form.rememberMe")}
+                    </Label>
+                  </div>
+                  <Link
+                    href="/forgot-password"
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {t("login.form.forgotPassword")}
+                  </Link>
+                </div>
+
+                {/* Submit Button */}
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
+                      {t("login.form.submitting")}
+                    </>
+                  ) : (
+                    <>
+                      <LogIn className="w-4 h-4" />
+                      {t("login.form.submitButton")}
+                    </>
+                  )}
+                </Button>
+
+                {/* Footer */}
+                <div
+                  className={`text-center text-sm text-muted-foreground ${isRTL ? "text-right" : "text-left"}`}
+                >
+                  {t("login.footer.noAccount")}{" "}
+                  <Link
+                    href="/register"
+                    className="text-primary hover:underline font-medium"
+                  >
+                    {t("login.footer.registerLink")}
+                  </Link>
+                </div>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
+  );
+}

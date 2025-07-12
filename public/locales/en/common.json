@@ -506,6 +506,83 @@
     },
     "deleting": "Deleting..."
   },
+  "login": {
+    "title": "Welcome Back",
+    "subtitle": "Sign in to access your account",
+    "form": {
+      "email": {
+        "label": "Email Address",
+        "placeholder": "Enter your email address"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Enter your password"
+      },
+      "rememberMe": "Remember me",
+      "forgotPassword": "Forgot password?",
+      "submitButton": "Login",
+      "submitting": "Signing in..."
+    },
+    "validation": {
+      "emailRequired": "Email address is required",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordRequired": "Password is required"
+    },
+    "footer": {
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register now"
+    }
+  },
+  "register": {
+    "title": "Create Your Account",
+    "subtitle": "Join our community today.",
+    "form": {
+      "firstName": {
+        "label": "First Name",
+        "placeholder": "Enter your first name"
+      },
+      "lastName": {
+        "label": "Last Name",
+        "placeholder": "Enter your last name"
+      },
+      "email": {
+        "label": "Email Address",
+        "placeholder": "Enter your email address"
+      },
+      "password": {
+        "label": "Password",
+        "placeholder": "Create a strong password"
+      },
+      "confirmPassword": {
+        "label": "Confirm Password",
+        "placeholder": "Confirm your password"
+      },
+      "terms": {
+        "label": "I agree to the",
+        "termsLink": "Terms of Service",
+        "and": "and",
+        "privacyLink": "Privacy Policy"
+      },
+      "submitButton": "Create Account",
+      "submitting": "Creating Account..."
+    },
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "lastNameRequired": "Last name is required",
+      "emailRequired": "Email address is required",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordRequired": "Password is required",
+      "passwordTooShort": "Password must be at least 8 characters long",
+      "passwordWeak": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
+      "confirmPasswordRequired": "Please confirm your password",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "termsRequired": "You must agree to the Terms of Service and Privacy Policy"
+    },
+    "footer": {
+      "alreadyHaveAccount": "Already have an account?",
+      "loginLink": "Login"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
