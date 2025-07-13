@@ -17,6 +17,16 @@ import {
   Zap,
   Heart,
   Star,
+  Sparkles,
+  Globe,
+  Shield,
+  Rocket,
+  Music,
+  Code,
+  Brush,
+  Lightbulb,
+  Target,
+  Trophy,
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
@@ -316,6 +326,153 @@ export default function RegisterPage() {
             ))
           )}
         </svg>
+
+        {/* Additional Dot Shapes */}
+        {/* Top Right Corner Dots */}
+        <svg
+          className="absolute top-16 right-16 w-20 sm:w-28 h-16 sm:h-20 opacity-10 sm:opacity-15"
+          viewBox="0 0 120 80"
+          fill="none"
+        >
+          {Array.from({ length: 4 }, (_, row) =>
+            Array.from({ length: 6 }, (_, col) => (
+              <circle
+                key={`top-right-${row}-${col}`}
+                cx={8 + col * 18}
+                cy={8 + row * 16}
+                r="2"
+                fill="currentColor"
+                className="text-primary animate-pulse"
+                style={{
+                  animationDelay: `${(row + col) * 0.5}s`,
+                  animationDuration: "6s",
+                }}
+              />
+            ))
+          )}
+        </svg>
+
+        {/* Middle Left Dots */}
+        <svg
+          className="absolute top-1/2 left-8 transform -translate-y-1/2 w-18 sm:w-24 h-20 sm:h-28 opacity-8 sm:opacity-12"
+          viewBox="0 0 100 120"
+          fill="none"
+        >
+          {Array.from({ length: 6 }, (_, row) =>
+            Array.from({ length: 4 }, (_, col) => (
+              <circle
+                key={`mid-left-${row}-${col}`}
+                cx={8 + col * 20}
+                cy={8 + row * 18}
+                r="1.8"
+                fill="currentColor"
+                className="text-primary animate-pulse"
+                style={{
+                  animationDelay: `${(row + col) * 0.6}s`,
+                  animationDuration: "7s",
+                }}
+              />
+            ))
+          )}
+        </svg>
+
+        {/* Bottom Left Corner Dots */}
+        <svg
+          className="absolute bottom-32 left-32 w-22 sm:w-30 h-18 sm:h-24 opacity-12 sm:opacity-18"
+          viewBox="0 0 130 100"
+          fill="none"
+        >
+          {Array.from({ length: 5 }, (_, row) =>
+            Array.from({ length: 7 }, (_, col) => (
+              <circle
+                key={`bottom-left-${row}-${col}`}
+                cx={8 + col * 16}
+                cy={8 + row * 16}
+                r="1.6"
+                fill="currentColor"
+                className="text-primary animate-pulse"
+                style={{
+                  animationDelay: `${(row + col) * 0.25}s`,
+                  animationDuration: "5.5s",
+                }}
+              />
+            ))
+          )}
+        </svg>
+
+        {/* Additional 10 Floating Icons */}
+        <div className="hidden sm:block absolute top-20 right-32 animate-float">
+          <div className="w-9 h-9 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Sparkles className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden md:block absolute top-72 left-48 animate-float-delayed">
+          <div className="w-11 h-11 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Globe className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute bottom-40 right-32 animate-float">
+          <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Shield className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden sm:block absolute top-56 right-12 animate-float-delayed">
+          <div className="w-8 h-8 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Rocket className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden md:block absolute bottom-56 left-32 animate-float">
+          <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Music className="w-6 h-6 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute top-44 left-8 animate-float-delayed">
+          <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Code className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden sm:block absolute bottom-24 right-48 animate-float">
+          <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Brush className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden md:block absolute top-88 right-20 animate-float-delayed">
+          <div className="w-8 h-8 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Lightbulb className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute bottom-72 left-12 animate-float">
+          <div className="w-11 h-11 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Target className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden sm:block absolute top-32 left-56 animate-float-delayed">
+          <div className="w-9 h-9 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Trophy className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        {/* Repeat some icons for more density */}
+        <div className="hidden md:block absolute top-60 left-72 animate-float">
+          <div className="w-8 h-8 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Download className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        <div className="hidden lg:block absolute bottom-80 right-56 animate-float-delayed">
+          <div className="w-10 h-10 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Video className="w-5 h-5 text-primary" />
+          </div>
+        </div>
       </div>
 
       {/* Header */}

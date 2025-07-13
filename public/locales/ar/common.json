@@ -582,6 +582,45 @@
       "loginLink": "تسجيل الدخول"
     }
   },
+  "search": {
+    "title": "نتائج البحث",
+    "searchPlaceholder": "ابحث عن الصور، الرسوم المتجهة، والمزيد...",
+    "searchButton": "بحث",
+    "filters": {
+      "title": "المرشحات",
+      "providers": "مقدمو الخدمة",
+      "fileType": "نوع الملف",
+      "all": "الكل",
+      "items": "عنصر"
+    },
+    "fileTypes": {
+      "photos": "الصور",
+      "vectors": "الرسوم المتجهة",
+      "illustrations": "الرسوم التوضيحية",
+      "icons": "الأيقونات",
+      "templates": "القوالب"
+    },
+    "pagination": {
+      "previous": "العناصر السابقة",
+      "next": "العناصر التالية",
+      "page": "الصفحة {{current}} من {{total}}"
+    },
+    "suggestions": {
+      "title": "الاقتراحات:"
+    },
+    "actions": {
+      "download": "تحميل",
+      "favorite": "إضافة للمفضلة",
+      "share": "مشاركة"
+    },
+    "toggleFilters": "تبديل المرشحات",
+    "imageDialog": {
+      "creditRequired": "النقاط المطلوبة:",
+      "addToQueue": "إضافة للقائمة",
+      "like": "إعجاب",
+      "details": "التفاصيل"
+    }
+  },
   "common": {
     "loading": "جاري التحميل...",
     "error": "خطأ",

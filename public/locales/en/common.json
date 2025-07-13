@@ -583,6 +583,45 @@
       "loginLink": "Login"
     }
   },
+  "search": {
+    "title": "Search Results",
+    "searchPlaceholder": "Search for images, vectors, and more...",
+    "searchButton": "Search",
+    "filters": {
+      "title": "Filters",
+      "providers": "Providers",
+      "fileType": "File Type",
+      "all": "all",
+      "items": "items"
+    },
+    "fileTypes": {
+      "photos": "photos",
+      "vectors": "vectors",
+      "illustrations": "illustrations",
+      "icons": "icons",
+      "templates": "templates"
+    },
+    "pagination": {
+      "previous": "Previous Items",
+      "next": "Next Items",
+      "page": "Page {{current}} of {{total}}"
+    },
+    "suggestions": {
+      "title": "Suggestions:"
+    },
+    "actions": {
+      "download": "Download",
+      "favorite": "Add to favorites",
+      "share": "Share"
+    },
+    "toggleFilters": "Toggle filters",
+    "imageDialog": {
+      "creditRequired": "Credit required:",
+      "addToQueue": "Add to Queue",
+      "like": "Like",
+      "details": "Details"
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",

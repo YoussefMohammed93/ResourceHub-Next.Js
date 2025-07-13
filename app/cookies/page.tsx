@@ -265,7 +265,7 @@ export default function CookiesPage() {
           {cookies.map((cookie) => (
             <Card
               key={cookie.id}
-              className="group relative bg-card dark:bg-muted/75 border border-border rounded-2xl p-6 transition-all duration-500 hover:border-primary/30 overflow-hidden"
+              className="group relative bg-primary/5 dark:bg-muted/75 border border-border rounded-2xl p-6 transition-all duration-500 hover:border-primary/30 overflow-hidden"
             >
               {/* Hover effect overlay - diagonal sweep */}
               <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
@@ -360,7 +360,7 @@ export default function CookiesPage() {
                 </div>
 
                 <div className={`absolute -top-24 opacity-10 group-hover:opacity-20 transition-opacity duration-300 ${isRTL ? "-left-8" : "-right-8"}`}>
-                  <Cookie className="w-20 h-20 text-orange-500 transform rotate-12"/>
+                  <Cookie className="w-28 h-28 text-orange-500 transform rotate-12"/>
                 </div>
 
                 {/* Cookie Details */}
