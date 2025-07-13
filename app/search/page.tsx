@@ -179,6 +179,8 @@ function SearchContent() {
           <div className="px-4 sm:px-5">
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-1 sm:gap-2">
+                {/* Mobile menu button skeleton */}
+                <Skeleton className="w-8 h-8 rounded-lg lg:hidden" />
                 <Skeleton className="w-8 h-8 rounded-lg" />
                 <Skeleton className="w-32 h-6" />
               </div>
@@ -191,7 +193,8 @@ function SearchContent() {
           </div>
         </header>
         <div className="flex">
-          <aside className="w-80 h-[calc(100vh-4rem)] bg-background border-r border-border p-6">
+          {/* Desktop Sidebar - Hidden on mobile */}
+          <aside className="hidden lg:block w-80 h-[calc(100vh-4rem)] bg-card border-r border-border p-6">
             <Skeleton className="w-full h-8 mb-6" />
             <div className="space-y-4">
               <Skeleton className="w-full h-6" />
@@ -202,16 +205,84 @@ function SearchContent() {
               </div>
             </div>
           </aside>
-          <main className="flex-1 p-6">
-            <div className="space-y-6">
-              <Skeleton className="w-full max-w-2xl h-12 mx-auto rounded-xl" />
+
+          {/* Main Content */}
+          <main className="flex-1 min-w-0 bg-secondary/50 lg:ml-0">
+            <div className="p-4 sm:p-6 space-y-6">
+              {/* Search Bar */}
               <div className="flex justify-center">
-                <Skeleton className="w-64 h-8" />
+                <Skeleton className="w-full max-w-2xl h-12 rounded-xl" />
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <Skeleton key={i} className="w-full h-64 rounded-lg" />
-                ))}
+
+              {/* Top Pagination - Hidden on mobile */}
+              <div className="hidden sm:flex justify-center">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-12 h-12 rounded-xl" />
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Skeleton key={i} className="w-12 h-12 rounded-xl" />
+                    ))}
+                  </div>
+                  <Skeleton className="w-12 h-12 rounded-xl" />
+                </div>
+              </div>
+
+              {/* Suggestions */}
+              <div className="space-y-2">
+                <Skeleton className="w-24 h-4" />
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 w-fit">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <Skeleton key={i} className="w-20 h-6 rounded-full" />
+                  ))}
+                </div>
+              </div>
+
+              {/* Search Results Count */}
+              <div className="text-center space-y-2">
+                <Skeleton className="w-64 h-6 mx-auto" />
+                <Skeleton className="w-80 h-4 mx-auto" />
+              </div>
+
+              {/* Results Grid - Mobile: Single column, Desktop: Varied widths */}
+              <div className="space-y-4">
+                {/* Mobile Layout - Single column */}
+                <div className="grid grid-cols-1 gap-4 sm:hidden">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <Skeleton key={i} className="w-full h-64 rounded-lg" />
+                  ))}
+                </div>
+
+                {/* Desktop Layout - Varied widths */}
+                <div className="hidden sm:block space-y-4">
+                  {Array.from({ length: 3 }).map((_, rowIndex) => (
+                    <div
+                      key={rowIndex}
+                      className="flex gap-2 sm:gap-4 justify-start flex-wrap"
+                    >
+                      {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton
+                          key={i}
+                          className="rounded-lg"
+                          style={{
+                            flex: `${1.2 + i * 0.2} 1 0`,
+                            height: "250px",
+                            minWidth: "150px",
+                            maxWidth: "400px",
+                          }}
+                        />
+                      ))}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bottom Pagination - Mobile only */}
+              <div className="flex justify-center pt-8 sm:hidden">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="w-20 h-8 rounded" />
+                  <Skeleton className="w-16 h-4" />
+                  <Skeleton className="w-16 h-8 rounded" />
+                </div>
               </div>
             </div>
           </main>
@@ -421,6 +492,77 @@ function SearchContent() {
               </div>
             </div>
 
+            {/* Top Pagination with Page Numbers */}
+            <div className="flex justify-center">
+              <div
+                className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
+              >
+                {/* Previous Button */}
+                <Button
+                  variant="outline"
+                  size="lg"
+                  disabled={currentPage === 1}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.max(1, prev - 1))
+                  }
+                  className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
+                >
+                  <ChevronLeft
+                    className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
+                  />
+                </Button>
+
+                {/* Page Numbers */}
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={
+                          currentPage === pageNum ? "default" : "outline"
+                        }
+                        size="lg"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2 font-semibold ${
+                          currentPage === pageNum
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "hover:bg-muted"
+                        }`}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
+                  })}
+                </div>
+
+                {/* Next Button */}
+                <Button
+                  variant="outline"
+                  size="lg"
+                  disabled={currentPage === totalPages}
+                  onClick={() =>
+                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  }
+                  className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
+                >
+                  <ChevronRight
+                    className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
+                  />
+                </Button>
+              </div>
+            </div>
+
             {/* Suggestions */}
             <div
               className={`flex flex-col gap-2 sm:flex-row sm:items-center ${isRTL ? "space-x-reverse sm:space-x-3" : "space-x-3"}`}
@@ -443,6 +585,28 @@ function SearchContent() {
                   </Badge>
                 ))}
               </div>
+            </div>
+
+            {/* Search Results Count */}
+            <div className="text-center space-y-2">
+              <div
+                className={`flex items-center justify-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+              >
+                <h2 className="text-lg font-semibold text-foreground">
+                  {t("search.results.stockImages")}{" "}
+                  <span className="text-primary">
+                    {searchQuery || t("search.results.defaultQuery")}
+                  </span>
+                  .
+                </h2>
+              </div>
+              <p className="text-muted-foreground">
+                {t("search.results.description", {
+                  count: totalResults,
+                  query: searchQuery || t("search.results.defaultQuery"),
+                })}{" "}
+                {t("search.results.vectorsText")}{" "}
+              </p>
             </div>
 
             {/* Results Grid - Mobile: Grid (1 item per row), SM+: Flex with varied widths */}
@@ -784,6 +948,8 @@ function SearchPageLoading() {
         <div className="px-4 sm:px-5">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-1 sm:gap-2">
+              {/* Mobile menu button skeleton */}
+              <Skeleton className="w-8 h-8 rounded-lg lg:hidden" />
               <Skeleton className="w-8 h-8 rounded-lg" />
               <Skeleton className="w-32 h-6" />
             </div>
@@ -796,7 +962,8 @@ function SearchPageLoading() {
         </div>
       </header>
       <div className="flex">
-        <aside className="w-80 h-[calc(100vh-4rem)] bg-background border-r border-border p-6">
+        {/* Desktop Sidebar - Hidden on mobile */}
+        <aside className="hidden lg:block w-80 h-[calc(100vh-4rem)] bg-card border-r border-border p-6">
           <Skeleton className="w-full h-8 mb-6" />
           <div className="space-y-4">
             <Skeleton className="w-full h-6" />
@@ -807,16 +974,84 @@ function SearchPageLoading() {
             </div>
           </div>
         </aside>
-        <main className="flex-1 p-6">
-          <div className="space-y-6">
-            <Skeleton className="w-full max-w-2xl h-12 mx-auto rounded-xl" />
+
+        {/* Main Content */}
+        <main className="flex-1 min-w-0 bg-secondary/50 lg:ml-0">
+          <div className="p-4 sm:p-6 space-y-6">
+            {/* Search Bar */}
             <div className="flex justify-center">
-              <Skeleton className="w-64 h-8" />
+              <Skeleton className="w-full max-w-2xl h-12 rounded-xl" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {Array.from({ length: 12 }).map((_, i) => (
-                <Skeleton key={i} className="w-full h-64 rounded-lg" />
-              ))}
+
+            {/* Top Pagination - Hidden on mobile */}
+            <div className="hidden sm:flex justify-center">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-12 h-12 rounded-xl" />
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Skeleton key={i} className="w-12 h-12 rounded-xl" />
+                  ))}
+                </div>
+                <Skeleton className="w-12 h-12 rounded-xl" />
+              </div>
+            </div>
+
+            {/* Suggestions */}
+            <div className="space-y-2">
+              <Skeleton className="w-24 h-4" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 w-fit">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <Skeleton key={i} className="w-20 h-6 rounded-full" />
+                ))}
+              </div>
+            </div>
+
+            {/* Search Results Count */}
+            <div className="text-center space-y-2">
+              <Skeleton className="w-64 h-6 mx-auto" />
+              <Skeleton className="w-80 h-4 mx-auto" />
+            </div>
+
+            {/* Results Grid - Mobile: Single column, Desktop: Varied widths */}
+            <div className="space-y-4">
+              {/* Mobile Layout - Single column */}
+              <div className="grid grid-cols-1 gap-4 sm:hidden">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="w-full h-64 rounded-lg" />
+                ))}
+              </div>
+
+              {/* Desktop Layout - Varied widths */}
+              <div className="hidden sm:block space-y-4">
+                {Array.from({ length: 3 }).map((_, rowIndex) => (
+                  <div
+                    key={rowIndex}
+                    className="flex gap-2 sm:gap-4 justify-start flex-wrap"
+                  >
+                    {Array.from({ length: 4 }).map((_, i) => (
+                      <Skeleton
+                        key={i}
+                        className="rounded-lg"
+                        style={{
+                          flex: `${1.2 + i * 0.2} 1 0`,
+                          height: "250px",
+                          minWidth: "150px",
+                          maxWidth: "400px",
+                        }}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Pagination - Mobile only */}
+            <div className="flex justify-center pt-8 sm:hidden">
+              <div className="flex items-center gap-2">
+                <Skeleton className="w-20 h-8 rounded" />
+                <Skeleton className="w-16 h-4" />
+                <Skeleton className="w-16 h-8 rounded" />
+              </div>
             </div>
           </div>
         </main>

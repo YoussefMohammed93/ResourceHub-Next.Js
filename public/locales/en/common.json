@@ -620,6 +620,12 @@
       "addToQueue": "Add to Queue",
       "like": "Like",
       "details": "Details"
+    },
+    "results": {
+      "stockImages": "Stock images related to",
+      "defaultQuery": "search",
+      "description": "There is more than {{count}} stock images and vectors to {{query}}, enjoy!",
+      "vectorsText": "vectors"
     }
   },
   "common": {

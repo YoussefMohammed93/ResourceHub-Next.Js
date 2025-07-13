@@ -619,6 +619,12 @@
       "addToQueue": "إضافة للقائمة",
       "like": "إعجاب",
       "details": "التفاصيل"
+    },
+    "results": {
+      "stockImages": "صور مخزنة متعلقة بـ",
+      "defaultQuery": "البحث",
+      "description": "يوجد أكثر من {{count}} صورة مخزنة ورسوم متجهة لـ {{query}}، استمتع!",
+      "vectorsText": "رسوم متجهة"
     }
   },
   "common": {
