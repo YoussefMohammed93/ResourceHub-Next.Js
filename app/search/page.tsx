@@ -421,8 +421,201 @@ function SearchContent() {
               </div>
             </div>
 
-            {/* Pagination Top - Centered */}
-            <div className="flex justify-center">
+            {/* Suggestions */}
+            <div
+              className={`flex flex-col gap-2 sm:flex-row sm:items-center ${isRTL ? "space-x-reverse sm:space-x-3" : "space-x-3"}`}
+            >
+              <h3 className="text-sm font-medium text-muted-foreground">
+                {t("search.suggestions.title")}
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 w-fit">
+                {suggestions.map((suggestion) => (
+                  <Badge
+                    key={suggestion}
+                    variant="outline"
+                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                    onClick={() => {
+                      setSearchQuery(suggestion);
+                      handleSearch();
+                    }}
+                  >
+                    {suggestion}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            {/* Results Grid - Mobile: Grid (1 item per row), SM+: Flex with varied widths */}
+            <div className="space-y-4">
+              {/* Mobile Layout - Grid with 1 column */}
+              <div className="grid grid-cols-1 gap-4 sm:hidden">
+                {mockResults.map((result) => (
+                  <div
+                    key={result.id}
+                    className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer h-64"
+                    onMouseEnter={() => setHoveredImage(result.id)}
+                    onMouseLeave={() => setHoveredImage(null)}
+                    onClick={() => handleImageClick(result)}
+                  >
+                    {/* Image */}
+                    <div className="relative w-full h-full">
+                      <Image
+                        src={result.thumbnail}
+                        alt={result.title}
+                        fill
+                        className="object-cover"
+                      />
+
+                      {/* Provider Logo - Top Left/Right - Always visible */}
+                      <div
+                        className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300`}
+                      >
+                        <Image
+                          src={result.provider.logo}
+                          alt={result.provider.name}
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 object-cover rounded-lg"
+                        />
+                      </div>
+
+                      {/* Hover Overlay */}
+                      <div
+                        className={`absolute inset-0 bg-black/20 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100" : "opacity-0"}`}
+                      >
+                        {/* Love Button - Top Right - Appears on hover */}
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+                          aria-label={t("search.actions.favorite")}
+                        >
+                          <Heart
+                            className={`w-4 h-4 ${result.isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`}
+                          />
+                        </Button>
+
+                        {/* Share Button - Under Logo - Appears on hover */}
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className={`absolute top-12 ${isRTL ? "right-2" : "left-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+                          aria-label={t("search.actions.share")}
+                        >
+                          <Share2 className="w-4 h-4 text-gray-600" />
+                        </Button>
+
+                        {/* Download Button - Bottom Center - Appears on hover */}
+                        <Button
+                          size="sm"
+                          className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-primary/90 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+                        >
+                          <Download className="w-4 h-4" />
+                          {t("search.actions.download")}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Layout - Flex with varied widths (SM and up) */}
+              <div className="hidden sm:block">
+                {Array.from(
+                  { length: Math.ceil(mockResults.length / 4) },
+                  (_, rowIndex) => (
+                    <div
+                      key={rowIndex}
+                      className="flex gap-2 sm:gap-4 justify-start flex-wrap mb-4"
+                    >
+                      {mockResults
+                        .slice(rowIndex * 4, (rowIndex + 1) * 4)
+                        .map((result, index) => {
+                          const actualIndex = rowIndex * 4 + index;
+                          const flexValue = getImageFlex(actualIndex);
+                          return (
+                            <div
+                              key={result.id}
+                              className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                              style={{
+                                flex: `${flexValue} 1 0`,
+                                height: "250px",
+                                minWidth: "150px",
+                                maxWidth: "400px",
+                              }}
+                              onMouseEnter={() => setHoveredImage(result.id)}
+                              onMouseLeave={() => setHoveredImage(null)}
+                              onClick={() => handleImageClick(result)}
+                            >
+                              {/* Image */}
+                              <div className="relative w-full h-full">
+                                <Image
+                                  src={result.thumbnail}
+                                  alt={result.title}
+                                  fill
+                                  className="object-cover"
+                                />
+
+                                {/* Provider Logo - Top Left/Right - Always visible */}
+                                <div
+                                  className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300`}
+                                >
+                                  <Image
+                                    src={result.provider.logo}
+                                    alt={result.provider.name}
+                                    width={32}
+                                    height={32}
+                                    className="w-8 h-8 object-cover rounded-lg"
+                                  />
+                                </div>
+
+                                {/* Hover Overlay */}
+                                <div
+                                  className={`absolute inset-0 bg-black/20 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100" : "opacity-0"}`}
+                                >
+                                  {/* Love Button - Top Right - Appears on hover */}
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+                                    aria-label={t("search.actions.favorite")}
+                                  >
+                                    <Heart
+                                      className={`w-4 h-4 ${result.isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`}
+                                    />
+                                  </Button>
+
+                                  {/* Share Button - Under Logo - Appears on hover */}
+                                  <Button
+                                    size="sm"
+                                    variant="secondary"
+                                    className={`absolute top-12 ${isRTL ? "right-2" : "left-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+                                    aria-label={t("search.actions.share")}
+                                  >
+                                    <Share2 className="w-4 h-4 text-gray-600" />
+                                  </Button>
+
+                                  {/* Download Button - Bottom Center - Appears on hover */}
+                                  <Button
+                                    size="sm"
+                                    className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-primary/90 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+                                  >
+                                    <Download className="w-4 h-4" />
+                                    {t("search.actions.download")}
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                    </div>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* Pagination Bottom - Centered */}
+            <div className="flex justify-center pt-8">
               <div
                 className={`flex items-center gap-2 ${isRTL ? "flex-row" : ""}`}
               >
@@ -461,124 +654,6 @@ function SearchContent() {
                   />
                 </Button>
               </div>
-            </div>
-
-            {/* Suggestions */}
-            <div
-              className={`flex flex-col gap-2 sm:flex-row sm:items-center ${isRTL ? "space-x-reverse sm:space-x-3" : "space-x-3"}`}
-            >
-              <h3 className="text-sm font-medium text-muted-foreground">
-                {t("search.suggestions.title")}
-              </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 w-fit">
-                {suggestions.map((suggestion) => (
-                  <Badge
-                    key={suggestion}
-                    variant="outline"
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                    onClick={() => {
-                      setSearchQuery(suggestion);
-                      handleSearch();
-                    }}
-                  >
-                    {suggestion}
-                  </Badge>
-                ))}
-              </div>
-            </div>
-
-            {/* Results Grid - Fixed Height with Varied Widths */}
-            <div className="space-y-4">
-              {Array.from(
-                { length: Math.ceil(mockResults.length / 4) },
-                (_, rowIndex) => (
-                  <div
-                    key={rowIndex}
-                    className="flex gap-2 sm:gap-4 justify-start flex-wrap"
-                  >
-                    {mockResults
-                      .slice(rowIndex * 4, (rowIndex + 1) * 4)
-                      .map((result, index) => {
-                        const actualIndex = rowIndex * 4 + index;
-                        const flexValue = getImageFlex(actualIndex);
-                        return (
-                          <div
-                            key={result.id}
-                            className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer"
-                            style={{
-                              flex: `${flexValue} 1 0`,
-                              height: "250px",
-                              minWidth: "150px",
-                              maxWidth: "400px",
-                            }}
-                            onMouseEnter={() => setHoveredImage(result.id)}
-                            onMouseLeave={() => setHoveredImage(null)}
-                            onClick={() => handleImageClick(result)}
-                          >
-                            {/* Image */}
-                            <div className="relative w-full h-full">
-                              <Image
-                                src={result.thumbnail}
-                                alt={result.title}
-                                fill
-                                className="object-cover"
-                              />
-
-                              {/* Provider Logo - Top Left/Right - Always visible */}
-                              <div
-                                className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300`}
-                              >
-                                <Image
-                                  src={result.provider.logo}
-                                  alt={result.provider.name}
-                                  width={32}
-                                  height={32}
-                                  className="w-8 h-8 object-cover rounded-lg"
-                                />
-                              </div>
-
-                              {/* Hover Overlay */}
-                              <div
-                                className={`absolute inset-0 bg-black/20 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100" : "opacity-0"}`}
-                              >
-                                {/* Love Button - Top Right - Appears on hover */}
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
-                                  aria-label={t("search.actions.favorite")}
-                                >
-                                  <Heart
-                                    className={`w-4 h-4 ${result.isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`}
-                                  />
-                                </Button>
-
-                                {/* Share Button - Under Logo - Appears on hover */}
-                                <Button
-                                  size="sm"
-                                  variant="secondary"
-                                  className={`absolute top-12 ${isRTL ? "right-2" : "left-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
-                                  aria-label={t("search.actions.share")}
-                                >
-                                  <Share2 className="w-4 h-4 text-gray-600" />
-                                </Button>
-
-                                {/* Download Button - Bottom Center - Appears on hover */}
-                                <Button
-                                  size="sm"
-                                  className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-primary/90 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-                                >
-                                  <Download className="w-4 h-4" />
-                                  {t("search.actions.download")}
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                )
-              )}
             </div>
           </div>
         </main>
