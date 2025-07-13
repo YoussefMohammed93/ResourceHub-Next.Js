@@ -9,11 +9,6 @@ const nextConfig: NextConfig = {
       "via.placeholder.com",
     ],
   },
-  i18n: {
-    locales: ["en", "ar"],
-    defaultLocale: "en",
-    localeDetection: false,
-  },
 };
 
 export default nextConfig;
