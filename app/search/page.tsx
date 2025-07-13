@@ -11,7 +11,6 @@ import {
   Menu,
   ImageIcon,
   File,
-  Info,
   Eye,
   ShoppingCart,
 } from "lucide-react";
@@ -130,6 +129,7 @@ function SearchContent() {
   const [hoveredImage, setHoveredImage] = useState<number | null>(null);
   const [selectedImage, setSelectedImage] = useState<SearchResult | null>(null);
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
+  const [isFullImageDialogOpen, setIsFullImageDialogOpen] = useState(false);
 
   const resultsPerPage = 24;
   const mockResults = generateMockResults(searchQuery);
@@ -833,7 +833,7 @@ function SearchContent() {
         >
           {selectedImage && (
             <div
-              className={`flex flex-col sm:flex-row h-full  ${isRTL ? "flex-row-reverse" : ""}`}
+              className={`flex flex-col sm:flex-row h-full  ${isRTL ? "" : ""}`}
             >
               {/* Left Side - Image */}
               <div className="flex-1 relative bg-muted/20">
@@ -900,6 +900,16 @@ function SearchContent() {
                       {t("search.actions.simillars")}
                     </Button>
 
+                    {/* View Full Image Button */}
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => setIsFullImageDialogOpen(true)}
+                    >
+                      <Eye className={`w-4 h-4`} />
+                      {t("search.imageDialog.viewFullImage")}
+                    </Button>
+
                     {/* Add to Queue Button */}
                     <Button variant="outline" className="w-full">
                       <ShoppingCart className={`w-4 h-4`} />
@@ -913,12 +923,6 @@ function SearchContent() {
                       />
                       {t("search.imageDialog.like")}
                     </Button>
-
-                    {/* Details Button */}
-                    <Button variant="outline" className="w-full">
-                      <Info className={`w-4 h-4`} />
-                      {t("search.imageDialog.details")}
-                    </Button>
                   </div>
                 </div>
 
@@ -930,6 +934,61 @@ function SearchContent() {
                   <div className="text-sm text-muted-foreground">
                     {selectedImage.imageId}
                   </div>
+                  <div className="text-sm text-muted-foreground">
+                    {selectedImage.resolution}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Full Screen Image Dialog */}
+      <Dialog
+        open={isFullImageDialogOpen}
+        onOpenChange={setIsFullImageDialogOpen}
+      >
+        <DialogTitle className="sr-only">Full Image View</DialogTitle>
+        <DialogContent
+          className="!max-w-[95vw] !max-h-[95vh] w-full h-full p-0 overflow-hidden border-none rounded-xl bg-black/95"
+          showCloseButton={false}
+        >
+          {selectedImage && (
+            <div className="relative w-full h-full flex items-center justify-center">
+              {/* Close Button */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsFullImageDialogOpen(false)}
+                className={`absolute top-4 ${isRTL ? "left-4" : "right-4"} z-10 w-10 h-10 p-0 bg-black/50 hover:bg-black/70 text-white hover:text-white border rounded-none border-white/40`}
+              >
+                <X className="w-5 h-5" />
+              </Button>
+
+              {/* Full Size Image */}
+              <div className="relative w-full h-full flex items-center justify-center p-4">
+                <Image
+                  src={selectedImage.fullImageUrl}
+                  alt={selectedImage.title}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+
+              {/* Image Info Overlay */}
+              <div
+                className={`absolute bottom-4 ${isRTL ? "right-4" : "left-4"} bg-black/70 text-white p-3 rounded-lg border border-white/20 max-w-sm`}
+              >
+                <div className="font-medium text-sm mb-1">
+                  {selectedImage.title}
+                </div>
+                <div className="text-xs text-white/80">
+                  {selectedImage.imageId} • {selectedImage.provider.name}
+                </div>
+                <div className="text-xs text-white/80">
+                  {selectedImage.resolution}
                 </div>
               </div>
             </div>
