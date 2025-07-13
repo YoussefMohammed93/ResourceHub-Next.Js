@@ -629,6 +629,115 @@
       "vectorsText": "vectors"
     }
   },
+  "services": {
+    "title": "Our Services",
+    "subtitle": "Discover our comprehensive range of creative services designed to meet all your digital content needs",
+    "viewService": "View Service",
+    "learnMore": "Learn More",
+    "breadcrumb": {
+      "home": "Home",
+      "services": "Services"
+    },
+    "details": {
+      "salesTime": "Sales Time",
+      "subscriptionPeriod": "Subscription Period",
+      "quantity": "Quantity",
+      "addToCart": "Add to Cart",
+      "addToFavorites": "Add to Favorites",
+      "removeFromFavorites": "Remove from Favorites",
+      "subscriptionOptions": {
+        "1year": "1 Year",
+        "2years": "2 Years"
+      },
+      "pricing": {
+        "originalPrice": "Original Price",
+        "discountedPrice": "Discounted Price",
+        "perYear": "per year",
+        "save": "Save"
+      },
+      "specifications": {
+        "title": "Specifications",
+        "features": "Features",
+        "compatibility": "Compatibility",
+        "support": "Support"
+      },
+      "reviews": {
+        "title": "Customer Reviews",
+        "totalReviews": "Total Reviews",
+        "averageRating": "Average Rating"
+      }
+    },
+    "items": {
+      "youtube": {
+        "title": "YouTube Premium",
+        "description": "Access premium YouTube content with ad-free viewing, background play, and exclusive features for content creators.",
+        "price": "179.00",
+        "rating": "4.8",
+        "salesTime": "Limited Time Offer",
+        "totalReviews": "535",
+        "features": [
+          "Ad-free viewing experience",
+          "Background play functionality",
+          "YouTube Music Premium included",
+          "Offline downloads",
+          "Creator exclusive content"
+        ],
+        "compatibility": "All devices and platforms",
+        "support": "24/7 customer support"
+      },
+      "adobe": {
+        "title": "Adobe Creative Cloud",
+        "description": "Complete suite of Adobe creative applications including Photoshop, Illustrator, After Effects, and more professional tools.",
+        "price": "79.00",
+        "rating": "4.9",
+        "salesTime": "Best Value Package",
+        "totalReviews": "1,247",
+        "features": [
+          "Full Adobe Creative Suite",
+          "Cloud storage and sync",
+          "Regular updates and new features",
+          "Professional templates",
+          "Collaboration tools"
+        ],
+        "compatibility": "Windows, macOS, iOS, Android",
+        "support": "Professional support team"
+      },
+      "microsoft": {
+        "title": "Microsoft Office 365",
+        "description": "Professional Microsoft Office suite with Word, Excel, PowerPoint, Teams, and cloud storage solutions.",
+        "price": "89.00",
+        "rating": "4.7",
+        "salesTime": "Business Essential",
+        "totalReviews": "892",
+        "features": [
+          "Word, Excel, PowerPoint",
+          "Microsoft Teams",
+          "OneDrive cloud storage",
+          "Outlook email",
+          "Real-time collaboration"
+        ],
+        "compatibility": "All major platforms",
+        "support": "Enterprise support"
+      },
+      "canva": {
+        "title": "Canva Pro",
+        "description": "Advanced design platform with premium templates, brand kit, background remover, and team collaboration features.",
+        "price": "24.00",
+        "rating": "4.6",
+        "salesTime": "Popular Choice",
+        "totalReviews": "2,156",
+        "features": [
+          "Premium templates library",
+          "Brand kit and fonts",
+          "Background remover",
+          "Team collaboration",
+          "Magic resize feature"
+        ],
+        "compatibility": "Web, iOS, Android",
+        "support": "Community and email support"
+      }
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
