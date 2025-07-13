@@ -611,13 +611,14 @@
     },
     "actions": {
       "download": "Download",
+      "simillars": "Show Similar Images",
       "favorite": "Add to favorites",
       "share": "Share"
     },
     "toggleFilters": "Toggle filters",
     "imageDialog": {
       "creditRequired": "Credit required:",
-      "addToQueue": "Add to Queue",
+      "addToCart": "Add to cart",
       "like": "Like",
       "details": "Details"
     },

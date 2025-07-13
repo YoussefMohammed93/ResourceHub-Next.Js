@@ -12,7 +12,8 @@ import {
   ImageIcon,
   File,
   Info,
-  Plus,
+  Eye,
+  ShoppingCart,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -632,14 +633,14 @@ function SearchContent() {
 
                       {/* Provider Logo - Top Left/Right - Always visible */}
                       <div
-                        className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300`}
+                        className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-300`}
                       >
                         <Image
                           src={result.provider.logo}
                           alt={result.provider.name}
-                          width={32}
-                          height={32}
-                          className="w-8 h-8 object-cover rounded-lg"
+                          width={44}
+                          height={44}
+                          className="w-11 h-11 object-cover rounded-lg"
                         />
                       </div>
 
@@ -722,14 +723,14 @@ function SearchContent() {
 
                                 {/* Provider Logo - Top Left/Right - Always visible */}
                                 <div
-                                  className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-8 h-8 rounded-lg flex items-center justify-center transition-all duration-300`}
+                                  className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-300`}
                                 >
                                   <Image
                                     src={result.provider.logo}
                                     alt={result.provider.name}
-                                    width={32}
-                                    height={32}
-                                    className="w-8 h-8 object-cover rounded-lg"
+                                    width={44}
+                                    height={44}
+                                    className="w-11 h-11 object-cover rounded-lg"
                                   />
                                 </div>
 
@@ -827,7 +828,7 @@ function SearchContent() {
       <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
         <DialogTitle className="sr-only"></DialogTitle>
         <DialogContent
-          className="!max-w-5xl w-full h-screen sm:h-[80vh] p-0 overflow-hidden border-none rounded-none sm:rounded-xl"
+          className="sm:!max-w-5xl !max-w-[380px] w-full h-[85vh] sm:h-auto p-0 overflow-hidden border-none sm:rounded-xl"
           showCloseButton={false}
         >
           {selectedImage && (
@@ -858,9 +859,9 @@ function SearchContent() {
                     <Image
                       src={selectedImage.provider.logo}
                       alt={selectedImage.provider.name}
-                      width={24}
-                      height={24}
-                      className="w-6 h-6 object-cover rounded"
+                      width={40}
+                      height={40}
+                      className="w-10 h-10 object-cover rounded"
                     />
                     <span className="font-medium text-foreground">
                       {selectedImage.provider.name}
@@ -889,15 +890,20 @@ function SearchContent() {
                   {/* Action Buttons */}
                   <div className="space-y-3">
                     {/* Download Button */}
-                    <Button className="w-full bg-red-500 hover:bg-red-600 text-white">
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
                       <Download className={`w-4 h-4`} />
                       {t("search.actions.download")}
                     </Button>
 
+                    <Button className="w-full">
+                      <Eye className={`w-4 h-4`} />
+                      {t("search.actions.simillars")}
+                    </Button>
+
                     {/* Add to Queue Button */}
                     <Button variant="outline" className="w-full">
-                      <Plus className={`w-4 h-4`} />
-                      {t("search.imageDialog.addToQueue")}
+                      <ShoppingCart className={`w-4 h-4`} />
+                      {t("search.imageDialog.addToCart")}
                     </Button>
 
                     {/* Like Button */}
@@ -923,12 +929,6 @@ function SearchContent() {
                   </div>
                   <div className="text-sm text-muted-foreground">
                     {selectedImage.imageId}
-                  </div>
-                  <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded w-fit">
-                    N/A
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    ({selectedImage.resolution})
                   </div>
                 </div>
               </div>

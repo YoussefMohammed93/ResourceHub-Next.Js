@@ -610,13 +610,14 @@
     },
     "actions": {
       "download": "تحميل",
+      "simillars": "عرض الصور المماثلة",
       "favorite": "إضافة للمفضلة",
       "share": "مشاركة"
     },
     "toggleFilters": "تبديل المرشحات",
     "imageDialog": {
       "creditRequired": "النقاط المطلوبة:",
-      "addToQueue": "إضافة للقائمة",
+      "addToCart": "إضافة للسلة",
       "like": "إعجاب",
       "details": "التفاصيل"
     },
