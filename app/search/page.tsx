@@ -13,6 +13,16 @@ import {
   File,
   Eye,
   ShoppingCart,
+  Shield,
+  Sparkles,
+  Crown,
+  Users,
+  Star,
+  Zap,
+  Camera,
+  Palette,
+  Globe,
+  Layers,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -193,12 +203,15 @@ function SearchContent() {
           </div>
         </header>
 
-        <div className="relative dark:bg-secondary/50">
+        <div className="relative bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
+
           {/* Sidebar - Fixed position always */}
           <aside
             className={`fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none ${isRTL ? "lg:border-l lg:border-r-0" : "lg:border-r lg:border-l-0"} ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
           >
-            <div className="p-6 space-y-6 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
+            <div className="p-0 space-y-6 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
               {/* Providers Filter Skeleton */}
               <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
                 <div className="flex items-center gap-3">
@@ -235,7 +248,7 @@ function SearchContent() {
           <main
             className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-80" : "lg:ml-80"}`}
           >
-            <div className="p-4 sm:p-6 space-y-6">
+            <div className="relative z-10 p-4 sm:p-6 space-y-6">
               {/* Search Bar */}
               <div className="flex justify-center">
                 <Skeleton className="w-full max-w-2xl h-12 rounded-xl bg-secondary" />
@@ -327,7 +340,7 @@ function SearchContent() {
     >
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="px-4 sm:px-5">
+        <div className="px-4 sm:px-5 mx-auto max-w-[1600px]">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Mobile Menu Button */}
             <div
@@ -368,11 +381,11 @@ function SearchContent() {
         {/* Sidebar - Filters - Fixed position always */}
         <aside
           className={`
-          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card dark:bg-secondary border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
+          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 h-[calc(100vh-4rem)] bg-card dark:bg-secondary z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
           ${isSidebarOpen ? "translate-x-0" : `${isRTL ? "translate-x-full" : "-translate-x-full"} lg:translate-x-0`}
         `}
         >
-          <div className="p-6 space-y-6 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
+          <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto bg-muted/40 dark:bg-card">
             {/* Mobile Close Button */}
             <div
               className={`lg:hidden flex justify-between items-center mb-4 p-4 bg-muted/50 rounded-lg border border-border ${isRTL ? "flex-row-reverse" : ""}`}
@@ -388,7 +401,7 @@ function SearchContent() {
               </button>
             </div>
             {/* Providers Filter */}
-            <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 rounded-lg border border-border">
+            <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 border-b border-border">
               <div
                 className={`flex items-center gap-3 ${isRTL ? "flex-row" : ""}`}
               >
@@ -424,8 +437,8 @@ function SearchContent() {
                       src={provider.logo}
                       alt={provider.name}
                       width={150}
-                      height={40}
-                      className="w-full h-10 rounded object-cover group-hover:opacity-90 transition-opacity"
+                      height={56}
+                      className="w-full h-14 rounded object-cover group-hover:opacity-90 transition-opacity"
                     />
                     <div
                       className={`mt-2 text-sm text-center text-muted-foreground group-hover:text-primary transition-colors ${selectedProviders.includes(provider.id) ? "text-primary hover:text-primary" : ""}`}
@@ -437,10 +450,8 @@ function SearchContent() {
               </div>
             </div>
 
-            <Separator className="bg-border/50" />
-
             {/* File Type Filter */}
-            <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 rounded-lg border border-border">
+            <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30">
               <div
                 className={`flex items-center gap-3 ${isRTL ? "flex-row" : ""}`}
               >
@@ -465,7 +476,7 @@ function SearchContent() {
                   }
                   size="sm"
                   onClick={() => setSelectedFileTypes([])}
-                  className="text-xs font-medium hover:scale-105 transition-transform"
+                  className="text-sm sm:text-lg font-medium px-5 !h-10"
                 >
                   {t("search.filters.all")}
                 </Button>
@@ -479,10 +490,10 @@ function SearchContent() {
                     }
                     size="sm"
                     onClick={() => toggleFileType(type.id)}
-                    className="text-xs font-medium relative group"
+                    className="text-sm sm:text-lg font-medium relative group px-5 !h-10"
                   >
                     {t(`search.fileTypes.${type.id}`)},
-                    <span className="pl-1 text-[11px]">
+                    <span className="pl-1 text-[11px] sm:text-base">
                       {type.count} {t("search.filters.items")}
                     </span>
                   </Button>
@@ -494,9 +505,222 @@ function SearchContent() {
 
         {/* Main Content - 9 columns on desktop, full width on mobile */}
         <main
-          className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-80" : "lg:ml-80"}`}
+          className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/15 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-96" : "lg:ml-96"}`}
         >
-          <div className="p-4 sm:p-6 space-y-6">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-80"></div>
+
+          {/* Floating Decorative Elements */}
+          {/* Shape 1 - Grid Dots Pattern (Top Left) */}
+          <div
+            className={`absolute top-20 ${isRTL ? "right-5/12" : "left-5/12"} transform -translate-x-1/2 md:top-32`}
+          >
+            <svg
+              width="120"
+              height="120"
+              viewBox="0 0 120 120"
+              fill="none"
+              className="text-primary/30"
+            >
+              {Array.from({ length: 6 }, (_, row) =>
+                Array.from({ length: 6 }, (_, col) => (
+                  <circle
+                    key={`dot-${row}-${col}`}
+                    cx={10 + col * 18}
+                    cy={10 + row * 18}
+                    r="2"
+                    fill="currentColor"
+                    className="animate-pulse-slow"
+                    style={{
+                      animationDelay: `${(row + col) * 0.1}s`,
+                      opacity: Math.random() * 0.6 + 0.3,
+                    }}
+                  />
+                ))
+              )}
+            </svg>
+          </div>
+
+          {/* Shape 2 - Square Grid Pattern (Right Side) */}
+          <div
+            className={`hidden md:block absolute top-1/3 ${isRTL ? "left-4 md:left-8" : "right-4 md:right-8"}`}
+          >
+            <svg
+              width="100"
+              height="120"
+              viewBox="0 0 100 120"
+              fill="none"
+              className="text-primary/40"
+            >
+              {Array.from({ length: 8 }, (_, row) =>
+                Array.from({ length: 8 }, (_, col) => (
+                  <rect
+                    key={`square-${row}-${col}`}
+                    x={8 + col * 16}
+                    y={8 + row * 14}
+                    width="3"
+                    height="3"
+                    fill="currentColor"
+                    className="animate-pulse-slow"
+                    style={{
+                      animationDelay: `${(row + col) * 0.08}s`,
+                      opacity: Math.random() * 0.5 + 0.25,
+                    }}
+                  />
+                ))
+              )}
+            </svg>
+          </div>
+
+          {/* Shape 3 - Circle Pattern (Bottom) */}
+          <div
+            className={`absolute bottom-32 ${isRTL ? "left-1/4" : "right-1/4"} transform translate-x-1/2`}
+          >
+            <svg
+              width="80"
+              height="80"
+              viewBox="0 0 80 80"
+              fill="none"
+              className="text-primary/25"
+            >
+              {Array.from({ length: 5 }, (_, row) =>
+                Array.from({ length: 5 }, (_, col) => (
+                  <circle
+                    key={`circle-${row}-${col}`}
+                    cx={8 + col * 16}
+                    cy={8 + row * 16}
+                    r="1.5"
+                    fill="currentColor"
+                    className="animate-pulse-slow"
+                    style={{
+                      animationDelay: `${(row + col) * 0.15}s`,
+                      opacity: Math.random() * 0.4 + 0.2,
+                    }}
+                  />
+                ))
+              )}
+            </svg>
+          </div>
+
+          {/* Shape 4 - Diamond Pattern (Top Right) */}
+          <div
+            className={`hidden lg:block absolute top-16 ${isRTL ? "left-1/4" : "right-1/4"}`}
+          >
+            <svg
+              width="60"
+              height="60"
+              viewBox="0 0 60 60"
+              fill="none"
+              className="text-primary/35"
+            >
+              {Array.from({ length: 4 }, (_, row) =>
+                Array.from({ length: 4 }, (_, col) => (
+                  <polygon
+                    key={`diamond-${row}-${col}`}
+                    points={`${8 + col * 14},${5 + row * 14} ${11 + col * 14},${8 + row * 14} ${8 + col * 14},${11 + row * 14} ${5 + col * 14},${8 + row * 14}`}
+                    fill="currentColor"
+                    className="animate-pulse-slow"
+                    style={{
+                      animationDelay: `${(row + col) * 0.12}s`,
+                      opacity: Math.random() * 0.5 + 0.3,
+                    }}
+                  />
+                ))
+              )}
+            </svg>
+          </div>
+
+          {/* Floating Icon 1 - Top Right */}
+          <div
+            className={`hidden md:block absolute top-8 ${isRTL ? "left-1/3 md:left-2/12" : "right-1/3 md:right-2/5"} md:top-12`}
+          >
+            <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
+              <Shield className="w-5 h-5 text-primary" />
+            </div>
+          </div>
+
+          {/* Floating Icon 2 - Top Left */}
+          <div
+            className={`hidden sm:block absolute top-32 ${isRTL ? "right-20" : "left-20"} animate-float-delayed`}
+          >
+            <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+              <Download className="w-5 h-5 text-primary" />
+            </div>
+          </div>
+
+          {/* Floating Icon 3 - Middle Right */}
+          <div
+            className={`hidden md:block absolute top-64 ${isRTL ? "left-32" : "right-32"} animate-float`}
+          >
+            <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-primary" />
+            </div>
+          </div>
+
+          {/* Floating Icon 4 - Bottom Left */}
+          <div
+            className={`hidden sm:block absolute bottom-40 ${isRTL ? "right-32" : "left-32"} animate-float-delayed`}
+          >
+            <div className="w-9 h-9 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+              <ImageIcon className="w-4 h-4 text-primary" />
+            </div>
+          </div>
+
+          {/* Floating Icon 5 - Center Left */}
+          <div
+            className={`hidden lg:block absolute top-1/2 ${isRTL ? "right-16" : "left-16"} transform -translate-y-1/2 animate-float`}
+          >
+            <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+              <Star className="w-4 h-4 text-primary" />
+            </div>
+          </div>
+
+          {/* Floating Icon 6 - Middle Center */}
+          <div
+            className={`hidden md:block absolute top-1/3 ${isRTL ? "right-1/2" : "left-1/2"} transform -translate-x-1/2 animate-float-delayed`}
+          >
+            <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+              <Camera className="w-5 h-5 text-primary" />
+            </div>
+          </div>
+
+          {/* Floating Icon 7 - Top Right Corner */}
+          <div
+            className={`hidden md:block absolute top-40 ${isRTL ? "left-16" : "right-16"} animate-float-delayed`}
+          >
+            <div className="w-11 h-11 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+              <Crown className="w-5 h-5 text-primary" />
+            </div>
+          </div>
+
+          {/* Floating Icon 8 - Bottom Right */}
+          <div
+            className={`hidden sm:block absolute bottom-20 ${isRTL ? "left-1/4" : "right-1/4"} animate-float`}
+          >
+            <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+              <Users className="w-4 h-4 text-primary" />
+            </div>
+          </div>
+
+          {/* Floating Icon 9 - Bottom Center */}
+          <div
+            className={`hidden lg:block absolute bottom-32 ${isRTL ? "right-1/3" : "left-1/3"} animate-float-delayed`}
+          >
+            <div className="w-9 h-9 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+              <Palette className="w-4 h-4 text-primary" />
+            </div>
+          </div>
+
+          {/* Floating Icon 10 - Top Center */}
+          <div
+            className={`hidden md:block absolute top-2 ${isRTL ? "right-5/8" : "left-5/8"} animate-float`}
+          >
+            <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+              <Zap className="w-5 h-5 text-primary" />
+            </div>
+          </div>
+
+          <div className="relative z-10 p-4 sm:p-6 space-y-6">
             {/* Search Bar - Centered */}
             <div className="flex justify-center">
               <div className="w-full max-w-2xl">
@@ -510,12 +734,12 @@ function SearchContent() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className={`${isRTL ? "pr-12 pl-4" : "pl-12 pr-4"} placeholder:text-base py-3 !h-12 text-base border-2 border-border focus:border-primary rounded-xl bg-background`}
+                    className={`${isRTL ? "pr-12 pl-4" : "pl-12 pr-4"} placeholder:text-base py-3 !h-14 text-base border-2 border-border focus:border-primary rounded-xl bg-background`}
                     dir={isRTL ? "rtl" : "ltr"}
                   />
                   <Button
                     onClick={handleSearch}
-                    className={`absolute ${isRTL ? "left-0.5" : "right-0.5"} top-1/2 transform -translate-y-1/2 !px-4 h-11 bg-primary hover:bg-primary/90 rounded-xl`}
+                    className={`absolute ${isRTL ? "left-0.5" : "right-0.5"} top-1/2 transform -translate-y-1/2 !px-6 h-[52px] bg-primary hover:bg-primary/90 rounded-xl`}
                   >
                     <span>{t("search.searchButton")}</span>
                     <Search className="w-4 h-4" />
@@ -1054,7 +1278,10 @@ function SearchPageLoading() {
         </div>
       </header>
 
-      <div className="relative dark:bg-secondary">
+      <div className="relative bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
+
         {/* Sidebar - Fixed position always */}
         <aside
           className={`fixed ${isRTL ? "right-0 border-l" : "left-0 border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none ${isRTL ? "lg:border-l lg:border-r-0" : "lg:border-r lg:border-l-0"} ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
@@ -1094,7 +1321,7 @@ function SearchPageLoading() {
 
         {/* Main Content - Matches current layout */}
         <main
-          className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-80" : "lg:ml-80"}`}
+          className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-96" : "lg:ml-96"}`}
         >
           <div className="p-4 sm:p-6 space-y-6">
             {/* Search Bar */}
