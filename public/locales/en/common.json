@@ -47,6 +47,17 @@
       "description": "Simple and intuitive interface designed for creators. Search, preview, and download in just a few clicks."
     }
   },
+  "supportedPlatforms": {
+    "title": "Trusted by Millions",
+    "titleHighlight": "Worldwide",
+    "description": "Access premium content from the world's leading creative platforms. One subscription, unlimited possibilities.",
+    "platforms": {
+      "freepik": "Freepik",
+      "shutterstock": "Shutterstock",
+      "nexus": "Nexus",
+      "raw": "Raw Pixel"
+    }
+  },
   "categories": {
     "title": "Popular",
     "titleHighlight": "Categories",

@@ -857,8 +857,75 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      {/* Supported Platforms Section */}
+      <section className="py-16 lg:py-20 lg:pb-28 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+        <div className="px-5 relative z-10">
+          {/* Section Header */}
+          <div className="text-center mb-12 lg:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
+              {t("supportedPlatforms.title")}{" "}
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {t("supportedPlatforms.titleHighlight")}
+              </span>
+            </h2>
+            <p
+              className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+            >
+              {t("supportedPlatforms.description")}
+            </p>
+          </div>
+          {/* Platforms Grid - Modern Card Design */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-5 max-w-[1400px] mx-auto">
+            {/* Create array of 14 cards alternating between Freepik and Shutterstock */}
+            {Array.from({ length: 14 }, (_, index) => {
+              const isFreepik = index % 2 === 0;
+              const platform = isFreepik
+                ? {
+                    name: "Freepik",
+                    smallLogo: "/freepik-small.png",
+                    bigImage: "/freepik-big.png",
+                    translationKey: "freepik",
+                  }
+                : {
+                    name: "Shutterstock",
+                    smallLogo: "/shutterstock-small.webp",
+                    bigImage: "/shutterstock-big.png",
+                    translationKey: "shutterstock",
+                  };
+
+              return (
+                <div
+                  key={index}
+                  className="group relative bg-secondary dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105"
+                >
+                  {/* Gradient overlay for depth */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Image
+                      src={platform.smallLogo}
+                      alt={t(
+                        `supportedPlatforms.platforms.${platform.translationKey}`
+                      )}
+                      width={32}
+                      height={32}
+                      className="object-contain group-hover:scale-110 transition-transform duration-300"
+                    />
+                    <Image
+                      src={platform.bigImage}
+                      alt=""
+                      width={100}
+                      height={100}
+                      className="object-cover rounded-2xl"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
       {/* Pricing Section */}
-      <section className="py-16 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+      <section className="py-16 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
         <div className="container mx-auto max-w-7xl px-5 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">

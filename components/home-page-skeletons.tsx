@@ -132,6 +132,32 @@ export function FeaturesSkeleton() {
   );
 }
 
+// Supported Platforms Section Skeleton
+export function SupportedPlatformsSkeleton() {
+  return (
+    <section className="py-16 lg:py-20 bg-gradient-to-br from-background via-background/50 to-background relative overflow-hidden">
+      <div className="container mx-auto max-w-7xl px-5 relative z-10">
+        {/* Section Header */}
+        <div className="text-center mb-12 lg:mb-16">
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-80 mx-auto" />
+            <Skeleton className="h-6 w-96 mx-auto" />
+          </div>
+        </div>
+        {/* Platforms Grid */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
+          {Array.from({ length: 18 }, (_, i) => (
+            <Skeleton
+              key={i}
+              className="w-full h-16 sm:h-20 md:h-24 lg:h-28 rounded-xl"
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // Categories Section Skeleton
 export function CategoriesSkeleton() {
   return (
