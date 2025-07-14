@@ -195,7 +195,9 @@ function SearchContent() {
 
         <div className="relative dark:bg-secondary/50">
           {/* Sidebar - Fixed position always */}
-          <aside className="fixed left-0 top-16 w-80 h-[calc(100vh-4rem)] bg-card border-r border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0 -translate-x-full lg:translate-x-0">
+          <aside
+            className={`fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none ${isRTL ? "lg:border-l lg:border-r-0" : "lg:border-r lg:border-l-0"} ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+          >
             <div className="p-6 space-y-6 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
               {/* Providers Filter Skeleton */}
               <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
@@ -230,7 +232,9 @@ function SearchContent() {
           </aside>
 
           {/* Main Content - Matches current layout */}
-          <main className="col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 lg:ml-80">
+          <main
+            className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-80" : "lg:ml-80"}`}
+          >
             <div className="p-4 sm:p-6 space-y-6">
               {/* Search Bar */}
               <div className="flex justify-center">
@@ -364,7 +368,7 @@ function SearchContent() {
         {/* Sidebar - Filters - Fixed position always */}
         <aside
           className={`
-          fixed ${isRTL ? "right-0 border-l" : "left-0 border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card dark:bg-secondary border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
+          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card dark:bg-secondary border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
           ${isSidebarOpen ? "translate-x-0" : `${isRTL ? "translate-x-full" : "-translate-x-full"} lg:translate-x-0`}
         `}
         >
@@ -489,7 +493,9 @@ function SearchContent() {
         </aside>
 
         {/* Main Content - 9 columns on desktop, full width on mobile */}
-        <main className="col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 lg:ml-80">
+        <main
+          className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-80" : "lg:ml-80"}`}
+        >
           <div className="p-4 sm:p-6 space-y-6">
             {/* Search Bar - Centered */}
             <div className="flex justify-center">
@@ -1026,6 +1032,8 @@ function SearchContent() {
 
 // Loading component for Suspense fallback
 function SearchPageLoading() {
+  const { isRTL } = useLanguage();
+
   return (
     <div className="min-h-screen bg-background font-sans">
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
@@ -1048,7 +1056,9 @@ function SearchPageLoading() {
 
       <div className="relative dark:bg-secondary">
         {/* Sidebar - Fixed position always */}
-        <aside className="fixed left-0 top-16 w-80 h-[calc(100vh-4rem)] bg-card border-r border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0 -translate-x-full lg:translate-x-0">
+        <aside
+          className={`fixed ${isRTL ? "right-0 border-l" : "left-0 border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none ${isRTL ? "lg:border-l lg:border-r-0" : "lg:border-r lg:border-l-0"} ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+        >
           <div className="p-6 space-y-6 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
             {/* Providers Filter Skeleton */}
             <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
@@ -1083,7 +1093,9 @@ function SearchPageLoading() {
         </aside>
 
         {/* Main Content - Matches current layout */}
-        <main className="col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 lg:ml-80">
+        <main
+          className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-80" : "lg:ml-80"}`}
+        >
           <div className="p-4 sm:p-6 space-y-6">
             {/* Search Bar */}
             <div className="flex justify-center">
