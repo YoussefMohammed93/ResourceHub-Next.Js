@@ -206,11 +206,11 @@ function SearchContent() {
 
           {/* Sidebar - Fixed position always */}
           <aside
-            className={`fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none ${isRTL ? "lg:border-l lg:border-r-0" : "lg:border-r lg:border-l-0"} ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+            className={`fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 h-[calc(100vh-4rem)] bg-card border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none ${isRTL ? "lg:border-l lg:border-r-0" : "lg:border-r lg:border-l-0"} ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
           >
-            <div className="p-0 space-y-6 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
+            <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
               {/* Providers Filter Skeleton */}
-              <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+              <div className="space-y-4 p-4 bg-muted/30">
                 <div className="flex items-center gap-3">
                   <Skeleton className="w-9 h-9 rounded-lg" />
                   <Skeleton className="w-24 h-5" />
@@ -226,7 +226,7 @@ function SearchContent() {
               <Skeleton className="w-full h-px" />
 
               {/* File Type Filter Skeleton */}
-              <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+              <div className="space-y-4 p-4 bg-muted/30">
                 <div className="flex items-center gap-3">
                   <Skeleton className="w-9 h-9 rounded-lg" />
                   <Skeleton className="w-20 h-5" />
@@ -243,7 +243,7 @@ function SearchContent() {
 
           {/* Main Content - Matches current layout */}
           <main
-            className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-80" : "lg:ml-80"}`}
+            className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-96" : "lg:ml-96"}`}
           >
             <div className="relative z-10 p-4 sm:p-6 space-y-6">
               {/* Search Bar */}
