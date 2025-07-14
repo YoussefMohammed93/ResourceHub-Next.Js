@@ -135,8 +135,8 @@ export function FeaturesSkeleton() {
 // Supported Platforms Section Skeleton
 export function SupportedPlatformsSkeleton() {
   return (
-    <section className="py-16 lg:py-20 bg-gradient-to-br from-background via-background/50 to-background relative overflow-hidden">
-      <div className="container mx-auto max-w-7xl px-5 relative z-10">
+    <section className="py-16 lg:py-20 lg:pb-28 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+      <div className="px-5 relative z-10">
         {/* Section Header */}
         <div className="text-center mb-12 lg:mb-16">
           <div className="space-y-4">
@@ -144,13 +144,18 @@ export function SupportedPlatformsSkeleton() {
             <Skeleton className="h-6 w-96 mx-auto" />
           </div>
         </div>
-        {/* Platforms Grid */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 max-w-6xl mx-auto">
-          {Array.from({ length: 18 }, (_, i) => (
-            <Skeleton
+        {/* Platforms Grid - Modern Card Design */}
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-5 max-w-[1400px] mx-auto">
+          {Array.from({ length: 7 }, (_, i) => (
+            <div
               key={i}
-              className="w-full h-16 sm:h-20 md:h-24 lg:h-28 rounded-xl"
-            />
+              className="bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl"
+            >
+              <div className="flex items-center justify-center gap-2 p-2">
+                <Skeleton className="w-8 h-8 rounded hidden md:block" />
+                <Skeleton className="w-[90px] h-8 rounded-2xl" />
+              </div>
+            </div>
           ))}
         </div>
       </div>
@@ -174,7 +179,7 @@ export function CategoriesSkeleton() {
           {Array.from({ length: 6 }, (_, i) => (
             <div
               key={i}
-              className="bg-background/50 border border-border/50 rounded-2xl p-6"
+              className="bg-background/50 border border-border/50 rounded-2xl p-6 dark:bg-muted/20"
             >
               <div className="flex flex-col items-center text-center space-y-4">
                 {/* Category icon */}
@@ -205,7 +210,7 @@ export function PricingSkeleton() {
           {Array.from({ length: 3 }, (_, i) => (
             <div
               key={i}
-              className="bg-background border border-border/50 rounded-2xl p-6 lg:p-8"
+              className="bg-background dark:bg-muted/20 border border-border/50 rounded-2xl p-6 lg:p-8"
             >
               <div className="space-y-6">
                 {/* Plan Header */}

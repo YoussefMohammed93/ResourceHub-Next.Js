@@ -41,6 +41,7 @@ import {
   HeroSkeleton,
   FeaturesSkeleton,
   CategoriesSkeleton,
+  SupportedPlatformsSkeleton,
   FooterSkeleton,
   PricingSkeleton,
 } from "@/components/home-page-skeletons";
@@ -140,6 +141,7 @@ export default function HomePage() {
         <HeroSkeleton />
         <FeaturesSkeleton />
         <CategoriesSkeleton />
+        <SupportedPlatformsSkeleton />
         <PricingSkeleton />
         <FooterSkeleton />
       </div>
@@ -581,136 +583,140 @@ export default function HomePage() {
         </div>
       </section>
       {/* Features Section */}
-      <section className="py-16 lg:py-20 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
-        <div className="container mx-auto max-w-7xl px-5 relative z-10">
-          {/* Section Header */}
-          <div className="text-center mb-12 lg:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
-              {t("features.title")}{" "}
-              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                {t("features.titleHighlight")}
-              </span>
-            </h2>
-            <p
-              className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
-            >
-              {t("features.description")}
-            </p>
-          </div>
-          {/* Features Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Feature 1 - High Quality Resources */}
-            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-              {/* Hover effect overlay - diagonal sweep */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-              <div className="relative z-10">
-                {/* Icon */}
-                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                  <Star className="w-7 h-7 text-primary" />
-                </div>
-                {/* Content */}
-                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  {t("features.premiumQuality.title")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  {t("features.premiumQuality.description")}
-                </p>
-              </div>
+      {isLoading ? (
+        <FeaturesSkeleton />
+      ) : (
+        <section className="py-16 lg:py-20 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+          <div className="container mx-auto max-w-7xl px-5 relative z-10">
+            {/* Section Header */}
+            <div className="text-center mb-12 lg:mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
+                {t("features.title")}{" "}
+                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  {t("features.titleHighlight")}
+                </span>
+              </h2>
+              <p
+                className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+              >
+                {t("features.description")}
+              </p>
             </div>
-            {/* Feature 2 - Fast Downloads */}
-            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-              {/* Hover effect overlay - diagonal sweep */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-              <div className="relative z-10">
-                {/* Icon */}
-                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                  <Download className="w-7 h-7 text-primary" />
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {/* Feature 1 - High Quality Resources */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Star className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.premiumQuality.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.premiumQuality.description")}
+                  </p>
                 </div>
-                {/* Content */}
-                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  {t("features.instantDownloads.title")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  {t("features.instantDownloads.description")}
-                </p>
               </div>
-            </div>
-            {/* Feature 3 - Multiple Platforms */}
-            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-              {/* Hover effect overlay - diagonal sweep */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-              <div className="relative z-10">
-                {/* Icon */}
-                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                  <Globe className="w-7 h-7 text-primary" />
+              {/* Feature 2 - Fast Downloads */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Download className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.instantDownloads.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.instantDownloads.description")}
+                  </p>
                 </div>
-                {/* Content */}
-                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  {t("features.allPlatforms.title")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  {t("features.allPlatforms.description")}
-                </p>
               </div>
-            </div>
-            {/* Feature 4 - Secure & Safe */}
-            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-              {/* Hover effect overlay - diagonal sweep */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-              <div className="relative z-10">
-                {/* Icon */}
-                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                  <Shield className="w-7 h-7 text-primary" />
+              {/* Feature 3 - Multiple Platforms */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Globe className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.allPlatforms.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.allPlatforms.description")}
+                  </p>
                 </div>
+              </div>
+              {/* Feature 4 - Secure & Safe */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Shield className="w-7 h-7 text-primary" />
+                  </div>
 
-                {/* Content */}
-                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  {t("features.secureAndSafe.title")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  {t("features.secureAndSafe.description")}
-                </p>
-              </div>
-            </div>
-            {/* Feature 5 - 24/7 Support */}
-            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-              {/* Hover effect overlay - diagonal sweep */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-              <div className="relative z-10">
-                {/* Icon */}
-                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                  <Users className="w-7 h-7 text-primary" />
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.secureAndSafe.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.secureAndSafe.description")}
+                  </p>
                 </div>
-                {/* Content */}
-                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  {t("features.support24.title")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  {t("features.support24.description")}
-                </p>
               </div>
-            </div>
-            {/* Feature 6 - Easy to Use */}
-            <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-              {/* Hover effect overlay - diagonal sweep */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-              <div className="relative z-10">
-                {/* Icon */}
-                <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                  <Sparkles className="w-7 h-7 text-primary" />
+              {/* Feature 5 - 24/7 Support */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Users className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.support24.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.support24.description")}
+                  </p>
                 </div>
-                {/* Content */}
-                <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                  {t("features.easyToUse.title")}
-                </h3>
-                <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                  {t("features.easyToUse.description")}
-                </p>
+              </div>
+              {/* Feature 6 - Easy to Use */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Sparkles className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.easyToUse.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.easyToUse.description")}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
       {/* Categories Section */}
       <section className="py-12 pb-16 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -858,72 +864,177 @@ export default function HomePage() {
         </div>
       </section>
       {/* Supported Platforms Section */}
-      <section className="py-16 lg:py-20 lg:pb-28 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
-        <div className="px-5 relative z-10">
-          {/* Section Header */}
-          <div className="text-center mb-12 lg:mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
-              {t("supportedPlatforms.title")}{" "}
-              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                {t("supportedPlatforms.titleHighlight")}
-              </span>
-            </h2>
-            <p
-              className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
-            >
-              {t("supportedPlatforms.description")}
-            </p>
-          </div>
-          {/* Platforms Grid - Modern Card Design */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-5 max-w-[1400px] mx-auto">
-            {/* Create array of 14 cards alternating between Freepik and Shutterstock */}
-            {Array.from({ length: 14 }, (_, index) => {
-              const isFreepik = index % 2 === 0;
-              const platform = isFreepik
-                ? {
-                    name: "Freepik",
-                    smallLogo: "/freepik-small.png",
-                    bigImage: "/freepik-big.png",
-                    translationKey: "freepik",
-                  }
-                : {
-                    name: "Shutterstock",
-                    smallLogo: "/shutterstock-small.webp",
-                    bigImage: "/shutterstock-big.png",
-                    translationKey: "shutterstock",
-                  };
-
-              return (
-                <div
-                  key={index}
-                  className="group relative bg-secondary dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105"
-                >
-                  {/* Gradient overlay for depth */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="flex items-center justify-center gap-2">
-                    <Image
-                      src={platform.smallLogo}
-                      alt={t(
-                        `supportedPlatforms.platforms.${platform.translationKey}`
-                      )}
-                      width={32}
-                      height={32}
-                      className="object-contain group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <Image
-                      src={platform.bigImage}
-                      alt=""
-                      width={100}
-                      height={100}
-                      className="object-cover rounded-2xl"
-                    />
-                  </div>
+      {isLoading ? (
+        <SupportedPlatformsSkeleton />
+      ) : (
+        <section className="py-16 lg:py-20 lg:pb-28 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+          <div className="px-5 relative z-10">
+            {/* Section Header */}
+            <div className="text-center mb-12 lg:mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
+                {t("supportedPlatforms.title")}{" "}
+                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  {t("supportedPlatforms.titleHighlight")}
+                </span>
+              </h2>
+              <p
+                className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+              >
+                {t("supportedPlatforms.description")}
+              </p>
+            </div>
+            {/* Platforms Grid - Modern Card Design */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-5 max-w-[1400px] mx-auto">
+              {/* Freepik Card 1 */}
+              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="flex items-center justify-center gap-2">
+                  <Image
+                    src="/freepik-small.png"
+                    alt={t("supportedPlatforms.platforms.freepik")}
+                    width={32}
+                    height={32}
+                    className="object-contain hidden md:block"
+                  />
+                  <Image
+                    src="/freepik-big.png"
+                    alt=""
+                    width={90}
+                    height={100}
+                    className="object-cover rounded-2xl"
+                  />
                 </div>
-              );
-            })}
+              </div>
+
+              {/* Shutterstock Card 1 */}
+              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="flex items-center justify-center gap-2">
+                  <Image
+                    src="/shutterstock-small.webp"
+                    alt={t("supportedPlatforms.platforms.shutterstock")}
+                    width={32}
+                    height={32}
+                    className="object-contain hidden md:block"
+                  />
+                  <Image
+                    src="/shutterstock-big.png"
+                    alt=""
+                    width={90}
+                    height={100}
+                    className="object-cover rounded-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Freepik Card 2 */}
+              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="flex items-center justify-center gap-2">
+                  <Image
+                    src="/freepik-small.png"
+                    alt={t("supportedPlatforms.platforms.freepik")}
+                    width={32}
+                    height={32}
+                    className="object-contain hidden md:block"
+                  />
+                  <Image
+                    src="/freepik-big.png"
+                    alt=""
+                    width={90}
+                    height={100}
+                    className="object-cover rounded-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Shutterstock Card 2 */}
+              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="flex items-center justify-center gap-2">
+                  <Image
+                    src="/shutterstock-small.webp"
+                    alt={t("supportedPlatforms.platforms.shutterstock")}
+                    width={32}
+                    height={32}
+                    className="object-contain hidden md:block"
+                  />
+                  <Image
+                    src="/shutterstock-big.png"
+                    alt=""
+                    width={90}
+                    height={100}
+                    className="object-cover rounded-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Freepik Card 3 */}
+              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="flex items-center justify-center gap-2">
+                  <Image
+                    src="/freepik-small.png"
+                    alt={t("supportedPlatforms.platforms.freepik")}
+                    width={32}
+                    height={32}
+                    className="object-contain hidden md:block"
+                  />
+                  <Image
+                    src="/freepik-big.png"
+                    alt=""
+                    width={90}
+                    height={100}
+                    className="object-cover rounded-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Shutterstock Card 3 */}
+              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="flex items-center justify-center gap-2">
+                  <Image
+                    src="/shutterstock-small.webp"
+                    alt={t("supportedPlatforms.platforms.shutterstock")}
+                    width={32}
+                    height={32}
+                    className="object-contain hidden md:block"
+                  />
+                  <Image
+                    src="/shutterstock-big.png"
+                    alt=""
+                    width={90}
+                    height={100}
+                    className="object-cover rounded-2xl"
+                  />
+                </div>
+              </div>
+
+              {/* Freepik Card 4 */}
+              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                <div className="flex items-center justify-center gap-2">
+                  <Image
+                    src="/freepik-small.png"
+                    alt={t("supportedPlatforms.platforms.freepik")}
+                    width={32}
+                    height={32}
+                    className="object-contain hidden md:block"
+                  />
+                  <Image
+                    src="/freepik-big.png"
+                    alt=""
+                    width={90}
+                    height={100}
+                    className="object-cover rounded-2xl"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
       {/* Pricing Section */}
       <section className="py-16 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
         <div className="container mx-auto max-w-7xl px-5 relative z-10">
