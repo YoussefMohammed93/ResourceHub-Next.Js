@@ -21,8 +21,6 @@ import {
   Zap,
   Camera,
   Palette,
-  Globe,
-  Layers,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -32,7 +30,6 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Separator } from "@/components/ui/separator";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -1321,9 +1318,12 @@ function SearchPageLoading() {
 
         {/* Main Content - Matches current layout */}
         <main
-          className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-96" : "lg:ml-96"}`}
+          className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-96" : "lg:ml-96"}`}
         >
-          <div className="p-4 sm:p-6 space-y-6">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
+
+          <div className="relative z-10 p-4 sm:p-6 space-y-6">
             {/* Search Bar */}
             <div className="flex justify-center">
               <Skeleton className="w-full max-w-2xl h-12 rounded-xl" />
