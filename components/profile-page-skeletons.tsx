@@ -314,15 +314,15 @@ export function ProfilePageSkeleton() {
         <UserInfoCardSkeleton isRTL={isRTL} />
         <StatsCardsSkeleton isRTL={isRTL} />
 
-        {/* Download History - Full Width */}
-        <DownloadHistoryCardSkeleton isRTL={isRTL} />
-
         {/* Subscription, Credits & Change Password Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
           <SubscriptionCardSkeleton isRTL={isRTL} />
           <CreditsCardSkeleton isRTL={isRTL} />
           <ChangePasswordCardSkeleton isRTL={isRTL} />
         </div>
+
+        {/* Download History - Full Width */}
+        <DownloadHistoryCardSkeleton isRTL={isRTL} />
       </main>
     </div>
   );

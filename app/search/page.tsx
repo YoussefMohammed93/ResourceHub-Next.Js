@@ -18,7 +18,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, Suspense } from "react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useSearchParams } from "next/navigation";
@@ -193,47 +192,73 @@ function SearchContent() {
             </div>
           </div>
         </header>
-        <div className="flex">
-          {/* Desktop Sidebar - Hidden on mobile */}
-          <aside className="hidden lg:block w-80 h-[calc(100vh-4rem)] bg-card border-r border-border p-6">
-            <Skeleton className="w-full h-8 mb-6" />
-            <div className="space-y-4">
-              <Skeleton className="w-full h-6" />
-              <div className="grid grid-cols-2 gap-3">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <Skeleton key={i} className="w-full h-16 rounded-lg" />
-                ))}
+
+        <div className="relative dark:bg-secondary/50">
+          {/* Sidebar - Fixed position always */}
+          <aside className="fixed left-0 top-16 w-80 h-[calc(100vh-4rem)] bg-card border-r border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0 -translate-x-full lg:translate-x-0">
+            <div className="p-6 space-y-6 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
+              {/* Providers Filter Skeleton */}
+              <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-9 h-9 rounded-lg" />
+                  <Skeleton className="w-24 h-5" />
+                  <Skeleton className="w-4 h-4 ml-auto" />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="w-full h-16 rounded-lg" />
+                  ))}
+                </div>
+              </div>
+
+              <Skeleton className="w-full h-px" />
+
+              {/* File Type Filter Skeleton */}
+              <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-9 h-9 rounded-lg" />
+                  <Skeleton className="w-20 h-5" />
+                  <Skeleton className="w-4 h-4 ml-auto" />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <Skeleton key={i} className="w-16 h-8 rounded-full" />
+                  ))}
+                </div>
               </div>
             </div>
           </aside>
 
-          {/* Main Content */}
-          <main className="flex-1 min-w-0 bg-secondary/50 lg:ml-0">
+          {/* Main Content - Matches current layout */}
+          <main className="col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 lg:ml-80">
             <div className="p-4 sm:p-6 space-y-6">
               {/* Search Bar */}
               <div className="flex justify-center">
-                <Skeleton className="w-full max-w-2xl h-12 rounded-xl" />
+                <Skeleton className="w-full max-w-2xl h-12 rounded-xl bg-secondary" />
               </div>
 
-              {/* Top Pagination - Hidden on mobile */}
-              <div className="hidden sm:flex justify-center">
+              {/* Top Pagination */}
+              <div className="flex justify-center">
                 <div className="flex items-center gap-3">
-                  <Skeleton className="w-12 h-12 rounded-xl" />
+                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl" />
                   <div className="flex items-center gap-2">
                     {Array.from({ length: 5 }).map((_, i) => (
-                      <Skeleton key={i} className="w-12 h-12 rounded-xl" />
+                      <Skeleton
+                        key={i}
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl"
+                      />
                     ))}
                   </div>
-                  <Skeleton className="w-12 h-12 rounded-xl" />
+                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl" />
                 </div>
               </div>
 
               {/* Suggestions */}
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-center space-x-3">
                 <Skeleton className="w-24 h-4" />
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 w-fit">
+                <div className="grid place-content-center grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 w-fit">
                   {Array.from({ length: 4 }).map((_, i) => (
-                    <Skeleton key={i} className="w-20 h-6 rounded-full" />
+                    <Skeleton key={i} className="w-20 h-10 rounded-full" />
                   ))}
                 </div>
               </div>
@@ -253,12 +278,12 @@ function SearchContent() {
                   ))}
                 </div>
 
-                {/* Desktop Layout - Varied widths */}
-                <div className="hidden sm:block space-y-4">
+                {/* Desktop Layout - Flex with varied widths */}
+                <div className="hidden sm:flex sm:flex-col sm:w-full">
                   {Array.from({ length: 3 }).map((_, rowIndex) => (
                     <div
                       key={rowIndex}
-                      className="flex gap-2 sm:gap-4 justify-start flex-wrap"
+                      className="flex gap-2 sm:gap-4 justify-center flex-wrap mb-4"
                     >
                       {Array.from({ length: 4 }).map((_, i) => (
                         <Skeleton
@@ -277,8 +302,8 @@ function SearchContent() {
                 </div>
               </div>
 
-              {/* Bottom Pagination - Mobile only */}
-              <div className="flex justify-center pt-8 sm:hidden">
+              {/* Bottom Pagination */}
+              <div className="flex justify-center pt-8">
                 <div className="flex items-center gap-2">
                   <Skeleton className="w-20 h-8 rounded" />
                   <Skeleton className="w-16 h-4" />
@@ -327,7 +352,7 @@ function SearchContent() {
         </div>
       </header>
 
-      <div className="flex">
+      <div className="relative dark:bg-secondary">
         {/* Mobile Overlay */}
         {isSidebarOpen && (
           <div
@@ -336,14 +361,14 @@ function SearchContent() {
           />
         )}
 
-        {/* Sidebar - Filters */}
+        {/* Sidebar - Filters - Fixed position always */}
         <aside
           className={`
-          fixed ${isRTL ? "right-0 border-l" : "left-0 border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg
+          fixed ${isRTL ? "right-0 border-l" : "left-0 border-r"} top-16 w-80 h-[calc(100vh-4rem)] bg-card dark:bg-secondary border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
           ${isSidebarOpen ? "translate-x-0" : `${isRTL ? "translate-x-full" : "-translate-x-full"} lg:translate-x-0`}
         `}
         >
-          <div className="p-6 space-y-6">
+          <div className="p-6 space-y-6 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
             {/* Mobile Close Button */}
             <div
               className={`lg:hidden flex justify-between items-center mb-4 p-4 bg-muted/50 rounded-lg border border-border ${isRTL ? "flex-row-reverse" : ""}`}
@@ -359,7 +384,7 @@ function SearchContent() {
               </button>
             </div>
             {/* Providers Filter */}
-            <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+            <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 rounded-lg border border-border">
               <div
                 className={`flex items-center gap-3 ${isRTL ? "flex-row" : ""}`}
               >
@@ -395,10 +420,12 @@ function SearchContent() {
                       src={provider.logo}
                       alt={provider.name}
                       width={150}
-                      height={24}
-                      className="w-full h-6 rounded object-cover group-hover:opacity-90 transition-opacity"
+                      height={40}
+                      className="w-full h-10 rounded object-cover group-hover:opacity-90 transition-opacity"
                     />
-                    <div className="mt-2 text-xs text-center text-muted-foreground group-hover:text-foreground transition-colors">
+                    <div
+                      className={`mt-2 text-sm text-center text-muted-foreground group-hover:text-primary transition-colors ${selectedProviders.includes(provider.id) ? "text-primary hover:text-primary" : ""}`}
+                    >
                       {provider.count} {t("search.filters.items")}
                     </div>
                   </div>
@@ -409,7 +436,7 @@ function SearchContent() {
             <Separator className="bg-border/50" />
 
             {/* File Type Filter */}
-            <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+            <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 rounded-lg border border-border">
               <div
                 className={`flex items-center gap-3 ${isRTL ? "flex-row" : ""}`}
               >
@@ -461,10 +488,8 @@ function SearchContent() {
           </div>
         </aside>
 
-        {/* Main Content */}
-        <main
-          className={`flex-1 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-80" : "lg:ml-80"}`}
-        >
+        {/* Main Content - 9 columns on desktop, full width on mobile */}
+        <main className="col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 lg:ml-80">
           <div className="p-4 sm:p-6 space-y-6">
             {/* Search Bar - Centered */}
             <div className="flex justify-center">
@@ -566,24 +591,24 @@ function SearchContent() {
 
             {/* Suggestions */}
             <div
-              className={`flex flex-col gap-2 sm:flex-row sm:items-center ${isRTL ? "space-x-reverse sm:space-x-3" : "space-x-3"}`}
+              className={`flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-center ${isRTL ? "space-x-reverse sm:space-x-3" : "space-x-3"}`}
             >
               <h3 className="text-sm font-medium text-muted-foreground">
                 {t("search.suggestions.title")}
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 w-fit">
+              <div className="grid place-content-center grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 w-fit">
                 {suggestions.map((suggestion) => (
-                  <Badge
+                  <div
                     key={suggestion}
-                    variant="outline"
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
+                    className="cursor-pointer flex items-center border-2 rounded-full px-3 py-2 gap-3 hover:bg-card transition-all duration-150"
                     onClick={() => {
                       setSearchQuery(suggestion);
                       handleSearch();
                     }}
                   >
-                    {suggestion}
-                  </Badge>
+                    <Search className="w-5 h-5" />
+                    <span className="text-sm">{suggestion}</span>
+                  </div>
                 ))}
               </div>
             </div>
@@ -685,13 +710,13 @@ function SearchContent() {
               </div>
 
               {/* Desktop Layout - Flex with varied widths (SM and up) */}
-              <div className="hidden sm:block">
+              <div className="hidden sm:flex sm:flex-col sm:w-full">
                 {Array.from(
                   { length: Math.ceil(mockResults.length / 4) },
                   (_, rowIndex) => (
                     <div
                       key={rowIndex}
-                      className="flex gap-2 sm:gap-4 justify-start flex-wrap mb-4"
+                      className="flex gap-2 sm:gap-4 justify-center flex-wrap mb-4"
                     >
                       {mockResults
                         .slice(rowIndex * 4, (rowIndex + 1) * 4)
@@ -1020,47 +1045,73 @@ function SearchPageLoading() {
           </div>
         </div>
       </header>
-      <div className="flex">
-        {/* Desktop Sidebar - Hidden on mobile */}
-        <aside className="hidden lg:block w-80 h-[calc(100vh-4rem)] bg-card border-r border-border p-6">
-          <Skeleton className="w-full h-8 mb-6" />
-          <div className="space-y-4">
-            <Skeleton className="w-full h-6" />
-            <div className="grid grid-cols-2 gap-3">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <Skeleton key={i} className="w-full h-16 rounded-lg" />
-              ))}
+
+      <div className="relative dark:bg-secondary">
+        {/* Sidebar - Fixed position always */}
+        <aside className="fixed left-0 top-16 w-80 h-[calc(100vh-4rem)] bg-card border-r border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0 -translate-x-full lg:translate-x-0">
+          <div className="p-6 space-y-6 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
+            {/* Providers Filter Skeleton */}
+            <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-9 h-9 rounded-lg" />
+                <Skeleton className="w-24 h-5" />
+                <Skeleton className="w-4 h-4 ml-auto" />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <Skeleton key={i} className="w-full h-16 rounded-lg" />
+                ))}
+              </div>
+            </div>
+
+            <Skeleton className="w-full h-px" />
+
+            {/* File Type Filter Skeleton */}
+            <div className="space-y-4 p-4 bg-muted/30 rounded-lg border border-border">
+              <div className="flex items-center gap-3">
+                <Skeleton className="w-9 h-9 rounded-lg" />
+                <Skeleton className="w-20 h-5" />
+                <Skeleton className="w-4 h-4 ml-auto" />
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="w-16 h-8 rounded-full" />
+                ))}
+              </div>
             </div>
           </div>
         </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 min-w-0 bg-secondary/50 lg:ml-0">
+        {/* Main Content - Matches current layout */}
+        <main className="col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 lg:ml-80">
           <div className="p-4 sm:p-6 space-y-6">
             {/* Search Bar */}
             <div className="flex justify-center">
               <Skeleton className="w-full max-w-2xl h-12 rounded-xl" />
             </div>
 
-            {/* Top Pagination - Hidden on mobile */}
-            <div className="hidden sm:flex justify-center">
+            {/* Top Pagination */}
+            <div className="flex justify-center">
               <div className="flex items-center gap-3">
-                <Skeleton className="w-12 h-12 rounded-xl" />
+                <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl" />
                 <div className="flex items-center gap-2">
                   {Array.from({ length: 5 }).map((_, i) => (
-                    <Skeleton key={i} className="w-12 h-12 rounded-xl" />
+                    <Skeleton
+                      key={i}
+                      className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl"
+                    />
                   ))}
                 </div>
-                <Skeleton className="w-12 h-12 rounded-xl" />
+                <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl" />
               </div>
             </div>
 
             {/* Suggestions */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-center space-x-3">
               <Skeleton className="w-24 h-4" />
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 w-fit">
+              <div className="grid place-content-center grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 w-fit">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <Skeleton key={i} className="w-20 h-6 rounded-full" />
+                  <Skeleton key={i} className="w-20 h-10 rounded-full" />
                 ))}
               </div>
             </div>
@@ -1080,12 +1131,12 @@ function SearchPageLoading() {
                 ))}
               </div>
 
-              {/* Desktop Layout - Varied widths */}
-              <div className="hidden sm:block space-y-4">
+              {/* Desktop Layout - Flex with varied widths */}
+              <div className="hidden sm:flex sm:flex-col sm:w-full">
                 {Array.from({ length: 3 }).map((_, rowIndex) => (
                   <div
                     key={rowIndex}
-                    className="flex gap-2 sm:gap-4 justify-start flex-wrap"
+                    className="flex gap-2 sm:gap-4 justify-center flex-wrap mb-4"
                   >
                     {Array.from({ length: 4 }).map((_, i) => (
                       <Skeleton
@@ -1104,8 +1155,8 @@ function SearchPageLoading() {
               </div>
             </div>
 
-            {/* Bottom Pagination - Mobile only */}
-            <div className="flex justify-center pt-8 sm:hidden">
+            {/* Bottom Pagination */}
+            <div className="flex justify-center pt-8">
               <div className="flex items-center gap-2">
                 <Skeleton className="w-20 h-8 rounded" />
                 <Skeleton className="w-16 h-4" />

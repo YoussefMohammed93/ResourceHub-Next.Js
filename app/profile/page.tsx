@@ -556,164 +556,6 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
-        {/* Download History - Full Width */}
-        <Card className="dark:bg-muted/50 h-fit">
-          <CardHeader className="space-y-6">
-            <div
-              className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
-            >
-              <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                <Download className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <CardTitle className="text-lg font-semibold text-foreground">
-                  {t("profile.downloadHistory.title")}
-                </CardTitle>
-                <CardDescription className="text-sm text-muted-foreground mt-1">
-                  {t("profile.downloadHistory.description")}
-                </CardDescription>
-              </div>
-            </div>
-            <div className="flex flex-col sm:flex-row items-center gap-5">
-              {/* Search Bar */}
-              <div className="relative flex-1 w-full">
-                <Search
-                  className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground ${isRTL ? "right-3" : "left-3"}`}
-                />
-                <Input
-                  type="text"
-                  placeholder="Source / Source ID / URL / Tag / Debug ID"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={`${isRTL ? "pr-10 pl-3" : "pl-10 pr-3"} h-10`}
-                />
-              </div>
-              {/* Filter */}
-              <div className="flex sm:justify-end w-full sm:w-auto">
-                <Select value={sortFilter} onValueChange={setSortFilter}>
-                  <SelectTrigger className="w-full sm:w-48">
-                    <Filter className="w-4 h-4" />
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="newest">
-                      {t("profile.downloadHistory.filters.newest")}
-                    </SelectItem>
-                    <SelectItem value="oldest">
-                      {t("profile.downloadHistory.filters.oldest")}
-                    </SelectItem>
-                    <SelectItem value="credits-high">
-                      {t("profile.downloadHistory.filters.creditsHigh")}
-                    </SelectItem>
-                    <SelectItem value="credits-low">
-                      {t("profile.downloadHistory.filters.creditsLow")}
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {isDownloadHistoryLoading ? (
-              // Show loading skeletons while download history is loading
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {Array.from({ length: 4 }, (_, i) => (
-                  <DownloadHistoryItemSkeleton key={i} isRTL={isRTL} />
-                ))}
-              </div>
-            ) : sortedDownloads.length === 0 ? (
-              <div className="py-12 text-center">
-                <div className="flex flex-col items-center space-y-3">
-                  <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
-                    <Download className="w-9 h-9 text-muted-foreground" />
-                  </div>
-                  <div>
-                    <p className="text-lg sm:text-2xl font-medium text-foreground">
-                      {t("profile.downloadHistory.empty.title")}
-                    </p>
-                    <p className="text-base sm:text-lg pt-2 text-muted-foreground">
-                      {t("profile.downloadHistory.empty.description")}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[450px] overflow-y-auto">
-                {sortedDownloads.map((item) => (
-                  <div
-                    key={item.id}
-                    className="bg-secondary/50 dark:bg-muted border rounded-lg p-4 space-y-4 hover:bg-muted/50 transition-all duration-200"
-                  >
-                    {/* Header with source and debug ID */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">{item.sourceIcon}</span>
-                        <span className="font-medium text-foreground">
-                          {item.source}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
-                          debugID: {item.debugId}
-                        </span>
-                      </div>
-                    </div>
-                    {/* File ID and format info */}
-                    <div className="flex items-center justify-between">
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto text-blue-600 hover:text-blue-800"
-                        onClick={() => window.open(item.fileUrl, "_blank")}
-                      >
-                        {item.fileId}
-                      </Button>
-                      <div className="flex items-center gap-3">
-                        <Badge variant="secondary" className="text-xs">
-                          {item.format}
-                        </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {item.size}
-                        </span>
-                      </div>
-                    </div>
-                    {/* Preview Image */}
-                    <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-                      <Image
-                        src={item.previewImage || "/placeholder.svg"}
-                        alt={item.title}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                    {/* Footer with source URL and download button */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        {item.sourceUrl}
-                      </span>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => window.open(item.downloadUrl, "_blank")}
-                        className="flex items-center gap-2"
-                      >
-                        <Download className="h-4 w-4" />
-                        {t("common.download")}
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-            {!isDownloadHistoryLoading && sortedDownloads.length > 4 && (
-              <div className="mt-6 text-center">
-                <Button variant="outline">
-                  {t("profile.downloadHistory.loadMore")}
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
         {/* Subscription, Credits & Change Password Cards */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
           {/* Subscription Card */}
@@ -1007,6 +849,163 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
         </div>
+        {/* Download History - Full Width */}
+        <Card className="dark:bg-muted/50 h-fit">
+          <CardHeader className="space-y-6">
+            <div
+              className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"}`}
+            >
+              <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                <Download className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <CardTitle className="text-lg font-semibold text-foreground">
+                  {t("profile.downloadHistory.title")}
+                </CardTitle>
+                <CardDescription className="text-sm text-muted-foreground mt-1">
+                  {t("profile.downloadHistory.description")}
+                </CardDescription>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row items-center gap-5">
+              {/* Search Bar */}
+              <div className="relative flex-1 w-full">
+                <Search
+                  className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground ${isRTL ? "right-3" : "left-3"}`}
+                />
+                <Input
+                  type="text"
+                  placeholder="Source / Source ID / URL / Tag / Debug ID"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={`${isRTL ? "pr-10 pl-3" : "pl-10 pr-3"} h-10`}
+                />
+              </div>
+              {/* Filter */}
+              <div className="flex sm:justify-end w-full sm:w-auto">
+                <Select value={sortFilter} onValueChange={setSortFilter}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <Filter className="w-4 h-4" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="newest">
+                      {t("profile.downloadHistory.filters.newest")}
+                    </SelectItem>
+                    <SelectItem value="oldest">
+                      {t("profile.downloadHistory.filters.oldest")}
+                    </SelectItem>
+                    <SelectItem value="credits-high">
+                      {t("profile.downloadHistory.filters.creditsHigh")}
+                    </SelectItem>
+                    <SelectItem value="credits-low">
+                      {t("profile.downloadHistory.filters.creditsLow")}
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {isDownloadHistoryLoading ? (
+              // Show loading skeletons while download history is loading
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {Array.from({ length: 4 }, (_, i) => (
+                  <DownloadHistoryItemSkeleton key={i} isRTL={isRTL} />
+                ))}
+              </div>
+            ) : sortedDownloads.length === 0 ? (
+              <div className="py-12 text-center">
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center">
+                    <Download className="w-9 h-9 text-muted-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-lg sm:text-2xl font-medium text-foreground">
+                      {t("profile.downloadHistory.empty.title")}
+                    </p>
+                    <p className="text-base sm:text-lg pt-2 text-muted-foreground">
+                      {t("profile.downloadHistory.empty.description")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[450px] overflow-y-auto">
+                {sortedDownloads.map((item) => (
+                  <div
+                    key={item.id}
+                    className="bg-secondary/50 dark:bg-muted border rounded-lg p-4 space-y-4 hover:bg-muted/50 transition-all duration-200"
+                  >
+                    {/* Header with source and debug ID */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{item.sourceIcon}</span>
+                        <span className="font-medium text-foreground">
+                          {item.source}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm text-muted-foreground">
+                          debugID: {item.debugId}
+                        </span>
+                      </div>
+                    </div>
+                    {/* File ID and format info */}
+                    <div className="flex items-center justify-between">
+                      <Button
+                        variant="link"
+                        className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                        onClick={() => window.open(item.fileUrl, "_blank")}
+                      >
+                        {item.fileId}
+                      </Button>
+                      <div className="flex items-center gap-3">
+                        <Badge variant="secondary" className="text-xs">
+                          {item.format}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {item.size}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Preview Image */}
+                    <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                      <Image
+                        src={item.previewImage || "/placeholder.svg"}
+                        alt={item.title}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    {/* Footer with source URL and download button */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        {item.sourceUrl}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => window.open(item.downloadUrl, "_blank")}
+                        className="flex items-center gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        {t("common.download")}
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!isDownloadHistoryLoading && sortedDownloads.length > 4 && (
+              <div className="mt-6 text-center">
+                <Button variant="outline">
+                  {t("profile.downloadHistory.loadMore")}
+                </Button>
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
     </div>
   );
