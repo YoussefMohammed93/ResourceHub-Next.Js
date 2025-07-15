@@ -697,6 +697,7 @@ export default function DashboardPage() {
       id: 1,
       name: "Mohammed Ahmed",
       email: "mohammed.ahmed12@example.com",
+      phone: "+1-555-0123",
       credits: 45,
       status: "Active",
       expiry: "2024-12-31",
@@ -709,6 +710,7 @@ export default function DashboardPage() {
       id: 2,
       name: "Sarah Yasser",
       email: "sarah.yasser@example.com",
+      phone: "+1-555-0456",
       credits: 120,
       status: "Active",
       expiry: "2024-11-15",
@@ -721,6 +723,7 @@ export default function DashboardPage() {
       id: 3,
       name: "Ahmed Hassan",
       email: "ahmed.hassan@example.com",
+      phone: "+1-555-0789",
       credits: 0,
       status: "Expired",
       expiry: "2024-06-30",
@@ -733,6 +736,7 @@ export default function DashboardPage() {
       id: 4,
       name: "Fatima Ali",
       email: "fatima.ali@example.com",
+      phone: "+1-555-0321",
       credits: 250,
       status: "Active",
       expiry: "2025-03-15",
@@ -745,6 +749,7 @@ export default function DashboardPage() {
       id: 5,
       name: "Omar Khaled",
       email: "omar.khaled@example.com",
+      phone: "+1-555-0654",
       credits: 15,
       status: "Suspended",
       expiry: "2024-10-20",
@@ -793,6 +798,7 @@ export default function DashboardPage() {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.phone.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.plan.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesStatus =
@@ -855,7 +861,10 @@ export default function DashboardPage() {
             >
               <Menu className="w-5 h-5 text-muted-foreground" />
             </button>
-            <Link href="/" className="flex items-center gap-1 sm:gap-2 cursor-pointer">
+            <Link
+              href="/"
+              className="flex items-center gap-1 sm:gap-2 cursor-pointer"
+            >
               <div
                 className={`${isRTL && "ml-2"} w-8 h-8 bg-primary rounded-lg flex items-center justify-center`}
               >
@@ -1029,6 +1038,11 @@ export default function DashboardPage() {
                       <th
                         className={`${isRTL ? "text-right" : "text-left"} py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
                       >
+                        {t("dashboard.usersManagement.table.headers.phone")}
+                      </th>
+                      <th
+                        className={`${isRTL ? "text-right" : "text-left"} py-4 px-6 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                      >
                         {t(
                           "dashboard.usersManagement.table.headers.planCredits"
                         )}
@@ -1053,7 +1067,7 @@ export default function DashboardPage() {
                   <tbody className="divide-y divide-border">
                     {filteredUsers.length === 0 ? (
                       <tr>
-                        <td colSpan={5} className="py-12 text-center">
+                        <td colSpan={6} className="py-12 text-center">
                           <div className="flex flex-col items-center space-y-3">
                             <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
                               <Users className="w-6 h-6 text-muted-foreground" />
@@ -1094,6 +1108,11 @@ export default function DashboardPage() {
                                   {user.email}
                                 </div>
                               </div>
+                            </div>
+                          </td>
+                          <td className="py-4 px-6">
+                            <div className="text-sm text-foreground">
+                              {user.phone}
                             </div>
                           </td>
                           <td className="py-4 px-6">
@@ -1180,6 +1199,9 @@ export default function DashboardPage() {
                             </div>
                             <div className="text-sm text-muted-foreground truncate w-56">
                               {user.email}
+                            </div>
+                            <div className="text-sm text-muted-foreground truncate w-56">
+                              {user.phone}
                             </div>
                             <div className="text-xs text-muted-foreground mt-1">
                               {t("dashboard.usersManagement.table.lastActive", {

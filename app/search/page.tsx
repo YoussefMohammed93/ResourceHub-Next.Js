@@ -33,6 +33,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 // Type definitions
 interface Provider {
@@ -71,6 +78,8 @@ const providers = [
   { id: "vectory", name: "Vectory", logo: "/freepik.webp", count: 620 },
   { id: "ui8", name: "UI8", logo: "/raw.png", count: 450 },
   { id: "rawpixel", name: "RawPixel", logo: "/shutterstock.png", count: 320 },
+  { id: "pngtree", name: "PNGTree", logo: "/freepik.webp", count: 380 },
+  { id: "pngtree", name: "PNGTree", logo: "/freepik.webp", count: 380 },
   { id: "pngtree", name: "PNGTree", logo: "/freepik.webp", count: 380 },
   {
     id: "adobestock",
@@ -130,6 +139,7 @@ function SearchContent() {
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedFileTypes, setSelectedFileTypes] = useState<string[]>([]);
+  const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hoveredImage, setHoveredImage] = useState<number | null>(null);
@@ -206,9 +216,9 @@ function SearchContent() {
 
           {/* Sidebar - Fixed position always */}
           <aside
-            className={`fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 h-[calc(100vh-4rem)] bg-card border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none ${isRTL ? "lg:border-l lg:border-r-0" : "lg:border-r lg:border-l-0"} ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+            className={`fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/20 via-primary/10 to-primary/25 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none ${isRTL ? "lg:border-l lg:border-r-0" : "lg:border-r lg:border-l-0"} ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
           >
-            <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
+            <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto bg-gradient-to-b from-background/80 via-background/60 to-background/80 backdrop-blur-sm">
               {/* Providers Filter Skeleton */}
               <div className="space-y-4 p-4 bg-muted/30">
                 <div className="flex items-center gap-3">
@@ -246,24 +256,19 @@ function SearchContent() {
             className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-96" : "lg:ml-96"}`}
           >
             <div className="relative z-10 p-4 sm:p-6 space-y-6">
-              {/* Search Bar */}
-              <div className="flex justify-center">
-                <Skeleton className="w-full max-w-2xl h-12 rounded-xl bg-secondary" />
-              </div>
+              <div className="flex flex-col gap-5 sm:flex-row">
+                {/* Search Bar */}
+                <div className="flex justify-center">
+                  <Skeleton className="w-full max-w-2xl h-12 rounded-xl bg-secondary" />
+                </div>
 
-              {/* Top Pagination */}
-              <div className="flex justify-center">
-                <div className="flex items-center gap-3">
-                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl" />
-                  <div className="flex items-center gap-2">
-                    {Array.from({ length: 5 }).map((_, i) => (
-                      <Skeleton
-                        key={i}
-                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl"
-                      />
-                    ))}
+                {/* Filter Section Skeleton */}
+                <div className="flex justify-center">
+                  <div className="w-full max-w-md">
+                    <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
+                      <Skeleton className="w-full h-12 rounded" />
+                    </div>
                   </div>
-                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl" />
                 </div>
               </div>
 
@@ -316,12 +321,19 @@ function SearchContent() {
                 </div>
               </div>
 
-              {/* Bottom Pagination */}
+              {/* Bottom Pagination Skeleton */}
               <div className="flex justify-center pt-8">
-                <div className="flex items-center gap-2">
-                  <Skeleton className="w-20 h-8 rounded" />
-                  <Skeleton className="w-16 h-4" />
-                  <Skeleton className="w-16 h-8 rounded" />
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl" />
+                  <div className="flex items-center gap-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Skeleton
+                        key={i}
+                        className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl"
+                      />
+                    ))}
+                  </div>
+                  <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl" />
                 </div>
               </div>
             </div>
@@ -378,11 +390,11 @@ function SearchContent() {
         {/* Sidebar - Filters - Fixed position always */}
         <aside
           className={`
-          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 h-[calc(100vh-4rem)] bg-card dark:bg-secondary z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
+          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
           ${isSidebarOpen ? "translate-x-0" : `${isRTL ? "translate-x-full" : "-translate-x-full"} lg:translate-x-0`}
         `}
         >
-          <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto bg-muted/40 dark:bg-card">
+          <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto bg-gradient-to-b from-background/80 via-background/60 to-background/80 backdrop-blur-sm">
             {/* Mobile Close Button */}
             <div
               className={`lg:hidden flex justify-between items-center mb-4 p-4 bg-muted/50 rounded-lg border border-border ${isRTL ? "flex-row-reverse" : ""}`}
@@ -422,7 +434,7 @@ function SearchContent() {
                     key={provider.id}
                     onClick={() => toggleProvider(provider.id)}
                     className={`
-                      w-full p-3 rounded-lg border cursor-pointer group
+                      w-full p-3 rounded-lg border cursor-pointer group dark:bg-muted/35
                       ${
                         selectedProviders.includes(provider.id)
                           ? "border-primary bg-primary/10 shadow-sm"
@@ -718,101 +730,236 @@ function SearchContent() {
           </div>
 
           <div className="relative z-10 p-4 sm:p-6 space-y-6">
-            {/* Search Bar - Centered */}
-            <div className="flex justify-center">
-              <div className="w-full max-w-2xl">
-                <div className="relative">
-                  <Search
-                    className={`absolute ${isRTL ? "right-4" : "left-4"} top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5`}
-                  />
-                  <Input
-                    type="text"
-                    placeholder={t("search.searchPlaceholder")}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className={`${isRTL ? "pr-12 pl-4" : "pl-12 pr-4"} placeholder:text-base py-3 !h-14 text-base border-2 border-border focus:border-primary rounded-xl bg-background`}
-                    dir={isRTL ? "rtl" : "ltr"}
-                  />
-                  <Button
-                    onClick={handleSearch}
-                    className={`absolute ${isRTL ? "left-0.5" : "right-0.5"} top-1/2 transform -translate-y-1/2 !px-6 h-[52px] bg-primary hover:bg-primary/90 rounded-xl`}
+            <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center max-w-3xl mx-auto">
+              {/* Search Bar - Centered */}
+              <div className="flex justify-center w-full sm:w-3/4">
+                <div className="w-full max-w-2xl">
+                  <div className="relative">
+                    <Search
+                      className={`absolute ${isRTL ? "right-4" : "left-4"} top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5`}
+                    />
+                    <Input
+                      type="text"
+                      placeholder={t("search.searchPlaceholder")}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                      className={`${isRTL ? "pr-12 pl-4" : "pl-12 pr-4"} placeholder:text-base py-3 !h-14 text-base border-2 border-border focus:border-primary rounded-xl bg-background`}
+                      dir={isRTL ? "rtl" : "ltr"}
+                    />
+                    <Button
+                      onClick={handleSearch}
+                      className={`absolute ${isRTL ? "left-0.5" : "right-0.5"} top-1/2 transform -translate-y-1/2 !px-6 h-[52px] bg-primary hover:bg-primary/90 rounded-xl`}
+                    >
+                      <span>{t("search.searchButton")}</span>
+                      <Search className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter Section Behind Search Bar */}
+              <div className="flex justify-center w-full sm:w-1/4">
+                <div className="w-full max-w-md">
+                  <Select
+                    value={selectedFilter}
+                    onValueChange={setSelectedFilter}
                   >
-                    <span>{t("search.searchButton")}</span>
-                    <Search className="w-4 h-4" />
-                  </Button>
+                    <SelectTrigger className="w-full !h-14 bg-background/80 rounded-xl border-2 border-border hover:border-primary/50 transition-all duration-200">
+                      <SelectValue placeholder="Select content type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">
+                        <div className="flex items-center gap-2">
+                          <Search className="w-4 h-4" />
+                          <span>All Content</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="images">
+                        <div className="flex items-center gap-2">
+                          <ImageIcon className="w-4 h-4" />
+                          <span>Images</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="vectors">
+                        <div className="flex items-center gap-2">
+                          <Palette className="w-4 h-4" />
+                          <span>Vectors</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="videos">
+                        <div className="flex items-center gap-2">
+                          <Camera className="w-4 h-4" />
+                          <span>Videos</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="templates">
+                        <div className="flex items-center gap-2">
+                          <File className="w-4 h-4" />
+                          <span>Templates</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="icons">
+                        <div className="flex items-center gap-2">
+                          <Star className="w-4 h-4" />
+                          <span>Icons</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
             </div>
 
-            {/* Top Pagination with Page Numbers */}
-            <div className="flex justify-center">
-              <div
-                className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
-              >
-                {/* Previous Button */}
-                <Button
-                  variant="outline"
-                  size="lg"
-                  disabled={currentPage === 1}
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(1, prev - 1))
-                  }
-                  className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
-                >
-                  <ChevronLeft
-                    className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
-                  />
-                </Button>
-
-                {/* Page Numbers */}
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
-
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={
-                          currentPage === pageNum ? "default" : "outline"
-                        }
-                        size="lg"
-                        onClick={() => setCurrentPage(pageNum)}
-                        className={`w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2 font-semibold ${
-                          currentPage === pageNum
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "hover:bg-muted"
-                        }`}
-                      >
-                        {pageNum}
-                      </Button>
-                    );
-                  })}
+            <div className="relative z-10">
+              {/* Platforms Grid - Modern Card Design */}
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-5">
+                {/* Freepik Card 1 */}
+                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Image
+                      src="/freepik-small.png"
+                      alt={t("supportedPlatforms.platforms.freepik")}
+                      width={32}
+                      height={32}
+                      className="object-contain hidden md:block"
+                    />
+                    <Image
+                      src="/freepik-big.png"
+                      alt=""
+                      width={90}
+                      height={100}
+                      className="object-cover rounded-2xl"
+                    />
+                  </div>
                 </div>
 
-                {/* Next Button */}
-                <Button
-                  variant="outline"
-                  size="lg"
-                  disabled={currentPage === totalPages}
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                  }
-                  className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
-                >
-                  <ChevronRight
-                    className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
-                  />
-                </Button>
+                {/* Shutterstock Card 1 */}
+                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Image
+                      src="/shutterstock-small.webp"
+                      alt={t("supportedPlatforms.platforms.shutterstock")}
+                      width={32}
+                      height={32}
+                      className="object-contain hidden md:block"
+                    />
+                    <Image
+                      src="/shutterstock-big.png"
+                      alt=""
+                      width={90}
+                      height={100}
+                      className="object-cover rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Freepik Card 2 */}
+                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Image
+                      src="/freepik-small.png"
+                      alt={t("supportedPlatforms.platforms.freepik")}
+                      width={32}
+                      height={32}
+                      className="object-contain hidden md:block"
+                    />
+                    <Image
+                      src="/freepik-big.png"
+                      alt=""
+                      width={90}
+                      height={100}
+                      className="object-cover rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Shutterstock Card 2 */}
+                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Image
+                      src="/shutterstock-small.webp"
+                      alt={t("supportedPlatforms.platforms.shutterstock")}
+                      width={32}
+                      height={32}
+                      className="object-contain hidden md:block"
+                    />
+                    <Image
+                      src="/shutterstock-big.png"
+                      alt=""
+                      width={90}
+                      height={100}
+                      className="object-cover rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Freepik Card 3 */}
+                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Image
+                      src="/freepik-small.png"
+                      alt={t("supportedPlatforms.platforms.freepik")}
+                      width={32}
+                      height={32}
+                      className="object-contain hidden md:block"
+                    />
+                    <Image
+                      src="/freepik-big.png"
+                      alt=""
+                      width={90}
+                      height={100}
+                      className="object-cover rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Shutterstock Card 3 */}
+                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Image
+                      src="/shutterstock-small.webp"
+                      alt={t("supportedPlatforms.platforms.shutterstock")}
+                      width={32}
+                      height={32}
+                      className="object-contain hidden md:block"
+                    />
+                    <Image
+                      src="/shutterstock-big.png"
+                      alt=""
+                      width={90}
+                      height={100}
+                      className="object-cover rounded-2xl"
+                    />
+                  </div>
+                </div>
+
+                {/* Freepik Card 4 */}
+                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="flex items-center justify-center gap-2">
+                    <Image
+                      src="/freepik-small.png"
+                      alt={t("supportedPlatforms.platforms.freepik")}
+                      width={32}
+                      height={32}
+                      className="object-contain hidden md:block"
+                    />
+                    <Image
+                      src="/freepik-big.png"
+                      alt=""
+                      width={90}
+                      height={100}
+                      className="object-cover rounded-2xl"
+                    />
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -904,11 +1051,11 @@ function SearchContent() {
                         <Button
                           size="sm"
                           variant="secondary"
-                          className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+                          className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} w-11 h-11 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
                           aria-label={t("search.actions.favorite")}
                         >
                           <Heart
-                            className={`w-4 h-4 ${result.isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`}
+                            className={`w-5 h-5 ${result.isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`}
                           />
                         </Button>
 
@@ -916,10 +1063,10 @@ function SearchContent() {
                         <Button
                           size="sm"
                           variant="secondary"
-                          className={`absolute top-12 ${isRTL ? "right-2" : "left-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+                          className={`absolute top-12 ${isRTL ? "right-2" : "left-2"} w-11 h-11 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
                           aria-label={t("search.actions.share")}
                         >
-                          <Share2 className="w-4 h-4 text-gray-600" />
+                          <ShoppingCart className="w-5 h-5 text-muted-foreground" />
                         </Button>
 
                         {/* Download Button - Bottom Center - Appears on hover */}
@@ -994,11 +1141,11 @@ function SearchContent() {
                                   <Button
                                     size="sm"
                                     variant="secondary"
-                                    className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+                                    className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} w-11 h-11 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
                                     aria-label={t("search.actions.favorite")}
                                   >
                                     <Heart
-                                      className={`w-4 h-4 ${result.isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`}
+                                      className={`w-6 h-6 ${result.isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`}
                                     />
                                   </Button>
 
@@ -1006,10 +1153,10 @@ function SearchContent() {
                                   <Button
                                     size="sm"
                                     variant="secondary"
-                                    className={`absolute top-12 ${isRTL ? "right-2" : "left-2"} w-8 h-8 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
+                                    className={`absolute top-14 ${isRTL ? "right-2" : "left-2"} w-11 h-11 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
                                     aria-label={t("search.actions.share")}
                                   >
-                                    <Share2 className="w-4 h-4 text-gray-600" />
+                                    <Share2 className="w-6 h-6 text-gray-600" />
                                   </Button>
 
                                   {/* Download Button - Bottom Center - Appears on hover */}
@@ -1031,43 +1178,72 @@ function SearchContent() {
               </div>
             </div>
 
-            {/* Pagination Bottom - Centered */}
+            {/* Bottom Pagination with Page Numbers */}
             <div className="flex justify-center pt-8">
               <div
-                className={`flex items-center gap-2 ${isRTL ? "flex-row" : ""}`}
+                className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
               >
+                {/* Previous Button */}
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="lg"
                   disabled={currentPage === 1}
                   onClick={() =>
                     setCurrentPage((prev) => Math.max(1, prev - 1))
                   }
-                  className={`${isRTL ? "flex-row-reverse" : ""}`}
+                  className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
                 >
                   <ChevronLeft
-                    className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`}
+                    className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
                   />
-                  {t("search.pagination.previous")}
                 </Button>
-                <span className="text-sm text-muted-foreground">
-                  {t("search.pagination.page", {
-                    current: currentPage,
-                    total: totalPages,
+
+                {/* Page Numbers */}
+                <div className="flex items-center gap-2">
+                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                    let pageNum;
+                    if (totalPages <= 5) {
+                      pageNum = i + 1;
+                    } else if (currentPage <= 3) {
+                      pageNum = i + 1;
+                    } else if (currentPage >= totalPages - 2) {
+                      pageNum = totalPages - 4 + i;
+                    } else {
+                      pageNum = currentPage - 2 + i;
+                    }
+
+                    return (
+                      <Button
+                        key={pageNum}
+                        variant={
+                          currentPage === pageNum ? "default" : "outline"
+                        }
+                        size="lg"
+                        onClick={() => setCurrentPage(pageNum)}
+                        className={`w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2 font-semibold ${
+                          currentPage === pageNum
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "hover:bg-muted"
+                        }`}
+                      >
+                        {pageNum}
+                      </Button>
+                    );
                   })}
-                </span>
+                </div>
+
+                {/* Next Button */}
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="lg"
                   disabled={currentPage === totalPages}
                   onClick={() =>
                     setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                   }
-                  className={`${isRTL ? "flex-row-reverse" : ""}`}
+                  className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
                 >
-                  {t("search.pagination.next")}
                   <ChevronRight
-                    className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`}
+                    className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
                   />
                 </Button>
               </div>

@@ -9,8 +9,6 @@ import {
   Star,
   ArrowLeft,
   ArrowRight,
-  Heart,
-  ShoppingCart,
   Clock,
   Shield,
   Users,
@@ -22,6 +20,7 @@ import {
   Zap,
   Crown,
   Timer,
+  MessageCircle,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, use } from "react";
@@ -325,8 +324,6 @@ export default function ServicePage({ params }: ServicePageProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [subscriptionPeriod, setSubscriptionPeriod] = useState("1year");
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   // Unwrap params using React.use()
   const resolvedParams = use(params);
@@ -363,19 +360,6 @@ export default function ServicePage({ params }: ServicePageProps) {
     subscriptionPeriod === "2years" ? twoYearPrice : yearlyPrice;
   const savings =
     subscriptionPeriod === "2years" ? twoYearPrice - twoYearDiscountedPrice : 0;
-
-  const handleAddToCart = () => {
-    setIsAddingToCart(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsAddingToCart(false);
-      // Here you would typically add to cart logic
-    }, 1500);
-  };
-
-  const handleToggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-  };
 
   // If service doesn't exist, show 404-like message
   if (!serviceData || typeof serviceData !== "object") {
@@ -788,33 +772,10 @@ export default function ServicePage({ params }: ServicePageProps) {
                   />
                 </div>
 
-                {/* Action Buttons */}
-                <div
-                  className={`flex flex-col sm:flex-row gap-4 ${isRTL ? "sm:flex-row-reverse" : ""}`}
-                >
-                  <Button
-                    size="lg"
-                    className="flex-1 py-3"
-                    onClick={handleAddToCart}
-                    disabled={isAddingToCart}
-                  >
-                    <ShoppingCart className="w-5 h-5" />
-                    {isAddingToCart
-                      ? t("common.loading")
-                      : t("services.details.addToCart")}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="flex-1 py-3"
-                    onClick={handleToggleFavorite}
-                  >
-                    <Heart
-                      className={`w-5 h-5 ${isFavorite ? "fill-red-500 text-red-500" : ""}`}
-                    />
-                    {isFavorite
-                      ? t("services.details.removeFromFavorites")
-                      : t("services.details.addToFavorites")}
+                {/* Action Button */}
+                <div>
+                  <Button className="w-full !h-12">
+                    {t("services.details.contactUs")} <MessageCircle />
                   </Button>
                 </div>
               </div>

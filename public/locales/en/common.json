@@ -180,7 +180,7 @@
     "usersManagement": {
       "title": "Users Management",
       "description": "Manage user subscriptions and monitor activity",
-      "searchPlaceholder": "Search users...",
+      "searchPlaceholder": "Search users by name, email, phone...",
       "filters": {
         "allStatus": "All Status",
         "active": "Active",
@@ -190,6 +190,7 @@
       "table": {
         "headers": {
           "user": "USER",
+          "phone": "PHONE",
           "planCredits": "PLAN & CREDITS",
           "status": "STATUS",
           "expiry": "EXPIRY",
@@ -501,6 +502,22 @@
   "cookies": {
     "title": "Cookies Control",
     "description": "Manage your website cookies and user sessions.",
+    "addCookie": {
+      "title": "Add Cookie",
+      "description": "Upload a new cookie file to manage website sessions",
+      "button": "Add Cookie",
+      "dialog": {
+        "title": "Add New Cookie",
+        "description": "Upload a cookie file to add to your collection",
+        "dragAndDrop": {
+          "title": "Drag and drop your cookie file here",
+          "subtitle": "or click to browse files",
+          "supportedFormats": "Supported formats: .txt, .json, .cookie"
+        },
+        "uploading": "Uploading...",
+        "upload": "Upload Cookie"
+      }
+    },
     "fields": {
       "username": "Username",
       "credit": "Credit",
@@ -560,6 +577,10 @@
         "label": "Email Address",
         "placeholder": "Enter your email address"
       },
+      "phone": {
+        "label": "Phone Number",
+        "placeholder": "Enter your phone number"
+      },
       "password": {
         "label": "Password",
         "placeholder": "Create a strong password"
@@ -582,6 +603,8 @@
       "lastNameRequired": "Last name is required",
       "emailRequired": "Email address is required",
       "invalidEmail": "Please enter a valid email address",
+      "phoneRequired": "Phone number is required",
+      "invalidPhone": "Please enter a valid phone number",
       "passwordRequired": "Password is required",
       "passwordTooShort": "Password must be at least 8 characters long",
       "passwordWeak": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
@@ -653,8 +676,7 @@
       "salesTime": "Sales Time",
       "subscriptionPeriod": "Subscription Period",
       "quantity": "Quantity",
-      "addToCart": "Add to Cart",
-      "addToFavorites": "Add to Favorites",
+      "contactUs": "Contact Us",
       "removeFromFavorites": "Remove from Favorites",
       "subscriptionOptions": {
         "1year": "1 Year",

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { Trash2, Menu, Cookie } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Trash2, Menu, Cookie, Plus, Upload, FileText } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,8 +14,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Sidebar } from "@/components/sidebar";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -31,7 +39,7 @@ const mockCookies = [
     username: "user1",
     credit: 100,
     lastUpdate: "2025-05-01",
-    status: "Yes",
+    status: true,
     icon: "B",
     iconColor: "bg-gray-800",
   },
@@ -41,7 +49,7 @@ const mockCookies = [
     username: "user2",
     credit: 200,
     lastUpdate: "2025-05-02",
-    status: "No",
+    status: false,
     icon: "F",
     iconColor: "bg-blue-500",
   },
@@ -51,7 +59,7 @@ const mockCookies = [
     username: "user3",
     credit: 300,
     lastUpdate: "2025-05-03",
-    status: "Yes",
+    status: true,
     icon: "G",
     iconColor: "bg-gray-600",
   },
@@ -61,7 +69,7 @@ const mockCookies = [
     username: "user4",
     credit: 400,
     lastUpdate: "2025-05-04",
-    status: "No",
+    status: false,
     icon: "G",
     iconColor: "bg-gray-600",
   },
@@ -71,7 +79,7 @@ const mockCookies = [
     username: "user5",
     credit: 500,
     lastUpdate: "2025-05-05",
-    status: "Yes",
+    status: true,
     icon: "B",
     iconColor: "bg-gray-800",
   },
@@ -81,7 +89,7 @@ const mockCookies = [
     username: "user6",
     credit: 600,
     lastUpdate: "2025-05-06",
-    status: "No",
+    status: false,
     icon: "F",
     iconColor: "bg-blue-500",
   },
@@ -129,9 +137,14 @@ function CookiesPageSkeleton({ isRTL }: { isRTL: boolean }) {
         className={`flex-1 ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
       >
         {/* Page Header Skeleton */}
-        <div className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
-          <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-5 w-96" />
+        <div
+          className={`flex ${isRTL ? "sm:flex-row" : "sm:flex-row"} flex-col sm:items-center justify-between gap-4`}
+        >
+          <div className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
+            <Skeleton className="h-8 w-64" />
+            <Skeleton className="h-5 w-96" />
+          </div>
+          <Skeleton className="h-10 w-32 shrink-0" />
         </div>
 
         {/* Cookies Grid Skeleton */}
@@ -182,6 +195,11 @@ export default function CookiesPage() {
   const [cookies, setCookies] = useState(mockCookies);
   const [deletingCookieId, setDeletingCookieId] = useState<number | null>(null);
   const [isCookiesLoading, setIsCookiesLoading] = useState(true);
+  const [isAddCookieDialogOpen, setIsAddCookieDialogOpen] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Simulate cookies data loading
   useEffect(() => {
@@ -199,6 +217,70 @@ export default function CookiesPage() {
       setCookies(cookies.filter((cookie) => cookie.id !== cookieId));
       setDeletingCookieId(null);
     }, 1500);
+  };
+
+  const handleStatusToggle = (cookieId: number) => {
+    setCookies(
+      cookies.map((cookie) =>
+        cookie.id === cookieId ? { ...cookie, status: !cookie.status } : cookie
+      )
+    );
+  };
+
+  const handleFileSelect = (file: File) => {
+    setSelectedFile(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFileSelect(files[0]);
+    }
+  };
+
+  const handleUploadCookie = () => {
+    if (!selectedFile) return;
+
+    setIsUploading(true);
+
+    // Simulate upload
+    setTimeout(() => {
+      // Add new cookie to the list
+      const newCookie = {
+        id: cookies.length + 1,
+        domain: selectedFile.name.replace(/\.[^/.]+$/, "") + ".com",
+        username: "newuser",
+        credit: 0,
+        lastUpdate: new Date().toISOString().split("T")[0],
+        status: true,
+        icon: selectedFile.name.charAt(0).toUpperCase(),
+        iconColor: "bg-primary",
+      };
+
+      setCookies([...cookies, newCookie]);
+      setIsUploading(false);
+      setSelectedFile(null);
+      setIsAddCookieDialogOpen(false);
+    }, 2000);
   };
 
   // Show loading skeleton while language data or cookies data is loading
@@ -247,17 +329,146 @@ export default function CookiesPage() {
         className={`flex-1 ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
       >
         {/* Page Header */}
-        <div className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
-          <h1
-            className={`text-2xl sm:text-3xl font-bold text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+        <div
+          className={`flex ${isRTL ? "sm:flex-row" : "sm:flex-row"} flex-col sm:items-center justify-between gap-4`}
+        >
+          <div className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
+            <h1
+              className={`text-2xl sm:text-3xl font-bold text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+            >
+              {t("cookies.title")}
+            </h1>
+            <p
+              className={`text-muted-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+            >
+              {t("cookies.description")}
+            </p>
+          </div>
+
+          {/* Add Cookie Button */}
+          <Dialog
+            open={isAddCookieDialogOpen}
+            onOpenChange={setIsAddCookieDialogOpen}
           >
-            {t("cookies.title")}
-          </h1>
-          <p
-            className={`text-muted-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
-          >
-            {t("cookies.description")}
-          </p>
+            <DialogTrigger asChild>
+              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0">
+                <Plus className="w-4 h-4 stroke-3" />
+                {t("cookies.addCookie.button")}
+              </Button>
+            </DialogTrigger>
+            <DialogContent
+              className={`sm:max-w-[500px] ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
+            >
+              <DialogHeader className={`${isRTL && "sm:text-right"}`}>
+                <DialogTitle className={isRTL ? "font-tajawal" : "font-sans"}>
+                  {t("cookies.addCookie.dialog.title")}
+                </DialogTitle>
+                <DialogDescription
+                  className={isRTL ? "font-tajawal" : "font-sans"}
+                >
+                  {t("cookies.addCookie.dialog.description")}
+                </DialogDescription>
+              </DialogHeader>
+
+              {/* Drag and Drop Area */}
+              <div className="space-y-4">
+                <div
+                  className={`relative border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                    isDragOver
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".txt,.json,.cookie"
+                    onChange={handleFileInputChange}
+                    className="hidden"
+                  />
+
+                  <div className="space-y-4">
+                    <div className="mx-auto w-12 h-12 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                      <Upload className="w-6 h-6 text-primary" />
+                    </div>
+
+                    <div className="space-y-2">
+                      <h3
+                        className={`text-lg font-semibold text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                      >
+                        {t("cookies.addCookie.dialog.dragAndDrop.title")}
+                      </h3>
+                      <p
+                        className={`text-sm text-muted-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                      >
+                        {t("cookies.addCookie.dialog.dragAndDrop.subtitle")}
+                      </p>
+                      <p
+                        className={`text-xs text-muted-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                      >
+                        {t(
+                          "cookies.addCookie.dialog.dragAndDrop.supportedFormats"
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Selected File Display */}
+                {selectedFile && (
+                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                    <FileText className="w-5 h-5 text-primary" />
+                    <div className="flex-1">
+                      <p
+                        className={`text-sm font-medium text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                      >
+                        {selectedFile.name}
+                      </p>
+                      <p
+                        className={`text-xs text-muted-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                      >
+                        {(selectedFile.size / 1024).toFixed(1)} KB
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter className={isRTL ? "flex-row-reverse" : ""}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsAddCookieDialogOpen(false)}
+                  disabled={isUploading}
+                  className={isRTL ? "font-tajawal" : "font-sans"}
+                >
+                  {t("common.cancel")}
+                </Button>
+                <Button
+                  type="button"
+                  onClick={handleUploadCookie}
+                  disabled={!selectedFile || isUploading}
+                  className={`bg-primary hover:bg-primary/90 text-primary-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                >
+                  {isUploading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      {t("cookies.addCookie.dialog.uploading")}
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4" />
+                      {t("cookies.addCookie.dialog.upload")}
+                    </>
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Cookies Grid */}
@@ -359,8 +570,10 @@ export default function CookiesPage() {
                   </h3>
                 </div>
 
-                <div className={`absolute -top-24 opacity-10 group-hover:opacity-20 transition-opacity duration-300 ${isRTL ? "-left-8" : "-right-8"}`}>
-                  <Cookie className="w-28 h-28 text-orange-500 transform rotate-12"/>
+                <div
+                  className={`absolute -top-24 opacity-10 group-hover:opacity-20 transition-opacity duration-300 ${isRTL ? "-left-8" : "-right-8"}`}
+                >
+                  <Cookie className="w-28 h-28 text-orange-500 transform rotate-12" />
                 </div>
 
                 {/* Cookie Details */}
@@ -415,20 +628,38 @@ export default function CookiesPage() {
                     >
                       {t("cookies.fields.status")}:
                     </span>
-                    <Badge
-                      variant={
-                        cookie.status === "Yes" ? "default" : "secondary"
-                      }
-                      className={`${isRTL ? "text-sm font-tajawal" : "text-xs font-sans"} ${
-                        cookie.status === "Yes"
-                          ? "bg-green-500 hover:bg-green-500 text-white border-green-500"
-                          : "bg-red-500 hover:bg-red-500 text-white border-red-500"
-                      }`}
-                    >
-                      {cookie.status === "Yes"
-                        ? t("cookies.status.active")
-                        : t("cookies.status.inactive")}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`text-xs ${isRTL ? "font-tajawal" : "font-sans"} ${
+                          cookie.status ? "text-green-600" : "text-red-600"
+                        }`}
+                      >
+                        {cookie.status
+                          ? t("cookies.status.active")
+                          : t("cookies.status.inactive")}
+                      </span>
+                      {/* Native Switch Button */}
+                      <button
+                        onClick={() => handleStatusToggle(cookie.id)}
+                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
+                          cookie.status ? "bg-green-500" : "bg-red-500"
+                        }`}
+                        role="switch"
+                        aria-checked={cookie.status}
+                      >
+                        <span
+                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                            isRTL
+                              ? cookie.status
+                                ? "-translate-x-1"
+                                : "-translate-x-5"
+                              : cookie.status
+                                ? "translate-x-5"
+                                : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

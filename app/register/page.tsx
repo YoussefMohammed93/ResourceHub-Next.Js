@@ -5,6 +5,7 @@ import {
   EyeOff,
   User,
   Mail,
+  Phone,
   Lock,
   CheckCircle,
   Loader2,
@@ -51,6 +52,12 @@ const validateEmail = (email: string) => {
   return emailRegex.test(email);
 };
 
+// Phone validation function
+const validatePhone = (phone: string) => {
+  const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+  return phoneRegex.test(phone.replace(/[\s\-\(\)]/g, ""));
+};
+
 // Password strength validation
 const validatePassword = (password: string) => {
   const hasUpperCase = /[A-Z]/.test(password);
@@ -76,6 +83,7 @@ export default function RegisterPage() {
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
@@ -86,6 +94,7 @@ export default function RegisterPage() {
     firstName: "",
     lastName: "",
     email: "",
+    phone: "",
     password: "",
     confirmPassword: "",
     terms: "",
@@ -112,6 +121,7 @@ export default function RegisterPage() {
       firstName: "",
       lastName: "",
       email: "",
+      phone: "",
       password: "",
       confirmPassword: "",
       terms: "",
@@ -132,6 +142,13 @@ export default function RegisterPage() {
       newErrors.email = t("register.validation.emailRequired");
     } else if (!validateEmail(formData.email)) {
       newErrors.email = t("register.validation.invalidEmail");
+    }
+
+    // Phone validation
+    if (!formData.phone.trim()) {
+      newErrors.phone = t("register.validation.phoneRequired");
+    } else if (!validatePhone(formData.phone)) {
+      newErrors.phone = t("register.validation.invalidPhone");
     }
 
     // Password validation
@@ -596,6 +613,33 @@ export default function RegisterPage() {
                       className={`text-sm text-destructive ${isRTL ? "text-right" : "text-left"}`}
                     >
                       {errors.email}
+                    </p>
+                  )}
+                </div>
+
+                {/* Phone Number */}
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="phone"
+                    className={isRTL ? "text-right" : "text-left"}
+                  >
+                    <Phone className="w-4 h-4 inline" />
+                    {t("register.form.phone.label")}
+                  </Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder={t("register.form.phone.placeholder")}
+                    value={formData.phone}
+                    onChange={(e) => handleInputChange("phone", e.target.value)}
+                    className={`${isRTL ? "text-right" : "text-left"} ${errors.phone ? "border-destructive" : ""}`}
+                    dir={isRTL ? "rtl" : "ltr"}
+                  />
+                  {errors.phone && (
+                    <p
+                      className={`text-sm text-destructive ${isRTL ? "text-right" : "text-left"}`}
+                    >
+                      {errors.phone}
                     </p>
                   )}
                 </div>

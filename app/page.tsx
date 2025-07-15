@@ -139,10 +139,10 @@ export default function HomePage() {
       <div className="min-h-screen bg-background font-sans">
         <HeaderSkeleton />
         <HeroSkeleton />
-        <FeaturesSkeleton />
-        <CategoriesSkeleton />
         <SupportedPlatformsSkeleton />
         <PricingSkeleton />
+        <CategoriesSkeleton />
+        <FeaturesSkeleton />
         <FooterSkeleton />
       </div>
     );
@@ -522,7 +522,7 @@ export default function HomePage() {
                         setSearchQuery(term);
                         window.location.href = `/search?q=${encodeURIComponent(term)}`;
                       }}
-                      className="px-3 py-2 cursor-pointer bg-background dark:bg-background/20 dark:hover:bg-primary hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors"
+                      className="px-4 py-4 text-sm cursor-pointer bg-background dark:bg-background/20 dark:hover:bg-primary hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors"
                     >
                       {term}
                     </Badge>
@@ -579,287 +579,6 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-      </section>
-      {/* Features Section */}
-      {isLoading ? (
-        <FeaturesSkeleton />
-      ) : (
-        <section className="py-16 lg:py-20 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
-          <div className="container mx-auto max-w-7xl px-5 relative z-10">
-            {/* Section Header */}
-            <div className="text-center mb-12 lg:mb-16">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
-                {t("features.title")}{" "}
-                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                  {t("features.titleHighlight")}
-                </span>
-              </h2>
-              <p
-                className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
-              >
-                {t("features.description")}
-              </p>
-            </div>
-            {/* Features Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
-              {/* Feature 1 - High Quality Resources */}
-              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-                {/* Hover effect overlay - diagonal sweep */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-                <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                    <Star className="w-7 h-7 text-primary" />
-                  </div>
-                  {/* Content */}
-                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                    {t("features.premiumQuality.title")}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                    {t("features.premiumQuality.description")}
-                  </p>
-                </div>
-              </div>
-              {/* Feature 2 - Fast Downloads */}
-              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-                {/* Hover effect overlay - diagonal sweep */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-                <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                    <Download className="w-7 h-7 text-primary" />
-                  </div>
-                  {/* Content */}
-                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                    {t("features.instantDownloads.title")}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                    {t("features.instantDownloads.description")}
-                  </p>
-                </div>
-              </div>
-              {/* Feature 3 - Multiple Platforms */}
-              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-                {/* Hover effect overlay - diagonal sweep */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-                <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                    <Globe className="w-7 h-7 text-primary" />
-                  </div>
-                  {/* Content */}
-                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                    {t("features.allPlatforms.title")}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                    {t("features.allPlatforms.description")}
-                  </p>
-                </div>
-              </div>
-              {/* Feature 4 - Secure & Safe */}
-              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-                {/* Hover effect overlay - diagonal sweep */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-                <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                    <Shield className="w-7 h-7 text-primary" />
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                    {t("features.secureAndSafe.title")}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                    {t("features.secureAndSafe.description")}
-                  </p>
-                </div>
-              </div>
-              {/* Feature 5 - 24/7 Support */}
-              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-                {/* Hover effect overlay - diagonal sweep */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-                <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                    <Users className="w-7 h-7 text-primary" />
-                  </div>
-                  {/* Content */}
-                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                    {t("features.support24.title")}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                    {t("features.support24.description")}
-                  </p>
-                </div>
-              </div>
-              {/* Feature 6 - Easy to Use */}
-              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
-                {/* Hover effect overlay - diagonal sweep */}
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-                <div className="relative z-10">
-                  {/* Icon */}
-                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
-                    <Sparkles className="w-7 h-7 text-primary" />
-                  </div>
-                  {/* Content */}
-                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
-                    {t("features.easyToUse.title")}
-                  </h3>
-                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
-                    {t("features.easyToUse.description")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-      {/* Categories Section */}
-      <section className="py-12 pb-16 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-10">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
-              {t("categories.title")}{" "}
-              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                {t("categories.titleHighlight")}
-              </span>
-            </h2>
-            <p
-              className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
-            >
-              {t("categories.description")}
-            </p>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-w-5xl mx-auto">
-            {categoryKeys.map((categoryKey, index) => {
-              const categoryName = t(`categories.items.${categoryKey}`);
-              // Function to render appropriate icon for each category
-              const renderCategoryIcon = () => {
-                switch (categoryKey) {
-                  case "art":
-                    return <Cat className="w-8 h-8 text-primary" />;
-                  case "nature":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                        />
-                      </svg>
-                    );
-                  case "business":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                        />
-                      </svg>
-                    );
-                  case "technology":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-                        />
-                      </svg>
-                    );
-                  case "travel":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    );
-                  case "sports":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-                      </svg>
-                    );
-                  default:
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                        />
-                      </svg>
-                    );
-                }
-              };
-              return (
-                <div
-                  key={index}
-                  onClick={() => {
-                    window.location.href = `/search?q=${encodeURIComponent(categoryName)}`;
-                  }}
-                  className="group relative dark:bg-card bg-background/50 shadow-2xs backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col items-center text-center"
-                >
-                  {/* Category icon */}
-                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    {renderCategoryIcon()}
-                  </div>
-
-                  <h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors">
-                    {categoryName}
-                  </h3>
-                  {/* Hover effect overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </div>
-              );
-            })}
           </div>
         </div>
       </section>
@@ -1567,6 +1286,287 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      {/* Categories Section */}
+      <section className="py-12 pb-16 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-10">
+            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
+              {t("categories.title")}{" "}
+              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                {t("categories.titleHighlight")}
+              </span>
+            </h2>
+            <p
+              className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+            >
+              {t("categories.description")}
+            </p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-w-5xl mx-auto">
+            {categoryKeys.map((categoryKey, index) => {
+              const categoryName = t(`categories.items.${categoryKey}`);
+              // Function to render appropriate icon for each category
+              const renderCategoryIcon = () => {
+                switch (categoryKey) {
+                  case "art":
+                    return <Cat className="w-8 h-8 text-primary" />;
+                  case "nature":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
+                        />
+                      </svg>
+                    );
+                  case "business":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                        />
+                      </svg>
+                    );
+                  case "technology":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
+                        />
+                      </svg>
+                    );
+                  case "travel":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                    );
+                  case "sports":
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M13 10V3L4 14h7v7l9-11h-7z"
+                        />
+                      </svg>
+                    );
+                  default:
+                    return (
+                      <svg
+                        className="w-8 h-8 text-primary"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
+                        />
+                      </svg>
+                    );
+                }
+              };
+              return (
+                <div
+                  key={index}
+                  onClick={() => {
+                    window.location.href = `/search?q=${encodeURIComponent(categoryName)}`;
+                  }}
+                  className="group relative dark:bg-card bg-background/50 shadow-2xs backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col items-center text-center"
+                >
+                  {/* Category icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                    {renderCategoryIcon()}
+                  </div>
+
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors">
+                    {categoryName}
+                  </h3>
+                  {/* Hover effect overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+      {/* Features Section */}
+      {isLoading ? (
+        <FeaturesSkeleton />
+      ) : (
+        <section className="py-16 lg:py-20 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
+          <div className="container mx-auto max-w-7xl px-5 relative z-10">
+            {/* Section Header */}
+            <div className="text-center mb-12 lg:mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
+                {t("features.title")}{" "}
+                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  {t("features.titleHighlight")}
+                </span>
+              </h2>
+              <p
+                className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+              >
+                {t("features.description")}
+              </p>
+            </div>
+            {/* Features Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8">
+              {/* Feature 1 - High Quality Resources */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Star className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.premiumQuality.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.premiumQuality.description")}
+                  </p>
+                </div>
+              </div>
+              {/* Feature 2 - Fast Downloads */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Download className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.instantDownloads.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.instantDownloads.description")}
+                  </p>
+                </div>
+              </div>
+              {/* Feature 3 - Multiple Platforms */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Globe className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.allPlatforms.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.allPlatforms.description")}
+                  </p>
+                </div>
+              </div>
+              {/* Feature 4 - Secure & Safe */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Shield className="w-7 h-7 text-primary" />
+                  </div>
+
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.secureAndSafe.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.secureAndSafe.description")}
+                  </p>
+                </div>
+              </div>
+              {/* Feature 5 - 24/7 Support */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Users className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.support24.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.support24.description")}
+                  </p>
+                </div>
+              </div>
+              {/* Feature 6 - Easy to Use */}
+              <div className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 relative overflow-hidden">
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+                <div className="relative z-10">
+                  {/* Icon */}
+                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-125 transition-transform duration-150">
+                    <Sparkles className="w-7 h-7 text-primary" />
+                  </div>
+                  {/* Content */}
+                  <h3 className="text-xl lg:text-2xl font-semibold text-foreground mb-3 font-sans">
+                    {t("features.easyToUse.title")}
+                  </h3>
+                  <p className="text-muted-foreground leading-relaxed text-base lg:text-lg">
+                    {t("features.easyToUse.description")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
       {/* Footer */}
       <Footer />
     </div>
