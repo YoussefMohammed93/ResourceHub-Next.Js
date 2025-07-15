@@ -206,8 +206,8 @@ export function PricingSkeleton() {
             <Skeleton className="h-6 w-3/4 max-w-xl mx-auto" />
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
-          {Array.from({ length: 3 }, (_, i) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+          {Array.from({ length: 4 }, (_, i) => (
             <div
               key={i}
               className="bg-background dark:bg-muted/20 border border-border/50 rounded-2xl p-6 lg:p-8"
@@ -230,7 +230,7 @@ export function PricingSkeleton() {
                 {/* Plan Features */}
                 <div className="space-y-4">
                   <div className="space-y-3">
-                    {Array.from({ length: 3 }, (_, j) => (
+                    {Array.from({ length: 4 }, (_, j) => (
                       <div
                         key={j}
                         className="flex items-center justify-between"
@@ -243,7 +243,7 @@ export function PricingSkeleton() {
                   <div className="pt-4 border-t border-border">
                     <Skeleton className="h-5 w-32 mb-3" />
                     <div className="space-y-2">
-                      {Array.from({ length: 4 }, (_, j) => (
+                      {Array.from({ length: 5 }, (_, j) => (
                         <div key={j} className="flex items-center gap-2">
                           <Skeleton className="w-4 h-4 rounded-sm" />
                           <Skeleton className="h-4 w-full" />

@@ -756,7 +756,7 @@ export default function HomePage() {
       )}
       {/* Pricing Section */}
       <section className="py-16 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
-        <div className="container mx-auto max-w-7xl px-5 relative z-10">
+        <div className="px-5 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
               {t("pricing.title")}{" "}
@@ -770,7 +770,7 @@ export default function HomePage() {
               {t("pricing.description")}
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
             {/* Basic Plan */}
             <div className="group relative dark:bg-card bg-background backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
               {/* Hover effect overlay */}
@@ -1096,6 +1096,166 @@ export default function HomePage() {
               </div>
             </div>
             {/* Premium Plan */}
+            <div className="group relative dark:bg-card bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
+              {/* Hover effect overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="relative z-10 flex flex-col h-full space-y-6">
+                {/* Plan Header */}
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                      <Globe className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                        {t("pricing.premium.title")}
+                      </h3>
+                      <p
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.premium.subtitle")}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex items-baseline space-x-2">
+                      <span className="text-3xl font-bold text-foreground">
+                        {t("pricing.premium.price")}
+                      </span>
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg font-medium"}`}
+                      >
+                        /{t("common.month")}
+                      </span>
+                    </div>
+                    <p
+                      className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                    >
+                      {t("pricing.premium.priceSubtitle")}
+                    </p>
+                  </div>
+                </div>
+                {/* Plan Features */}
+                <div className="space-y-4 flex-1">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.labels.credits")}
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        <Coins className="w-4 h-4 text-primary" />
+                        <span
+                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                        >
+                          {t("pricing.premium.credits")}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span
+                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                      >
+                        {t("pricing.labels.validity")}
+                      </span>
+                      <div className="flex items-center space-x-1">
+                        <Timer className="w-4 h-4 text-primary" />
+                        <span
+                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                        >
+                          {t("pricing.premium.validity")}
+                        </span>
+                      </div>
+                    </div>
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
+                          <span
+                            className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                          >
+                            {t("pricing.labels.supportedSites")}
+                          </span>
+                          <span
+                            className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                          >
+                            {t("pricing.premium.supportedSites")}
+                          </span>
+                        </div>
+                      </DialogTrigger>
+                      <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle>
+                            {t("pricing.labels.supportedSitesDialog.title")} -{" "}
+                            {t("pricing.premium.title")}
+                          </DialogTitle>
+                          <DialogDescription>
+                            {t(
+                              "pricing.labels.supportedSitesDialog.description"
+                            )}
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+                          {supportedSites.premium.map((site) => (
+                            <div
+                              key={site.id}
+                              className="flex flex-col items-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                            >
+                              <Image
+                                src={site.icon}
+                                alt={`${site.name} icon`}
+                                width={96}
+                                height={96}
+                                className="w-24 h-24 rounded-lg mb-3 object-contain"
+                                onError={(e) => {
+                                  e.currentTarget.src =
+                                    "https://via.placeholder.com/96x96/6366f1/ffffff?text=" +
+                                    site.name.charAt(0);
+                                }}
+                              />
+                              <span className="text-sm font-medium text-foreground text-center">
+                                {site.name}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
+                  <div className="pt-4 border-t border-border">
+                    <h4
+                      className={`text-sm font-medium text-foreground mb-3 ${isRTL && "!text-lg"}`}
+                    >
+                      {t("pricing.labels.featuresIncluded")}
+                    </h4>
+                    <ul className="space-y-2">
+                      {(
+                        t("pricing.premium.features", {
+                          returnObjects: true,
+                        }) as string[]
+                      ).map((feature: string, index: number) => (
+                        <li key={index} className="flex items-center space-x-2">
+                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                          <span
+                            className={`text-sm text-muted-foreground  ${isRTL && "!text-base"}`}
+                          >
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+                {/* CTA Button - Now at bottom */}
+                <div className="mt-auto pt-4">
+                  <Button className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
+                    <Globe className="w-4 h-4" />
+                    {t("pricing.premium.button")}
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {/* Premium Plan 2 */}
             <div className="group relative dark:bg-card bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
               {/* Hover effect overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
