@@ -279,3 +279,13 @@
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
+
+/* Custom 1650px+ breakpoint styles */
+@media (min-width: 1650px) {
+  .platforms-grid-3xl {
+    grid-template-columns: repeat(11, minmax(0, 1fr));
+  }
+  .platforms-grid-3xl-home {
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+  }
+}

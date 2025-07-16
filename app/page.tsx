@@ -603,22 +603,22 @@ export default function HomePage() {
               </p>
             </div>
             {/* Platforms Grid - Modern Card Design */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-5 max-w-[1400px] mx-auto">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 platforms-grid-3xl-home gap-1 sm:gap-2 max-w-[1800px] mx-auto">
               {/* Freepik Card 1 */}
-              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="flex items-center justify-center gap-2">
+                <div className="w-fit flex items-center justify-center   gap-2">
                   <Image
                     src="/freepik-small.png"
                     alt={t("supportedPlatforms.platforms.freepik")}
-                    width={32}
-                    height={32}
+                    width={20}
+                    height={20}
                     className="object-contain hidden md:block"
                   />
                   <Image
                     src="/freepik-big.png"
                     alt=""
-                    width={90}
+                    width={80}
                     height={100}
                     className="object-cover rounded-2xl"
                   />
@@ -626,20 +626,20 @@ export default function HomePage() {
               </div>
 
               {/* Shutterstock Card 1 */}
-              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="flex items-center justify-center gap-2">
+                <div className="w-fit flex items-center justify-center gap-2">
                   <Image
                     src="/shutterstock-small.webp"
                     alt={t("supportedPlatforms.platforms.shutterstock")}
-                    width={32}
-                    height={32}
+                    width={20}
+                    height={20}
                     className="object-contain hidden md:block"
                   />
                   <Image
                     src="/shutterstock-big.png"
                     alt=""
-                    width={90}
+                    width={80}
                     height={100}
                     className="object-cover rounded-2xl"
                   />
@@ -647,20 +647,20 @@ export default function HomePage() {
               </div>
 
               {/* Freepik Card 2 */}
-              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="flex items-center justify-center gap-2">
+                <div className="w-fit flex items-center justify-center gap-2">
                   <Image
                     src="/freepik-small.png"
                     alt={t("supportedPlatforms.platforms.freepik")}
-                    width={32}
-                    height={32}
+                    width={20}
+                    height={20}
                     className="object-contain hidden md:block"
                   />
                   <Image
                     src="/freepik-big.png"
                     alt=""
-                    width={90}
+                    width={80}
                     height={100}
                     className="object-cover rounded-2xl"
                   />
@@ -668,20 +668,20 @@ export default function HomePage() {
               </div>
 
               {/* Shutterstock Card 2 */}
-              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="flex items-center justify-center gap-2">
+                <div className="w-fit flex items-center justify-center gap-2">
                   <Image
                     src="/shutterstock-small.webp"
                     alt={t("supportedPlatforms.platforms.shutterstock")}
-                    width={32}
-                    height={32}
+                    width={20}
+                    height={20}
                     className="object-contain hidden md:block"
                   />
                   <Image
                     src="/shutterstock-big.png"
                     alt=""
-                    width={90}
+                    width={80}
                     height={100}
                     className="object-cover rounded-2xl"
                   />
@@ -689,20 +689,20 @@ export default function HomePage() {
               </div>
 
               {/* Freepik Card 3 */}
-              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="flex items-center justify-center gap-2">
+                <div className="w-fit flex items-center justify-center gap-2">
                   <Image
                     src="/freepik-small.png"
                     alt={t("supportedPlatforms.platforms.freepik")}
-                    width={32}
-                    height={32}
+                    width={20}
+                    height={20}
                     className="object-contain hidden md:block"
                   />
                   <Image
                     src="/freepik-big.png"
                     alt=""
-                    width={90}
+                    width={80}
                     height={100}
                     className="object-cover rounded-2xl"
                   />
@@ -710,20 +710,20 @@ export default function HomePage() {
               </div>
 
               {/* Shutterstock Card 3 */}
-              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="flex items-center justify-center gap-2">
+                <div className="w-fit flex items-center justify-center gap-2">
                   <Image
                     src="/shutterstock-small.webp"
                     alt={t("supportedPlatforms.platforms.shutterstock")}
-                    width={32}
-                    height={32}
+                    width={20}
+                    height={20}
                     className="object-contain hidden md:block"
                   />
                   <Image
                     src="/shutterstock-big.png"
                     alt=""
-                    width={90}
+                    width={80}
                     height={100}
                     className="object-cover rounded-2xl"
                   />
@@ -731,20 +731,20 @@ export default function HomePage() {
               </div>
 
               {/* Freepik Card 4 */}
-              <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="flex items-center justify-center gap-2">
+                <div className="w-fit flex items-center justify-center gap-2">
                   <Image
                     src="/freepik-small.png"
                     alt={t("supportedPlatforms.platforms.freepik")}
-                    width={32}
-                    height={32}
+                    width={20}
+                    height={20}
                     className="object-contain hidden md:block"
                   />
                   <Image
                     src="/freepik-big.png"
                     alt=""
-                    width={90}
+                    width={80}
                     height={100}
                     className="object-cover rounded-2xl"
                   />

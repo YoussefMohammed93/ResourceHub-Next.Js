@@ -349,7 +349,7 @@ function SearchContent() {
     >
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="px-4 sm:px-5 mx-auto max-w-[1600px]">
+        <div className="px-4 sm:px-5 mx-auto max-w-[1600px] search-container-3xl">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Mobile Menu Button */}
             <div
@@ -390,7 +390,7 @@ function SearchContent() {
         {/* Sidebar - Filters - Fixed position always */}
         <aside
           className={`
-          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
+          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 sidebar-3xl h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
           ${isSidebarOpen ? "translate-x-0" : `${isRTL ? "translate-x-full" : "-translate-x-full"} lg:translate-x-0`}
         `}
         >
@@ -514,7 +514,7 @@ function SearchContent() {
 
         {/* Main Content - 9 columns on desktop, full width on mobile */}
         <main
-          className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/15 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-96" : "lg:ml-96"}`}
+          className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/15 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-96 main-content-3xl rtl" : "lg:ml-96 main-content-3xl"}`}
         >
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-80"></div>
@@ -730,10 +730,10 @@ function SearchContent() {
           </div>
 
           <div className="relative z-10 p-4 sm:p-6 space-y-6">
-            <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center max-w-3xl mx-auto">
+            <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center max-w-3xl mx-auto search-container-3xl search-section-3xl">
               {/* Search Bar - Centered */}
               <div className="flex justify-center w-full sm:w-3/4">
-                <div className="w-full max-w-2xl">
+                <div className="w-full max-w-2xl search-bar-3xl">
                   <div className="relative">
                     <Search
                       className={`absolute ${isRTL ? "right-4" : "left-4"} top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5`}
@@ -813,22 +813,22 @@ function SearchContent() {
 
             <div className="relative z-10">
               {/* Platforms Grid - Modern Card Design */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-5">
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 platforms-grid-3xl gap-1 sm:gap-2">
                 {/* Freepik Card 1 */}
-                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="w-fit flex items-center justify-center gap-2">
                     <Image
                       src="/freepik-small.png"
                       alt={t("supportedPlatforms.platforms.freepik")}
-                      width={32}
-                      height={32}
+                      width={20}
+                      height={20}
                       className="object-contain hidden md:block"
                     />
                     <Image
                       src="/freepik-big.png"
                       alt=""
-                      width={90}
+                      width={80}
                       height={100}
                       className="object-cover rounded-2xl"
                     />
@@ -836,20 +836,20 @@ function SearchContent() {
                 </div>
 
                 {/* Shutterstock Card 1 */}
-                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="w-fit flex items-center justify-center gap-2">
                     <Image
                       src="/shutterstock-small.webp"
                       alt={t("supportedPlatforms.platforms.shutterstock")}
-                      width={32}
-                      height={32}
+                      width={20}
+                      height={20}
                       className="object-contain hidden md:block"
                     />
                     <Image
                       src="/shutterstock-big.png"
                       alt=""
-                      width={90}
+                      width={80}
                       height={100}
                       className="object-cover rounded-2xl"
                     />
@@ -857,20 +857,20 @@ function SearchContent() {
                 </div>
 
                 {/* Freepik Card 2 */}
-                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="w-fit flex items-center justify-center gap-2">
                     <Image
                       src="/freepik-small.png"
                       alt={t("supportedPlatforms.platforms.freepik")}
-                      width={32}
-                      height={32}
+                      width={20}
+                      height={20}
                       className="object-contain hidden md:block"
                     />
                     <Image
                       src="/freepik-big.png"
                       alt=""
-                      width={90}
+                      width={80}
                       height={100}
                       className="object-cover rounded-2xl"
                     />
@@ -878,20 +878,20 @@ function SearchContent() {
                 </div>
 
                 {/* Shutterstock Card 2 */}
-                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="w-fit flex items-center justify-center gap-2">
                     <Image
                       src="/shutterstock-small.webp"
                       alt={t("supportedPlatforms.platforms.shutterstock")}
-                      width={32}
-                      height={32}
+                      width={20}
+                      height={20}
                       className="object-contain hidden md:block"
                     />
                     <Image
                       src="/shutterstock-big.png"
                       alt=""
-                      width={90}
+                      width={80}
                       height={100}
                       className="object-cover rounded-2xl"
                     />
@@ -899,20 +899,20 @@ function SearchContent() {
                 </div>
 
                 {/* Freepik Card 3 */}
-                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="w-fit flex items-center justify-center gap-2">
                     <Image
                       src="/freepik-small.png"
                       alt={t("supportedPlatforms.platforms.freepik")}
-                      width={32}
-                      height={32}
+                      width={20}
+                      height={20}
                       className="object-contain hidden md:block"
                     />
                     <Image
                       src="/freepik-big.png"
                       alt=""
-                      width={90}
+                      width={80}
                       height={100}
                       className="object-cover rounded-2xl"
                     />
@@ -920,20 +920,20 @@ function SearchContent() {
                 </div>
 
                 {/* Shutterstock Card 3 */}
-                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="w-fit flex items-center justify-center gap-2">
                     <Image
                       src="/shutterstock-small.webp"
                       alt={t("supportedPlatforms.platforms.shutterstock")}
-                      width={32}
-                      height={32}
+                      width={20}
+                      height={20}
                       className="object-contain hidden md:block"
                     />
                     <Image
                       src="/shutterstock-big.png"
                       alt=""
-                      width={90}
+                      width={80}
                       height={100}
                       className="object-cover rounded-2xl"
                     />
@@ -941,21 +941,21 @@ function SearchContent() {
                 </div>
 
                 {/* Freepik Card 4 */}
-                <div className="group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
+                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
                   <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="w-fit flex items-center justify-center gap-2">
                     <Image
                       src="/freepik-small.png"
                       alt={t("supportedPlatforms.platforms.freepik")}
-                      width={32}
-                      height={32}
+                      width={20}
+                      height={20}
                       className="object-contain hidden md:block"
                     />
                     <Image
                       src="/freepik-big.png"
                       alt=""
-                      width={90}
-                      height={100}
+                      width={80}
+                      height={120}
                       className="object-cover rounded-2xl"
                     />
                   </div>
@@ -1010,7 +1010,7 @@ function SearchContent() {
             </div>
 
             {/* Results Grid - Mobile: Grid (1 item per row), SM+: Flex with varied widths */}
-            <div className="space-y-4">
+            <div className="space-y-4 results-grid-3xl">
               {/* Mobile Layout - Grid with 1 column */}
               <div className="grid grid-cols-1 gap-4 sm:hidden">
                 {mockResults.map((result) => (
