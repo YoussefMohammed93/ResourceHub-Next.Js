@@ -238,11 +238,15 @@ function SearchContent() {
   // Show loading skeleton while language data is loading
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background font-sans">
+      <div
+        className={`min-h-screen bg-background font-sans ${isRTL ? "font-tajawal" : ""}`}
+      >
         <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="px-4 sm:px-5">
+          <div className="px-4 sm:px-5 mx-auto max-w-[1600px] search-container-3xl">
             <div className="flex items-center justify-between h-16">
-              <div className="flex items-center gap-1 sm:gap-2">
+              <div
+                className={`flex items-center gap-1 sm:gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+              >
                 {/* Mobile menu button skeleton */}
                 <Skeleton className="w-8 h-8 rounded-lg lg:hidden" />
                 <Skeleton className="w-8 h-8 rounded-lg" />
@@ -257,18 +261,20 @@ function SearchContent() {
           </div>
         </header>
 
-        <div className="relative bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 overflow-hidden">
-          {/* Background Pattern */}
-          <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
-
+        <div className="relative dark:bg-secondary">
           {/* Sidebar - Fixed position always */}
           <aside
-            className={`fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/20 via-primary/10 to-primary/25 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none ${isRTL ? "lg:border-l lg:border-r-0" : "lg:border-r lg:border-l-0"} ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
+            className={`
+            fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 sidebar-3xl h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
+            ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}
+          `}
           >
             <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto bg-gradient-to-b from-background/80 via-background/60 to-background/80 backdrop-blur-sm">
               {/* Providers Filter Skeleton */}
-              <div className="space-y-4 p-4 bg-muted/30">
-                <div className="flex items-center gap-3">
+              <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 border-b border-border">
+                <div
+                  className={`flex items-center gap-3 ${isRTL ? "flex-row" : ""}`}
+                >
                   <Skeleton className="w-9 h-9 rounded-lg" />
                   <Skeleton className="w-24 h-5" />
                   <Skeleton className="w-4 h-4 ml-auto" />
@@ -280,11 +286,11 @@ function SearchContent() {
                 </div>
               </div>
 
-              <Skeleton className="w-full h-px" />
-
               {/* File Type Filter Skeleton */}
-              <div className="space-y-4 p-4 bg-muted/30">
-                <div className="flex items-center gap-3">
+              <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30">
+                <div
+                  className={`flex items-center gap-3 ${isRTL ? "flex-row" : ""}`}
+                >
                   <Skeleton className="w-9 h-9 rounded-lg" />
                   <Skeleton className="w-20 h-5" />
                   <Skeleton className="w-4 h-4 ml-auto" />
@@ -298,29 +304,132 @@ function SearchContent() {
             </div>
           </aside>
 
-          {/* Main Content - Matches current layout */}
+          {/* Main Content - 9 columns on desktop, full width on mobile */}
           <main
-            className={`col-span-12 lg:col-span-9 min-w-0 bg-secondary/50 ${isRTL ? "lg:mr-96" : "lg:ml-96"}`}
+            className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/15 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-96 main-content-3xl rtl" : "lg:ml-96 main-content-3xl"}`}
           >
+            {/* Background Pattern */}
+            <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-80"></div>
+
+            {/* Floating Decorative Elements - Skeleton versions */}
+            <div
+              className={`absolute top-20 ${isRTL ? "right-5/12" : "left-5/12"} transform -translate-x-1/2 md:top-32`}
+            >
+              <Skeleton className="w-[120px] h-[120px] rounded-lg opacity-30" />
+            </div>
+
+            <div
+              className={`hidden md:block absolute top-1/3 ${isRTL ? "left-4 md:left-8" : "right-4 md:right-8"}`}
+            >
+              <Skeleton className="w-[100px] h-[120px] rounded-lg opacity-40" />
+            </div>
+
+            <div
+              className={`absolute bottom-32 ${isRTL ? "left-1/4" : "right-1/4"} transform translate-x-1/2`}
+            >
+              <Skeleton className="w-[80px] h-[80px] rounded-lg opacity-25" />
+            </div>
+
+            <div
+              className={`hidden lg:block absolute top-16 ${isRTL ? "left-1/4" : "right-1/4"}`}
+            >
+              <Skeleton className="w-[60px] h-[60px] rounded-lg opacity-35" />
+            </div>
+
+            {/* Floating Icon Skeletons */}
+            <div
+              className={`hidden md:block absolute top-8 ${isRTL ? "left-1/3 md:left-2/12" : "right-1/3 md:right-2/5"} md:top-12`}
+            >
+              <Skeleton className="w-10 h-10 rounded-lg" />
+            </div>
+
+            <div
+              className={`hidden sm:block absolute top-32 ${isRTL ? "right-20" : "left-20"}`}
+            >
+              <Skeleton className="w-10 h-10 rounded-lg" />
+            </div>
+
+            <div
+              className={`hidden md:block absolute top-64 ${isRTL ? "left-32" : "right-32"}`}
+            >
+              <Skeleton className="w-12 h-12 rounded-lg" />
+            </div>
+
+            <div
+              className={`hidden sm:block absolute bottom-40 ${isRTL ? "right-32" : "left-32"}`}
+            >
+              <Skeleton className="w-9 h-9 rounded-lg" />
+            </div>
+
+            <div
+              className={`hidden lg:block absolute top-1/2 ${isRTL ? "right-16" : "left-16"} transform -translate-y-1/2`}
+            >
+              <Skeleton className="w-8 h-8 rounded-lg" />
+            </div>
+
+            <div
+              className={`hidden md:block absolute top-1/3 ${isRTL ? "right-1/2" : "left-1/2"} transform -translate-x-1/2`}
+            >
+              <Skeleton className="w-10 h-10 rounded-lg" />
+            </div>
+
+            <div
+              className={`hidden md:block absolute top-40 ${isRTL ? "left-16" : "right-16"}`}
+            >
+              <Skeleton className="w-11 h-11 rounded-lg" />
+            </div>
+
+            <div
+              className={`hidden sm:block absolute bottom-20 ${isRTL ? "left-1/4" : "right-1/4"}`}
+            >
+              <Skeleton className="w-8 h-8 rounded-lg" />
+            </div>
+
+            <div
+              className={`hidden lg:block absolute bottom-32 ${isRTL ? "right-1/3" : "left-1/3"}`}
+            >
+              <Skeleton className="w-9 h-9 rounded-lg" />
+            </div>
+
+            <div
+              className={`hidden md:block absolute top-2 ${isRTL ? "right-5/8" : "left-5/8"}`}
+            >
+              <Skeleton className="w-10 h-10 rounded-lg" />
+            </div>
+
             <div className="relative z-10 p-4 sm:p-6 space-y-6">
-              <div className="flex flex-col gap-5 sm:flex-row">
-                {/* Search Bar */}
-                <div className="flex justify-center">
-                  <Skeleton className="w-full max-w-2xl h-12 rounded-xl bg-secondary" />
+              <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center max-w-3xl mx-auto search-container-3xl search-section-3xl">
+                {/* Search Bar - Centered */}
+                <div className="flex justify-center w-full sm:w-3/4">
+                  <div className="w-full max-w-2xl search-bar-3xl">
+                    <Skeleton className="w-full h-14 rounded-xl" />
+                  </div>
                 </div>
 
-                {/* Filter Section Skeleton */}
-                <div className="flex justify-center">
+                {/* Filter Section Behind Search Bar */}
+                <div className="flex justify-center w-full sm:w-1/4">
                   <div className="w-full max-w-md">
-                    <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
-                      <Skeleton className="w-full h-12 rounded" />
-                    </div>
+                    <Skeleton className="w-full h-14 rounded-xl" />
                   </div>
                 </div>
               </div>
 
+              <div className="relative z-10">
+                {/* Platforms Grid Skeleton - Modern Card Design */}
+                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 platforms-grid-3xl gap-1 sm:gap-2">
+                  {Array.from({ length: 7 }).map((_, i) => (
+                    <Skeleton
+                      key={i}
+                      className="w-full h-[45px] rounded-xl platform-card"
+                    />
+                  ))}
+                </div>
+              </div>
+
               {/* Suggestions */}
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-center space-x-3">
+              <div
+                className={`flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-center ${isRTL ? "space-x-reverse sm:space-x-3" : "space-x-3"}`}
+              >
                 <Skeleton className="w-24 h-4" />
                 <div className="grid place-content-center grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 w-fit">
                   {Array.from({ length: 4 }).map((_, i) => (
@@ -335,9 +444,9 @@ function SearchContent() {
                 <Skeleton className="w-80 h-4 mx-auto" />
               </div>
 
-              {/* Results Grid - Mobile: Single column, Desktop: Varied widths */}
-              <div className="space-y-4">
-                {/* Mobile Layout - Single column */}
+              {/* Results Grid - Mobile: Grid (1 item per row), SM+: Flex with varied widths */}
+              <div className="space-y-4 results-grid-3xl">
+                {/* Mobile Layout - Grid with 1 column */}
                 <div className="grid grid-cols-1 gap-4 sm:hidden">
                   {Array.from({ length: 6 }).map((_, i) => (
                     <Skeleton key={i} className="w-full h-64 rounded-lg" />
