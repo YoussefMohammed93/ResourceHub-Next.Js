@@ -660,6 +660,12 @@
       "defaultQuery": "البحث",
       "description": "يوجد أكثر من {{count}} صورة مخزنة ورسوم متجهة لـ {{query}}، استمتع!",
       "vectorsText": "رسوم متجهة"
+    },
+    "status": {
+      "online": "متصل",
+      "offline": "غير متصل",
+      "someProvidersOffline": "بعض مقدمي الخدمة غير متاحين حالياً",
+      "offlineProvidersMessage": "مقدمو الخدمة التالون غير متاحين مؤقتاً. قد تكون النتائج من هذه المصادر محدودة."
     }
   },
   "services": {

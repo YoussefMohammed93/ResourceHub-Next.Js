@@ -21,6 +21,8 @@ import {
   Zap,
   Camera,
   Palette,
+  AlertCircle,
+  WifiOff,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -47,6 +49,7 @@ interface Provider {
   name: string;
   logo: string;
   count: number;
+  isOnline: boolean;
 }
 
 interface SearchResult {
@@ -72,20 +75,64 @@ const providers = [
     name: "Shutterstock",
     logo: "/adobe.jpg",
     count: 1250,
+    isOnline: true,
   },
-  { id: "vexels", name: "Vexels", logo: "/nexus.png", count: 750 },
-  { id: "freepik", name: "Freepik", logo: "/shutterstock.png", count: 980 },
-  { id: "vectory", name: "Vectory", logo: "/freepik.webp", count: 620 },
-  { id: "ui8", name: "UI8", logo: "/raw.png", count: 450 },
-  { id: "rawpixel", name: "RawPixel", logo: "/shutterstock.png", count: 320 },
-  { id: "pngtree", name: "PNGTree", logo: "/freepik.webp", count: 380 },
-  { id: "pngtree", name: "PNGTree", logo: "/freepik.webp", count: 380 },
-  { id: "pngtree", name: "PNGTree", logo: "/freepik.webp", count: 380 },
+  {
+    id: "vexels",
+    name: "Vexels",
+    logo: "/nexus.png",
+    count: 750,
+    isOnline: false,
+  },
+  {
+    id: "freepik",
+    name: "Freepik",
+    logo: "/shutterstock.png",
+    count: 980,
+    isOnline: true,
+  },
+  {
+    id: "vectory",
+    name: "Vectory",
+    logo: "/freepik.webp",
+    count: 620,
+    isOnline: true,
+  },
+  { id: "ui8", name: "UI8", logo: "/raw.png", count: 450, isOnline: false },
+  {
+    id: "rawpixel",
+    name: "RawPixel",
+    logo: "/shutterstock.png",
+    count: 320,
+    isOnline: true,
+  },
+  {
+    id: "pngtree1",
+    name: "PNGTree",
+    logo: "/freepik.webp",
+    count: 380,
+    isOnline: true,
+  },
+  {
+    id: "pngtree2",
+    name: "PNGTree",
+    logo: "/freepik.webp",
+    count: 380,
+    isOnline: true,
+  },
+  {
+    id: "pngtree3",
+    name: "PNGTree",
+    logo: "/freepik.webp",
+    count: 380,
+    isOnline: true,
+  },
   {
     id: "adobestock",
     name: "Adobe Stock",
     logo: "/nexus.png",
     count: 280,
+    isOnline: false,
   },
 ];
 
@@ -432,27 +479,73 @@ function SearchContent() {
                 {providers.map((provider) => (
                   <div
                     key={provider.id}
-                    onClick={() => toggleProvider(provider.id)}
+                    onClick={() =>
+                      provider.isOnline && toggleProvider(provider.id)
+                    }
                     className={`
-                      w-full p-3 rounded-lg border cursor-pointer group dark:bg-muted/35
+                      w-full p-3 rounded-lg border group dark:bg-muted/35 relative
                       ${
-                        selectedProviders.includes(provider.id)
-                          ? "border-primary bg-primary/10 shadow-sm"
-                          : "border-border hover:border-primary/50 bg-background hover:bg-muted/50"
+                        !provider.isOnline
+                          ? "opacity-60 cursor-not-allowed border-border bg-muted/30"
+                          : selectedProviders.includes(provider.id)
+                            ? "border-primary bg-primary/10 shadow-sm cursor-pointer"
+                            : "border-border hover:border-primary/50 bg-background hover:bg-muted/50 cursor-pointer"
                       }
                     `}
                   >
-                    <Image
-                      src={provider.logo}
-                      alt={provider.name}
-                      width={150}
-                      height={56}
-                      className="w-full h-14 rounded object-cover group-hover:opacity-90 transition-opacity"
-                    />
+                    {/* Status Indicator */}
                     <div
-                      className={`mt-2 text-sm text-center text-muted-foreground group-hover:text-primary transition-colors ${selectedProviders.includes(provider.id) ? "text-primary hover:text-primary" : ""}`}
+                      className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} z-10`}
+                    >
+                      {provider.isOnline ? (
+                        <div
+                          className="w-3 h-3 bg-green-500 rounded-full border-2 border-background shadow-sm"
+                          title={t("search.status.online")}
+                        />
+                      ) : (
+                        <div
+                          className="w-3 h-3 bg-red-500 rounded-full border-2 border-background shadow-sm"
+                          title={t("search.status.offline")}
+                        />
+                      )}
+                    </div>
+
+                    <div
+                      className={`relative ${!provider.isOnline ? "grayscale" : ""}`}
+                    >
+                      <Image
+                        src={provider.logo}
+                        alt={provider.name}
+                        width={150}
+                        height={56}
+                        className={`w-full h-14 rounded object-cover transition-opacity ${
+                          provider.isOnline ? "group-hover:opacity-90" : ""
+                        }`}
+                      />
+
+                      {/* Offline Overlay */}
+                      {!provider.isOnline && (
+                        <div className="absolute inset-0 bg-black/20 rounded flex items-center justify-center">
+                          <WifiOff className="w-6 h-6 text-red-500" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div
+                      className={`mt-2 text-sm text-center transition-colors ${
+                        !provider.isOnline
+                          ? "text-muted-foreground/60"
+                          : selectedProviders.includes(provider.id)
+                            ? "text-primary hover:text-primary"
+                            : "text-muted-foreground group-hover:text-primary"
+                      }`}
                     >
                       {provider.count} {t("search.filters.items")}
+                      {!provider.isOnline && (
+                        <div className="text-xs text-red-500 mt-1">
+                          {t("search.status.offline")}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
@@ -1009,6 +1102,44 @@ function SearchContent() {
               </p>
             </div>
 
+            {/* Offline Providers Notification */}
+            {(() => {
+              const offlineProviders = providers.filter((p) => !p.isOnline);
+              if (offlineProviders.length > 0) {
+                return (
+                  <div className="max-w-4xl mx-auto">
+                    <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
+                      <div
+                        className={`flex items-start gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
+                      >
+                        <AlertCircle className="w-5 h-5 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                        <div className="flex-1">
+                          <h3 className="text-sm font-medium text-amber-800 dark:text-amber-200 mb-1">
+                            {t("search.status.someProvidersOffline")}
+                          </h3>
+                          <p className="text-sm text-amber-700 dark:text-amber-300 mb-2">
+                            {t("search.status.offlineProvidersMessage")}
+                          </p>
+                          <div className="flex flex-wrap gap-2">
+                            {offlineProviders.map((provider) => (
+                              <span
+                                key={provider.id}
+                                className="inline-flex items-center gap-1 px-2 py-1 bg-amber-100 dark:bg-amber-800/50 text-amber-800 dark:text-amber-200 text-xs rounded-full"
+                              >
+                                <WifiOff className="w-3 h-3" />
+                                {provider.name}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
             {/* Results Grid - Mobile: Grid (1 item per row), SM+: Flex with varied widths */}
             <div className="space-y-4 results-grid-3xl">
               {/* Mobile Layout - Grid with 1 column */}
@@ -1032,15 +1163,34 @@ function SearchContent() {
 
                       {/* Provider Logo - Top Left/Right - Always visible */}
                       <div
-                        className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-300`}
+                        className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-300 relative`}
                       >
                         <Image
                           src={result.provider.logo}
                           alt={result.provider.name}
                           width={44}
                           height={44}
-                          className="w-11 h-11 object-cover rounded-lg"
+                          className={`w-11 h-11 object-cover rounded-lg ${!result.provider.isOnline ? "grayscale opacity-60" : ""}`}
                         />
+
+                        {/* Provider Status Indicator */}
+                        <div
+                          className={`absolute -top-1 ${isRTL ? "-left-1" : "-right-1"} z-10`}
+                        >
+                          {result.provider.isOnline ? (
+                            <div
+                              className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"
+                              title={`${result.provider.name} - ${t("search.status.online")}`}
+                            />
+                          ) : (
+                            <div
+                              className="w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center"
+                              title={`${result.provider.name} - ${t("search.status.offline")}`}
+                            >
+                              <WifiOff className="w-2 h-2 text-white" />
+                            </div>
+                          )}
+                        </div>
                       </div>
 
                       {/* Hover Overlay */}
@@ -1122,15 +1272,34 @@ function SearchContent() {
 
                                 {/* Provider Logo - Top Left/Right - Always visible */}
                                 <div
-                                  className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-300`}
+                                  className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-300 relative`}
                                 >
                                   <Image
                                     src={result.provider.logo}
                                     alt={result.provider.name}
                                     width={44}
                                     height={44}
-                                    className="w-11 h-11 object-cover rounded-lg"
+                                    className={`w-11 h-11 object-cover rounded-lg ${!result.provider.isOnline ? "grayscale opacity-60" : ""}`}
                                   />
+
+                                  {/* Provider Status Indicator */}
+                                  <div
+                                    className={`absolute -top-1 ${isRTL ? "-left-1" : "-right-1"} z-10`}
+                                  >
+                                    {result.provider.isOnline ? (
+                                      <div
+                                        className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"
+                                        title={`${result.provider.name} - ${t("search.status.online")}`}
+                                      />
+                                    ) : (
+                                      <div
+                                        className="w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center"
+                                        title={`${result.provider.name} - ${t("search.status.offline")}`}
+                                      >
+                                        <WifiOff className="w-2 h-2 text-white" />
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
 
                                 {/* Hover Overlay */}

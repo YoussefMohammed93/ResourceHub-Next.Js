@@ -661,6 +661,12 @@
       "defaultQuery": "search",
       "description": "There is more than {{count}} stock images and vectors to {{query}}, enjoy!",
       "vectorsText": "vectors"
+    },
+    "status": {
+      "online": "Online",
+      "offline": "Offline",
+      "someProvidersOffline": "Some providers are currently offline",
+      "offlineProvidersMessage": "The following providers are temporarily unavailable. Results from these sources may be limited."
     }
   },
   "services": {
