@@ -299,3 +299,33 @@ export function FooterSkeleton() {
     </footer>
   );
 }
+
+// FAQ Section Skeleton
+export function FAQSkeleton() {
+  return (
+    <section className="py-16 lg:py-20 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 relative overflow-hidden">
+      <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
+      <div className="container mx-auto max-w-4xl px-4 sm:px-5 relative z-10">
+        {/* Section Header Skeleton */}
+        <div className="text-center mb-12 lg:mb-16">
+          <Skeleton className="h-12 w-80 mx-auto mb-4" />
+          <Skeleton className="h-6 w-96 mx-auto" />
+        </div>
+
+        {/* FAQ Items Skeleton */}
+        <div className="space-y-4">
+          {Array.from({ length: 5 }, (_, i) => (
+            <div
+              key={i}
+              className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl p-6"
+            >
+              <Skeleton className="h-6 w-full mb-4" />
+              <Skeleton className="h-4 w-3/4 mb-2" />
+              <Skeleton className="h-4 w-1/2" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

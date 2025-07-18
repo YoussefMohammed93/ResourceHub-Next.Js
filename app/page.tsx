@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import Footer from "@/components/footer";
+import FAQSection from "@/components/faq-section";
 import {
   HeaderSkeleton,
   HeroSkeleton,
@@ -44,6 +45,7 @@ import {
   SupportedPlatformsSkeleton,
   FooterSkeleton,
   PricingSkeleton,
+  FAQSkeleton,
 } from "@/components/home-page-skeletons";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -143,6 +145,7 @@ export default function HomePage() {
         <PricingSkeleton />
         <CategoriesSkeleton />
         <FeaturesSkeleton />
+        <FAQSkeleton />
         <FooterSkeleton />
       </div>
     );
@@ -1727,6 +1730,8 @@ export default function HomePage() {
           </div>
         </section>
       )}
+      {/* FAQ Section */}
+      <FAQSection />
       {/* Footer */}
       <Footer />
     </div>

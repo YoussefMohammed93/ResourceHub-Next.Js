@@ -135,6 +135,33 @@
       "cancelAnytime": "Cancel anytime"
     }
   },
+  "faq": {
+    "title": "Frequently Asked",
+    "titleHighlight": "Questions",
+    "description": "Find answers to the most common questions about our platform and services.",
+    "questions": {
+      "whatIsResourceHub": {
+        "question": "What is Resource Hub and how does it work?",
+        "answer": "Resource Hub is a premium platform that provides access to millions of high-quality creative resources from top platforms like Freepik, Shutterstock, Adobe Stock, and more. We offer a credit-based system where you can download premium content using credits from your subscription plan."
+      },
+      "howCreditsWork": {
+        "question": "How do credits work and what can I download with them?",
+        "answer": "Credits are used to download premium resources from supported platforms. Each download typically costs 1 credit, regardless of the file type (images, vectors, videos, or templates). Your credits are valid for the duration of your subscription period and can be used across all supported platforms."
+      },
+      "supportedPlatforms": {
+        "question": "Which creative platforms are supported?",
+        "answer": "We support major creative platforms including Freepik, Shutterstock, Adobe Stock, Getty Images, Unsplash, and many more. The number of supported platforms varies by subscription plan, with premium plans offering access to more platforms and exclusive content."
+      },
+      "howToDownload": {
+        "question": "How do I download resources from the platform?",
+        "answer": "Simply search for the content you need, select the resource you want, and click download. The system will automatically use one credit from your account and provide you with the high-quality file. All downloads are instant and available in multiple formats when applicable."
+      },
+      "safetyLegal": {
+        "question": "Is it safe and legal to use these resources?",
+        "answer": "Yes, absolutely! All resources available through our platform are legally licensed and safe to use for commercial and personal projects. We maintain partnerships with content creators and platforms to ensure all downloads are legitimate and properly licensed."
+      }
+    }
+  },
   "footer": {
     "description": "Your ultimate destination for premium creative resources. Access millions of high-quality images, vectors, and videos from top platforms worldwide.",
     "quickLinks": "Quick Links",
