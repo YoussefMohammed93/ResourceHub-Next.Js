@@ -230,6 +230,8 @@ export default function DashboardPage() {
   const [creditHistory, setCreditHistory] = useState<CreditHistoryEntry[]>([]);
   const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(false);
   const [historyError, setHistoryError] = useState<string>("");
+  const [isCreditHistoryDialogOpen, setIsCreditHistoryDialogOpen] =
+    useState<boolean>(false);
 
   // User Management states
   const [usersData, setUsersData] = useState<UsersStatisticsResponse | null>(
@@ -1240,7 +1242,7 @@ export default function DashboardPage() {
           )}
 
           {/* Users Management Table */}
-          <Card className="dark:bg-muted/50">
+          <Card id="users-management" className="dark:bg-muted/50">
             <CardHeader className="w-full flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
               <div className="w-full max-w-lg">
                 <CardTitle className="text-lg font-semibold text-foreground">
@@ -1804,42 +1806,58 @@ export default function DashboardPage() {
                       </Button>
                     </div>
                   ) : creditHistory.length > 0 ? (
-                    <div className="space-y-3 max-h-80 overflow-y-auto">
-                      {creditHistory.slice(0, 5).map((entry) => (
-                        <div
-                          key={entry.id}
-                          className="flex items-center justify-between p-3 bg-card border border-border rounded-lg"
-                        >
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center space-x-2">
-                              <span className="text-sm font-medium text-foreground truncate">
-                                {entry.user_email}
-                              </span>
-                              {entry.plan_name && (
-                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                                  {entry.plan_name}
+                    <div className="space-y-3">
+                      <div className="space-y-3 max-h-80 overflow-y-auto">
+                        {creditHistory.slice(0, 5).map((entry) => (
+                          <div
+                            key={entry.id}
+                            className="flex items-center justify-between p-3 bg-card border border-border rounded-lg"
+                          >
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm font-medium text-foreground truncate">
+                                  {entry.user_email}
                                 </span>
-                              )}
+                                {entry.plan_name && (
+                                  <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                                    {entry.plan_name}
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {entry.action} •{" "}
+                                {new Date(entry.timestamp).toLocaleDateString()}
+                              </p>
                             </div>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {entry.action} •{" "}
-                              {new Date(entry.timestamp).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <div
-                              className={`text-sm font-medium ${
-                                entry.credits_changed > 0
-                                  ? "text-green-600"
-                                  : "text-destructive"
-                              }`}
-                            >
-                              {entry.credits_changed > 0 ? "+" : ""}
-                              {entry.credits_changed}
+                            <div className="text-right">
+                              <div
+                                className={`text-sm font-medium ${
+                                  entry.credits_changed > 0
+                                    ? "text-green-600"
+                                    : "text-destructive"
+                                }`}
+                              >
+                                {entry.credits_changed > 0 ? "+" : ""}
+                                {entry.credits_changed}
+                              </div>
                             </div>
                           </div>
+                        ))}
+                      </div>
+                      {creditHistory.length > 0 && (
+                        <div className="pt-3 border-t border-border">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setIsCreditHistoryDialogOpen(true)}
+                            className="w-full"
+                          >
+                            <ExternalLink className="w-4 h-4 mr-2" />
+                            {t("dashboard.creditHistory.showAll")} (
+                            {creditHistory.length})
+                          </Button>
                         </div>
-                      ))}
+                      )}
                     </div>
                   ) : (
                     <div className="text-center py-8">
@@ -2252,7 +2270,7 @@ export default function DashboardPage() {
           {isLoadingSites ? (
             <DashboardSitesManagementSkeleton isRTL={isRTL} />
           ) : (
-            <Card className="dark:bg-muted/50">
+            <Card id="sites-management" className="dark:bg-muted/50">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-semibold text-foreground">
                   {t("dashboard.siteManagement.title")}
@@ -2712,7 +2730,7 @@ export default function DashboardPage() {
           {isLoadingPricingPlans ? (
             <DashboardPackageManagementSkeleton isRTL={isRTL} />
           ) : (
-            <Card className="dark:bg-muted/50">
+            <Card id="pricing-management" className="dark:bg-muted/50">
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-semibold text-foreground">
                   {t("dashboard.packageManagement.title")}
@@ -3497,6 +3515,130 @@ export default function DashboardPage() {
           )}
         </main>
       </div>
+
+      {/* Credit History Dialog */}
+      <Dialog
+        open={isCreditHistoryDialogOpen}
+        onOpenChange={setIsCreditHistoryDialogOpen}
+      >
+        <DialogContent
+          className={`max-w-4xl max-h-[80vh] ${isRTL ? "font-tajawal" : "font-sans"}`}
+        >
+          <DialogHeader>
+            <DialogTitle className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                <Clock className="w-4 h-4 text-primary" />
+              </div>
+              <span>{t("dashboard.creditHistory.title")}</span>
+            </DialogTitle>
+            <DialogDescription>
+              {t("dashboard.creditHistory.description")} -{" "}
+              {creditHistory.length} {t("dashboard.creditHistory.total")}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-hidden">
+            {isLoadingHistory ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : historyError ? (
+              <div className="text-center py-12">
+                <AlertCircle className="w-12 h-12 text-destructive mx-auto mb-4" />
+                <p className="text-sm text-destructive mb-4">{historyError}</p>
+                <Button variant="outline" onClick={loadCreditHistory}>
+                  {t("dashboard.creditHistory.retry")}
+                </Button>
+              </div>
+            ) : creditHistory.length > 0 ? (
+              <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-2">
+                {creditHistory.map((entry) => (
+                  <div
+                    key={entry.id}
+                    className="flex items-center justify-between p-4 bg-card border border-border rounded-lg hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-full flex items-center justify-center">
+                          <span className="text-xs font-medium text-primary">
+                            {entry.user_email.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-foreground truncate">
+                              {entry.user_email}
+                            </span>
+                            {entry.plan_name && (
+                              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                                {entry.plan_name}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {entry.action} •{" "}
+                            {new Date(entry.timestamp).toLocaleDateString()}{" "}
+                            {new Date(entry.timestamp).toLocaleTimeString()}
+                          </p>
+                          {entry.description && (
+                            <p className="text-xs text-muted-foreground mt-1 italic">
+                              {entry.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right ml-4">
+                      <div
+                        className={`text-sm font-medium ${
+                          entry.credits_changed > 0
+                            ? "text-green-600"
+                            : "text-destructive"
+                        }`}
+                      >
+                        {entry.credits_changed > 0 ? "+" : ""}
+                        {entry.credits_changed}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {entry.credits_before} → {entry.credits_after}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-12">
+                <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-sm text-muted-foreground">
+                  {t("dashboard.creditHistory.noHistoryData")}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsCreditHistoryDialogOpen(false)}
+            >
+              {t("common.close")}
+            </Button>
+            <Button onClick={loadCreditHistory} disabled={isLoadingHistory}>
+              {isLoadingHistory ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  {t("common.loading")}
+                </>
+              ) : (
+                <>
+                  <Clock className="w-4 h-4" />
+                  {t("dashboard.creditHistory.refresh")}
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

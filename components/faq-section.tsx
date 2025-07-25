@@ -58,7 +58,10 @@ export default function FAQSection() {
   }
 
   return (
-    <section className="py-16 lg:py-20 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 relative overflow-hidden">
+    <section
+      id="faq"
+      className="py-16 lg:py-20 bg-gradient-to-br from-primary/10 via-primary/5 to-primary/10 relative overflow-hidden"
+    >
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
 

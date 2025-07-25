@@ -5,7 +5,6 @@ import {
   Users,
   Globe,
   DollarSign,
-  Settings,
   LogOut,
   X,
   User,
@@ -17,6 +16,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/components/i18n-provider";
+import { useAuth } from "@/components/auth-provider";
 
 interface SidebarProps {
   isOpen?: boolean;
@@ -28,6 +28,7 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
   const [isMobile, setIsMobile] = useState(false);
   const { t } = useTranslation("common");
   const { isRTL } = useLanguage();
+  const { isAuthenticated, logout } = useAuth();
 
   useEffect(() => {
     const checkScreenSize = () => {
@@ -44,6 +45,23 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
     if (isMobile && onToggle) {
       onToggle();
     }
+  };
+
+  const handleSectionScroll = (sectionId: string) => {
+    if (pathname === "/dashboard") {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+    handleLinkClick();
+  };
+
+  const handleSignOut = async () => {
+    if (isAuthenticated) {
+      await logout();
+    }
+    handleLinkClick();
   };
 
   return (
@@ -130,78 +148,124 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
                 </span>
               </div>
               <div className="space-y-1">
-                <Link
-                  href="/users"
-                  onClick={handleLinkClick}
-                  className={cn(
-                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
-                    pathname === "/users"
-                      ? "bg-secondary text-foreground"
-                      : "hover:bg-muted text-muted-foreground"
-                  )}
-                >
-                  <div className="size-8 bg-green-500 flex items-center justify-center">
-                    <Users className="size-4 text-white" />
-                  </div>
-                  <span
-                    className={cn(
-                      "text-base",
-                      pathname === "/users"
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    {t("sidebar.navigation.usersManagement")}
-                  </span>
-                </Link>
-                <Link
-                  href="/sites"
-                  onClick={handleLinkClick}
-                  className={cn(
-                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
-                    pathname === "/sites"
-                      ? "bg-secondary text-foreground"
-                      : "hover:bg-muted text-muted-foreground"
-                  )}
-                >
-                  <div className="size-8 bg-orange-500 flex items-center justify-center">
-                    <Globe className="size-4 text-white" />
-                  </div>
-                  <span
-                    className={cn(
-                      "text-base",
-                      pathname === "/sites"
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    {t("sidebar.navigation.sitesManagement")}
-                  </span>
-                </Link>
-                <Link
-                  href="/pricing"
-                  onClick={handleLinkClick}
-                  className={cn(
-                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
-                    pathname === "/pricing"
-                      ? "bg-secondary text-foreground"
-                      : "hover:bg-muted text-muted-foreground"
-                  )}
-                >
-                  <div className="size-8 bg-yellow-500 flex items-center justify-center">
-                    <DollarSign className="size-4 text-white" />
-                  </div>
-                  <span
-                    className={cn(
-                      "text-base",
-                      pathname === "/pricing"
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    {t("sidebar.navigation.pricingManagement")}
-                  </span>
-                </Link>
+                {pathname === "/dashboard" ? (
+                  <>
+                    <button
+                      onClick={() => handleSectionScroll("users-management")}
+                      className={cn(
+                        `cursor-pointer flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors hover:bg-muted text-muted-foreground w-full ${isRTL ? "text-right" : "text-left"}`
+                      )}
+                    >
+                      <div className="size-8 bg-green-500 flex items-center justify-center">
+                        <Users className="size-4 text-white" />
+                      </div>
+                      <span className="text-base text-muted-foreground">
+                        {t("sidebar.navigation.usersManagement")}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => handleSectionScroll("sites-management")}
+                      className={cn(
+                        `cursor-pointer flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors hover:bg-muted text-muted-foreground w-full ${isRTL ? "text-right" : "text-left"}`
+                      )}
+                    >
+                      <div className="size-8 bg-orange-500 flex items-center justify-center">
+                        <Globe className="size-4 text-white" />
+                      </div>
+                      <span className="text-base text-muted-foreground">
+                        {t("sidebar.navigation.sitesManagement")}
+                      </span>
+                    </button>
+                    <button
+                      onClick={() => handleSectionScroll("pricing-management")}
+                      className={cn(
+                        `cursor-pointer flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors hover:bg-muted text-muted-foreground w-full ${isRTL ? "text-right" : "text-left"}`
+                      )}
+                    >
+                      <div className="size-8 bg-yellow-500 flex items-center justify-center">
+                        <DollarSign className="size-4 text-white" />
+                      </div>
+                      <span className="text-base text-muted-foreground">
+                        {t("sidebar.navigation.pricingManagement")}
+                      </span>
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href="/users"
+                      onClick={handleLinkClick}
+                      className={cn(
+                        `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
+                        pathname === "/users"
+                          ? "bg-secondary text-foreground"
+                          : "hover:bg-muted text-muted-foreground"
+                      )}
+                    >
+                      <div className="size-8 bg-green-500 flex items-center justify-center">
+                        <Users className="size-4 text-white" />
+                      </div>
+                      <span
+                        className={cn(
+                          "text-base",
+                          pathname === "/users"
+                            ? "text-foreground"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {t("sidebar.navigation.usersManagement")}
+                      </span>
+                    </Link>
+                    <Link
+                      href="/sites"
+                      onClick={handleLinkClick}
+                      className={cn(
+                        `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
+                        pathname === "/sites"
+                          ? "bg-secondary text-foreground"
+                          : "hover:bg-muted text-muted-foreground"
+                      )}
+                    >
+                      <div className="size-8 bg-orange-500 flex items-center justify-center">
+                        <Globe className="size-4 text-white" />
+                      </div>
+                      <span
+                        className={cn(
+                          "text-base",
+                          pathname === "/sites"
+                            ? "text-foreground"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {t("sidebar.navigation.sitesManagement")}
+                      </span>
+                    </Link>
+                    <Link
+                      href="/pricing"
+                      onClick={handleLinkClick}
+                      className={cn(
+                        `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
+                        pathname === "/pricing"
+                          ? "bg-secondary text-foreground"
+                          : "hover:bg-muted text-muted-foreground"
+                      )}
+                    >
+                      <div className="size-8 bg-yellow-500 flex items-center justify-center">
+                        <DollarSign className="size-4 text-white" />
+                      </div>
+                      <span
+                        className={cn(
+                          "text-base",
+                          pathname === "/pricing"
+                            ? "text-foreground"
+                            : "text-muted-foreground"
+                        )}
+                      >
+                        {t("sidebar.navigation.pricingManagement")}
+                      </span>
+                    </Link>
+                  </>
+                )}
                 <Link
                   href="/cookies"
                   onClick={handleLinkClick}
@@ -260,41 +324,19 @@ export const Sidebar = ({ isOpen = false, onToggle }: SidebarProps) => {
                     {t("sidebar.navigation.profile")}
                   </span>
                 </Link>
-                <Link
-                  href="/settings"
-                  onClick={handleLinkClick}
-                  className={cn(
-                    `flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg transition-colors`,
-                    pathname === "/settings"
-                      ? "bg-secondary text-foreground"
-                      : "hover:bg-muted text-muted-foreground"
-                  )}
-                >
-                  <div className="size-8 bg-gray-500 flex items-center justify-center">
-                    <Settings className="size-4 text-white" />
-                  </div>
-                  <span
-                    className={cn(
-                      "text-base",
-                      pathname === "/settings"
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                    )}
+                {isAuthenticated && (
+                  <button
+                    onClick={handleSignOut}
+                    className={`cursor-pointer flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg hover:bg-muted w-full ${isRTL ? "text-right" : "text-left"}`}
                   >
-                    {t("sidebar.navigation.settings")}
-                  </span>
-                </Link>
-                <button
-                  onClick={handleLinkClick}
-                  className={`cursor-pointer flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg hover:bg-muted w-full ${isRTL ? "text-right" : "text-left"}`}
-                >
-                  <div className="size-8 bg-pink-500 flex items-center justify-center">
-                    <LogOut className="size-4 text-white" />
-                  </div>
-                  <span className="text-base text-muted-foreground">
-                    {t("sidebar.navigation.signOut")}
-                  </span>
-                </button>
+                    <div className="size-8 bg-pink-500 flex items-center justify-center">
+                      <LogOut className="size-4 text-white" />
+                    </div>
+                    <span className="text-base text-muted-foreground">
+                      {t("sidebar.navigation.signOut")}
+                    </span>
+                  </button>
+                )}
               </div>
             </div>
           </div>

@@ -10,9 +10,12 @@
   "header": {
     "logo": "مركز الموارد",
     "navigation": {
-      "aboutUs": "لماذا نحن",
+      "home": "الرئيسية",
+      "platforms": "المنصات",
+      "pricing": "الأسعار",
       "categories": "الفئات",
-      "pricingPlans": "خطط الدفع"
+      "features": "المميزات",
+      "faq": "الأسئلة الشائعة"
     }
   },
   "hero": {
@@ -479,6 +482,7 @@
       "noHistoryData": "لا يوجد سجل نقاط متاح",
       "retry": "إعادة المحاولة",
       "refresh": "تحديث",
+      "showAll": "عرض الكل",
       "total": "الإجمالي",
       "transactions": {
         "siteAccess": "الوصول للموقع",

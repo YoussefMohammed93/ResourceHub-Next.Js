@@ -135,6 +135,21 @@ export default function HomePage() {
     }
   };
 
+  const handleSmoothScroll = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      const headerHeight = 80; // Height of fixed header
+      const elementPosition = element.offsetTop - headerHeight;
+
+      window.scrollTo({
+        top: elementPosition,
+        behavior: "smooth",
+      });
+    }
+    // Close mobile menu if open
+    setIsMobileMenuOpen(false);
+  };
+
   // Show loading skeletons while language data is loading
   if (isLoading) {
     return (
@@ -179,30 +194,48 @@ export default function HomePage() {
             </div>
             {/* Desktop Navigation Links */}
             <nav className="hidden md:flex items-center gap-1">
-              <Link href="#about">
-                <Button
-                  variant="ghost"
-                  className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
-                >
-                  {t("header.navigation.aboutUs")}
-                </Button>
-              </Link>
-              <Link href="#categories">
-                <Button
-                  variant="ghost"
-                  className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
-                >
-                  {t("header.navigation.categories")}
-                </Button>
-              </Link>
-              <Link href="#pricing">
-                <Button
-                  variant="ghost"
-                  className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
-                >
-                  {t("header.navigation.pricingPlans")}
-                </Button>
-              </Link>
+              <Button
+                variant="ghost"
+                onClick={() => handleSmoothScroll("home")}
+                className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
+              >
+                {t("header.navigation.home")}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => handleSmoothScroll("platforms")}
+                className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
+              >
+                {t("header.navigation.platforms")}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => handleSmoothScroll("pricing")}
+                className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
+              >
+                {t("header.navigation.pricing")}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => handleSmoothScroll("categories")}
+                className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
+              >
+                {t("header.navigation.categories")}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => handleSmoothScroll("features")}
+                className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
+              >
+                {t("header.navigation.features")}
+              </Button>
+              <Button
+                variant="ghost"
+                onClick={() => handleSmoothScroll("faq")}
+                className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
+              >
+                {t("header.navigation.faq")}
+              </Button>
             </nav>
             {/* Header Controls */}
             <HeaderControls />
@@ -249,39 +282,59 @@ export default function HomePage() {
 
             {/* Navigation Links */}
             <div className="space-y-1">
-              <Link
-                href="/about"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              <button
+                onClick={() => handleSmoothScroll("home")}
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors w-full text-left"
+              >
+                <span className="text-base">{t("header.navigation.home")}</span>
+              </button>
+              <button
+                onClick={() => handleSmoothScroll("platforms")}
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors w-full text-left"
               >
                 <span className="text-base">
-                  {t("header.navigation.aboutUs")}
+                  {t("header.navigation.platforms")}
                 </span>
-              </Link>
-              <Link
-                href="/categories"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              </button>
+              <button
+                onClick={() => handleSmoothScroll("pricing")}
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors w-full text-left"
+              >
+                <span className="text-base">
+                  {t("header.navigation.pricing")}
+                </span>
+              </button>
+              <button
+                onClick={() => handleSmoothScroll("categories")}
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors w-full text-left"
               >
                 <span className="text-base">
                   {t("header.navigation.categories")}
                 </span>
-              </Link>
-              <Link
-                href="/pricing"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+              </button>
+              <button
+                onClick={() => handleSmoothScroll("features")}
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors w-full text-left"
               >
                 <span className="text-base">
-                  {t("header.navigation.pricingPlans")}
+                  {t("header.navigation.features")}
                 </span>
-              </Link>
+              </button>
+              <button
+                onClick={() => handleSmoothScroll("faq")}
+                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors w-full text-left"
+              >
+                <span className="text-base">{t("header.navigation.faq")}</span>
+              </button>
             </div>
           </div>
         </div>
       </aside>
       {/* Hero Section */}
-      <section className="relative min-h-screen bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 py-12 md:pb-20 md:pt-8 overflow-hidden">
+      <section
+        id="home"
+        className="relative min-h-screen bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 py-12 md:pb-20 md:pt-8 overflow-hidden"
+      >
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
         {/* Shape 1 - Grid Dots Pattern (like your reference image) */}
@@ -589,7 +642,10 @@ export default function HomePage() {
       {isLoading ? (
         <SupportedPlatformsSkeleton />
       ) : (
-        <section className="py-16 lg:py-20 lg:pb-28 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+        <section
+          id="platforms"
+          className="py-16 lg:py-20 lg:pb-28 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden"
+        >
           <div className="px-5 relative z-10">
             {/* Section Header */}
             <div className="text-center mb-12 lg:mb-16">
@@ -758,7 +814,10 @@ export default function HomePage() {
         </section>
       )}
       {/* Pricing Section */}
-      <section className="py-16 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
+      <section
+        id="pricing"
+        className="py-16 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden"
+      >
         <div className="px-5 relative z-10">
           <div className="text-center mb-12">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
@@ -1450,7 +1509,10 @@ export default function HomePage() {
         </div>
       </section>
       {/* Categories Section */}
-      <section className="py-12 pb-16 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+      <section
+        id="categories"
+        className="py-12 pb-16 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden"
+      >
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center mb-10">
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
@@ -1599,7 +1661,10 @@ export default function HomePage() {
       {isLoading ? (
         <FeaturesSkeleton />
       ) : (
-        <section className="py-16 lg:py-20 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
+        <section
+          id="features"
+          className="py-16 lg:py-20 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden"
+        >
           <div className="container mx-auto max-w-7xl px-5 relative z-10">
             {/* Section Header */}
             <div className="text-center mb-12 lg:mb-16">

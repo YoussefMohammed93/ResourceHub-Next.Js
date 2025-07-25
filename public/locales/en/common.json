@@ -10,9 +10,12 @@
   "header": {
     "logo": "ResourceHub",
     "navigation": {
-      "aboutUs": "About Us",
+      "home": "Home",
+      "platforms": "Platforms",
+      "pricing": "Pricing",
       "categories": "Categories",
-      "pricingPlans": "Pricing Plans"
+      "features": "Features",
+      "faq": "FAQ"
     }
   },
   "hero": {
@@ -479,6 +482,7 @@
       "noHistoryData": "No credit history available",
       "retry": "Retry",
       "refresh": "Refresh",
+      "showAll": "Show All",
       "total": "total",
       "transactions": {
         "siteAccess": "Site access",
