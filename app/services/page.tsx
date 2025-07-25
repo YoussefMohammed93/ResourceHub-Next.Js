@@ -5,10 +5,8 @@ import { HeaderControls } from "@/components/header-controls";
 import { useLanguage } from "@/components/i18n-provider";
 import { useTranslation } from "react-i18next";
 import {
-  Menu,
   Star,
   ArrowRight,
-  X,
   Shield,
   Download,
   Sparkles,
@@ -20,7 +18,6 @@ import {
   Timer,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { Card, CardContent, CardTitle, CardFooter } from "@/components/ui/card";
@@ -176,7 +173,6 @@ function ServicesPageSkeleton() {
 export default function ServicesPage() {
   const { t } = useTranslation("common");
   const { isRTL, isLoading } = useLanguage();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Show loading skeletons while language data is loading
   if (isLoading) {
@@ -201,14 +197,6 @@ export default function ServicesPage() {
           <div className="flex items-center justify-between h-16">
             {/* Logo and Mobile Menu Button */}
             <div className="flex items-center gap-1 sm:gap-2">
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="cursor-pointer md:hidden p-2 hover:bg-muted rounded-lg transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
-                aria-label="Toggle navigation menu"
-              >
-                <Menu className="w-5 h-5 text-muted-foreground" />
-              </button>
               <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
                 <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
               </div>
@@ -219,110 +207,11 @@ export default function ServicesPage() {
                 {t("header.logo")}
               </Link>
             </div>
-            {/* Desktop Navigation Links */}
-            <nav className="hidden md:flex items-center gap-1">
-              <Link href="#about">
-                <Button
-                  variant="ghost"
-                  className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
-                >
-                  {t("header.navigation.aboutUs")}
-                </Button>
-              </Link>
-              <Link href="#categories">
-                <Button
-                  variant="ghost"
-                  className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
-                >
-                  {t("header.navigation.categories")}
-                </Button>
-              </Link>
-              <Link href="#pricing">
-                <Button
-                  variant="ghost"
-                  className={`hover:bg-primary hover:text-white ${isRTL && "text-base"}`}
-                >
-                  {t("header.navigation.pricingPlans")}
-                </Button>
-              </Link>
-            </nav>
             {/* Header Controls */}
             <HeaderControls />
           </div>
         </div>
       </header>
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-50 md:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
-        />
-      )}
-      {/* Mobile Navigation Menu */}
-      <aside
-        className={`fixed left-0 top-0 w-72 h-screen bg-background border-r border-border z-50 transition-transform duration-300 ease-in-out md:hidden ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <div className="p-6 h-full overflow-y-auto">
-          {/* Mobile Close Button */}
-          <div
-            className={`absolute right-6 top-5 ${isRTL && "left-6 right-auto"}`}
-          >
-            <button
-              onClick={() => setIsMobileMenuOpen(false)}
-              className="cursor-pointer p-2 hover:bg-muted rounded-lg transition-colors min-h-[33px] min-w-[33px] flex items-center justify-center"
-              aria-label="Close navigation menu"
-            >
-              <X className="w-5 h-5 text-muted-foreground" />
-            </button>
-          </div>
-
-          <div className="space-y-6">
-            {/* Logo Section */}
-            <div className="flex items-center space-x-2 pb-4 border-b border-border">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
-              </div>
-              <span className="text-lg font-semibold text-foreground">
-                {t("header.logo")}
-              </span>
-            </div>
-
-            {/* Navigation Links */}
-            <div className="space-y-1">
-              <Link
-                href="/about"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <span className="text-base">
-                  {t("header.navigation.aboutUs")}
-                </span>
-              </Link>
-              <Link
-                href="/categories"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <span className="text-base">
-                  {t("header.navigation.categories")}
-                </span>
-              </Link>
-              <Link
-                href="/pricing"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center space-x-3 px-3 py-3 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <span className="text-base">
-                  {t("header.navigation.pricingPlans")}
-                </span>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </aside>
-
       {/* Services Section */}
       <main className="relative min-h-screen bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 py-12 lg:py-16 overflow-hidden">
         {/* Background Pattern */}
