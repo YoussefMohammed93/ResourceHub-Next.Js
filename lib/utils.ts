@@ -81,9 +81,9 @@ function _0x6f5d(str: string): string {
  * @returns Obfuscated token string
  */
 export function generateTimestampToken(): string {
-  let _0x4d8c = Math.floor(Date.now() / 1000) + 60;
-  let _0x7b3f = _0x8e9a(_0x4d8c.toString());
-  let _0x1e9d = _0x2a4b(_0x7b3f);
-  let _0x5a2e = _0x6f5d(_0x1e9d);
+  const _0x4d8c = Math.floor(Date.now() / 1000) + 60;
+  const _0x7b3f = _0x8e9a(_0x4d8c.toString());
+  const _0x1e9d = _0x2a4b(_0x7b3f);
+  const _0x5a2e = _0x6f5d(_0x1e9d);
   return _0x5a2e;
 }
