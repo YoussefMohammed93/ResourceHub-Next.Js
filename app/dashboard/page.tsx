@@ -69,7 +69,14 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { DashboardSkeleton } from "@/components/dashboard-skeletons";
+import {
+  DashboardSkeleton,
+  DashboardStatsCardsSkeleton,
+  DashboardActionCardsSkeleton,
+  DashboardManagementCardsSkeleton,
+  DashboardSitesManagementSkeleton,
+  DashboardPackageManagementSkeleton,
+} from "@/components/dashboard-skeletons";
 import {
   siteApi,
   pricingApi,
@@ -1086,7 +1093,7 @@ export default function DashboardPage() {
 
   // Show loading skeleton while language data is loading
   if (isLoading) {
-    return <DashboardSkeleton />;
+    return <DashboardSkeleton isRTL={isRTL} />;
   }
 
   return (
@@ -1136,96 +1143,101 @@ export default function DashboardPage() {
         <main
           className={`flex-1 ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
         >
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-            {/* Total Users Card */}
-            <Card className="group dark:bg-muted/50">
-              <CardContent>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3 sm:space-y-4 flex-1">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
-                        <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          {/* Stats Cards */}
+          {isLoadingUsers || isLoadingAnalytics || isLoadingSites ? (
+            <DashboardStatsCardsSkeleton />
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+              {/* Total Users Card */}
+              <Card className="group dark:bg-muted/50">
+                <CardContent>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-3 sm:space-y-4 flex-1">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
+                          <Users className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
+                            {t("dashboard.stats.totalUsers.title")}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground/80">
+                            {t("dashboard.stats.totalUsers.description")}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
-                          {t("dashboard.stats.totalUsers.title")}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground/80">
-                          {t("dashboard.stats.totalUsers.description")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-baseline space-x-2">
-                        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
-                          1,247
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* Active Sites Card */}
-            <Card className="group dark:bg-muted/50">
-              <CardContent>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3 sm:space-y-4 flex-1">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
-                        <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
-                          {t("dashboard.stats.activeSites.title")}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground/80">
-                          {t("dashboard.stats.activeSites.description")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-baseline space-x-2">
-                        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
-                          89
-                        </span>
+                      <div className="space-y-2">
+                        <div className="flex items-baseline space-x-2">
+                          <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
+                            {usersData?.total_users?.toLocaleString() || "0"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-            {/* Online Users Card */}
-            <Card className="group dark:bg-muted/50">
-              <CardContent>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-3 sm:space-y-4 flex-1">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center relative">
-                        <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                </CardContent>
+              </Card>
+              {/* Active Sites Card */}
+              <Card className="group dark:bg-muted/50">
+                <CardContent>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-3 sm:space-y-4 flex-1">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
+                          <Globe className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
+                            {t("dashboard.stats.activeSites.title")}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground/80">
+                            {t("dashboard.stats.activeSites.description")}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
-                          {t("dashboard.stats.onlineUsers.title")}
-                        </h3>
-                        <p className="text-xs sm:text-sm text-muted-foreground/80">
-                          {t("dashboard.stats.onlineUsers.description")}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-baseline space-x-2">
-                        <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
-                          342
-                        </span>
+                      <div className="space-y-2">
+                        <div className="flex items-baseline space-x-2">
+                          <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
+                            {sites?.length?.toLocaleString() || "0"}
+                          </span>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+                </CardContent>
+              </Card>
+              {/* Online Users Card */}
+              <Card className="group dark:bg-muted/50">
+                <CardContent>
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-3 sm:space-y-4 flex-1">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center relative">
+                          <Activity className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        </div>
+                        <div>
+                          <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
+                            {t("dashboard.stats.onlineUsers.title")}
+                          </h3>
+                          <p className="text-xs sm:text-sm text-muted-foreground/80">
+                            {t("dashboard.stats.onlineUsers.description")}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-baseline space-x-2">
+                          <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
+                            {usersData?.online_users?.toLocaleString() || "0"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           {/* Users Management Table */}
           <Card className="dark:bg-muted/50">
@@ -1638,1806 +1650,1851 @@ export default function DashboardPage() {
           </Card>
 
           {/* Second Row: Add New Subscription, Credit History, Credit Analytics */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
-            {/* Add New Subscription Card */}
-            <Card className="dark:bg-muted/50">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                    <UserPlus className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {t("dashboard.addSubscription.title")}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {t("dashboard.addSubscription.description")}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="add-email"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    {t("dashboard.addSubscription.userEmail")}
-                  </Label>
-                  <Input
-                    id="add-email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => {
-                      setEmail(e.target.value);
-                      if (emailError) setEmailError("");
-                    }}
-                    placeholder={t(
-                      "dashboard.addSubscription.placeholders.email"
-                    )}
-                    className={`transition-all ${
-                      emailError
-                        ? "border-destructive focus-visible:ring-destructive/20"
-                        : "focus-visible:ring-primary/20"
-                    }`}
-                  />
-                  {emailError && (
-                    <p className="text-xs text-destructive flex items-center space-x-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{emailError}</span>
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="add-plan"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    {t("dashboard.addSubscription.plan")}
-                  </Label>
-                  <Select
-                    value={selectedPlan}
-                    onValueChange={(value) => {
-                      setSelectedPlan(value);
-                      if (planError) setPlanError("");
-                    }}
-                  >
-                    <SelectTrigger
-                      className={`transition-all w-full ${
-                        planError
-                          ? "border-destructive focus-visible:ring-destructive/20"
-                          : "focus-visible:ring-primary/20"
-                      }`}
-                    >
-                      <SelectValue
-                        placeholder={t(
-                          "dashboard.addSubscription.placeholders.plan"
-                        )}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {pricingPlans.map((plan) => (
-                        <SelectItem key={plan.id} value={plan.name}>
-                          {plan.name} - {plan.credits}{" "}
-                          {t("dashboard.addSubscription.credits")}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {planError && (
-                    <p className="text-xs text-destructive flex items-center space-x-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{planError}</span>
-                    </p>
-                  )}
-                </div>
-                <Button
-                  onClick={handleAddSubscription}
-                  disabled={isSubmitting}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  {isSubmitting ? (
-                    <div className="flex items-center space-x-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>{t("dashboard.addSubscription.adding")}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <UserPlus className="w-4 h-4" />
-                      <span>{t("dashboard.addSubscription.add")}</span>
-                    </div>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Credit History Card */}
-            <Card className="dark:bg-muted/50">
-              <CardHeader>
-                <div className="flex items-center justify-between">
+          {isLoadingAnalytics || isLoadingHistory || isLoadingPricingPlans ? (
+            <DashboardActionCardsSkeleton />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+              {/* Add New Subscription Card */}
+              <Card className="dark:bg-muted/50">
+                <CardHeader>
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                      <Clock className="w-5 h-5 text-primary" />
+                      <UserPlus className="w-5 h-5 text-primary" />
                     </div>
                     <div>
                       <CardTitle className="text-lg font-semibold text-foreground">
-                        {t("dashboard.creditHistory.title")}
+                        {t("dashboard.addSubscription.title")}
                       </CardTitle>
                       <p className="text-xs text-muted-foreground">
-                        {t("dashboard.creditHistory.description")}
+                        {t("dashboard.addSubscription.description")}
                       </p>
                     </div>
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                {isLoadingHistory ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                  </div>
-                ) : historyError ? (
-                  <div className="text-center py-8">
-                    <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
-                    <p className="text-sm text-destructive">{historyError}</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={loadCreditHistory}
-                      className="mt-2"
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="add-email"
+                      className="text-sm font-medium text-foreground"
                     >
-                      {t("dashboard.creditHistory.retry")}
-                    </Button>
-                  </div>
-                ) : creditHistory.length > 0 ? (
-                  <div className="space-y-3 max-h-80 overflow-y-auto">
-                    {creditHistory.slice(0, 5).map((entry) => (
-                      <div
-                        key={entry.id}
-                        className="flex items-center justify-between p-3 bg-card border border-border rounded-lg"
-                      >
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2">
-                            <span className="text-sm font-medium text-foreground truncate">
-                              {entry.user_email}
-                            </span>
-                            {entry.plan_name && (
-                              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-                                {entry.plan_name}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {entry.action} •{" "}
-                            {new Date(entry.timestamp).toLocaleDateString()}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <div
-                            className={`text-sm font-medium ${
-                              entry.credits_changed > 0
-                                ? "text-green-600"
-                                : "text-destructive"
-                            }`}
-                          >
-                            {entry.credits_changed > 0 ? "+" : ""}
-                            {entry.credits_changed}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-sm text-muted-foreground">
-                      {t("dashboard.creditHistory.noHistoryData")}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-
-            {/* Credit Analytics Card */}
-            <Card className="dark:bg-muted/50">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {t("dashboard.creditAnalytics.title")}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {t("dashboard.creditAnalytics.description")}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {isLoadingAnalytics ? (
-                  <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
-                  </div>
-                ) : analyticsError ? (
-                  <div className="text-center py-8">
-                    <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
-                    <p className="text-sm text-destructive">{analyticsError}</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={loadCreditAnalytics}
-                      className="mt-2"
-                    >
-                      {t("dashboard.creditAnalytics.retry")}
-                    </Button>
-                  </div>
-                ) : creditAnalytics ? (
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          {t("dashboard.creditAnalytics.totalIssued")}
-                        </p>
-                        <p className="text-lg font-bold text-foreground">
-                          {creditAnalytics.total_credits_issued.toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          {t("dashboard.creditAnalytics.totalUsed")}
-                        </p>
-                        <p className="text-lg font-bold text-foreground">
-                          {creditAnalytics.total_credits_used.toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          {t("dashboard.creditAnalytics.remaining")}
-                        </p>
-                        <p className="text-lg font-bold text-primary">
-                          {creditAnalytics.total_remaining_credits.toLocaleString()}
-                        </p>
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                          {t("dashboard.creditAnalytics.dailyAverage")}
-                        </p>
-                        <p className="text-lg font-bold text-foreground">
-                          {creditAnalytics.average_daily_usage.toFixed(1)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center py-8">
-                    <p className="text-sm text-muted-foreground">
-                      {t("dashboard.creditAnalytics.noAnalyticsData")}
-                    </p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Third Row: Upgrade Subscription, Extend Subscription, Delete Subscription */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
-            {/* Upgrade Subscription Card */}
-            <Card className="dark:bg-muted/50">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                    <ArrowUp className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {t("dashboard.upgradeSubscription.title")}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {t("dashboard.upgradeSubscription.description")}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="upgrade-email"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    {t("dashboard.upgradeSubscription.userEmail")}
-                  </Label>
-                  <Input
-                    id="upgrade-email"
-                    type="email"
-                    value={upgradeEmail}
-                    onChange={(e) => {
-                      setUpgradeEmail(e.target.value);
-                      if (upgradeEmailError) setUpgradeEmailError("");
-                    }}
-                    placeholder={t(
-                      "dashboard.upgradeSubscription.placeholders.email"
-                    )}
-                    className={`transition-all ${
-                      upgradeEmailError
-                        ? "border-destructive focus-visible:ring-destructive/20"
-                        : "focus-visible:ring-primary/20"
-                    }`}
-                  />
-                  {upgradeEmailError && (
-                    <p className="text-xs text-destructive flex items-center space-x-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{upgradeEmailError}</span>
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="upgrade-plan"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    {t("dashboard.upgradeSubscription.newPlan")}
-                  </Label>
-                  <Select
-                    value={upgradeNewPlan}
-                    onValueChange={(value) => {
-                      setUpgradeNewPlan(value);
-                      if (upgradeNewPlanError) setUpgradeNewPlanError("");
-                    }}
-                  >
-                    <SelectTrigger
-                      className={`transition-all w-full ${
-                        upgradeNewPlanError
+                      {t("dashboard.addSubscription.userEmail")}
+                    </Label>
+                    <Input
+                      id="add-email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => {
+                        setEmail(e.target.value);
+                        if (emailError) setEmailError("");
+                      }}
+                      placeholder={t(
+                        "dashboard.addSubscription.placeholders.email"
+                      )}
+                      className={`transition-all ${
+                        emailError
                           ? "border-destructive focus-visible:ring-destructive/20"
                           : "focus-visible:ring-primary/20"
                       }`}
+                    />
+                    {emailError && (
+                      <p className="text-xs text-destructive flex items-center space-x-1">
+                        <AlertCircle className="w-3 h-3" />
+                        <span>{emailError}</span>
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="add-plan"
+                      className="text-sm font-medium text-foreground"
                     >
-                      <SelectValue
-                        placeholder={t(
-                          "dashboard.upgradeSubscription.placeholders.plan"
-                        )}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {pricingPlans.map((plan) => (
-                        <SelectItem key={plan.id} value={plan.name}>
-                          {plan.name} - {plan.credits}{" "}
-                          {t("dashboard.upgradeSubscription.credits")}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {upgradeNewPlanError && (
-                    <p className="text-xs text-destructive flex items-center space-x-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{upgradeNewPlanError}</span>
-                    </p>
-                  )}
-                </div>
-                <Button
-                  onClick={handleUpgradeSubscription}
-                  disabled={isUpgradeSubmitting}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  {isUpgradeSubmitting ? (
-                    <div className="flex items-center space-x-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>
-                        {t("dashboard.upgradeSubscription.upgrading")}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <ArrowUp className="w-4 h-4" />
-                      <span>{t("dashboard.upgradeSubscription.upgrade")}</span>
-                    </div>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Extend Subscription Card */}
-            <Card className="dark:bg-muted/50">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                    <Calendar className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {t("dashboard.extendSubscription.title")}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {t("dashboard.extendSubscription.description")}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="extend-email"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    {t("dashboard.extendSubscription.userEmail")}
-                  </Label>
-                  <Input
-                    id="extend-email"
-                    type="email"
-                    value={extendEmail}
-                    onChange={(e) => {
-                      setExtendEmail(e.target.value);
-                      if (extendEmailError) setExtendEmailError("");
-                    }}
-                    placeholder={t(
-                      "dashboard.extendSubscription.placeholders.email"
-                    )}
-                    className={`transition-all ${
-                      extendEmailError
-                        ? "border-destructive focus-visible:ring-destructive/20"
-                        : "focus-visible:ring-primary/20"
-                    }`}
-                  />
-                  {extendEmailError && (
-                    <p className="text-xs text-destructive flex items-center space-x-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{extendEmailError}</span>
-                    </p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="extend-days"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    {t("dashboard.extendSubscription.days")}
-                  </Label>
-                  <Input
-                    id="extend-days"
-                    type="number"
-                    min="1"
-                    value={extendDays}
-                    onChange={(e) => {
-                      setExtendDays(e.target.value);
-                      if (extendDaysError) setExtendDaysError("");
-                    }}
-                    placeholder={t(
-                      "dashboard.extendSubscription.placeholders.days"
-                    )}
-                    className={`transition-all ${
-                      extendDaysError
-                        ? "border-destructive focus-visible:ring-destructive/20"
-                        : "focus-visible:ring-primary/20"
-                    }`}
-                  />
-                  {extendDaysError && (
-                    <p className="text-xs text-destructive flex items-center space-x-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{extendDaysError}</span>
-                    </p>
-                  )}
-                </div>
-                <Button
-                  onClick={handleExtendSubscription}
-                  disabled={isExtendSubmitting}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                >
-                  {isExtendSubmitting ? (
-                    <div className="flex items-center space-x-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>{t("dashboard.extendSubscription.extending")}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <Calendar className="w-4 h-4" />
-                      <span>{t("dashboard.extendSubscription.extend")}</span>
-                    </div>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Delete Subscription Card */}
-            <Card className="dark:bg-muted/50 border-destructive/20">
-              <CardHeader>
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-destructive/10 border border-destructive/10 rounded-lg flex items-center justify-center">
-                    <UserMinus className="w-5 h-5 text-destructive" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {t("dashboard.deleteSubscription.title")}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {t("dashboard.deleteSubscription.description")}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label
-                    htmlFor="delete-email"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    {t("dashboard.deleteSubscription.userEmail")}
-                  </Label>
-                  <Input
-                    id="delete-email"
-                    type="email"
-                    value={deleteEmail}
-                    onChange={(e) => {
-                      setDeleteEmail(e.target.value);
-                      if (deleteEmailError) setDeleteEmailError("");
-                    }}
-                    placeholder={t(
-                      "dashboard.deleteSubscription.placeholders.email"
-                    )}
-                    className={`transition-all ${
-                      deleteEmailError
-                        ? "border-destructive focus-visible:ring-destructive/20"
-                        : "focus-visible:ring-primary/20"
-                    }`}
-                  />
-                  {deleteEmailError && (
-                    <p className="text-xs text-destructive flex items-center space-x-1">
-                      <AlertCircle className="w-3 h-3" />
-                      <span>{deleteEmailError}</span>
-                    </p>
-                  )}
-                </div>
-                <div className="p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
-                  <div className="flex items-start space-x-2">
-                    <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-xs font-medium text-destructive">
-                        {t("dashboard.deleteSubscription.warning")}
+                      {t("dashboard.addSubscription.plan")}
+                    </Label>
+                    <Select
+                      value={selectedPlan}
+                      onValueChange={(value) => {
+                        setSelectedPlan(value);
+                        if (planError) setPlanError("");
+                      }}
+                    >
+                      <SelectTrigger
+                        className={`transition-all w-full ${
+                          planError
+                            ? "border-destructive focus-visible:ring-destructive/20"
+                            : "focus-visible:ring-primary/20"
+                        }`}
+                      >
+                        <SelectValue
+                          placeholder={t(
+                            "dashboard.addSubscription.placeholders.plan"
+                          )}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {pricingPlans.map((plan) => (
+                          <SelectItem key={plan.id} value={plan.name}>
+                            {plan.name} - {plan.credits}{" "}
+                            {t("dashboard.addSubscription.credits")}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {planError && (
+                      <p className="text-xs text-destructive flex items-center space-x-1">
+                        <AlertCircle className="w-3 h-3" />
+                        <span>{planError}</span>
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {t("dashboard.deleteSubscription.warningDescription")}
-                      </p>
-                    </div>
+                    )}
                   </div>
-                </div>
-                <Button
-                  onClick={handleDeleteSubscription}
-                  disabled={isDeleteSubmitting}
-                  variant="destructive"
-                  className="w-full"
-                >
-                  {isDeleteSubmitting ? (
-                    <div className="flex items-center space-x-2">
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                      <span>{t("dashboard.deleteSubscription.deleting")}</span>
-                    </div>
-                  ) : (
-                    <div className="flex items-center space-x-2">
-                      <UserMinus className="w-4 h-4" />
-                      <span>{t("dashboard.deleteSubscription.delete")}</span>
-                    </div>
-                  )}
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Supported Sites */}
-          <Card className="dark:bg-muted/50">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-foreground">
-                {t("dashboard.siteManagement.title")}
-              </CardTitle>
-              <Dialog
-                open={isAddSiteDialogOpen}
-                onOpenChange={setIsAddSiteDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                    <Plus className="w-4 h-4 stroke-3" />
-                    {t("dashboard.siteManagement.addSite")}
+                  <Button
+                    onClick={handleAddSubscription}
+                    disabled={isSubmitting}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    {isSubmitting ? (
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>{t("dashboard.addSubscription.adding")}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <UserPlus className="w-4 h-4" />
+                        <span>{t("dashboard.addSubscription.add")}</span>
+                      </div>
+                    )}
                   </Button>
-                </DialogTrigger>
-                <DialogContent
-                  className={`sm:max-w-[425px] ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
-                >
-                  <DialogHeader className={`${isRTL && "sm:text-right"}`}>
-                    <DialogTitle className="text-lg font-semibold text-foreground">
-                      {t("dashboard.siteManagement.addSite")}
-                    </DialogTitle>
-                    <DialogDescription className="text-xs text-muted-foreground">
-                      {t("dashboard.siteManagement.description")}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="space-y-4 py-4">
-                    {/* Site Name */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="site-name"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <Globe className="w-4 h-4" />
-                        {t("dashboard.siteManagement.siteName")}
-                      </Label>
-                      <Input
-                        id="site-name"
-                        value={siteName}
-                        onChange={(e) => {
-                          setSiteName(e.target.value);
-                          if (siteNameError) setSiteNameError("");
-                        }}
-                        placeholder={t(
-                          "dashboard.siteManagement.placeholders.siteName"
-                        )}
-                        className={`transition-all ${
-                          siteNameError
-                            ? "border-destructive focus-visible:ring-destructive/20"
-                            : "focus-visible:ring-primary/20"
-                        }`}
-                      />
-                      {siteNameError && (
-                        <p className="text-sm text-destructive flex items-center space-x-1">
-                          <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                          <span>{siteNameError}</span>
+                </CardContent>
+              </Card>
+
+              {/* Credit History Card */}
+              <Card className="dark:bg-muted/50">
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                        <Clock className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-lg font-semibold text-foreground">
+                          {t("dashboard.creditHistory.title")}
+                        </CardTitle>
+                        <p className="text-xs text-muted-foreground">
+                          {t("dashboard.creditHistory.description")}
                         </p>
-                      )}
-                    </div>
-                    {/* Site URL */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="site-url"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <ExternalLink className="w-4 h-4" />
-                        {t("dashboard.siteManagement.siteUrl")}
-                      </Label>
-                      <Input
-                        id="site-url"
-                        value={siteUrl}
-                        onChange={(e) => {
-                          setSiteUrl(e.target.value);
-                          if (siteUrlError) setSiteUrlError("");
-                        }}
-                        placeholder={t(
-                          "dashboard.siteManagement.placeholders.siteUrl"
-                        )}
-                        className={`transition-all ${
-                          siteUrlError
-                            ? "border-destructive focus-visible:ring-destructive/20"
-                            : "focus-visible:ring-primary/20"
-                        }`}
-                      />
-                      {siteUrlError && (
-                        <p className="text-sm text-destructive flex items-center space-x-1">
-                          <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                          <span>{siteUrlError}</span>
-                        </p>
-                      )}
-                    </div>
-                    {/* Price */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="site-price"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <CreditCard className="w-4 h-4" />
-                        {t("dashboard.siteManagement.price")}
-                      </Label>
-                      <Input
-                        id="site-price"
-                        type="number"
-                        min="1"
-                        value={sitePrice}
-                        onChange={(e) => {
-                          setSitePrice(e.target.value);
-                          if (sitePriceError) setSitePriceError("");
-                        }}
-                        placeholder={t(
-                          "dashboard.siteManagement.placeholders.sitePrice"
-                        )}
-                        className={`transition-all ${
-                          sitePriceError
-                            ? "border-destructive focus-visible:ring-destructive/20"
-                            : "focus-visible:ring-primary/20"
-                        }`}
-                      />
-                      {sitePriceError && (
-                        <p className="text-sm text-destructive flex items-center space-x-1">
-                          <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                          <span>{sitePriceError}</span>
-                        </p>
-                      )}
-                    </div>
-                    {/* Icon URL (Optional) */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="site-icon"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <Activity className="w-4 h-4" />
-                        {t("dashboard.siteManagement.siteIcon")}
-                      </Label>
-                      <Input
-                        id="site-icon"
-                        value={siteIcon}
-                        onChange={(e) => setSiteIcon(e.target.value)}
-                        placeholder={t(
-                          "dashboard.siteManagement.placeholders.siteIcon"
-                        )}
-                        className="focus-visible:ring-primary/20"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {t(
-                          "dashboard.siteManagement.placeholders.siteIconHelp"
-                        )}
-                      </p>
+                      </div>
                     </div>
                   </div>
-                  <DialogFooter>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsAddSiteDialogOpen(false)}
-                      disabled={isAddingSite}
-                    >
-                      {t("common.cancel")}
-                    </Button>
-                    <Button
-                      type="button"
-                      onClick={handleAddSite}
-                      disabled={isAddingSite}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                    >
-                      {isAddingSite ? (
-                        <div className="flex items-center space-x-2">
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          <span>{t("dashboard.siteManagement.adding")}</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <Plus className="w-4 h-4" />
-                          <span>{t("dashboard.siteManagement.add")}</span>
-                        </div>
-                      )}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CardHeader>
-            <CardContent>
-              {isLoadingSites ? (
-                <div className="flex justify-center items-center h-40">
-                  <Loader2 className="w-8 h-8 animate-spin" />
-                </div>
-              ) : sitesError ? (
-                <div className="text-center py-12 text-destructive">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
-                      <AlertCircle className="w-6 h-6 text-destructive" />
+                </CardHeader>
+                <CardContent>
+                  {isLoadingHistory ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
                     </div>
-                    <div>
-                      <p className="text-sm font-medium">{sitesError}</p>
+                  ) : historyError ? (
+                    <div className="text-center py-8">
+                      <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+                      <p className="text-sm text-destructive">{historyError}</p>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={loadSites}
-                        className="mt-2 text-black dark:text-white"
+                        onClick={loadCreditHistory}
+                        className="mt-2"
                       >
-                        {t("dashboard.siteManagement.table.retry")}
+                        {t("dashboard.creditHistory.retry")}
                       </Button>
                     </div>
-                  </div>
-                </div>
-              ) : sites.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <div className="flex flex-col items-center space-y-3">
-                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
-                      <Globe className="w-6 h-6 text-muted-foreground" />
+                  ) : creditHistory.length > 0 ? (
+                    <div className="space-y-3 max-h-80 overflow-y-auto">
+                      {creditHistory.slice(0, 5).map((entry) => (
+                        <div
+                          key={entry.id}
+                          className="flex items-center justify-between p-3 bg-card border border-border rounded-lg"
+                        >
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2">
+                              <span className="text-sm font-medium text-foreground truncate">
+                                {entry.user_email}
+                              </span>
+                              {entry.plan_name && (
+                                <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                                  {entry.plan_name}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {entry.action} •{" "}
+                              {new Date(entry.timestamp).toLocaleDateString()}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <div
+                              className={`text-sm font-medium ${
+                                entry.credits_changed > 0
+                                  ? "text-green-600"
+                                  : "text-destructive"
+                              }`}
+                            >
+                              {entry.credits_changed > 0 ? "+" : ""}
+                              {entry.credits_changed}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-sm text-muted-foreground">
+                        {t("dashboard.creditHistory.noHistoryData")}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Credit Analytics Card */}
+              <Card className="dark:bg-muted/50">
+                <CardHeader>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-foreground">
-                        {t("dashboard.siteManagement.table.noSites")}
-                      </p>
+                      <CardTitle className="text-lg font-semibold text-foreground">
+                        {t("dashboard.creditAnalytics.title")}
+                      </CardTitle>
                       <p className="text-xs text-muted-foreground">
-                        {t("dashboard.siteManagement.table.noSitesDescription")}
+                        {t("dashboard.creditAnalytics.description")}
                       </p>
                     </div>
                   </div>
-                </div>
-              ) : (
-                <>
-                  {/* Desktop Table View */}
-                  <div className="hidden md:block overflow-x-auto max-h-[240px] overflow-y-auto">
-                    <table className="w-full">
-                      <thead>
-                        <tr className="border-b border-border">
-                          <th
-                            className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
-                          >
-                            {t("dashboard.siteManagement.table.headers.site")}
-                          </th>
-                          <th
-                            className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
-                          >
-                            {t("dashboard.siteManagement.table.headers.url")}
-                          </th>
-                          <th
-                            className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
-                          >
-                            {t("dashboard.siteManagement.table.headers.price")}
-                          </th>
-                          <th
-                            className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
-                          >
-                            {t("dashboard.siteManagement.table.headers.status")}
-                          </th>
-                          <th
-                            className={`${isRTL ? "text-left" : "text-right"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
-                          >
-                            {t(
-                              "dashboard.siteManagement.table.headers.actions"
-                            )}
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border">
-                        {sites.map((site) => (
-                          <tr
-                            key={site.id}
-                            className="hover:bg-muted/50 transition-colors group"
-                          >
-                            <td className="py-4 px-4">
-                              <div className="flex items-center space-x-3">
-                                <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center overflow-hidden">
-                                  {site.icon ? (
-                                    <Image
-                                      src={site.icon}
-                                      alt={`${site.name} icon`}
-                                      width={20}
-                                      height={20}
-                                      className="w-5 h-5 object-contain"
-                                      onError={(e) => {
-                                        e.currentTarget.style.display = "none";
-                                        const nextElement = e.currentTarget
-                                          .nextElementSibling as HTMLElement;
-                                        if (nextElement) {
-                                          nextElement.style.display = "flex";
-                                        }
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {isLoadingAnalytics ? (
+                    <div className="flex items-center justify-center py-8">
+                      <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                    </div>
+                  ) : analyticsError ? (
+                    <div className="text-center py-8">
+                      <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+                      <p className="text-sm text-destructive">
+                        {analyticsError}
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={loadCreditAnalytics}
+                        className="mt-2"
+                      >
+                        {t("dashboard.creditAnalytics.retry")}
+                      </Button>
+                    </div>
+                  ) : creditAnalytics ? (
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            {t("dashboard.creditAnalytics.totalIssued")}
+                          </p>
+                          <p className="text-lg font-bold text-foreground">
+                            {creditAnalytics.total_credits_issued.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            {t("dashboard.creditAnalytics.totalUsed")}
+                          </p>
+                          <p className="text-lg font-bold text-foreground">
+                            {creditAnalytics.total_credits_used.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            {t("dashboard.creditAnalytics.remaining")}
+                          </p>
+                          <p className="text-lg font-bold text-primary">
+                            {creditAnalytics.total_remaining_credits.toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="space-y-1">
+                          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                            {t("dashboard.creditAnalytics.dailyAverage")}
+                          </p>
+                          <p className="text-lg font-bold text-foreground">
+                            {creditAnalytics.average_daily_usage.toFixed(1)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-sm text-muted-foreground">
+                        {t("dashboard.creditAnalytics.noAnalyticsData")}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Third Row: Upgrade Subscription, Extend Subscription, Delete Subscription */}
+          {isLoadingPricingPlans ? (
+            <DashboardManagementCardsSkeleton />
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+              {/* Upgrade Subscription Card */}
+              <Card className="dark:bg-muted/50">
+                <CardHeader>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                      <ArrowUp className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-foreground">
+                        {t("dashboard.upgradeSubscription.title")}
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground">
+                        {t("dashboard.upgradeSubscription.description")}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="upgrade-email"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      {t("dashboard.upgradeSubscription.userEmail")}
+                    </Label>
+                    <Input
+                      id="upgrade-email"
+                      type="email"
+                      value={upgradeEmail}
+                      onChange={(e) => {
+                        setUpgradeEmail(e.target.value);
+                        if (upgradeEmailError) setUpgradeEmailError("");
+                      }}
+                      placeholder={t(
+                        "dashboard.upgradeSubscription.placeholders.email"
+                      )}
+                      className={`transition-all ${
+                        upgradeEmailError
+                          ? "border-destructive focus-visible:ring-destructive/20"
+                          : "focus-visible:ring-primary/20"
+                      }`}
+                    />
+                    {upgradeEmailError && (
+                      <p className="text-xs text-destructive flex items-center space-x-1">
+                        <AlertCircle className="w-3 h-3" />
+                        <span>{upgradeEmailError}</span>
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="upgrade-plan"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      {t("dashboard.upgradeSubscription.newPlan")}
+                    </Label>
+                    <Select
+                      value={upgradeNewPlan}
+                      onValueChange={(value) => {
+                        setUpgradeNewPlan(value);
+                        if (upgradeNewPlanError) setUpgradeNewPlanError("");
+                      }}
+                    >
+                      <SelectTrigger
+                        className={`transition-all w-full ${
+                          upgradeNewPlanError
+                            ? "border-destructive focus-visible:ring-destructive/20"
+                            : "focus-visible:ring-primary/20"
+                        }`}
+                      >
+                        <SelectValue
+                          placeholder={t(
+                            "dashboard.upgradeSubscription.placeholders.plan"
+                          )}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {pricingPlans.map((plan) => (
+                          <SelectItem key={plan.id} value={plan.name}>
+                            {plan.name} - {plan.credits}{" "}
+                            {t("dashboard.upgradeSubscription.credits")}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {upgradeNewPlanError && (
+                      <p className="text-xs text-destructive flex items-center space-x-1">
+                        <AlertCircle className="w-3 h-3" />
+                        <span>{upgradeNewPlanError}</span>
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handleUpgradeSubscription}
+                    disabled={isUpgradeSubmitting}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    {isUpgradeSubmitting ? (
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>
+                          {t("dashboard.upgradeSubscription.upgrading")}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <ArrowUp className="w-4 h-4" />
+                        <span>
+                          {t("dashboard.upgradeSubscription.upgrade")}
+                        </span>
+                      </div>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Extend Subscription Card */}
+              <Card className="dark:bg-muted/50">
+                <CardHeader>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                      <Calendar className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-foreground">
+                        {t("dashboard.extendSubscription.title")}
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground">
+                        {t("dashboard.extendSubscription.description")}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="extend-email"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      {t("dashboard.extendSubscription.userEmail")}
+                    </Label>
+                    <Input
+                      id="extend-email"
+                      type="email"
+                      value={extendEmail}
+                      onChange={(e) => {
+                        setExtendEmail(e.target.value);
+                        if (extendEmailError) setExtendEmailError("");
+                      }}
+                      placeholder={t(
+                        "dashboard.extendSubscription.placeholders.email"
+                      )}
+                      className={`transition-all ${
+                        extendEmailError
+                          ? "border-destructive focus-visible:ring-destructive/20"
+                          : "focus-visible:ring-primary/20"
+                      }`}
+                    />
+                    {extendEmailError && (
+                      <p className="text-xs text-destructive flex items-center space-x-1">
+                        <AlertCircle className="w-3 h-3" />
+                        <span>{extendEmailError}</span>
+                      </p>
+                    )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="extend-days"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      {t("dashboard.extendSubscription.days")}
+                    </Label>
+                    <Input
+                      id="extend-days"
+                      type="number"
+                      min="1"
+                      value={extendDays}
+                      onChange={(e) => {
+                        setExtendDays(e.target.value);
+                        if (extendDaysError) setExtendDaysError("");
+                      }}
+                      placeholder={t(
+                        "dashboard.extendSubscription.placeholders.days"
+                      )}
+                      className={`transition-all ${
+                        extendDaysError
+                          ? "border-destructive focus-visible:ring-destructive/20"
+                          : "focus-visible:ring-primary/20"
+                      }`}
+                    />
+                    {extendDaysError && (
+                      <p className="text-xs text-destructive flex items-center space-x-1">
+                        <AlertCircle className="w-3 h-3" />
+                        <span>{extendDaysError}</span>
+                      </p>
+                    )}
+                  </div>
+                  <Button
+                    onClick={handleExtendSubscription}
+                    disabled={isExtendSubmitting}
+                    className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    {isExtendSubmitting ? (
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>
+                          {t("dashboard.extendSubscription.extending")}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <Calendar className="w-4 h-4" />
+                        <span>{t("dashboard.extendSubscription.extend")}</span>
+                      </div>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+
+              {/* Delete Subscription Card */}
+              <Card className="dark:bg-muted/50 border-destructive/20">
+                <CardHeader>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-destructive/10 border border-destructive/10 rounded-lg flex items-center justify-center">
+                      <UserMinus className="w-5 h-5 text-destructive" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-foreground">
+                        {t("dashboard.deleteSubscription.title")}
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground">
+                        {t("dashboard.deleteSubscription.description")}
+                      </p>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="delete-email"
+                      className="text-sm font-medium text-foreground"
+                    >
+                      {t("dashboard.deleteSubscription.userEmail")}
+                    </Label>
+                    <Input
+                      id="delete-email"
+                      type="email"
+                      value={deleteEmail}
+                      onChange={(e) => {
+                        setDeleteEmail(e.target.value);
+                        if (deleteEmailError) setDeleteEmailError("");
+                      }}
+                      placeholder={t(
+                        "dashboard.deleteSubscription.placeholders.email"
+                      )}
+                      className={`transition-all ${
+                        deleteEmailError
+                          ? "border-destructive focus-visible:ring-destructive/20"
+                          : "focus-visible:ring-primary/20"
+                      }`}
+                    />
+                    {deleteEmailError && (
+                      <p className="text-xs text-destructive flex items-center space-x-1">
+                        <AlertCircle className="w-3 h-3" />
+                        <span>{deleteEmailError}</span>
+                      </p>
+                    )}
+                  </div>
+                  <div className="p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
+                    <div className="flex items-start space-x-2">
+                      <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                      <div>
+                        <p className="text-xs font-medium text-destructive">
+                          {t("dashboard.deleteSubscription.warning")}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {t("dashboard.deleteSubscription.warningDescription")}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    onClick={handleDeleteSubscription}
+                    disabled={isDeleteSubmitting}
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    {isDeleteSubmitting ? (
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>
+                          {t("dashboard.deleteSubscription.deleting")}
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center space-x-2">
+                        <UserMinus className="w-4 h-4" />
+                        <span>{t("dashboard.deleteSubscription.delete")}</span>
+                      </div>
+                    )}
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Supported Sites */}
+          {isLoadingSites ? (
+            <DashboardSitesManagementSkeleton isRTL={isRTL} />
+          ) : (
+            <Card className="dark:bg-muted/50">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-foreground">
+                  {t("dashboard.siteManagement.title")}
+                </CardTitle>
+                <Dialog
+                  open={isAddSiteDialogOpen}
+                  onOpenChange={setIsAddSiteDialogOpen}
+                >
+                  <DialogTrigger asChild>
+                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                      <Plus className="w-4 h-4 stroke-3" />
+                      {t("dashboard.siteManagement.addSite")}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent
+                    className={`sm:max-w-[425px] ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
+                  >
+                    <DialogHeader className={`${isRTL && "sm:text-right"}`}>
+                      <DialogTitle className="text-lg font-semibold text-foreground">
+                        {t("dashboard.siteManagement.addSite")}
+                      </DialogTitle>
+                      <DialogDescription className="text-xs text-muted-foreground">
+                        {t("dashboard.siteManagement.description")}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                      {/* Site Name */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="site-name"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <Globe className="w-4 h-4" />
+                          {t("dashboard.siteManagement.siteName")}
+                        </Label>
+                        <Input
+                          id="site-name"
+                          value={siteName}
+                          onChange={(e) => {
+                            setSiteName(e.target.value);
+                            if (siteNameError) setSiteNameError("");
+                          }}
+                          placeholder={t(
+                            "dashboard.siteManagement.placeholders.siteName"
+                          )}
+                          className={`transition-all ${
+                            siteNameError
+                              ? "border-destructive focus-visible:ring-destructive/20"
+                              : "focus-visible:ring-primary/20"
+                          }`}
+                        />
+                        {siteNameError && (
+                          <p className="text-sm text-destructive flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                            <span>{siteNameError}</span>
+                          </p>
+                        )}
+                      </div>
+                      {/* Site URL */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="site-url"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          {t("dashboard.siteManagement.siteUrl")}
+                        </Label>
+                        <Input
+                          id="site-url"
+                          value={siteUrl}
+                          onChange={(e) => {
+                            setSiteUrl(e.target.value);
+                            if (siteUrlError) setSiteUrlError("");
+                          }}
+                          placeholder={t(
+                            "dashboard.siteManagement.placeholders.siteUrl"
+                          )}
+                          className={`transition-all ${
+                            siteUrlError
+                              ? "border-destructive focus-visible:ring-destructive/20"
+                              : "focus-visible:ring-primary/20"
+                          }`}
+                        />
+                        {siteUrlError && (
+                          <p className="text-sm text-destructive flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                            <span>{siteUrlError}</span>
+                          </p>
+                        )}
+                      </div>
+                      {/* Price */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="site-price"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <CreditCard className="w-4 h-4" />
+                          {t("dashboard.siteManagement.price")}
+                        </Label>
+                        <Input
+                          id="site-price"
+                          type="number"
+                          min="1"
+                          value={sitePrice}
+                          onChange={(e) => {
+                            setSitePrice(e.target.value);
+                            if (sitePriceError) setSitePriceError("");
+                          }}
+                          placeholder={t(
+                            "dashboard.siteManagement.placeholders.sitePrice"
+                          )}
+                          className={`transition-all ${
+                            sitePriceError
+                              ? "border-destructive focus-visible:ring-destructive/20"
+                              : "focus-visible:ring-primary/20"
+                          }`}
+                        />
+                        {sitePriceError && (
+                          <p className="text-sm text-destructive flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                            <span>{sitePriceError}</span>
+                          </p>
+                        )}
+                      </div>
+                      {/* Icon URL (Optional) */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="site-icon"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <Activity className="w-4 h-4" />
+                          {t("dashboard.siteManagement.siteIcon")}
+                        </Label>
+                        <Input
+                          id="site-icon"
+                          value={siteIcon}
+                          onChange={(e) => setSiteIcon(e.target.value)}
+                          placeholder={t(
+                            "dashboard.siteManagement.placeholders.siteIcon"
+                          )}
+                          className="focus-visible:ring-primary/20"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {t(
+                            "dashboard.siteManagement.placeholders.siteIconHelp"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setIsAddSiteDialogOpen(false)}
+                        disabled={isAddingSite}
+                      >
+                        {t("common.cancel")}
+                      </Button>
+                      <Button
+                        type="button"
+                        onClick={handleAddSite}
+                        disabled={isAddingSite}
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                      >
+                        {isAddingSite ? (
+                          <div className="flex items-center space-x-2">
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                            <span>{t("dashboard.siteManagement.adding")}</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <Plus className="w-4 h-4" />
+                            <span>{t("dashboard.siteManagement.add")}</span>
+                          </div>
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </CardHeader>
+              <CardContent>
+                {isLoadingSites ? (
+                  <div className="flex justify-center items-center h-40">
+                    <Loader2 className="w-8 h-8 animate-spin" />
+                  </div>
+                ) : sitesError ? (
+                  <div className="text-center py-12 text-destructive">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
+                        <AlertCircle className="w-6 h-6 text-destructive" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">{sitesError}</p>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={loadSites}
+                          className="mt-2 text-black dark:text-white"
+                        >
+                          {t("dashboard.siteManagement.table.retry")}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ) : sites.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                        <Globe className="w-6 h-6 text-muted-foreground" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {t("dashboard.siteManagement.table.noSites")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {t(
+                            "dashboard.siteManagement.table.noSitesDescription"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto max-h-[240px] overflow-y-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b border-border">
+                            <th
+                              className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                            >
+                              {t("dashboard.siteManagement.table.headers.site")}
+                            </th>
+                            <th
+                              className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                            >
+                              {t("dashboard.siteManagement.table.headers.url")}
+                            </th>
+                            <th
+                              className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                            >
+                              {t(
+                                "dashboard.siteManagement.table.headers.price"
+                              )}
+                            </th>
+                            <th
+                              className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                            >
+                              {t(
+                                "dashboard.siteManagement.table.headers.status"
+                              )}
+                            </th>
+                            <th
+                              className={`${isRTL ? "text-left" : "text-right"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                            >
+                              {t(
+                                "dashboard.siteManagement.table.headers.actions"
+                              )}
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-border">
+                          {sites.map((site) => (
+                            <tr
+                              key={site.id}
+                              className="hover:bg-muted/50 transition-colors group"
+                            >
+                              <td className="py-4 px-4">
+                                <div className="flex items-center space-x-3">
+                                  <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center overflow-hidden">
+                                    {site.icon ? (
+                                      <Image
+                                        src={site.icon}
+                                        alt={`${site.name} icon`}
+                                        width={20}
+                                        height={20}
+                                        className="w-5 h-5 object-contain"
+                                        onError={(e) => {
+                                          e.currentTarget.style.display =
+                                            "none";
+                                          const nextElement = e.currentTarget
+                                            .nextElementSibling as HTMLElement;
+                                          if (nextElement) {
+                                            nextElement.style.display = "flex";
+                                          }
+                                        }}
+                                      />
+                                    ) : null}
+                                    <Globe
+                                      className="w-4 h-4 text-primary"
+                                      style={{
+                                        display: site.icon ? "none" : "flex",
                                       }}
                                     />
-                                  ) : null}
-                                  <Globe
-                                    className="w-4 h-4 text-primary"
-                                    style={{
-                                      display: site.icon ? "none" : "flex",
-                                    }}
-                                  />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="text-sm font-medium text-foreground truncate">
-                                    {site.name}
+                                  </div>
+                                  <div className="min-w-0 flex-1">
+                                    <div className="text-sm font-medium text-foreground truncate">
+                                      {site.name}
+                                    </div>
                                   </div>
                                 </div>
+                              </td>
+                              <td className="py-4 px-4">
+                                <a
+                                  href={site.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-primary hover:text-primary/80 transition-colors flex items-center space-x-1 max-w-[200px] truncate"
+                                >
+                                  <span className="truncate">{site.url}</span>
+                                  <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                                </a>
+                              </td>
+                              <td className="py-4 px-4">
+                                <div className="text-sm font-medium text-foreground">
+                                  {site.price}{" "}
+                                  {t("dashboard.siteManagement.table.credits")}
+                                </div>
+                              </td>
+                              <td className="py-4 px-4">
+                                <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 border border-green-200">
+                                  <CheckCircle className="w-3 h-3" />
+                                  <span>
+                                    {t("dashboard.siteManagement.table.active")}
+                                  </span>
+                                </div>
+                              </td>
+                              <td className="py-4 px-4">
+                                <div
+                                  className={`flex items-center ${isRTL ? "justify-end" : "justify-end"} space-x-2`}
+                                >
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    className="h-8 px-3"
+                                    onClick={() => handleDeleteSite(site.url)}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                    {t("dashboard.siteManagement.table.delete")}
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                    {/* Mobile Card View */}
+                    <div className="md:hidden space-y-3">
+                      {sites.map((site) => (
+                        <div
+                          key={site.id}
+                          className="bg-card border border-border rounded-xl p-4 space-y-4 hover:bg-muted/20 transition-colors"
+                        >
+                          {/* Header with Icon and Status */}
+                          <div className="flex flex-col">
+                            <div className="flex items-center space-x-3 flex-1 min-w-0">
+                              <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
+                                {site.icon ? (
+                                  <Image
+                                    src={site.icon}
+                                    alt={`${site.name} icon`}
+                                    width={20}
+                                    height={20}
+                                    className="w-5 h-5 object-contain"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = "none";
+                                      const nextElement = e.currentTarget
+                                        .nextElementSibling as HTMLElement;
+                                      if (nextElement) {
+                                        nextElement.style.display = "flex";
+                                      }
+                                    }}
+                                  />
+                                ) : null}
+                                <Globe
+                                  className="w-5 h-5 text-primary"
+                                  style={{
+                                    display: site.icon ? "none" : "flex",
+                                  }}
+                                />
                               </div>
-                            </td>
-                            <td className="py-4 px-4">
+                              <div className="min-w-0 flex-1">
+                                <div className="text-base font-semibold text-foreground truncate">
+                                  {site.name}
+                                </div>
+                                <div className="text-sm text-muted-foreground">
+                                  Added {site.addedDate}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="inline-flex items-center justify-center mt-4 space-x-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-green-100 text-green-800 border border-green-200 flex-shrink-0">
+                              <CheckCircle className="w-3 h-3" />
+                              <span>{site.status}</span>
+                            </div>
+                          </div>
+                          {/* Site Details */}
+                          <div className="space-y-3">
+                            <div className="space-y-1">
+                              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                {t(
+                                  "dashboard.siteManagement.table.headers.url"
+                                )}
+                              </div>
                               <a
                                 href={site.url}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-sm text-primary hover:text-primary/80 transition-colors flex items-center space-x-1 max-w-[200px] truncate"
+                                className={`text-sm text-primary hover:text-primary/80 transition-colors flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"} p-2 bg-primary/5 rounded-lg border border-primary/10`}
                               >
-                                <span className="truncate">{site.url}</span>
-                                <ExternalLink className="w-3 h-3 flex-shrink-0" />
+                                <Globe className="w-4 h-4 flex-shrink-0" />
+                                <span className="truncate flex-1 font-medium">
+                                  {site.url.replace(/^https?:\/\//, "")}
+                                </span>
+                                <ExternalLink className="w-4 h-4 flex-shrink-0" />
                               </a>
-                            </td>
-                            <td className="py-4 px-4">
-                              <div className="text-sm font-medium text-foreground">
-                                {site.price}{" "}
-                                {t("dashboard.siteManagement.table.credits")}
+                            </div>
+                            <div className="space-y-1">
+                              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                {t(
+                                  "dashboard.siteManagement.table.accessPrice"
+                                )}
                               </div>
-                            </td>
-                            <td className="py-4 px-4">
-                              <div className="inline-flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 border border-green-200">
-                                <CheckCircle className="w-3 h-3" />
-                                <span>
-                                  {t("dashboard.siteManagement.table.active")}
+                              <div
+                                className={`flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"} p-2 bg-secondary/50 rounded-lg`}
+                              >
+                                <Coins className="w-4 h-4 text-primary" />
+                                <span className="text-sm font-semibold text-foreground">
+                                  {site.price}{" "}
+                                  {t("dashboard.siteManagement.table.credits")}
                                 </span>
                               </div>
-                            </td>
-                            <td className="py-4 px-4">
-                              <div
-                                className={`flex items-center ${isRTL ? "justify-end" : "justify-end"} space-x-2`}
-                              >
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  className="h-8 px-3"
-                                  onClick={() => handleDeleteSite(site.url)}
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                  {t("dashboard.siteManagement.table.delete")}
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                  {/* Mobile Card View */}
-                  <div className="md:hidden space-y-3">
-                    {sites.map((site) => (
-                      <div
-                        key={site.id}
-                        className="bg-card border border-border rounded-xl p-4 space-y-4 hover:bg-muted/20 transition-colors"
-                      >
-                        {/* Header with Icon and Status */}
-                        <div className="flex flex-col">
-                          <div className="flex items-center space-x-3 flex-1 min-w-0">
-                            <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
-                              {site.icon ? (
-                                <Image
-                                  src={site.icon}
-                                  alt={`${site.name} icon`}
-                                  width={20}
-                                  height={20}
-                                  className="w-5 h-5 object-contain"
-                                  onError={(e) => {
-                                    e.currentTarget.style.display = "none";
-                                    const nextElement = e.currentTarget
-                                      .nextElementSibling as HTMLElement;
-                                    if (nextElement) {
-                                      nextElement.style.display = "flex";
-                                    }
-                                  }}
-                                />
-                              ) : null}
-                              <Globe
-                                className="w-5 h-5 text-primary"
-                                style={{
-                                  display: site.icon ? "none" : "flex",
-                                }}
-                              />
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <div className="text-base font-semibold text-foreground truncate">
-                                {site.name}
-                              </div>
-                              <div className="text-sm text-muted-foreground">
-                                Added {site.addedDate}
-                              </div>
                             </div>
                           </div>
-                          <div className="inline-flex items-center justify-center mt-4 space-x-1.5 px-3 py-1.5 text-xs font-medium rounded-full bg-green-100 text-green-800 border border-green-200 flex-shrink-0">
-                            <CheckCircle className="w-3 h-3" />
-                            <span>{site.status}</span>
-                          </div>
-                        </div>
-                        {/* Site Details */}
-                        <div className="space-y-3">
-                          <div className="space-y-1">
-                            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              {t("dashboard.siteManagement.table.headers.url")}
-                            </div>
-                            <a
-                              href={site.url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className={`text-sm text-primary hover:text-primary/80 transition-colors flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"} p-2 bg-primary/5 rounded-lg border border-primary/10`}
+                          {/* Action Buttons */}
+                          <div className="w-full pt-4 border-t border-border">
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              className="w-full h-10 flex-1 text-sm font-medium"
+                              onClick={() => handleDeleteSite(site.url)}
                             >
-                              <Globe className="w-4 h-4 flex-shrink-0" />
-                              <span className="truncate flex-1 font-medium">
-                                {site.url.replace(/^https?:\/\//, "")}
-                              </span>
-                              <ExternalLink className="w-4 h-4 flex-shrink-0" />
-                            </a>
-                          </div>
-                          <div className="space-y-1">
-                            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                              {t("dashboard.siteManagement.table.accessPrice")}
-                            </div>
-                            <div
-                              className={`flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"} p-2 bg-secondary/50 rounded-lg`}
-                            >
-                              <Coins className="w-4 h-4 text-primary" />
-                              <span className="text-sm font-semibold text-foreground">
-                                {site.price}{" "}
-                                {t("dashboard.siteManagement.table.credits")}
-                              </span>
-                            </div>
+                              <Trash2 className="w-4 h-4" />
+                              Delete
+                            </Button>
                           </div>
                         </div>
-                        {/* Action Buttons */}
-                        <div className="w-full pt-4 border-t border-border">
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            className="w-full h-10 flex-1 text-sm font-medium"
-                            onClick={() => handleDeleteSite(site.url)}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                            Delete
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-            </CardContent>
-          </Card>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
           {/* Pricing Management */}
-          <Card className="dark:bg-muted/50">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-foreground">
-                {t("dashboard.packageManagement.title")}
-              </CardTitle>
-              <Dialog
-                open={isAddPackageDialogOpen}
-                onOpenChange={setIsAddPackageDialogOpen}
-              >
-                <DialogTrigger asChild>
-                  <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                    <Package className="w-4 h-4 stroke-3" />
-                    {t("dashboard.packageManagement.addPackage")}
-                  </Button>
-                </DialogTrigger>
-                <DialogContent
-                  className={`sm:max-w-[475px] max-h-[85vh] overflow-y-auto ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
+          {isLoadingPricingPlans ? (
+            <DashboardPackageManagementSkeleton isRTL={isRTL} />
+          ) : (
+            <Card className="dark:bg-muted/50">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-foreground">
+                  {t("dashboard.packageManagement.title")}
+                </CardTitle>
+                <Dialog
+                  open={isAddPackageDialogOpen}
+                  onOpenChange={setIsAddPackageDialogOpen}
                 >
-                  <DialogHeader className={`${isRTL && "sm:text-right"}`}>
-                    <DialogTitle className="text-lg font-semibold text-foreground">
+                  <DialogTrigger asChild>
+                    <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                      <Package className="w-4 h-4 stroke-3" />
                       {t("dashboard.packageManagement.addPackage")}
-                    </DialogTitle>
-                    <DialogDescription className="text-xs text-muted-foreground">
-                      {t("dashboard.packageManagement.description")}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    {/* Package Name */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="package-name"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <Package className="w-4 h-4" />
-                        {t("dashboard.packageManagement.packageName")}
-                      </Label>
-                      <Input
-                        id="package-name"
-                        value={packageName}
-                        onChange={(e) => {
-                          setPackageName(e.target.value);
-                          if (packageNameError) setPackageNameError("");
-                        }}
-                        placeholder={t(
-                          "dashboard.packageManagement.placeholders.packageName"
-                        )}
-                        className={`transition-all ${
-                          packageNameError
-                            ? "border-destructive focus-visible:ring-destructive/20"
-                            : "focus-visible:ring-primary/20"
-                        }`}
-                      />
-                      {packageNameError && (
-                        <p className="text-sm text-destructive flex items-center space-x-1">
-                          <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                          <span>{packageNameError}</span>
-                        </p>
-                      )}
-                    </div>
-                    {/* Price */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="package-price"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <DollarSign className="w-4 h-4" />
-                        {t("dashboard.packageManagement.packagePrice")}
-                      </Label>
-                      <Input
-                        id="package-price"
-                        value={packagePrice}
-                        onChange={(e) => setPackagePrice(e.target.value)}
-                        placeholder={t(
-                          "dashboard.packageManagement.placeholders.packagePrice"
-                        )}
-                        className="transition-all focus-visible:ring-primary/20"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {t(
-                          "dashboard.packageManagement.placeholders.packagePriceHelp"
-                        )}
-                      </p>
-                    </div>
-                    {/* Description */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="package-description"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <FileText className="w-4 h-4" />
-                        {t("dashboard.packageManagement.packageDescription")}
-                      </Label>
-                      <Input
-                        id="package-description"
-                        value={packageDescription}
-                        onChange={(e) => {
-                          setPackageDescription(e.target.value);
-                          if (packageDescriptionError)
-                            setPackageDescriptionError("");
-                        }}
-                        placeholder={t(
-                          "dashboard.packageManagement.placeholders.packageDescription"
-                        )}
-                        className={`transition-all ${
-                          packageDescriptionError
-                            ? "border-destructive focus-visible:ring-destructive/20"
-                            : "focus-visible:ring-primary/20"
-                        }`}
-                      />
-                      {packageDescriptionError && (
-                        <p className="text-sm text-destructive flex items-center space-x-1">
-                          <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                          <span>{packageDescriptionError}</span>
-                        </p>
-                      )}
-                    </div>
-                    {/* Days Validity and Credits - Two columns */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="package-days"
-                          className="text-sm font-medium text-foreground flex items-center"
-                        >
-                          <Timer className="w-4 h-4" />
-                          Days Validity
-                        </Label>
-                        <Input
-                          id="package-days"
-                          type="number"
-                          min="1"
-                          value={packageDaysValidity}
-                          onChange={(e) => {
-                            setPackageDaysValidity(e.target.value);
-                            if (packageDaysValidityError)
-                              setPackageDaysValidityError("");
-                          }}
-                          placeholder={t(
-                            "dashboard.packageManagement.placeholders.daysValidity"
-                          )}
-                          className={`transition-all ${
-                            packageDaysValidityError
-                              ? "border-destructive focus-visible:ring-destructive/20"
-                              : "focus-visible:ring-primary/20"
-                          }`}
-                        />
-                        {packageDaysValidityError && (
-                          <p className="text-sm text-destructive flex items-center space-x-1">
-                            <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                            <span>{packageDaysValidityError}</span>
-                          </p>
-                        )}
-                      </div>
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="package-credits"
-                          className="text-sm font-medium text-foreground flex items-center"
-                        >
-                          <Coins className="w-4 h-4" />
-                          Credits
-                        </Label>
-                        <Input
-                          id="package-credits"
-                          type="number"
-                          min="1"
-                          value={packageCredits}
-                          onChange={(e) => {
-                            setPackageCredits(e.target.value);
-                            if (packageCreditsError) setPackageCreditsError("");
-                          }}
-                          placeholder={t(
-                            "dashboard.packageManagement.placeholders.credits"
-                          )}
-                          className={`transition-all ${
-                            packageCreditsError
-                              ? "border-destructive focus-visible:ring-destructive/20"
-                              : "focus-visible:ring-primary/20"
-                          }`}
-                        />
-                        {packageCreditsError && (
-                          <p className="text-sm text-destructive flex items-center space-x-1">
-                            <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                            <span>{packageCreditsError}</span>
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    {/* Contact Us URL */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="package-contact-url"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <LinkIcon className="w-4 h-4" />
-                        {t("dashboard.packageManagement.contactUrl")}
-                      </Label>
-                      <Input
-                        id="package-contact-url"
-                        type="url"
-                        value={packageContactUrl}
-                        onChange={(e) => {
-                          setPackageContactUrl(e.target.value);
-                          if (packageContactUrlError)
-                            setPackageContactUrlError("");
-                        }}
-                        placeholder={t(
-                          "dashboard.packageManagement.placeholders.contactUrl"
-                        )}
-                        className={`transition-all ${
-                          packageContactUrlError
-                            ? "border-destructive focus-visible:ring-destructive/20"
-                            : "focus-visible:ring-primary/20"
-                        }`}
-                      />
-                      {packageContactUrlError && (
-                        <p className="text-sm text-destructive flex items-center space-x-1">
-                          <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                          <span>{packageContactUrlError}</span>
-                        </p>
-                      )}
-                    </div>
-                    {/* Supported Sites */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="package-sites"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <Globe className="w-4 h-4" />
-                        {t("dashboard.packageManagement.supportedSites")}
-                      </Label>
-                      <Input
-                        id="package-sites"
-                        value={packageSupportedSites}
-                        onChange={(e) =>
-                          setPackageSupportedSites(e.target.value)
-                        }
-                        placeholder={t(
-                          "dashboard.packageManagement.placeholders.supportedSites"
-                        )}
-                        className="transition-all focus-visible:ring-primary/20"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {t(
-                          "dashboard.packageManagement.placeholders.supportedSitesHelp"
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => setIsAddPackageDialogOpen(false)}
-                      disabled={isAddingPackage}
-                    >
-                      {t("dashboard.packageManagement.buttons.cancel")}
                     </Button>
-                    <Button
-                      type="button"
-                      onClick={handleAddPackage}
-                      disabled={isAddingPackage}
-                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                    >
-                      {isAddingPackage ? (
-                        <>
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                          {t("dashboard.packageManagement.buttons.adding")}
-                        </>
-                      ) : (
-                        <>
+                  </DialogTrigger>
+                  <DialogContent
+                    className={`sm:max-w-[475px] max-h-[85vh] overflow-y-auto ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
+                  >
+                    <DialogHeader className={`${isRTL && "sm:text-right"}`}>
+                      <DialogTitle className="text-lg font-semibold text-foreground">
+                        {t("dashboard.packageManagement.addPackage")}
+                      </DialogTitle>
+                      <DialogDescription className="text-xs text-muted-foreground">
+                        {t("dashboard.packageManagement.description")}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      {/* Package Name */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="package-name"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
                           <Package className="w-4 h-4" />
-                          {t("dashboard.packageManagement.buttons.addPackage")}
-                        </>
-                      )}
-                    </Button>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-              {/* Edit Package Dialog */}
-              <Dialog
-                open={isEditPackageDialogOpen}
-                onOpenChange={setIsEditPackageDialogOpen}
-              >
-                <DialogContent
-                  className={`sm:max-w-[500px] max-h-[85vh] overflow-y-auto ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
-                >
-                  <DialogHeader className={`${isRTL && "sm:text-right"}`}>
-                    <DialogTitle className="text-lg font-semibold text-foreground">
-                      {t("dashboard.packageManagement.editPackage")}
-                    </DialogTitle>
-                    <DialogDescription className="text-xs text-muted-foreground">
-                      {t("dashboard.packageManagement.editDescription")}
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-4 py-4">
-                    {/* Package Name */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="edit-package-name"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <Package className="w-4 h-4" />
-                        {t("dashboard.packageManagement.packageName")}
-                      </Label>
-                      <Input
-                        id="edit-package-name"
-                        value={editPackageName}
-                        onChange={(e) => {
-                          setEditPackageName(e.target.value);
-                          if (editPackageNameError) setEditPackageNameError("");
-                        }}
-                        placeholder="Enter package name"
-                        className={`transition-all ${
-                          editPackageNameError
-                            ? "border-destructive focus-visible:ring-destructive/20"
-                            : "focus-visible:ring-primary/20"
-                        }`}
-                      />
-                      {editPackageNameError && (
-                        <p className="text-sm text-destructive flex items-center space-x-1">
-                          <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                          <span>{editPackageNameError}</span>
-                        </p>
-                      )}
-                    </div>
-                    {/* Price */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="edit-package-price"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <DollarSign className="w-4 h-4" />
-                        {t("dashboard.packageManagement.packagePrice")}
-                      </Label>
-                      <Input
-                        id="edit-package-price"
-                        value={editPackagePrice}
-                        onChange={(e) => setEditPackagePrice(e.target.value)}
-                        placeholder={t(
-                          "dashboard.packageManagement.placeholders.packagePrice"
-                        )}
-                        className="transition-all focus-visible:ring-primary/20"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {t(
-                          "dashboard.packageManagement.placeholders.packagePriceHelp"
-                        )}
-                      </p>
-                    </div>
-                    {/* Description */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="edit-package-description"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <FileText className="w-4 h-4" />
-                        {t("dashboard.packageManagement.packageDescription")}
-                      </Label>
-                      <Input
-                        id="edit-package-description"
-                        value={editPackageDescription}
-                        onChange={(e) => {
-                          setEditPackageDescription(e.target.value);
-                          if (editPackageDescriptionError)
-                            setEditPackageDescriptionError("");
-                        }}
-                        placeholder={t(
-                          "dashboard.packageManagement.placeholders.packageDescription"
-                        )}
-                        className={`transition-all ${
-                          editPackageDescriptionError
-                            ? "border-destructive focus-visible:ring-destructive/20"
-                            : "focus-visible:ring-primary/20"
-                        }`}
-                      />
-                      {editPackageDescriptionError && (
-                        <p className="text-sm text-destructive flex items-center space-x-1">
-                          <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                          <span>{editPackageDescriptionError}</span>
-                        </p>
-                      )}
-                    </div>
-                    {/* Days Validity and Credits - Two columns */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label
-                          htmlFor="edit-package-days"
-                          className="text-sm font-medium text-foreground flex items-center"
-                        >
-                          <Timer className="w-4 h-4" />
-                          Days Validity
+                          {t("dashboard.packageManagement.packageName")}
                         </Label>
                         <Input
-                          id="edit-package-days"
-                          type="number"
-                          min="1"
-                          value={editPackageDaysValidity}
+                          id="package-name"
+                          value={packageName}
                           onChange={(e) => {
-                            setEditPackageDaysValidity(e.target.value);
-                            if (editPackageDaysValidityError)
-                              setEditPackageDaysValidityError("");
+                            setPackageName(e.target.value);
+                            if (packageNameError) setPackageNameError("");
                           }}
-                          placeholder="30"
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.packageName"
+                          )}
                           className={`transition-all ${
-                            editPackageDaysValidityError
+                            packageNameError
                               ? "border-destructive focus-visible:ring-destructive/20"
                               : "focus-visible:ring-primary/20"
                           }`}
                         />
-                        {editPackageDaysValidityError && (
+                        {packageNameError && (
                           <p className="text-sm text-destructive flex items-center space-x-1">
                             <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                            <span>{editPackageDaysValidityError}</span>
+                            <span>{packageNameError}</span>
                           </p>
                         )}
                       </div>
+                      {/* Price */}
                       <div className="space-y-2">
                         <Label
-                          htmlFor="edit-package-credits"
+                          htmlFor="package-price"
                           className="text-sm font-medium text-foreground flex items-center"
                         >
-                          <Coins className="w-4 h-4" />
-                          Credits
+                          <DollarSign className="w-4 h-4" />
+                          {t("dashboard.packageManagement.packagePrice")}
                         </Label>
                         <Input
-                          id="edit-package-credits"
-                          type="number"
-                          min="1"
-                          value={editPackageCredits}
+                          id="package-price"
+                          value={packagePrice}
+                          onChange={(e) => setPackagePrice(e.target.value)}
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.packagePrice"
+                          )}
+                          className="transition-all focus-visible:ring-primary/20"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {t(
+                            "dashboard.packageManagement.placeholders.packagePriceHelp"
+                          )}
+                        </p>
+                      </div>
+                      {/* Description */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="package-description"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <FileText className="w-4 h-4" />
+                          {t("dashboard.packageManagement.packageDescription")}
+                        </Label>
+                        <Input
+                          id="package-description"
+                          value={packageDescription}
                           onChange={(e) => {
-                            setEditPackageCredits(e.target.value);
-                            if (editPackageCreditsError)
-                              setEditPackageCreditsError("");
+                            setPackageDescription(e.target.value);
+                            if (packageDescriptionError)
+                              setPackageDescriptionError("");
                           }}
-                          placeholder="100"
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.packageDescription"
+                          )}
                           className={`transition-all ${
-                            editPackageCreditsError
+                            packageDescriptionError
                               ? "border-destructive focus-visible:ring-destructive/20"
                               : "focus-visible:ring-primary/20"
                           }`}
                         />
-                        {editPackageCreditsError && (
+                        {packageDescriptionError && (
                           <p className="text-sm text-destructive flex items-center space-x-1">
                             <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                            <span>{editPackageCreditsError}</span>
+                            <span>{packageDescriptionError}</span>
                           </p>
                         )}
                       </div>
-                    </div>
-                    {/* Contact Us URL */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="edit-package-contact-url"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <LinkIcon className="w-4 h-4" />
-                        {t("dashboard.packageManagement.contactUrl")}
-                      </Label>
-                      <Input
-                        id="edit-package-contact-url"
-                        type="url"
-                        value={editPackageContactUrl}
-                        onChange={(e) => {
-                          setEditPackageContactUrl(e.target.value);
-                          if (editPackageContactUrlError)
-                            setEditPackageContactUrlError("");
-                        }}
-                        placeholder="https://example.com/contact"
-                        className={`transition-all ${
-                          editPackageContactUrlError
-                            ? "border-destructive focus-visible:ring-destructive/20"
-                            : "focus-visible:ring-primary/20"
-                        }`}
-                      />
-                      {editPackageContactUrlError && (
-                        <p className="text-sm text-destructive flex items-center space-x-1">
-                          <span className="w-1 h-1 bg-destructive rounded-full"></span>
-                          <span>{editPackageContactUrlError}</span>
-                        </p>
-                      )}
-                    </div>
-                    {/* Supported Sites */}
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="edit-package-sites"
-                        className="text-sm font-medium text-foreground flex items-center"
-                      >
-                        <Globe className="w-4 h-4" />
-                        {t("dashboard.packageManagement.supportedSites")}
-                      </Label>
-                      <Input
-                        id="edit-package-sites"
-                        value={editPackageSupportedSites}
-                        onChange={(e) =>
-                          setEditPackageSupportedSites(e.target.value)
-                        }
-                        placeholder={t(
-                          "dashboard.packageManagement.placeholders.supportedSites"
-                        )}
-                        className="transition-all focus-visible:ring-primary/20"
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        {t(
-                          "dashboard.packageManagement.placeholders.supportedSitesHelp"
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <DialogFooter className="flex justify-between items-center">
-                    <div className="flex-1">
-                      <AlertDialog
-                        open={isDeleteDialogOpen}
-                        onOpenChange={setIsDeleteDialogOpen}
-                      >
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            type="button"
-                            size="sm"
-                            variant="destructive"
-                            disabled={isEditingPackage}
+                      {/* Days Validity and Credits - Two columns */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="package-days"
+                            className="text-sm font-medium text-foreground flex items-center"
                           >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              {t("dashboard.packageManagement.confirmDelete")}
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              {t(
-                                "dashboard.packageManagement.deleteDescription"
-                              )}
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel disabled={isDeletingPackage}>
-                              {t("dashboard.packageManagement.buttons.cancel")}
-                            </AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={handleDeletePackage}
-                              disabled={isDeletingPackage}
-                              className="bg-destructive hover:bg-destructive/70 text-white"
-                            >
-                              {isDeletingPackage ? (
-                                <>
-                                  <Loader2 className="w-5 h-5 animate-spin" />
-                                  {t("dashboard.packageManagement.deleting")}
-                                </>
-                              ) : (
-                                <>
-                                  <Trash2 className="w-4 h-4" />
-                                  {t("dashboard.packageManagement.delete")}
-                                </>
-                              )}
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+                            <Timer className="w-4 h-4" />
+                            Days Validity
+                          </Label>
+                          <Input
+                            id="package-days"
+                            type="number"
+                            min="1"
+                            value={packageDaysValidity}
+                            onChange={(e) => {
+                              setPackageDaysValidity(e.target.value);
+                              if (packageDaysValidityError)
+                                setPackageDaysValidityError("");
+                            }}
+                            placeholder={t(
+                              "dashboard.packageManagement.placeholders.daysValidity"
+                            )}
+                            className={`transition-all ${
+                              packageDaysValidityError
+                                ? "border-destructive focus-visible:ring-destructive/20"
+                                : "focus-visible:ring-primary/20"
+                            }`}
+                          />
+                          {packageDaysValidityError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{packageDaysValidityError}</span>
+                            </p>
+                          )}
+                        </div>
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="package-credits"
+                            className="text-sm font-medium text-foreground flex items-center"
+                          >
+                            <Coins className="w-4 h-4" />
+                            Credits
+                          </Label>
+                          <Input
+                            id="package-credits"
+                            type="number"
+                            min="1"
+                            value={packageCredits}
+                            onChange={(e) => {
+                              setPackageCredits(e.target.value);
+                              if (packageCreditsError)
+                                setPackageCreditsError("");
+                            }}
+                            placeholder={t(
+                              "dashboard.packageManagement.placeholders.credits"
+                            )}
+                            className={`transition-all ${
+                              packageCreditsError
+                                ? "border-destructive focus-visible:ring-destructive/20"
+                                : "focus-visible:ring-primary/20"
+                            }`}
+                          />
+                          {packageCreditsError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{packageCreditsError}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {/* Contact Us URL */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="package-contact-url"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <LinkIcon className="w-4 h-4" />
+                          {t("dashboard.packageManagement.contactUrl")}
+                        </Label>
+                        <Input
+                          id="package-contact-url"
+                          type="url"
+                          value={packageContactUrl}
+                          onChange={(e) => {
+                            setPackageContactUrl(e.target.value);
+                            if (packageContactUrlError)
+                              setPackageContactUrlError("");
+                          }}
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.contactUrl"
+                          )}
+                          className={`transition-all ${
+                            packageContactUrlError
+                              ? "border-destructive focus-visible:ring-destructive/20"
+                              : "focus-visible:ring-primary/20"
+                          }`}
+                        />
+                        {packageContactUrlError && (
+                          <p className="text-sm text-destructive flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                            <span>{packageContactUrlError}</span>
+                          </p>
+                        )}
+                      </div>
+                      {/* Supported Sites */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="package-sites"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <Globe className="w-4 h-4" />
+                          {t("dashboard.packageManagement.supportedSites")}
+                        </Label>
+                        <Input
+                          id="package-sites"
+                          value={packageSupportedSites}
+                          onChange={(e) =>
+                            setPackageSupportedSites(e.target.value)
+                          }
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.supportedSites"
+                          )}
+                          className="transition-all focus-visible:ring-primary/20"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {t(
+                            "dashboard.packageManagement.placeholders.supportedSitesHelp"
+                          )}
+                        </p>
+                      </div>
                     </div>
-                    <div className="flex space-x-2">
+                    <DialogFooter>
                       <Button
                         type="button"
                         variant="outline"
-                        onClick={() => setIsEditPackageDialogOpen(false)}
-                        disabled={isEditingPackage}
+                        onClick={() => setIsAddPackageDialogOpen(false)}
+                        disabled={isAddingPackage}
                       >
                         {t("dashboard.packageManagement.buttons.cancel")}
                       </Button>
                       <Button
                         type="button"
-                        onClick={handleUpdatePackage}
-                        disabled={isEditingPackage}
+                        onClick={handleAddPackage}
+                        disabled={isAddingPackage}
                         className="bg-primary hover:bg-primary/90 text-primary-foreground"
                       >
-                        {isEditingPackage ? (
+                        {isAddingPackage ? (
                           <>
                             <Loader2 className="w-5 h-5 animate-spin" />
-                            {t("dashboard.packageManagement.buttons.updating")}
+                            {t("dashboard.packageManagement.buttons.adding")}
                           </>
                         ) : (
                           <>
-                            <Settings className="w-4 h-4" />
+                            <Package className="w-4 h-4" />
                             {t(
-                              "dashboard.packageManagement.buttons.updatePackage"
+                              "dashboard.packageManagement.buttons.addPackage"
                             )}
                           </>
                         )}
                       </Button>
-                    </div>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CardHeader>
-            <CardContent>
-              {isLoadingPricingPlans ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {[...Array(3)].map((_, index) => (
-                    <Card
-                      key={index}
-                      className="relative overflow-hidden border-border/50 p-0"
-                    >
-                      <CardContent className="p-0 dark:bg-secondary">
-                        <div className="bg-secondary/50 dark:bg-secondary p-4 sm:p-6 border-b border-border/50">
-                          <div className="space-y-2">
-                            <div className="h-6 bg-muted animate-pulse rounded"></div>
-                            <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
-                          </div>
-                        </div>
-                        <div className="p-4 sm:p-6 space-y-4">
-                          <div className="h-4 bg-muted animate-pulse rounded"></div>
-                          <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
-                          <div className="h-8 bg-muted animate-pulse rounded"></div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : pricingPlansError ? (
-                <div className="text-center py-8">
-                  <div className="flex justify-center">
-                    <div className=" w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
-                      <AlertCircle className="w-6 h-6 text-destructive" />
-                    </div>
-                  </div>
-                  <p className="text-destructive my-2">{pricingPlansError}</p>
-                  <Button
-                    onClick={loadPricingPlans}
-                    variant="outline"
-                    size="sm"
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                {/* Edit Package Dialog */}
+                <Dialog
+                  open={isEditPackageDialogOpen}
+                  onOpenChange={setIsEditPackageDialogOpen}
+                >
+                  <DialogContent
+                    className={`sm:max-w-[500px] max-h-[85vh] overflow-y-auto ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
                   >
-                    {t("dashboard.buttons.retry")}
-                  </Button>
-                </div>
-              ) : pricingPlans.length === 0 ? (
-                <div className="text-center py-8">
-                  <p className="text-muted-foreground">
-                    {t("dashboard.packageManagement.noPricingPlans")}
-                  </p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                  {pricingPlans.map((plan) => (
-                    <Card
-                      key={plan.id}
-                      className="relative overflow-hidden border-border/50 p-0"
-                    >
-                      <CardContent className="p-0 dark:bg-secondary">
-                        {/* Header Section */}
-                        <div className="bg-secondary/50 dark:bg-secondary p-4 sm:p-6 border-b border-border/50">
-                          <div className="flex items-start justify-between">
-                            <div className="space-y-2 flex-1 min-w-0">
-                              <h3 className="text-lg sm:text-xl font-bold text-foreground truncate">
-                                {plan.name}
-                              </h3>
-                              <p className="text-sm text-muted-foreground">
-                                {plan.description}
-                              </p>
-                            </div>
-                            <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 ml-3">
-                              <Package className="w-5 h-5 text-primary" />
-                            </div>
-                          </div>
+                    <DialogHeader className={`${isRTL && "sm:text-right"}`}>
+                      <DialogTitle className="text-lg font-semibold text-foreground">
+                        {t("dashboard.packageManagement.editPackage")}
+                      </DialogTitle>
+                      <DialogDescription className="text-xs text-muted-foreground">
+                        {t("dashboard.packageManagement.editDescription")}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      {/* Package Name */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="edit-package-name"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <Package className="w-4 h-4" />
+                          {t("dashboard.packageManagement.packageName")}
+                        </Label>
+                        <Input
+                          id="edit-package-name"
+                          value={editPackageName}
+                          onChange={(e) => {
+                            setEditPackageName(e.target.value);
+                            if (editPackageNameError)
+                              setEditPackageNameError("");
+                          }}
+                          placeholder="Enter package name"
+                          className={`transition-all ${
+                            editPackageNameError
+                              ? "border-destructive focus-visible:ring-destructive/20"
+                              : "focus-visible:ring-primary/20"
+                          }`}
+                        />
+                        {editPackageNameError && (
+                          <p className="text-sm text-destructive flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                            <span>{editPackageNameError}</span>
+                          </p>
+                        )}
+                      </div>
+                      {/* Price */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="edit-package-price"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <DollarSign className="w-4 h-4" />
+                          {t("dashboard.packageManagement.packagePrice")}
+                        </Label>
+                        <Input
+                          id="edit-package-price"
+                          value={editPackagePrice}
+                          onChange={(e) => setEditPackagePrice(e.target.value)}
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.packagePrice"
+                          )}
+                          className="transition-all focus-visible:ring-primary/20"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {t(
+                            "dashboard.packageManagement.placeholders.packagePriceHelp"
+                          )}
+                        </p>
+                      </div>
+                      {/* Description */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="edit-package-description"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <FileText className="w-4 h-4" />
+                          {t("dashboard.packageManagement.packageDescription")}
+                        </Label>
+                        <Input
+                          id="edit-package-description"
+                          value={editPackageDescription}
+                          onChange={(e) => {
+                            setEditPackageDescription(e.target.value);
+                            if (editPackageDescriptionError)
+                              setEditPackageDescriptionError("");
+                          }}
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.packageDescription"
+                          )}
+                          className={`transition-all ${
+                            editPackageDescriptionError
+                              ? "border-destructive focus-visible:ring-destructive/20"
+                              : "focus-visible:ring-primary/20"
+                          }`}
+                        />
+                        {editPackageDescriptionError && (
+                          <p className="text-sm text-destructive flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                            <span>{editPackageDescriptionError}</span>
+                          </p>
+                        )}
+                      </div>
+                      {/* Days Validity and Credits - Two columns */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="edit-package-days"
+                            className="text-sm font-medium text-foreground flex items-center"
+                          >
+                            <Timer className="w-4 h-4" />
+                            Days Validity
+                          </Label>
+                          <Input
+                            id="edit-package-days"
+                            type="number"
+                            min="1"
+                            value={editPackageDaysValidity}
+                            onChange={(e) => {
+                              setEditPackageDaysValidity(e.target.value);
+                              if (editPackageDaysValidityError)
+                                setEditPackageDaysValidityError("");
+                            }}
+                            placeholder="30"
+                            className={`transition-all ${
+                              editPackageDaysValidityError
+                                ? "border-destructive focus-visible:ring-destructive/20"
+                                : "focus-visible:ring-primary/20"
+                            }`}
+                          />
+                          {editPackageDaysValidityError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{editPackageDaysValidityError}</span>
+                            </p>
+                          )}
                         </div>
-                        {/* Details Section */}
-                        <div className="p-4 sm:p-6 space-y-4">
-                          {/* Credits and Validity */}
-                          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                            <div className="space-y-1">
-                              <div
-                                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
-                              >
-                                <Coins className="w-4 h-4" />
-                                <span>
-                                  {t(
-                                    "dashboard.packageManagement.planDetails.credits"
-                                  )}
-                                </span>
-                              </div>
-                              <p className="text-base sm:text-lg font-semibold text-foreground">
-                                {plan.credits.toLocaleString()}
-                              </p>
-                            </div>
-                            <div className="space-y-1">
-                              <div
-                                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
-                              >
-                                <Timer className="w-4 h-4" />
-                                <span>
-                                  {t(
-                                    "dashboard.packageManagement.planDetails.validity"
-                                  )}
-                                </span>
-                              </div>
-                              <p className="text-base sm:text-lg font-semibold text-foreground">
-                                {plan.daysValidity}{" "}
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="edit-package-credits"
+                            className="text-sm font-medium text-foreground flex items-center"
+                          >
+                            <Coins className="w-4 h-4" />
+                            Credits
+                          </Label>
+                          <Input
+                            id="edit-package-credits"
+                            type="number"
+                            min="1"
+                            value={editPackageCredits}
+                            onChange={(e) => {
+                              setEditPackageCredits(e.target.value);
+                              if (editPackageCreditsError)
+                                setEditPackageCreditsError("");
+                            }}
+                            placeholder="100"
+                            className={`transition-all ${
+                              editPackageCreditsError
+                                ? "border-destructive focus-visible:ring-destructive/20"
+                                : "focus-visible:ring-primary/20"
+                            }`}
+                          />
+                          {editPackageCreditsError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{editPackageCreditsError}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {/* Contact Us URL */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="edit-package-contact-url"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <LinkIcon className="w-4 h-4" />
+                          {t("dashboard.packageManagement.contactUrl")}
+                        </Label>
+                        <Input
+                          id="edit-package-contact-url"
+                          type="url"
+                          value={editPackageContactUrl}
+                          onChange={(e) => {
+                            setEditPackageContactUrl(e.target.value);
+                            if (editPackageContactUrlError)
+                              setEditPackageContactUrlError("");
+                          }}
+                          placeholder="https://example.com/contact"
+                          className={`transition-all ${
+                            editPackageContactUrlError
+                              ? "border-destructive focus-visible:ring-destructive/20"
+                              : "focus-visible:ring-primary/20"
+                          }`}
+                        />
+                        {editPackageContactUrlError && (
+                          <p className="text-sm text-destructive flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                            <span>{editPackageContactUrlError}</span>
+                          </p>
+                        )}
+                      </div>
+                      {/* Supported Sites */}
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="edit-package-sites"
+                          className="text-sm font-medium text-foreground flex items-center"
+                        >
+                          <Globe className="w-4 h-4" />
+                          {t("dashboard.packageManagement.supportedSites")}
+                        </Label>
+                        <Input
+                          id="edit-package-sites"
+                          value={editPackageSupportedSites}
+                          onChange={(e) =>
+                            setEditPackageSupportedSites(e.target.value)
+                          }
+                          placeholder={t(
+                            "dashboard.packageManagement.placeholders.supportedSites"
+                          )}
+                          className="transition-all focus-visible:ring-primary/20"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          {t(
+                            "dashboard.packageManagement.placeholders.supportedSitesHelp"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                    <DialogFooter className="flex justify-between items-center">
+                      <div className="flex-1">
+                        <AlertDialog
+                          open={isDeleteDialogOpen}
+                          onOpenChange={setIsDeleteDialogOpen}
+                        >
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="destructive"
+                              disabled={isEditingPackage}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                {t("dashboard.packageManagement.confirmDelete")}
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
                                 {t(
-                                  "dashboard.packageManagement.planDetails.days"
+                                  "dashboard.packageManagement.deleteDescription"
                                 )}
-                              </p>
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel disabled={isDeletingPackage}>
+                                {t(
+                                  "dashboard.packageManagement.buttons.cancel"
+                                )}
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={handleDeletePackage}
+                                disabled={isDeletingPackage}
+                                className="bg-destructive hover:bg-destructive/70 text-white"
+                              >
+                                {isDeletingPackage ? (
+                                  <>
+                                    <Loader2 className="w-5 h-5 animate-spin" />
+                                    {t("dashboard.packageManagement.deleting")}
+                                  </>
+                                ) : (
+                                  <>
+                                    <Trash2 className="w-4 h-4" />
+                                    {t("dashboard.packageManagement.delete")}
+                                  </>
+                                )}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                      <div className="flex space-x-2">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsEditPackageDialogOpen(false)}
+                          disabled={isEditingPackage}
+                        >
+                          {t("dashboard.packageManagement.buttons.cancel")}
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleUpdatePackage}
+                          disabled={isEditingPackage}
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
+                          {isEditingPackage ? (
+                            <>
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              {t(
+                                "dashboard.packageManagement.buttons.updating"
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              <Settings className="w-4 h-4" />
+                              {t(
+                                "dashboard.packageManagement.buttons.updatePackage"
+                              )}
+                            </>
+                          )}
+                        </Button>
+                      </div>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+              </CardHeader>
+              <CardContent>
+                {isLoadingPricingPlans ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    {[...Array(3)].map((_, index) => (
+                      <Card
+                        key={index}
+                        className="relative overflow-hidden border-border/50 p-0"
+                      >
+                        <CardContent className="p-0 dark:bg-secondary">
+                          <div className="bg-secondary/50 dark:bg-secondary p-4 sm:p-6 border-b border-border/50">
+                            <div className="space-y-2">
+                              <div className="h-6 bg-muted animate-pulse rounded"></div>
+                              <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
                             </div>
                           </div>
-                          {/* Supported Sites */}
-                          {plan.supportedSites &&
-                            plan.supportedSites.length > 0 && (
-                              <div className="space-y-3">
+                          <div className="p-4 sm:p-6 space-y-4">
+                            <div className="h-4 bg-muted animate-pulse rounded"></div>
+                            <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+                            <div className="h-8 bg-muted animate-pulse rounded"></div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : pricingPlansError ? (
+                  <div className="text-center py-8">
+                    <div className="flex justify-center">
+                      <div className=" w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
+                        <AlertCircle className="w-6 h-6 text-destructive" />
+                      </div>
+                    </div>
+                    <p className="text-destructive my-2">{pricingPlansError}</p>
+                    <Button
+                      onClick={loadPricingPlans}
+                      variant="outline"
+                      size="sm"
+                    >
+                      {t("dashboard.buttons.retry")}
+                    </Button>
+                  </div>
+                ) : pricingPlans.length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-muted-foreground">
+                      {t("dashboard.packageManagement.noPricingPlans")}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                    {pricingPlans.map((plan) => (
+                      <Card
+                        key={plan.id}
+                        className="relative overflow-hidden border-border/50 p-0"
+                      >
+                        <CardContent className="p-0 dark:bg-secondary">
+                          {/* Header Section */}
+                          <div className="bg-secondary/50 dark:bg-secondary p-4 sm:p-6 border-b border-border/50">
+                            <div className="flex items-start justify-between">
+                              <div className="space-y-2 flex-1 min-w-0">
+                                <h3 className="text-lg sm:text-xl font-bold text-foreground truncate">
+                                  {plan.name}
+                                </h3>
+                                <p className="text-sm text-muted-foreground">
+                                  {plan.description}
+                                </p>
+                              </div>
+                              <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 ml-3">
+                                <Package className="w-5 h-5 text-primary" />
+                              </div>
+                            </div>
+                          </div>
+                          {/* Details Section */}
+                          <div className="p-4 sm:p-6 space-y-4">
+                            {/* Credits and Validity */}
+                            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                              <div className="space-y-1">
                                 <div
-                                  className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
+                                  className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
                                 >
-                                  <Globe className="w-4 h-4" />
+                                  <Coins className="w-4 h-4" />
                                   <span>
                                     {t(
-                                      "dashboard.packageManagement.planDetails.supportedSites"
+                                      "dashboard.packageManagement.planDetails.credits"
                                     )}
                                   </span>
                                 </div>
-                                <div className="flex flex-wrap gap-2">
-                                  {plan.supportedSites.map((site, index) => (
-                                    <span
-                                      key={index}
-                                      className={`inline-flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} px-3 py-2 rounded-lg bg-secondary/50 dark:bg-card/50 border border-secondary text-sm font-medium text-foreground`}
-                                    >
-                                      <div className="w-4 h-4 bg-primary/10 border border-primary/10 rounded flex items-center justify-center">
-                                        <Globe className="w-3 h-3 text-primary" />
-                                      </div>
-                                      <span>{site}</span>
-                                    </span>
-                                  ))}
-                                </div>
+                                <p className="text-base sm:text-lg font-semibold text-foreground">
+                                  {plan.credits.toLocaleString()}
+                                </p>
                               </div>
-                            )}
-                          <div
-                            className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
-                          >
-                            <Check className="w-4 h-4 stroke-3" />
-                            <span>{t("pricing.labels.featuresIncluded")}</span>
-                          </div>
-                          {/* Features */}
-                          <div className="space-y-3">
-                            <div className="space-y-3">
-                              {plan.features.map((feature, index) => (
+                              <div className="space-y-1">
                                 <div
-                                  key={index}
-                                  className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg bg-green-50 dark:bg-green-50/10 border border-green-100 dark:border-green-100/10`}
+                                  className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
                                 >
-                                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                    <Check className="w-4 h-4 text-white" />
-                                  </div>
-                                  <span className="text-foreground font-medium text-sm">
-                                    {t(feature)}
+                                  <Timer className="w-4 h-4" />
+                                  <span>
+                                    {t(
+                                      "dashboard.packageManagement.planDetails.validity"
+                                    )}
                                   </span>
                                 </div>
-                              ))}
+                                <p className="text-base sm:text-lg font-semibold text-foreground">
+                                  {plan.daysValidity}{" "}
+                                  {t(
+                                    "dashboard.packageManagement.planDetails.days"
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                            {/* Supported Sites */}
+                            {plan.supportedSites &&
+                              plan.supportedSites.length > 0 && (
+                                <div className="space-y-3">
+                                  <div
+                                    className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
+                                  >
+                                    <Globe className="w-4 h-4" />
+                                    <span>
+                                      {t(
+                                        "dashboard.packageManagement.planDetails.supportedSites"
+                                      )}
+                                    </span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2">
+                                    {plan.supportedSites.map((site, index) => (
+                                      <span
+                                        key={index}
+                                        className={`inline-flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} px-3 py-2 rounded-lg bg-secondary/50 dark:bg-card/50 border border-secondary text-sm font-medium text-foreground`}
+                                      >
+                                        <div className="w-4 h-4 bg-primary/10 border border-primary/10 rounded flex items-center justify-center">
+                                          <Globe className="w-3 h-3 text-primary" />
+                                        </div>
+                                        <span>{site}</span>
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            <div
+                              className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
+                            >
+                              <Check className="w-4 h-4 stroke-3" />
+                              <span>
+                                {t("pricing.labels.featuresIncluded")}
+                              </span>
+                            </div>
+                            {/* Features */}
+                            <div className="space-y-3">
+                              <div className="space-y-3">
+                                {plan.features.map((feature, index) => (
+                                  <div
+                                    key={index}
+                                    className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg bg-green-50 dark:bg-green-50/10 border border-green-100 dark:border-green-100/10`}
+                                  >
+                                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                      <Check className="w-4 h-4 text-white" />
+                                    </div>
+                                    <span className="text-foreground font-medium text-sm">
+                                      {t(feature)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                        {/* Footer Section */}
-                        <div className="p-4 sm:p-6 !pt-0 space-y-3">
-                          <Button
-                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                            onClick={() => handleEditPackage(plan)}
-                          >
-                            <Settings className="w-4 h-4" />
-                            {t("dashboard.packageManagement.edit")}
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                          {/* Footer Section */}
+                          <div className="p-4 sm:p-6 !pt-0 space-y-3">
+                            <Button
+                              className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                              onClick={() => handleEditPackage(plan)}
+                            >
+                              <Settings className="w-4 h-4" />
+                              {t("dashboard.packageManagement.edit")}
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
         </main>
       </div>
     </div>
