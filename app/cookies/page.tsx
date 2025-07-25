@@ -2,7 +2,15 @@
 
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { Trash2, Menu, Cookie, Plus, Upload, FileText } from "lucide-react";
+import {
+  Trash2,
+  Menu,
+  Cookie,
+  Plus,
+  Upload,
+  FileText,
+  Loader2,
+} from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -531,7 +539,7 @@ export default function CookiesPage() {
                       >
                         {deletingCookieId === cookie.id ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <Loader2 className="w-5 h-5 animate-spin" />
                             {t("cookies.deleting")}
                           </>
                         ) : (

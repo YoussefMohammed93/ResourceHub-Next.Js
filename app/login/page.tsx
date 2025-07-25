@@ -28,7 +28,8 @@ import {
   Trophy,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -41,6 +42,7 @@ import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/components/auth-provider";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 
@@ -53,6 +55,15 @@ const validateEmail = (email: string) => {
 export default function LoginPage() {
   const { t } = useTranslation("common");
   const { isRTL, isLoading } = useLanguage();
+  const { login, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -65,6 +76,7 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({
     email: "",
     password: "",
+    general: "",
   });
 
   // UI state
@@ -86,6 +98,7 @@ export default function LoginPage() {
     const newErrors = {
       email: "",
       password: "",
+      general: "",
     };
 
     // Email validation
@@ -114,18 +127,41 @@ export default function LoginPage() {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    // Clear any previous general errors
+    setErrors((prev) => ({ ...prev, general: "" }));
+
+    try {
+      const result = await login(
+        formData.email,
+        formData.password,
+        formData.rememberMe
+      );
+
+      if (result.success) {
+        // Redirect to dashboard on successful login
+        router.push("/dashboard");
+      } else {
+        // Show error message
+        setErrors((prev) => ({
+          ...prev,
+          general: result.error || "Login failed. Please try again.",
+        }));
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        general: "An unexpected error occurred. Please try again.",
+      }));
+    } finally {
       setIsSubmitting(false);
-      // Here you would typically handle the login response
-      console.log("Login data:", formData);
-    }, 2000);
+    }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-secondary/50 flex items-center justify-center">
-        <Loader2 className="animate-spin w-6 h-6" />
+        <Loader2 className="w-5 h-5 animate-spin" />
       </div>
     );
   }
@@ -551,6 +587,15 @@ export default function LoginPage() {
                   </Link>
                 </div>
 
+                {/* General Error Message */}
+                {errors.general && (
+                  <div
+                    className={`p-3 bg-destructive/10 border border-destructive/20 rounded-lg ${isRTL ? "text-right" : "text-left"}`}
+                  >
+                    <p className="text-sm text-destructive">{errors.general}</p>
+                  </div>
+                )}
+
                 {/* Submit Button */}
                 <Button
                   type="submit"
@@ -559,7 +604,7 @@ export default function LoginPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
+                      <Loader2 className="w-5 h-5 animate-spin" />
                       {t("login.form.submitting")}
                     </>
                   ) : (

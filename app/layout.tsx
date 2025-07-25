@@ -1,10 +1,10 @@
 import "./globals.css";
 
 import type { Metadata } from "next";
-
 import { Tajawal } from "next/font/google";
 import { GeistSans } from "geist/font/sans";
 import { I18nProvider } from "@/components/i18n-provider";
+import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const geistSans = GeistSans;
@@ -56,7 +56,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {children}
+            <AuthProvider>{children}</AuthProvider>
           </ThemeProvider>
         </I18nProvider>
       </body>

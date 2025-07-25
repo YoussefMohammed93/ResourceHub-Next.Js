@@ -1,4 +1,12 @@
 {
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out"
+  },
   "header": {
     "logo": "ResourceHub",
     "navigation": {
@@ -202,6 +210,30 @@
       "onlineUsers": {
         "title": "Online Users",
         "description": "Currently active"
+      },
+      "totalCreditsIssued": "Total Credits Issued",
+      "totalCreditsUsed": "Total Credits Used",
+      "remainingCredits": "Remaining Credits",
+      "registeredUsers": "Registered users in the system",
+      "onlineNow": "online now",
+      "systemWideCreditsDistributed": "System-wide credits distributed",
+      "creditsConsumedByUsers": "Credits consumed by users",
+      "availableCreditsInSystem": "Available credits in system",
+      "totalDownloads": {
+        "title": "Total Downloads",
+        "description": "All time downloads"
+      },
+      "creditsUsed": {
+        "title": "Credits Used",
+        "description": "Total consumed"
+      },
+      "creditsRemaining": {
+        "title": "Credits Remaining",
+        "description": "Available balance"
+      },
+      "planStatus": {
+        "title": "Plan Status",
+        "description": "Current subscription"
       }
     },
     "usersManagement": {
@@ -223,6 +255,8 @@
           "expiry": "EXPIRY",
           "actions": "ACTIONS"
         },
+        "loadingUsers": "Loading users...",
+        "loadingDescription": "Please wait while we fetch the user data",
         "credits": "credits",
         "deleteUser": "Delete User",
         "noUsersFound": "No users found",
@@ -230,43 +264,33 @@
         "showingUsers": "Showing {{filtered}} of {{total}} users",
         "lastActive": "Last active: {{time}}",
         "joined": "Joined",
-        "expires": "Expires"
+        "expires": "Expires",
+        "errorLoading": "Error fetching users"
       }
     },
     "addSubscription": {
       "title": "Add New Subscription",
       "description": "Create a subscription for a user",
       "userEmail": "User Email",
+      "plan": "Subscription Plan",
       "subscriptionPlan": "Subscription Plan",
       "planPreview": "Plan Preview",
       "planName": "Plan Name :",
-      "credits": "Credits :",
+      "credits": "credits",
+      "adding": "Adding...",
+      "add": "Add Subscription",
       "addingSubscription": "Adding Subscription...",
       "addSubscription": "Add Subscription",
       "choosePlan": "Choose a subscription plan",
       "emailPlaceholder": "user@example.com",
+      "placeholders": {
+        "email": "user@example.com",
+        "plan": "Choose a subscription plan"
+      },
       "validation": {
         "emailRequired": "Email is required",
         "invalidEmail": "Please enter a valid email address",
         "planRequired": "Please select a subscription plan"
-      }
-    },
-    "creditHistory": {
-      "title": "Credit History",
-      "description": "Track credit usage and transactions",
-      "recentActivity": "Recent Activity",
-      "noActivity": "No recent activity",
-      "noActivityDescription": "Credit transactions will appear here",
-      "transactions": {
-        "siteAccess": "Site access",
-        "creditPurchase": "Credit Purchase",
-        "planUpgrade": "Plan Upgrade",
-        "timeAgo": {
-          "now": "now",
-          "minutesAgo": "{{count}}m ago",
-          "hoursAgo": "{{count}}h ago",
-          "daysAgo": "{{count}}d ago"
-        }
       }
     },
     "upgradeSubscription": {
@@ -274,8 +298,13 @@
       "description": "Upgrade user to a higher plan",
       "userEmail": "User Email",
       "newPlan": "New Plan",
+      "credits": "credits",
       "upgrading": "Upgrading...",
       "upgrade": "Upgrade",
+      "placeholders": {
+        "email": "user@example.com",
+        "plan": "Choose a new plan"
+      },
       "validation": {
         "emailRequired": "Email is required",
         "invalidEmail": "Please enter a valid email address",
@@ -286,10 +315,15 @@
       "title": "Extend Subscription",
       "description": "Extend user subscription validity",
       "userEmail": "User Email",
+      "days": "Additional Days",
       "additionalDays": "Additional Days",
       "extending": "Extending...",
       "extend": "Extend",
       "estimatedNewExpiry": "Estimated New Expiry",
+      "placeholders": {
+        "email": "user@example.com",
+        "days": "30"
+      },
       "validation": {
         "emailRequired": "Email is required",
         "invalidEmail": "Please enter a valid email address",
@@ -299,10 +333,14 @@
     "deleteSubscription": {
       "title": "Delete Subscription",
       "description": "Remove user subscription",
-      "warning": "Warning: This action is irreversible. All subscription data and points associated with this user will be permanently deleted.",
+      "warning": "Warning: This action is irreversible",
+      "warningDescription": "All subscription data and credits associated with this user will be permanently deleted.",
       "userEmail": "User Email",
       "deleting": "Deleting...",
-      "delete": "Delete",
+      "delete": "Delete Subscription",
+      "placeholders": {
+        "email": "user@example.com"
+      },
       "validation": {
         "emailRequired": "Email is required",
         "invalidEmail": "Please enter a valid email address"
@@ -333,7 +371,8 @@
         "accessPrice": "Access Price",
         "credits": "credits",
         "active": "Active",
-        "delete": "Delete"
+        "delete": "Delete",
+        "retry": "Retry"
       },
       "placeholders": {
         "siteName": "Enter site name",
@@ -373,6 +412,7 @@
       "deleteDescription": "This action cannot be undone. This will permanently delete the plan and may affect users subscribed to it.",
       "noPackages": "No plans available",
       "noPackagesDescription": "Start by adding a new plan to manage subscriptions",
+      "noPricingPlans": "No pricing plans available",
       "editDescription": "Edit plan details",
       "planDetails": {
         "name": "Plan Name:",
@@ -420,12 +460,58 @@
     },
     "creditAnalytics": {
       "title": "Credit Analytics",
-      "description": "Monitor credit usage and statistics",
+      "description": "System-wide credit usage statistics",
       "totalIssued": "Total Issued",
+      "totalUsed": "Total Used",
       "remaining": "Remaining",
       "used": "Used",
+      "dailyAverage": "Daily Average",
       "dailyAvg": "Daily Avg",
-      "lastUpdated": "Last Updated"
+      "creditsByPlan": "Credits by Plan",
+      "lastUpdated": "Last updated",
+      "noAnalyticsData": "No analytics data available",
+      "retry": "Retry",
+      "refresh": "Refresh"
+    },
+    "creditHistory": {
+      "title": "Credit History",
+      "description": "Recent credit transactions",
+      "noHistoryData": "No credit history available",
+      "retry": "Retry",
+      "refresh": "Refresh",
+      "total": "total",
+      "transactions": {
+        "siteAccess": "Site access",
+        "creditPurchase": "Credit Purchase",
+        "planUpgrade": "Plan Upgrade",
+        "timeAgo": {
+          "now": "now",
+          "minutesAgo": "{{count}}m ago",
+          "minutesAgo_one": "{{count}} minute ago",
+          "minutesAgo_other": "{{count}} minutes ago",
+          "hoursAgo": "{{count}}h ago",
+          "hoursAgo_one": "{{count}} hour ago",
+          "hoursAgo_other": "{{count}} hours ago",
+          "daysAgo": "{{count}}d ago",
+          "daysAgo_one": "{{count}} day ago",
+          "daysAgo_other": "{{count}} days ago"
+        }
+      }
+    },
+    "errors": {
+      "failedToLoadAnalytics": "Failed to load analytics",
+      "failedToLoadHistory": "Failed to load history",
+      "failedToLoadUsers": "Failed to load users",
+      "failedToLoadDownloads": "Failed to load downloads",
+      "failedToLoadSites": "Failed to load sites",
+      "failedToLoadPricingPlans": "Failed to load pricing plans",
+      "failedToAddSubscription": "Failed to add subscription",
+      "failedToUpgradeSubscription": "Failed to upgrade subscription",
+      "failedToExtendSubscription": "Failed to extend subscription",
+      "failedToDeleteSubscription": "Failed to delete subscription"
+    },
+    "buttons": {
+      "retry": "Retry"
     }
   },
   "sidebar": {
@@ -455,24 +541,6 @@
       "downloads": "Downloads",
       "memberSince": "Member Since",
       "onlineStatus": "Online"
-    },
-    "stats": {
-      "totalDownloads": {
-        "title": "Total Downloads",
-        "description": "All time downloads"
-      },
-      "creditsUsed": {
-        "title": "Credits Used",
-        "description": "Total consumed"
-      },
-      "creditsRemaining": {
-        "title": "Credits Left",
-        "description": "Available balance"
-      },
-      "planStatus": {
-        "title": "Plan Status",
-        "description": "Current subscription"
-      }
     },
     "subscription": {
       "title": "Subscription Details",

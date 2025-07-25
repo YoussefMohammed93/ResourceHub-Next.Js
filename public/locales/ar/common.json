@@ -1,4 +1,12 @@
 {
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "signIn": "تسجيل الدخول",
+    "signUp": "إنشاء حساب",
+    "signOut": "تسجيل الخروج"
+  },
   "header": {
     "logo": "مركز الموارد",
     "navigation": {
@@ -202,6 +210,30 @@
       "onlineUsers": {
         "title": "المستخدمون المتصلون",
         "description": "النشطون حالياً"
+      },
+      "totalCreditsIssued": "إجمالي النقاط المُصدرة",
+      "totalCreditsUsed": "إجمالي النقاط المُستخدمة",
+      "remainingCredits": "النقاط المتبقية",
+      "registeredUsers": "المستخدمون المسجلون في النظام",
+      "onlineNow": "متصل الآن",
+      "systemWideCreditsDistributed": "النقاط الموزعة على مستوى النظام",
+      "creditsConsumedByUsers": "النقاط المستهلكة من قبل المستخدمين",
+      "availableCreditsInSystem": "النقاط المتاحة في النظام",
+      "totalDownloads": {
+        "title": "إجمالي التحميلات",
+        "description": "جميع التحميلات"
+      },
+      "creditsUsed": {
+        "title": "النقاط المستخدمة",
+        "description": "إجمالي المستهلك"
+      },
+      "creditsRemaining": {
+        "title": "النقاط المتبقية",
+        "description": "الرصيد المتاح"
+      },
+      "planStatus": {
+        "title": "حالة الخطة",
+        "description": "الاشتراك الحالي"
       }
     },
     "usersManagement": {
@@ -223,6 +255,8 @@
           "expiry": "انتهاء الصلاحية",
           "actions": "الإجراءات"
         },
+        "loadingUsers": "جاري تحميل المستخدمين...",
+        "loadingDescription": "يرجى الانتظار بينما نقوم بجلب بيانات المستخدمين",
         "credits": "نقطة",
         "deleteUser": "حذف المستخدم",
         "noUsersFound": "لم يتم العثور على مستخدمين",
@@ -230,43 +264,33 @@
         "showingUsers": "عرض {{filtered}} من {{total}} مستخدم",
         "lastActive": "آخر نشاط: {{time}}",
         "joined": "انضم",
-        "expires": "ينتهي"
+        "expires": "ينتهي",
+        "errorLoading": "لا يمكن العثور على المستخدمين"
       }
     },
     "addSubscription": {
       "title": "إضافة اشتراك جديد",
       "description": "إنشاء اشتراك للمستخدم",
       "userEmail": "بريد المستخدم الإلكتروني",
+      "plan": "خطة الاشتراك",
       "subscriptionPlan": "خطة الاشتراك",
       "planPreview": "معاينة الخطة",
       "planName": "اسم الخطة :",
-      "credits": "النقاط :",
+      "credits": "نقاط",
+      "adding": "جاري الإضافة...",
+      "add": "إضافة اشتراك",
       "addingSubscription": "جاري إضافة الاشتراك...",
       "addSubscription": "إضافة اشتراك",
       "choosePlan": "اختر خطة اشتراك",
       "emailPlaceholder": "user@example.com",
+      "placeholders": {
+        "email": "user@example.com",
+        "plan": "اختر خطة اشتراك"
+      },
       "validation": {
         "emailRequired": "البريد الإلكتروني مطلوب",
         "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
         "planRequired": "يرجى اختيار خطة اشتراك"
-      }
-    },
-    "creditHistory": {
-      "title": "سجل النقاط",
-      "description": "تتبع استخدام النقاط والمعاملات",
-      "recentActivity": "النشاط الأخير",
-      "noActivity": "لا يوجد نشاط حديث",
-      "noActivityDescription": "ستظهر معاملات النقاط هنا",
-      "transactions": {
-        "siteAccess": "الوصول للموقع",
-        "creditPurchase": "شراء نقاط",
-        "planUpgrade": "ترقية الخطة",
-        "timeAgo": {
-          "now": "الآن",
-          "minutesAgo": "منذ {{count}} دقيقة",
-          "hoursAgo": "منذ {{count}} ساعة",
-          "daysAgo": "منذ {{count}} يوم"
-        }
       }
     },
     "upgradeSubscription": {
@@ -274,8 +298,13 @@
       "description": "ترقية المستخدم إلى خطة أعلى",
       "userEmail": "بريد المستخدم الإلكتروني",
       "newPlan": "الخطة الجديدة",
+      "credits": "نقاط",
       "upgrading": "جاري الترقية...",
       "upgrade": "ترقية",
+      "placeholders": {
+        "email": "user@example.com",
+        "plan": "اختر خطة جديدة"
+      },
       "validation": {
         "emailRequired": "البريد الإلكتروني مطلوب",
         "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
@@ -286,10 +315,15 @@
       "title": "تمديد الاشتراك",
       "description": "تمديد صلاحية اشتراك المستخدم",
       "userEmail": "بريد المستخدم الإلكتروني",
+      "days": "أيام إضافية",
       "additionalDays": "أيام إضافية",
       "extending": "جاري التمديد...",
       "extend": "تمديد",
       "estimatedNewExpiry": "تاريخ انتهاء الصلاحية المتوقع",
+      "placeholders": {
+        "email": "user@example.com",
+        "days": "30"
+      },
       "validation": {
         "emailRequired": "البريد الإلكتروني مطلوب",
         "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
@@ -301,8 +335,12 @@
       "description": "إزالة اشتراك المستخدم نهائياً",
       "userEmail": "بريد المستخدم الإلكتروني",
       "deleting": "جاري الحذف...",
-      "delete": "حذف",
-      "warning": "تحذير: هذا الإجراء لا يمكن التراجع عنه. سيتم حذف جميع بيانات الاشتراك والنقاط المرتبطة بهذا المستخدم نهائياً.",
+      "delete": "حذف الاشتراك",
+      "warning": "تحذير: هذا الإجراء لا يمكن التراجع عنه",
+      "warningDescription": "سيتم حذف جميع بيانات الاشتراك والنقاط المرتبطة بهذا المستخدم نهائياً.",
+      "placeholders": {
+        "email": "user@example.com"
+      },
       "validation": {
         "emailRequired": "البريد الإلكتروني مطلوب",
         "invalidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح"
@@ -333,7 +371,8 @@
         "accessPrice": "سعر الوصول",
         "credits": "نقطة",
         "active": "نشط",
-        "delete": "حذف"
+        "delete": "حذف",
+        "retry": "إعادة المحاولة"
       },
       "placeholders": {
         "siteName": "أدخل اسم الموقع",
@@ -373,6 +412,7 @@
       "deleteDescription": "لا يمكن التراجع عن هذا الإجراء. سيؤدي هذا إلى حذف الخطة نهائياً وقد يؤثر على المستخدمين المشتركين بها.",
       "noPackages": "لا توجد خطط متاحة",
       "noPackagesDescription": "ابدأ بإضافة خطة جديدة لإدارة الاشتراكات",
+      "noPricingPlans": "لا توجد خطط تسعير متاحة",
       "editDescription": "تعديل تفاصيل الخطة",
       "planDetails": {
         "name": "اسم الخطة:",
@@ -419,13 +459,59 @@
       }
     },
     "creditAnalytics": {
-      "title": "سجل النقاط",
-      "description": "مراقبة استخدام النقاط والإحصائيات",
+      "title": "تحليلات النقاط",
+      "description": "إحصائيات استخدام النقاط على مستوى النظام",
       "totalIssued": "إجمالي المُصدر",
+      "totalUsed": "إجمالي المُستخدم",
       "remaining": "المتبقي",
       "used": "المُستخدم",
+      "dailyAverage": "المتوسط اليومي",
       "dailyAvg": "المتوسط اليومي",
-      "lastUpdated": "آخر تحديث"
+      "creditsByPlan": "النقاط حسب الخطة",
+      "lastUpdated": "آخر تحديث",
+      "noAnalyticsData": "لا توجد بيانات تحليلية متاحة",
+      "retry": "إعادة المحاولة",
+      "refresh": "تحديث"
+    },
+    "creditHistory": {
+      "title": "سجل النقاط",
+      "description": "معاملات النقاط الأخيرة",
+      "noHistoryData": "لا يوجد سجل نقاط متاح",
+      "retry": "إعادة المحاولة",
+      "refresh": "تحديث",
+      "total": "الإجمالي",
+      "transactions": {
+        "siteAccess": "الوصول للموقع",
+        "creditPurchase": "شراء نقاط",
+        "planUpgrade": "ترقية الخطة",
+        "timeAgo": {
+          "now": "الآن",
+          "minutesAgo": "منذ {{count}}د",
+          "minutesAgo_one": "منذ دقيقة واحدة",
+          "minutesAgo_other": "منذ {{count}} دقائق",
+          "hoursAgo": "منذ {{count}}س",
+          "hoursAgo_one": "منذ ساعة واحدة",
+          "hoursAgo_other": "منذ {{count}} ساعات",
+          "daysAgo": "منذ {{count}}ي",
+          "daysAgo_one": "منذ يوم واحد",
+          "daysAgo_other": "منذ {{count}} أيام"
+        }
+      }
+    },
+    "errors": {
+      "failedToLoadAnalytics": "فشل في تحميل التحليلات",
+      "failedToLoadHistory": "فشل في تحميل السجل",
+      "failedToLoadUsers": "فشل في تحميل المستخدمين",
+      "failedToLoadDownloads": "فشل في تحميل التحميلات",
+      "failedToLoadSites": "فشل في تحميل المواقع",
+      "failedToLoadPricingPlans": "فشل في تحميل خطط التسعير",
+      "failedToAddSubscription": "فشل في إضافة الاشتراك",
+      "failedToUpgradeSubscription": "فشل في ترقية الاشتراك",
+      "failedToExtendSubscription": "فشل في تمديد الاشتراك",
+      "failedToDeleteSubscription": "فشل في حذف الاشتراك"
+    },
+    "buttons": {
+      "retry": "إعادة المحاولة"
     }
   },
   "sidebar": {
@@ -454,24 +540,6 @@
       "downloads": "التحميلات",
       "memberSince": "عضو منذ",
       "onlineStatus": "متصل"
-    },
-    "stats": {
-      "totalDownloads": {
-        "title": "إجمالي التحميلات",
-        "description": "جميع التحميلات"
-      },
-      "creditsUsed": {
-        "title": "النقاط المستخدمة",
-        "description": "إجمالي المستهلك"
-      },
-      "creditsRemaining": {
-        "title": "النقاط المتبقية",
-        "description": "الرصيد المتاح"
-      },
-      "planStatus": {
-        "title": "حالة الخطة",
-        "description": "الاشتراك الحالي"
-      }
     },
     "subscription": {
       "title": "تفاصيل الاشتراك",

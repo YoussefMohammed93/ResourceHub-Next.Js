@@ -30,7 +30,8 @@ import {
   Trophy,
 } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -43,6 +44,7 @@ import { Label } from "@/components/ui/label";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/components/auth-provider";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 
@@ -77,6 +79,15 @@ const validatePassword = (password: string) => {
 export default function RegisterPage() {
   const { t } = useTranslation("common");
   const { isRTL, isLoading } = useLanguage();
+  const { register, isAuthenticated } = useAuth();
+  const router = useRouter();
+
+  // Redirect authenticated users to dashboard
+  useEffect(() => {
+    if (!isLoading && isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, isLoading, router]);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -98,6 +109,7 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     terms: "",
+    general: "",
   });
 
   // UI state
@@ -125,6 +137,7 @@ export default function RegisterPage() {
       password: "",
       confirmPassword: "",
       terms: "",
+      general: "",
     };
 
     // First name validation
@@ -191,18 +204,42 @@ export default function RegisterPage() {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    // Clear any previous general errors
+    setErrors((prev) => ({ ...prev, general: "" }));
+
+    try {
+      const result = await register(
+        formData.email,
+        formData.password,
+        formData.firstName,
+        formData.lastName
+      );
+
+      if (result.success) {
+        // Redirect to dashboard on successful registration
+        router.push("/dashboard");
+      } else {
+        // Show error message
+        setErrors((prev) => ({
+          ...prev,
+          general: result.error || "Registration failed. Please try again.",
+        }));
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        general: "An unexpected error occurred. Please try again.",
+      }));
+    } finally {
       setIsSubmitting(false);
-      // Here you would typically handle the registration response
-      console.log("Registration data:", formData);
-    }, 3000);
+    }
   };
 
   if (isLoading) {
     return (
       <div className="min-h-screen bg-secondary/50 flex items-center justify-center">
-        <Loader2 className="animate-spin w-6 h-6" />
+        <Loader2 className="w-5 h-5 animate-spin" />
       </div>
     );
   }
@@ -774,6 +811,15 @@ export default function RegisterPage() {
                   )}
                 </div>
 
+                {/* General Error Message */}
+                {errors.general && (
+                  <div
+                    className={`p-3 bg-destructive/10 border border-destructive/20 rounded-lg ${isRTL ? "text-right" : "text-left"}`}
+                  >
+                    <p className="text-sm text-destructive">{errors.general}</p>
+                  </div>
+                )}
+
                 {/* Submit Button */}
                 <Button
                   type="submit"
@@ -782,7 +828,7 @@ export default function RegisterPage() {
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground"></div>
+                      <Loader2 className="w-5 h-5 animate-spin" />
                       {t("register.form.submitting")}
                     </>
                   ) : (

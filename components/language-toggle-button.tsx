@@ -1,13 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { Globe } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Globe, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/i18n-provider";
 
@@ -47,7 +47,7 @@ export function LanguageToggleButton() {
           aria-label="Change language"
         >
           {isLoading ? (
-            <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+            <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
           ) : (
             <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground transition-transform duration-200 hover:scale-110" />
           )}

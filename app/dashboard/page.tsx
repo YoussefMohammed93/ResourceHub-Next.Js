@@ -2,11 +2,9 @@
 
 import {
   ArrowUp,
-  ArrowDown,
   UserPlus,
+  UserMinus,
   CreditCard,
-  Mail,
-  CheckCircle2,
   TrendingUp,
   Calendar,
   Trash2,
@@ -17,6 +15,7 @@ import {
   Search,
   Filter,
   AlertCircle,
+  AlertTriangle,
   CheckCircle,
   XCircle,
   Plus,
@@ -30,9 +29,9 @@ import {
   Settings,
   Check,
   Menu,
+  Loader2,
 } from "lucide-react";
 import Link from "next/link";
-import type React from "react";
 import Image from "next/image";
 import {
   Dialog,
@@ -50,7 +49,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -71,7 +70,28 @@ import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { DashboardSkeleton } from "@/components/dashboard-skeletons";
+import {
+  siteApi,
+  pricingApi,
+  type SiteInput,
+  type Site,
+  type PricingPlanInput,
+} from "@/lib/api";
+
+// Extended Site interface for frontend use
+interface FrontendSite extends Site {
+  id?: number;
+  status?: string;
+  addedDate?: string;
+}
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  creditApi,
+  userApi,
+  type CreditStatistics,
+  type CreditHistoryEntry,
+  type UsersStatisticsResponse,
+} from "@/lib/api";
 
 // Type definitions
 interface PricingPlan {
@@ -188,6 +208,177 @@ export default function DashboardPage() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState<boolean>(false);
   const [isDeletingPackage, setIsDeletingPackage] = useState<boolean>(false);
 
+  // Pricing plans loading state
+  const [isLoadingPricingPlans, setIsLoadingPricingPlans] =
+    useState<boolean>(false);
+  const [pricingPlansError, setPricingPlansError] = useState<string>("");
+
+  // Credit Analytics states
+  const [creditAnalytics, setCreditAnalytics] =
+    useState<CreditStatistics | null>(null);
+  const [isLoadingAnalytics, setIsLoadingAnalytics] = useState<boolean>(false);
+  const [analyticsError, setAnalyticsError] = useState<string>("");
+
+  // Credit History states
+  const [creditHistory, setCreditHistory] = useState<CreditHistoryEntry[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(false);
+  const [historyError, setHistoryError] = useState<string>("");
+
+  // User Management states
+  const [usersData, setUsersData] = useState<UsersStatisticsResponse | null>(
+    null
+  );
+  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
+  const [usersError, setUsersError] = useState<string>("");
+
+  // Load credit analytics data
+  const loadCreditAnalytics = async () => {
+    setIsLoadingAnalytics(true);
+    setAnalyticsError("");
+
+    try {
+      const response = await creditApi.getCreditAnalytics();
+      if (response.success && response.data) {
+        setCreditAnalytics(response.data.statistics);
+      } else {
+        setAnalyticsError(
+          response.error?.message || t("dashboard.errors.failedToLoadAnalytics")
+        );
+      }
+    } catch (error) {
+      setAnalyticsError(t("dashboard.errors.failedToLoadAnalytics"));
+      console.error("Analytics error:", error);
+    } finally {
+      setIsLoadingAnalytics(false);
+    }
+  };
+
+  // Load credit history data
+  const loadCreditHistory = async () => {
+    setIsLoadingHistory(true);
+    setHistoryError("");
+
+    try {
+      const response = await creditApi.getCreditHistory();
+      if (response.success && response.data) {
+        setCreditHistory(response.data.history);
+      } else {
+        setHistoryError(
+          response.error?.message || t("dashboard.errors.failedToLoadHistory")
+        );
+      }
+    } catch (error) {
+      setHistoryError(t("dashboard.errors.failedToLoadHistory"));
+      console.error("History error:", error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  // Load users statistics data
+  const loadUsersStatistics = async () => {
+    setIsLoadingUsers(true);
+    setUsersError("");
+
+    try {
+      const response = await userApi.getUsersStatistics();
+      if (response.success && response.data) {
+        setUsersData(response.data);
+      } else {
+        setUsersError(
+          response.error?.message || t("dashboard.errors.failedToLoadUsers")
+        );
+      }
+    } catch (error) {
+      setUsersError(t("dashboard.errors.failedToLoadUsers"));
+      console.error("Users error:", error);
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  // Load sites data
+  const loadSites = async () => {
+    setIsLoadingSites(true);
+    setSitesError("");
+
+    try {
+      const response = await siteApi.getSites();
+      if (response.success && response.data) {
+        // Transform API sites to frontend sites
+        const frontendSites: FrontendSite[] = response.data.data.sites.map(
+          (site, index) => ({
+            ...site,
+            id: index + 1,
+            status: "Active",
+            addedDate: site.last_reset,
+          })
+        );
+        setSites(frontendSites);
+      } else {
+        setSitesError(
+          response.error?.message || t("dashboard.errors.failedToLoadSites")
+        );
+      }
+    } catch (error) {
+      setSitesError(t("dashboard.errors.failedToLoadSites"));
+      console.error("Sites error:", error);
+    } finally {
+      setIsLoadingSites(false);
+    }
+  };
+
+  // Load pricing plans data
+  const loadPricingPlans = async () => {
+    setIsLoadingPricingPlans(true);
+    setPricingPlansError("");
+
+    try {
+      const response = await pricingApi.getPricingPlans();
+      if (response.success && response.data) {
+        // Transform API pricing plans to frontend pricing plans
+        const frontendPlans: PricingPlan[] = response.data.data.plans.map(
+          (plan, index) => ({
+            id: plan.id || index + 1,
+            name: plan.name,
+            description: plan.description,
+            price: plan.price || "",
+            credits: plan.credits,
+            daysValidity: plan.daysValidity,
+            contactUsUrl: plan.contactUsUrl || "",
+            supportedSites: plan.supportedSites || [],
+            features: plan.features || [
+              t("dashboard.packageManagement.features.accessToSites"),
+              t("dashboard.packageManagement.features.support"),
+              t("dashboard.packageManagement.features.adminManagement"),
+            ],
+          })
+        );
+        setPricingPlans(frontendPlans);
+      } else {
+        setPricingPlansError(
+          response.error?.message ||
+            t("dashboard.errors.failedToLoadPricingPlans")
+        );
+      }
+    } catch (error) {
+      setPricingPlansError(t("dashboard.errors.failedToLoadPricingPlans"));
+      console.error("Pricing plans error:", error);
+    } finally {
+      setIsLoadingPricingPlans(false);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    loadCreditAnalytics();
+    loadCreditHistory();
+    loadUsersStatistics();
+    loadSites();
+    loadPricingPlans();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Email validation
   const validateEmail = (email: string) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -239,28 +430,74 @@ export default function DashboardPage() {
 
     setIsAddingSite(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const newSite = {
-        id: sites.length + 1,
-        name: siteName,
-        url: siteUrl,
-        price: Number(sitePrice),
-        icon: siteIcon || `${siteUrl}/favicon.ico`,
-        status: "Active",
-        addedDate: new Date().toISOString().split("T")[0],
+    try {
+      const siteData: SiteInput = {
+        SiteName: siteName,
+        SiteUrl: siteUrl,
+        price: sitePrice,
+        icon: siteIcon || undefined,
       };
 
-      setSites([...sites, newSite]);
-      setIsAddingSite(false);
-      setIsAddSiteDialogOpen(false);
+      const response = await siteApi.addSite(siteData);
 
-      // Reset form
-      setSiteName("");
-      setSiteUrl("");
-      setSitePrice("");
-      setSiteIcon("");
-    }, 2000);
+      if (response.success && response.data) {
+        // Create a new site object with all required fields
+        const newSite: FrontendSite = {
+          name: response.data.data.site.name,
+          url: response.data.data.site.url,
+          price: Number(response.data.data.site.price),
+          icon: siteIcon || `${siteUrl}/favicon.ico`,
+          total_downloads: 0,
+          today_downloads: 0,
+          last_reset: new Date().toISOString().split("T")[0],
+          id: sites.length + 1,
+          status: "Active",
+          addedDate: new Date().toISOString().split("T")[0],
+        };
+
+        setSites([...sites, newSite]);
+        setIsAddingSite(false);
+        setIsAddSiteDialogOpen(false);
+
+        // Reset form
+        setSiteName("");
+        setSiteUrl("");
+        setSitePrice("");
+        setSiteIcon("");
+
+        // Refresh sites list to get updated data
+        await loadSites();
+      } else {
+        console.error("Failed to add site:", response.error?.message);
+        // You can add error handling here, like showing a toast notification
+      }
+    } catch (error) {
+      console.error("Error adding site:", error);
+      // You can add error handling here
+    } finally {
+      setIsAddingSite(false);
+    }
+  };
+
+  // Handle delete site
+  const handleDeleteSite = async (siteUrl: string) => {
+    try {
+      const response = await siteApi.deleteSite({ SiteUrl: siteUrl });
+
+      if (response.success) {
+        // Remove the site from the local state
+        setSites(sites.filter((site) => site.url !== siteUrl));
+
+        // Refresh sites list to get updated data
+        await loadSites();
+      } else {
+        console.error("Failed to delete site:", response.error?.message);
+        // You can add error handling here, like showing a toast notification
+      }
+    } catch (error) {
+      console.error("Error deleting site:", error);
+      // You can add error handling here
+    }
   };
 
   // Handle add package
@@ -329,39 +566,46 @@ export default function DashboardPage() {
 
     setIsAddingPackage(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      const newPackage = {
-        id: pricingPlans.length + 1,
-        name: packageName,
-        description: packageDescription,
-        price: packagePrice.trim() || "",
-        credits: Number(packageCredits),
-        daysValidity: Number(packageDaysValidity),
-        contactUsUrl: packageContactUrl.trim(),
-        supportedSites: packageSupportedSites.trim()
+    try {
+      const pricingPlanData: PricingPlanInput = {
+        PlanName: packageName,
+        PlanPrice: packagePrice.trim() || undefined,
+        DaysValidity: packageDaysValidity,
+        Sites: packageSupportedSites.trim()
           ? packageSupportedSites.split(",").map((site) => site.trim())
           : [],
-        features: [
-          t("dashboard.packageManagement.features.accessToSites"),
-          t("dashboard.packageManagement.features.support"),
-          t("dashboard.packageManagement.features.adminManagement"),
-        ],
+        PlanDescription: packageDescription,
+        ContactUsUrl: packageContactUrl.trim(),
+        credits: packageCredits,
       };
 
-      setPricingPlans([...pricingPlans, newPackage]);
-      setIsAddingPackage(false);
-      setIsAddPackageDialogOpen(false);
+      const response = await pricingApi.addPricingPlan(pricingPlanData);
 
-      // Reset form
-      setPackageName("");
-      setPackagePrice("");
-      setPackageDescription("");
-      setPackageDaysValidity("");
-      setPackageCredits("");
-      setPackageContactUrl("");
-      setPackageSupportedSites("");
-    }, 2000);
+      if (response.success) {
+        // Reload pricing plans to get the updated list
+        await loadPricingPlans();
+
+        setIsAddPackageDialogOpen(false);
+
+        // Reset form
+        setPackageName("");
+        setPackagePrice("");
+        setPackageDescription("");
+        setPackageDaysValidity("");
+        setPackageCredits("");
+        setPackageContactUrl("");
+        setPackageSupportedSites("");
+      } else {
+        // Handle API error
+        console.error("Failed to add pricing plan:", response.error?.message);
+        // You can show an error toast here
+      }
+    } catch (error) {
+      console.error("Error adding pricing plan:", error);
+      // You can show an error toast here
+    } finally {
+      setIsAddingPackage(false);
+    }
   };
 
   // Handle edit package
@@ -445,65 +689,30 @@ export default function DashboardPage() {
 
     setIsEditingPackage(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
       if (!editingPackage) return;
 
-      const updatedPackage: PricingPlan = {
-        ...editingPackage,
-        name: editPackageName,
-        description: editPackageDescription,
-        price: editPackagePrice.trim() || "",
-        credits: Number(editPackageCredits),
-        daysValidity: Number(editPackageDaysValidity),
-        contactUsUrl: editPackageContactUrl.trim(),
-        supportedSites: editPackageSupportedSites.trim()
+      const pricingPlanData: PricingPlanInput = {
+        PlanName: editPackageName,
+        PlanPrice: editPackagePrice.trim() || undefined,
+        DaysValidity: editPackageDaysValidity,
+        Sites: editPackageSupportedSites.trim()
           ? editPackageSupportedSites.split(",").map((site) => site.trim())
           : [],
-        features: editingPackage.features || [],
+        PlanDescription: editPackageDescription,
+        ContactUsUrl: editPackageContactUrl.trim(),
+        credits: editPackageCredits,
       };
 
-      setPricingPlans(
-        pricingPlans.map((plan) =>
-          plan.id === editingPackage.id ? updatedPackage : plan
-        )
-      );
-      setIsEditingPackage(false);
-      setIsEditPackageDialogOpen(false);
+      const response = await pricingApi.editPricingPlan(pricingPlanData);
 
-      // Reset form
-      setEditingPackage(null);
-      setEditPackageName("");
-      setEditPackagePrice("");
-      setEditPackageDescription("");
-      setEditPackageDaysValidity("");
-      setEditPackageCredits("");
-      setEditPackageContactUrl("");
-      setEditPackageSupportedSites("");
-    }, 2000);
-  };
+      if (response.success) {
+        // Reload pricing plans to get the updated list
+        await loadPricingPlans();
 
-  // Handle delete package
-  const handleDeletePackage = async () => {
-    if (!editingPackage) return;
-
-    setIsDeletingPackage(true);
-
-    // Simulate API call
-    setTimeout(() => {
-      setPricingPlans(
-        pricingPlans.filter((plan) => plan.id !== editingPackage.id)
-      );
-      setIsDeletingPackage(false);
-
-      // Close alert dialog first
-      setIsDeleteDialogOpen(false);
-
-      // Then close main edit dialog after a short delay
-      setTimeout(() => {
         setIsEditPackageDialogOpen(false);
 
-        // Reset form~~
+        // Reset form
         setEditingPackage(null);
         setEditPackageName("");
         setEditPackagePrice("");
@@ -512,8 +721,68 @@ export default function DashboardPage() {
         setEditPackageCredits("");
         setEditPackageContactUrl("");
         setEditPackageSupportedSites("");
-      }, 300);
-    }, 2000);
+      } else {
+        // Handle API error
+        console.error(
+          "Failed to update pricing plan:",
+          response.error?.message
+        );
+        // You can show an error toast here
+      }
+    } catch (error) {
+      console.error("Error updating pricing plan:", error);
+      // You can show an error toast here
+    } finally {
+      setIsEditingPackage(false);
+    }
+  };
+
+  // Handle delete package
+  const handleDeletePackage = async () => {
+    if (!editingPackage) return;
+
+    setIsDeletingPackage(true);
+
+    try {
+      const response = await pricingApi.deletePricingPlan({
+        PlanName: editingPackage.name,
+      });
+
+      if (response.success) {
+        // Reload pricing plans to get the updated list
+        await loadPricingPlans();
+
+        // Close alert dialog first
+        setIsDeleteDialogOpen(false);
+
+        // Then close main edit dialog after a short delay
+        setTimeout(() => {
+          setIsEditPackageDialogOpen(false);
+
+          // Reset form
+          setEditingPackage(null);
+          setEditPackageName("");
+          setEditPackagePrice("");
+          setEditPackageDescription("");
+          setEditPackageDaysValidity("");
+          setEditPackageCredits("");
+          setEditPackageContactUrl("");
+          setEditPackageSupportedSites("");
+        }, 300);
+      } else {
+        // Handle API error
+        console.error(
+          "Failed to delete pricing plan:",
+          response.error?.message
+        );
+        // You can show an error toast here
+      }
+    } catch (error) {
+      console.error("Error deleting pricing plan:", error);
+      // You can show an error toast here
+    } finally {
+      setIsDeletingPackage(false);
+    }
   };
 
   // Handle form submission
@@ -540,13 +809,32 @@ export default function DashboardPage() {
 
     setIsSubmitting(true);
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await creditApi.addSubscription({
+        email: email.trim(),
+        plan_name: selectedPlan,
+      });
+
+      if (response.success) {
+        setEmail("");
+        setSelectedPlan("");
+        // Refresh analytics, history, and user data
+        loadCreditAnalytics();
+        loadCreditHistory();
+        loadUsersStatistics();
+        // Here you would typically show a success message
+      } else {
+        setEmailError(
+          response.error?.message ||
+            t("dashboard.errors.failedToAddSubscription")
+        );
+      }
+    } catch (error) {
+      setEmailError(t("dashboard.errors.failedToAddSubscription"));
+      console.error("Add subscription error:", error);
+    } finally {
       setIsSubmitting(false);
-      setEmail("");
-      setSelectedPlan("");
-      // Here you would typically show a success message
-    }, 2000);
+    }
   };
 
   // Handle upgrade subscription
@@ -574,11 +862,32 @@ export default function DashboardPage() {
     }
 
     setIsUpgradeSubmitting(true);
-    setTimeout(() => {
+
+    try {
+      const response = await creditApi.upgradeSubscription({
+        email: upgradeEmail.trim(),
+        plan_name: upgradeNewPlan,
+      });
+
+      if (response.success) {
+        setUpgradeEmail("");
+        setUpgradeNewPlan("");
+        // Refresh analytics, history, and user data
+        loadCreditAnalytics();
+        loadCreditHistory();
+        loadUsersStatistics();
+      } else {
+        setUpgradeEmailError(
+          response.error?.message ||
+            t("dashboard.errors.failedToUpgradeSubscription")
+        );
+      }
+    } catch (error) {
+      setUpgradeEmailError(t("dashboard.errors.failedToUpgradeSubscription"));
+      console.error("Upgrade subscription error:", error);
+    } finally {
       setIsUpgradeSubmitting(false);
-      setUpgradeEmail("");
-      setUpgradeNewPlan("");
-    }, 2000);
+    }
   };
 
   // Handle extend subscription
@@ -606,11 +915,32 @@ export default function DashboardPage() {
     }
 
     setIsExtendSubmitting(true);
-    setTimeout(() => {
+
+    try {
+      const response = await creditApi.extendSubscription({
+        email: extendEmail.trim(),
+        days: parseInt(extendDays),
+      });
+
+      if (response.success) {
+        setExtendEmail("");
+        setExtendDays("30");
+        // Refresh analytics, history, and user data
+        loadCreditAnalytics();
+        loadCreditHistory();
+        loadUsersStatistics();
+      } else {
+        setExtendEmailError(
+          response.error?.message ||
+            t("dashboard.errors.failedToExtendSubscription")
+        );
+      }
+    } catch (error) {
+      setExtendEmailError(t("dashboard.errors.failedToExtendSubscription"));
+      console.error("Extend subscription error:", error);
+    } finally {
       setIsExtendSubmitting(false);
-      setExtendEmail("");
-      setExtendDays("30");
-    }, 2000);
+    }
   };
 
   // Handle delete subscription
@@ -631,134 +961,36 @@ export default function DashboardPage() {
     }
 
     setIsDeleteSubmitting(true);
-    setTimeout(() => {
+
+    try {
+      const response = await creditApi.deleteSubscription({
+        email: deleteEmail.trim(),
+      });
+
+      if (response.success) {
+        setDeleteEmail("");
+        // Refresh analytics, history, and user data
+        loadCreditAnalytics();
+        loadCreditHistory();
+        loadUsersStatistics();
+      } else {
+        setDeleteEmailError(
+          response.error?.message ||
+            t("dashboard.errors.failedToDeleteSubscription")
+        );
+      }
+    } catch (error) {
+      setDeleteEmailError(t("dashboard.errors.failedToDeleteSubscription"));
+      console.error("Delete subscription error:", error);
+    } finally {
       setIsDeleteSubmitting(false);
-      setDeleteEmail("");
-    }, 2000);
+    }
   };
 
-  // Get selected plan details
-  const getSelectedPlanDetails = () => {
-    return pricingPlans.find(
-      (plan) => plan.name.toLowerCase().replace(" ", "-") === selectedPlan
-    );
-  };
-
-  // Get upgrade plan details
-  const getUpgradePlanDetails = () => {
-    return pricingPlans.find(
-      (plan) => plan.name.toLowerCase().replace(" ", "-") === upgradeNewPlan
-    );
-  };
-
-  // Fake sites data
-  const [sites, setSites] = useState([
-    {
-      id: 1,
-      name: "Creative Resources",
-      url: "https://creativeresources.net",
-      price: 25,
-      icon: "https://creativeresources.net/favicon.ico",
-      status: "Active",
-      addedDate: "2024-01-15",
-    },
-    {
-      id: 2,
-      name: "Creative Resources",
-      url: "https://creativeresources.net",
-      price: 15,
-      icon: "https://creativeresources.net/favicon.ico",
-      status: "Active",
-      addedDate: "2024-02-20",
-    },
-    {
-      id: 3,
-      name: "Creative Resources",
-      url: "https://creativeresources.net",
-      price: 15,
-      icon: "https://creativeresources.net/favicon.ico",
-      status: "Active",
-      addedDate: "2024-02-20",
-    },
-    {
-      id: 4,
-      name: "Creative Resources",
-      url: "https://creativeresources.net",
-      price: 15,
-      icon: "https://creativeresources.net/favicon.ico",
-      status: "Active",
-      addedDate: "2024-02-20",
-    },
-  ]);
-
-  // Fake users data
-  const fakeUsers = [
-    {
-      id: 1,
-      name: "Mohammed Ahmed",
-      email: "mohammed.ahmed12@example.com",
-      phone: "+1-555-0123",
-      credits: 45,
-      status: "Active",
-      expiry: "2024-12-31",
-      plan: "Basic Plan",
-      avatar: "MA",
-      joinDate: "2024-01-15",
-      lastActive: "2 hours ago",
-    },
-    {
-      id: 2,
-      name: "Sarah Yasser",
-      email: "sarah.yasser@example.com",
-      phone: "+1-555-0456",
-      credits: 120,
-      status: "Active",
-      expiry: "2024-11-15",
-      plan: "Test Plan",
-      avatar: "SY",
-      joinDate: "2024-02-20",
-      lastActive: "5 minutes ago",
-    },
-    {
-      id: 3,
-      name: "Ahmed Hassan",
-      email: "ahmed.hassan@example.com",
-      phone: "+1-555-0789",
-      credits: 0,
-      status: "Expired",
-      expiry: "2024-06-30",
-      plan: "Basic Plan",
-      avatar: "AH",
-      joinDate: "2023-12-10",
-      lastActive: "1 week ago",
-    },
-    {
-      id: 4,
-      name: "Fatima Ali",
-      email: "fatima.ali@example.com",
-      phone: "+1-555-0321",
-      credits: 250,
-      status: "Active",
-      expiry: "2025-03-15",
-      plan: "Test Plan",
-      avatar: "FA",
-      joinDate: "2024-03-05",
-      lastActive: "1 hour ago",
-    },
-    {
-      id: 5,
-      name: "Omar Khaled",
-      email: "omar.khaled@example.com",
-      phone: "+1-555-0654",
-      credits: 15,
-      status: "Suspended",
-      expiry: "2024-10-20",
-      plan: "Basic Plan",
-      avatar: "OK",
-      joinDate: "2024-01-30",
-      lastActive: "3 days ago",
-    },
-  ];
+  // Sites data and loading states
+  const [sites, setSites] = useState<FrontendSite[]>([]);
+  const [isLoadingSites, setIsLoadingSites] = useState<boolean>(false);
+  const [sitesError, setSitesError] = useState<string>("");
 
   const [pricingPlans, setPricingPlans] = useState([
     {
@@ -793,8 +1025,24 @@ export default function DashboardPage() {
     },
   ]);
 
+  // Transform API user data to match the expected format
+  const transformedUsers =
+    usersData?.users?.map((user, index) => ({
+      id: index + 1,
+      name: `${user.firstName} ${user.lastName}`,
+      email: user.email,
+      phone: "+1-555-0123", // Default phone since API doesn't provide it
+      credits: 0, // Default credits since API doesn't provide it in user list
+      status: "Active", // Default status since API doesn't provide it
+      expiry: "2024-12-31", // Default expiry since API doesn't provide it
+      plan: "Basic Plan", // Default plan since API doesn't provide it
+      avatar: `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`,
+      joinDate: "2024-01-15", // Default join date since API doesn't provide it
+      lastActive: "2 hours ago", // Default last active since API doesn't provide it
+    })) || [];
+
   // Filter users based on search term and status
-  const filteredUsers = fakeUsers.filter((user) => {
+  const filteredUsers = transformedUsers.filter((user) => {
     const matchesSearch =
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -888,7 +1136,6 @@ export default function DashboardPage() {
         <main
           className={`flex-1 ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
         >
-          {/* Enhanced Stats Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
             {/* Total Users Card */}
             <Card className="group dark:bg-muted/50">
@@ -979,6 +1226,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+
           {/* Users Management Table */}
           <Card className="dark:bg-muted/50">
             <CardHeader className="w-full flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
@@ -1065,7 +1313,47 @@ export default function DashboardPage() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
-                    {filteredUsers.length === 0 ? (
+                    {isLoadingUsers ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center">
+                          <div className="flex flex-col items-center space-y-3">
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                            <div>
+                              <p className="text-sm font-medium text-foreground">
+                                {t(
+                                  "dashboard.usersManagement.table.loadingUsers"
+                                )}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {t(
+                                  "dashboard.usersManagement.table.loadingDescription"
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : usersError ? (
+                      <tr>
+                        <td colSpan={6} className="py-12 text-center">
+                          <div className="flex flex-col items-center space-y-3">
+                            <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
+                              <AlertCircle className="w-6 h-6 text-destructive" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-medium text-foreground">
+                                {t(
+                                  "dashboard.usersManagement.table.errorLoading"
+                                )}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                {usersError}
+                              </p>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    ) : filteredUsers.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="py-12 text-center">
                           <div className="flex flex-col items-center space-y-3">
@@ -1161,7 +1449,39 @@ export default function DashboardPage() {
               </div>
               {/* Mobile Card View */}
               <div className="lg:hidden space-y-3 max-h-[400px] overflow-y-auto">
-                {filteredUsers.length === 0 ? (
+                {isLoadingUsers ? (
+                  <div className="py-12 text-center">
+                    <div className="flex flex-col items-center space-y-3">
+                      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {t("dashboard.usersManagement.table.loadingUsers")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {t(
+                            "dashboard.usersManagement.table.loadingDescription"
+                          )}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : usersError ? (
+                  <div className="py-12 text-center">
+                    <div className="flex flex-col items-center space-y-3">
+                      <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
+                        <AlertCircle className="w-6 h-6 text-destructive" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">
+                          {t("dashboard.usersManagement.table.errorLoading")}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {usersError}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : filteredUsers.length === 0 ? (
                   <div className="py-12 text-center">
                     <div className="flex flex-col items-center space-y-3">
                       <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
@@ -1278,28 +1598,37 @@ export default function DashboardPage() {
                 <div className="text-sm text-muted-foreground">
                   {t("dashboard.usersManagement.table.showingUsers", {
                     filtered: filteredUsers.length,
-                    total: fakeUsers.length,
+                    total: transformedUsers.length,
                   })}
                 </div>
                 <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-muted-foreground">
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span>
-                      {fakeUsers.filter((u) => u.status === "Active").length}{" "}
+                      {
+                        transformedUsers.filter((u) => u.status === "Active")
+                          .length
+                      }{" "}
                       {t("dashboard.usersManagement.filters.active")}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-destructive rounded-full"></div>
                     <span>
-                      {fakeUsers.filter((u) => u.status === "Expired").length}{" "}
+                      {
+                        transformedUsers.filter((u) => u.status === "Expired")
+                          .length
+                      }{" "}
                       {t("dashboard.usersManagement.filters.expired")}
                     </span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-2 h-2 bg-muted-foreground rounded-full"></div>
                     <span>
-                      {fakeUsers.filter((u) => u.status === "Suspended").length}{" "}
+                      {
+                        transformedUsers.filter((u) => u.status === "Suspended")
+                          .length
+                      }{" "}
                       {t("dashboard.usersManagement.filters.suspended")}
                     </span>
                   </div>
@@ -1307,9 +1636,10 @@ export default function DashboardPage() {
               </div>
             </CardContent>
           </Card>
-          {/* Bottom Section */}
+
+          {/* Second Row: Add New Subscription, Credit History, Credit Analytics */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
-            {/* Add Subscription */}
+            {/* Add New Subscription Card */}
             <Card className="dark:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center space-x-3">
@@ -1326,18 +1656,16 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Email Input */}
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label
-                    htmlFor="email"
-                    className="text-sm font-medium text-foreground flex items-center space-x-2"
+                    htmlFor="add-email"
+                    className="text-sm font-medium text-foreground"
                   >
-                    <Mail className="w-4 h-4" />
-                    <span>{t("dashboard.addSubscription.userEmail")}</span>
+                    {t("dashboard.addSubscription.userEmail")}
                   </Label>
                   <Input
-                    id="email"
+                    id="add-email"
                     type="email"
                     value={email}
                     onChange={(e) => {
@@ -1345,7 +1673,7 @@ export default function DashboardPage() {
                       if (emailError) setEmailError("");
                     }}
                     placeholder={t(
-                      "dashboard.addSubscription.emailPlaceholder"
+                      "dashboard.addSubscription.placeholders.email"
                     )}
                     className={`transition-all ${
                       emailError
@@ -1354,22 +1682,18 @@ export default function DashboardPage() {
                     }`}
                   />
                   {emailError && (
-                    <p className="text-sm text-destructive flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                    <p className="text-xs text-destructive flex items-center space-x-1">
+                      <AlertCircle className="w-3 h-3" />
                       <span>{emailError}</span>
                     </p>
                   )}
                 </div>
-                {/* Plan Selection */}
                 <div className="space-y-2">
                   <Label
-                    htmlFor="plan"
-                    className="text-sm font-medium text-foreground flex items-center space-x-2"
+                    htmlFor="add-plan"
+                    className="text-sm font-medium text-foreground"
                   >
-                    <CreditCard className="w-4 h-4" />
-                    <span>
-                      {t("dashboard.addSubscription.subscriptionPlan")}
-                    </span>
+                    {t("dashboard.addSubscription.plan")}
                   </Label>
                   <Select
                     value={selectedPlan}
@@ -1379,228 +1703,140 @@ export default function DashboardPage() {
                     }}
                   >
                     <SelectTrigger
-                      className={`w-full transition-all ${
+                      className={`transition-all w-full ${
                         planError
                           ? "border-destructive focus-visible:ring-destructive/20"
                           : "focus-visible:ring-primary/20"
                       }`}
                     >
                       <SelectValue
-                        placeholder={t("dashboard.addSubscription.choosePlan")}
+                        placeholder={t(
+                          "dashboard.addSubscription.placeholders.plan"
+                        )}
                       />
                     </SelectTrigger>
                     <SelectContent>
                       {pricingPlans.map((plan) => (
-                        <SelectItem
-                          key={plan.name}
-                          value={plan.name.toLowerCase().replace(" ", "-")}
-                          className="cursor-pointer"
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <span className="font-medium">{plan.name}</span>
-                            <span className="text-xs text-muted-foreground ml-2">
-                              {plan.credits.toLocaleString()}{" "}
-                              {t("dashboard.usersManagement.table.credits")}
-                            </span>
-                          </div>
+                        <SelectItem key={plan.id} value={plan.name}>
+                          {plan.name} - {plan.credits}{" "}
+                          {t("dashboard.addSubscription.credits")}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   {planError && (
-                    <p className="text-sm text-destructive flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                    <p className="text-xs text-destructive flex items-center space-x-1">
+                      <AlertCircle className="w-3 h-3" />
                       <span>{planError}</span>
                     </p>
                   )}
                 </div>
-                {/* Plan Preview */}
-                {selectedPlan && getSelectedPlanDetails() && (
-                  <div className="p-4 bg-secondary/50 border border-border rounded-lg space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-medium text-foreground">
-                        {t("dashboard.addSubscription.planPreview")}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("dashboard.addSubscription.planName")}
-                        </span>
-                        <span className="text-sm font-medium text-foreground">
-                          {getSelectedPlanDetails()?.name}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("dashboard.addSubscription.credits")}
-                        </span>
-                        <span className="text-sm font-medium text-primary">
-                          {getSelectedPlanDetails()?.credits}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {/* Submit Button */}
                 <Button
-                  className="w-full"
-                  disabled={isSubmitting}
                   onClick={handleAddSubscription}
+                  disabled={isSubmitting}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {isSubmitting ? (
                     <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
-                      <span>
-                        {t("dashboard.addSubscription.addingSubscription")}
-                      </span>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span>{t("dashboard.addSubscription.adding")}</span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
                       <UserPlus className="w-4 h-4" />
-                      <span>
-                        {t("dashboard.addSubscription.addSubscription")}
-                      </span>
+                      <span>{t("dashboard.addSubscription.add")}</span>
                     </div>
                   )}
                 </Button>
               </CardContent>
             </Card>
-            {/* Credit History */}
+
+            {/* Credit History Card */}
             <Card className="dark:bg-muted/50">
-              <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between space-y-3 sm:space-y-0">
-                <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                    <Clock className="w-5 h-5 text-primary" />
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                      <Clock className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-semibold text-foreground">
+                        {t("dashboard.creditHistory.title")}
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground">
+                        {t("dashboard.creditHistory.description")}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <CardTitle className="text-lg font-semibold text-foreground">
-                      {t("dashboard.creditHistory.title")}
-                    </CardTitle>
-                    <p className="text-xs text-muted-foreground">
-                      {t("dashboard.creditHistory.description")}
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isLoadingHistory ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
+                  </div>
+                ) : historyError ? (
+                  <div className="text-center py-8">
+                    <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+                    <p className="text-sm text-destructive">{historyError}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={loadCreditHistory}
+                      className="mt-2"
+                    >
+                      {t("dashboard.creditHistory.retry")}
+                    </Button>
+                  </div>
+                ) : creditHistory.length > 0 ? (
+                  <div className="space-y-3 max-h-80 overflow-y-auto">
+                    {creditHistory.slice(0, 5).map((entry) => (
+                      <div
+                        key={entry.id}
+                        className="flex items-center justify-between p-3 bg-card border border-border rounded-lg"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-sm font-medium text-foreground truncate">
+                              {entry.user_email}
+                            </span>
+                            {entry.plan_name && (
+                              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
+                                {entry.plan_name}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {entry.action} •{" "}
+                            {new Date(entry.timestamp).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div
+                            className={`text-sm font-medium ${
+                              entry.credits_changed > 0
+                                ? "text-green-600"
+                                : "text-destructive"
+                            }`}
+                          >
+                            {entry.credits_changed > 0 ? "+" : ""}
+                            {entry.credits_changed}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-muted-foreground">
+                      {t("dashboard.creditHistory.noHistoryData")}
                     </p>
                   </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="text-xs w-full sm:w-auto"
-                >
-                  {t("common.viewAll")}
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Credit Usage Transaction */}
-                <div className="flex items-center justify-between p-3 sm:p-5 bg-red-50/50 dark:bg-red-50/5 border border-red-400/10 dark:border-red-50/10 rounded-xl hover:bg-red-50/70 transition-colors">
-                  <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold text-foreground truncate">
-                        Sarah Yasser
-                      </div>
-                      <div className="text-xs text-muted-foreground truncate">
-                        {t("dashboard.creditHistory.transactions.siteAccess")} •
-                        example.com
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-sm font-bold text-red-600">-15</div>
-                    <div className="text-xs text-muted-foreground">
-                      {t(
-                        "dashboard.creditHistory.transactions.timeAgo.hoursAgo",
-                        { count: 1 }
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {/* Credit Purchase Transaction */}
-                <div className="flex items-center justify-between p-3 sm:p-5 bg-green-50/50 dark:bg-green-50/5 border border-green-400/10 dark:border-green-400/10 rounded-xl hover:bg-green-50/70 transition-colors">
-                  <div className="flex items-center space-x-3 flex-1 min-w-0">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <ArrowUp className="w-3 h-3 sm:w-4 sm:h-4 text-green-600" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-sm font-semibold text-foreground truncate">
-                        Mohammed Ahmed
-                      </div>
-                      <div className="text-xs text-muted-foreground truncate">
-                        {t("dashboard.creditHistory.transactions.planUpgrade")}{" "}
-                        • Basic Plan
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right flex-shrink-0">
-                    <div className="text-sm font-bold text-green-600">+50</div>
-                    <div className="text-xs text-muted-foreground">
-                      {t(
-                        "dashboard.creditHistory.transactions.timeAgo.hoursAgo",
-                        { count: 2 }
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {/* Credit Usage Transaction */}
-                <div className="flex items-center justify-between p-5 bg-red-50/50 dark:bg-red-50/5 border border-red-400/10 dark:border-red-50/10 rounded-xl transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                      <ArrowDown className="w-4 h-4 text-red-600" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">
-                        Mohamd Waly
-                      </div>
-                      <div className="text-xs text-muted-foreground truncate w-36">
-                        {t("dashboard.creditHistory.transactions.siteAccess")} •
-                        premium-site.com
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-red-600">-25</div>
-                    <div className="text-xs text-muted-foreground">
-                      {t(
-                        "dashboard.creditHistory.transactions.timeAgo.hoursAgo",
-                        { count: 3 }
-                      )}
-                    </div>
-                  </div>
-                </div>
-                {/* Credit Purchase Transaction */}
-                <div className="flex items-center justify-between p-5 bg-blue-50/50 dark:bg-blue-50/5 border border-blue-400/10 dark:border-blue-400/10 rounded-xl hover:bg-blue-50/70 transition-colors">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <ArrowUp className="w-4 h-4 text-blue-600" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-foreground">
-                        Sarah Yasser
-                      </div>
-                      <div className="text-xs text-muted-foreground truncate w-36">
-                        {t(
-                          "dashboard.creditHistory.transactions.creditPurchase"
-                        )}{" "}
-                        • Test Plan
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-sm font-bold text-blue-600">+1000</div>
-                    <div className="text-xs text-muted-foreground">
-                      {t(
-                        "dashboard.creditHistory.transactions.timeAgo.hoursAgo",
-                        { count: 5 }
-                      )}
-                    </div>
-                  </div>
-                </div>
+                )}
               </CardContent>
             </Card>
-            {/* Credit Analytics */}
+
+            {/* Credit Analytics Card */}
             <Card className="dark:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center space-x-3">
@@ -1618,86 +1854,79 @@ export default function DashboardPage() {
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-primary/10 border border-primary/10 rounded-xl">
-                    <div className="text-3xl font-bold text-primary mb-1">
-                      50
-                    </div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {t("dashboard.creditAnalytics.totalIssued")}
-                    </div>
+                {isLoadingAnalytics ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin text-primary" />
                   </div>
-                  <div className="text-center p-4 bg-green-400/10 border border-green-400/10 rounded-xl">
-                    <div className="text-3xl font-bold text-green-400 mb-1">
-                      0
-                    </div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {t("dashboard.creditAnalytics.remaining")}
-                    </div>
+                ) : analyticsError ? (
+                  <div className="text-center py-8">
+                    <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+                    <p className="text-sm text-destructive">{analyticsError}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={loadCreditAnalytics}
+                      className="mt-2"
+                    >
+                      {t("dashboard.creditAnalytics.retry")}
+                    </Button>
                   </div>
-                  <div className="text-center p-4 bg-blue-400/10 border border-blue-400/10 rounded-xl">
-                    <div className="text-3xl font-bold text-blue-400 mb-1">
-                      0
-                    </div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {t("dashboard.creditAnalytics.used")}
-                    </div>
-                  </div>
-                  <div className="text-center p-4 bg-pink-400/10 border border-pink-400/10 rounded-xl">
-                    <div className="text-3xl font-bold text-pink-400 mb-1">
-                      0
-                    </div>
-                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {t("dashboard.creditAnalytics.dailyAvg")}
-                    </div>
-                  </div>
-                </div>
-                <div className="pt-6 border-t border-border">
+                ) : creditAnalytics ? (
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-sm font-semibold text-foreground">
-                        Credits by Plan
-                      </h4>
-                      <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg border border-border/50">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-3 h-3 bg-primary rounded-full"></div>
-                          <span className="text-sm font-medium text-foreground">
-                            Basic Plan
-                          </span>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="text-lg font-bold text-primary">
-                            50
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            credits
-                          </span>
-                        </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          {t("dashboard.creditAnalytics.totalIssued")}
+                        </p>
+                        <p className="text-lg font-bold text-foreground">
+                          {creditAnalytics.total_credits_issued.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          {t("dashboard.creditAnalytics.totalUsed")}
+                        </p>
+                        <p className="text-lg font-bold text-foreground">
+                          {creditAnalytics.total_credits_used.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          {t("dashboard.creditAnalytics.remaining")}
+                        </p>
+                        <p className="text-lg font-bold text-primary">
+                          {creditAnalytics.total_remaining_credits.toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                          {t("dashboard.creditAnalytics.dailyAverage")}
+                        </p>
+                        <p className="text-lg font-bold text-foreground">
+                          {creditAnalytics.average_daily_usage.toFixed(1)}
+                        </p>
                       </div>
                     </div>
                   </div>
-                  <div className="mt-6 pt-4 border-t border-border/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">
-                        {t("dashboard.creditAnalytics.lastUpdated")} :
-                      </span>
-                      <span className="text-xs font-medium text-foreground">
-                        2023-07-06 11:44:30
-                      </span>
-                    </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <p className="text-sm text-muted-foreground">
+                      {t("dashboard.creditAnalytics.noAnalyticsData")}
+                    </p>
                   </div>
-                </div>
+                )}
               </CardContent>
             </Card>
-            {/* Upgrade Subscription */}
+          </div>
+
+          {/* Third Row: Upgrade Subscription, Extend Subscription, Delete Subscription */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5">
+            {/* Upgrade Subscription Card */}
             <Card className="dark:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-primary" />
+                    <ArrowUp className="w-5 h-5 text-primary" />
                   </div>
                   <div>
                     <CardTitle className="text-lg font-semibold text-foreground">
@@ -1709,15 +1938,13 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Email Input */}
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label
                     htmlFor="upgrade-email"
-                    className="text-sm font-medium text-foreground flex items-center"
+                    className="text-sm font-medium text-foreground"
                   >
-                    <Mail className="w-4 h-4" />
-                    <span>{t("dashboard.upgradeSubscription.userEmail")}</span>
+                    {t("dashboard.upgradeSubscription.userEmail")}
                   </Label>
                   <Input
                     id="upgrade-email"
@@ -1727,24 +1954,28 @@ export default function DashboardPage() {
                       setUpgradeEmail(e.target.value);
                       if (upgradeEmailError) setUpgradeEmailError("");
                     }}
-                    placeholder="user@example.com"
-                    className={`transition-all ${upgradeEmailError && "border-destructive focus-visible:ring-destructive/20"}`}
+                    placeholder={t(
+                      "dashboard.upgradeSubscription.placeholders.email"
+                    )}
+                    className={`transition-all ${
+                      upgradeEmailError
+                        ? "border-destructive focus-visible:ring-destructive/20"
+                        : "focus-visible:ring-primary/20"
+                    }`}
                   />
                   {upgradeEmailError && (
-                    <p className="text-sm text-destructive flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                    <p className="text-xs text-destructive flex items-center space-x-1">
+                      <AlertCircle className="w-3 h-3" />
                       <span>{upgradeEmailError}</span>
                     </p>
                   )}
                 </div>
-                {/* New Plan Selection */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="upgrade-plan"
-                    className="text-sm font-medium text-foreground flex items-center"
+                    className="text-sm font-medium text-foreground"
                   >
-                    <CreditCard className="w-4 h-4" />
-                    <span>{t("dashboard.upgradeSubscription.newPlan")}</span>
+                    {t("dashboard.upgradeSubscription.newPlan")}
                   </Label>
                   <Select
                     value={upgradeNewPlan}
@@ -1754,86 +1985,49 @@ export default function DashboardPage() {
                     }}
                   >
                     <SelectTrigger
-                      className={`w-full transition-all ${
+                      className={`transition-all w-full ${
                         upgradeNewPlanError
                           ? "border-destructive focus-visible:ring-destructive/20"
                           : "focus-visible:ring-primary/20"
                       }`}
                     >
                       <SelectValue
-                        placeholder={t("dashboard.upgradeSubscription.newPlan")}
+                        placeholder={t(
+                          "dashboard.upgradeSubscription.placeholders.plan"
+                        )}
                       />
                     </SelectTrigger>
                     <SelectContent>
                       {pricingPlans.map((plan) => (
-                        <SelectItem
-                          key={plan.name}
-                          value={plan.name.toLowerCase().replace(" ", "-")}
-                          className="cursor-pointer"
-                        >
-                          <div className="flex items-center justify-between w-full">
-                            <span className="font-medium">{plan.name}</span>
-                            <span className="text-xs text-muted-foreground ml-2">
-                              {plan.credits.toLocaleString()}{" "}
-                              {t("dashboard.usersManagement.table.credits")}
-                            </span>
-                          </div>
+                        <SelectItem key={plan.id} value={plan.name}>
+                          {plan.name} - {plan.credits}{" "}
+                          {t("dashboard.upgradeSubscription.credits")}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                   {upgradeNewPlanError && (
-                    <p className="text-sm text-destructive flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                    <p className="text-xs text-destructive flex items-center space-x-1">
+                      <AlertCircle className="w-3 h-3" />
                       <span>{upgradeNewPlanError}</span>
                     </p>
                   )}
                 </div>
-                {/* Plan Preview */}
-                {upgradeNewPlan && getUpgradePlanDetails() && (
-                  <div className="p-4 bg-secondary/50 border border-border rounded-lg space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-medium text-foreground">
-                        {t("dashboard.addSubscription.planPreview")}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("dashboard.upgradeSubscription.newPlan")} :
-                        </span>
-                        <span className="text-sm font-medium text-foreground">
-                          {getUpgradePlanDetails()?.name}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("dashboard.addSubscription.credits")}
-                        </span>
-                        <span className="text-sm font-medium text-primary">
-                          {getUpgradePlanDetails()?.credits}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {/* Submit Button */}
                 <Button
-                  className="w-full"
-                  disabled={isUpgradeSubmitting}
                   onClick={handleUpgradeSubscription}
+                  disabled={isUpgradeSubmitting}
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {isUpgradeSubmitting ? (
                     <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       <span>
                         {t("dashboard.upgradeSubscription.upgrading")}
                       </span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
-                      <TrendingUp className="w-4 h-4" />
+                      <ArrowUp className="w-4 h-4" />
                       <span>{t("dashboard.upgradeSubscription.upgrade")}</span>
                     </div>
                   )}
@@ -1841,7 +2035,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            {/* Extend Subscription */}
+            {/* Extend Subscription Card */}
             <Card className="dark:bg-muted/50">
               <CardHeader>
                 <div className="flex items-center space-x-3">
@@ -1858,15 +2052,13 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Email Input */}
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label
                     htmlFor="extend-email"
-                    className="text-sm font-medium text-foreground flex items-center"
+                    className="text-sm font-medium text-foreground"
                   >
-                    <Mail className="w-4 h-4" />
-                    <span>{t("dashboard.extendSubscription.userEmail")}</span>
+                    {t("dashboard.extendSubscription.userEmail")}
                   </Label>
                   <Input
                     id="extend-email"
@@ -1876,7 +2068,9 @@ export default function DashboardPage() {
                       setExtendEmail(e.target.value);
                       if (extendEmailError) setExtendEmailError("");
                     }}
-                    placeholder="user@example.com"
+                    placeholder={t(
+                      "dashboard.extendSubscription.placeholders.email"
+                    )}
                     className={`transition-all ${
                       extendEmailError
                         ? "border-destructive focus-visible:ring-destructive/20"
@@ -1884,33 +2078,31 @@ export default function DashboardPage() {
                     }`}
                   />
                   {extendEmailError && (
-                    <p className="text-sm text-destructive flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                    <p className="text-xs text-destructive flex items-center space-x-1">
+                      <AlertCircle className="w-3 h-3" />
                       <span>{extendEmailError}</span>
                     </p>
                   )}
                 </div>
-                {/* Days Input */}
                 <div className="space-y-2">
                   <Label
                     htmlFor="extend-days"
-                    className="text-sm font-medium text-foreground flex items-center"
+                    className="text-sm font-medium text-foreground"
                   >
-                    <Clock className="w-4 h-4" />
-                    <span>
-                      {t("dashboard.extendSubscription.additionalDays")}
-                    </span>
+                    {t("dashboard.extendSubscription.days")}
                   </Label>
                   <Input
                     id="extend-days"
                     type="number"
+                    min="1"
                     value={extendDays}
                     onChange={(e) => {
                       setExtendDays(e.target.value);
                       if (extendDaysError) setExtendDaysError("");
                     }}
-                    placeholder="30"
-                    min="1"
+                    placeholder={t(
+                      "dashboard.extendSubscription.placeholders.days"
+                    )}
                     className={`transition-all ${
                       extendDaysError
                         ? "border-destructive focus-visible:ring-destructive/20"
@@ -1918,54 +2110,20 @@ export default function DashboardPage() {
                     }`}
                   />
                   {extendDaysError && (
-                    <p className="text-sm text-destructive flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                    <p className="text-xs text-destructive flex items-center space-x-1">
+                      <AlertCircle className="w-3 h-3" />
                       <span>{extendDaysError}</span>
                     </p>
                   )}
                 </div>
-                {/* Extension Preview */}
-                {extendDays && parseInt(extendDays) > 0 && (
-                  <div className="p-4 bg-secondary/50 border border-border rounded-lg space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <CheckCircle2 className="w-4 h-4 text-green-600" />
-                      <span className="text-sm font-medium text-foreground">
-                        {t("dashboard.addSubscription.planPreview")}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("dashboard.extendSubscription.additionalDays")} :
-                        </span>
-                        <span className="text-sm font-medium text-primary">
-                          +{extendDays} days
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("dashboard.extendSubscription.estimatedNewExpiry")}{" "}
-                          :
-                        </span>
-                        <span className="text-sm font-medium text-foreground">
-                          {new Date(
-                            Date.now() +
-                              parseInt(extendDays) * 24 * 60 * 60 * 1000
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                {/* Submit Button */}
                 <Button
                   onClick={handleExtendSubscription}
                   disabled={isExtendSubmitting}
-                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   {isExtendSubmitting ? (
                     <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       <span>{t("dashboard.extendSubscription.extending")}</span>
                     </div>
                   ) : (
@@ -1977,12 +2135,13 @@ export default function DashboardPage() {
                 </Button>
               </CardContent>
             </Card>
-            {/* Delete Subscription */}
-            <Card className="dark:bg-muted/50">
+
+            {/* Delete Subscription Card */}
+            <Card className="dark:bg-muted/50 border-destructive/20">
               <CardHeader>
                 <div className="flex items-center space-x-3">
-                  <div className="w-10 h-10 bg-destructive/10 border border-destructive/5 rounded-lg flex items-center justify-center">
-                    <Trash2 className="w-5 h-5 text-destructive" />
+                  <div className="w-10 h-10 bg-destructive/10 border border-destructive/10 rounded-lg flex items-center justify-center">
+                    <UserMinus className="w-5 h-5 text-destructive" />
                   </div>
                   <div>
                     <CardTitle className="text-lg font-semibold text-foreground">
@@ -1994,15 +2153,13 @@ export default function DashboardPage() {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {/* Email Input */}
+              <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label
                     htmlFor="delete-email"
-                    className="text-sm font-medium text-foreground flex items-center"
+                    className="text-sm font-medium text-foreground"
                   >
-                    <Mail className="w-4 h-4" />
-                    <span>{t("dashboard.deleteSubscription.userEmail")}</span>
+                    {t("dashboard.deleteSubscription.userEmail")}
                   </Label>
                   <Input
                     id="delete-email"
@@ -2012,7 +2169,9 @@ export default function DashboardPage() {
                       setDeleteEmail(e.target.value);
                       if (deleteEmailError) setDeleteEmailError("");
                     }}
-                    placeholder="user@example.com"
+                    placeholder={t(
+                      "dashboard.deleteSubscription.placeholders.email"
+                    )}
                     className={`transition-all ${
                       deleteEmailError
                         ? "border-destructive focus-visible:ring-destructive/20"
@@ -2020,42 +2179,39 @@ export default function DashboardPage() {
                     }`}
                   />
                   {deleteEmailError && (
-                    <p className="text-sm text-destructive flex items-center space-x-1">
-                      <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                    <p className="text-xs text-destructive flex items-center space-x-1">
+                      <AlertCircle className="w-3 h-3" />
                       <span>{deleteEmailError}</span>
                     </p>
                   )}
                 </div>
-                {/* Warning Message */}
-                <div className="p-4 bg-destructive/5 border border-destructive/5 rounded-lg">
-                  <div className="flex flex-col items-center text-center space-y-3">
-                    <div className="w-10 h-10 bg-destructive/20 border border-destructive/5 rounded-full flex items-center justify-center mt-0.5">
-                      <span className="text-destructive text-lg font-bold">
-                        !
-                      </span>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-medium text-destructive text-center">
+                <div className="p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
+                  <div className="flex items-start space-x-2">
+                    <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
+                    <div>
+                      <p className="text-xs font-medium text-destructive">
                         {t("dashboard.deleteSubscription.warning")}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {t("dashboard.deleteSubscription.warningDescription")}
                       </p>
                     </div>
                   </div>
                 </div>
-                {/* Submit Button */}
                 <Button
                   onClick={handleDeleteSubscription}
                   disabled={isDeleteSubmitting}
                   variant="destructive"
-                  className="w-full disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="w-full"
                 >
                   {isDeleteSubmitting ? (
                     <div className="flex items-center space-x-2">
-                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <Loader2 className="w-4 h-4 animate-spin" />
                       <span>{t("dashboard.deleteSubscription.deleting")}</span>
                     </div>
                   ) : (
                     <div className="flex items-center space-x-2">
-                      <Trash2 className="w-4 h-4" />
+                      <UserMinus className="w-4 h-4" />
                       <span>{t("dashboard.deleteSubscription.delete")}</span>
                     </div>
                   )}
@@ -2063,6 +2219,7 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
           </div>
+
           {/* Supported Sites */}
           <Card className="dark:bg-muted/50">
             <CardHeader className="flex flex-row items-center justify-between">
@@ -2231,7 +2388,7 @@ export default function DashboardPage() {
                     >
                       {isAddingSite ? (
                         <div className="flex items-center space-x-2">
-                          <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin"></div>
+                          <Loader2 className="w-5 h-5 animate-spin" />
                           <span>{t("dashboard.siteManagement.adding")}</span>
                         </div>
                       ) : (
@@ -2246,7 +2403,30 @@ export default function DashboardPage() {
               </Dialog>
             </CardHeader>
             <CardContent>
-              {sites.length === 0 ? (
+              {isLoadingSites ? (
+                <div className="flex justify-center items-center h-40">
+                  <Loader2 className="w-8 h-8 animate-spin" />
+                </div>
+              ) : sitesError ? (
+                <div className="text-center py-12 text-destructive">
+                  <div className="flex flex-col items-center space-y-3">
+                    <div className="w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
+                      <AlertCircle className="w-6 h-6 text-destructive" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{sitesError}</p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={loadSites}
+                        className="mt-2 text-black dark:text-white"
+                      >
+                        {t("dashboard.siteManagement.table.retry")}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ) : sites.length === 0 ? (
                 <div className="text-center py-12 text-muted-foreground">
                   <div className="flex flex-col items-center space-y-3">
                     <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
@@ -2371,6 +2551,7 @@ export default function DashboardPage() {
                                   size="sm"
                                   variant="destructive"
                                   className="h-8 px-3"
+                                  onClick={() => handleDeleteSite(site.url)}
                                 >
                                   <Trash2 className="w-4 h-4" />
                                   {t("dashboard.siteManagement.table.delete")}
@@ -2471,6 +2652,7 @@ export default function DashboardPage() {
                             variant="destructive"
                             size="sm"
                             className="w-full h-10 flex-1 text-sm font-medium"
+                            onClick={() => handleDeleteSite(site.url)}
                           >
                             <Trash2 className="w-4 h-4" />
                             Delete
@@ -2748,7 +2930,7 @@ export default function DashboardPage() {
                     >
                       {isAddingPackage ? (
                         <>
-                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <Loader2 className="w-5 h-5 animate-spin" />
                           {t("dashboard.packageManagement.buttons.adding")}
                         </>
                       ) : (
@@ -3029,7 +3211,7 @@ export default function DashboardPage() {
                             >
                               {isDeletingPackage ? (
                                 <>
-                                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                  <Loader2 className="w-5 h-5 animate-spin" />
                                   {t("dashboard.packageManagement.deleting")}
                                 </>
                               ) : (
@@ -3060,7 +3242,7 @@ export default function DashboardPage() {
                       >
                         {isEditingPackage ? (
                           <>
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <Loader2 className="w-5 h-5 animate-spin" />
                             {t("dashboard.packageManagement.buttons.updating")}
                           </>
                         ) : (
@@ -3078,135 +3260,182 @@ export default function DashboardPage() {
               </Dialog>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-                {pricingPlans.map((plan) => (
-                  <Card
-                    key={plan.id}
-                    className="relative overflow-hidden border-border/50 p-0"
+              {isLoadingPricingPlans ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {[...Array(3)].map((_, index) => (
+                    <Card
+                      key={index}
+                      className="relative overflow-hidden border-border/50 p-0"
+                    >
+                      <CardContent className="p-0 dark:bg-secondary">
+                        <div className="bg-secondary/50 dark:bg-secondary p-4 sm:p-6 border-b border-border/50">
+                          <div className="space-y-2">
+                            <div className="h-6 bg-muted animate-pulse rounded"></div>
+                            <div className="h-4 bg-muted animate-pulse rounded w-3/4"></div>
+                          </div>
+                        </div>
+                        <div className="p-4 sm:p-6 space-y-4">
+                          <div className="h-4 bg-muted animate-pulse rounded"></div>
+                          <div className="h-4 bg-muted animate-pulse rounded w-2/3"></div>
+                          <div className="h-8 bg-muted animate-pulse rounded"></div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : pricingPlansError ? (
+                <div className="text-center py-8">
+                  <div className="flex justify-center">
+                    <div className=" w-12 h-12 bg-destructive/10 rounded-full flex items-center justify-center">
+                      <AlertCircle className="w-6 h-6 text-destructive" />
+                    </div>
+                  </div>
+                  <p className="text-destructive my-2">{pricingPlansError}</p>
+                  <Button
+                    onClick={loadPricingPlans}
+                    variant="outline"
+                    size="sm"
                   >
-                    <CardContent className="p-0 dark:bg-secondary">
-                      {/* Header Section */}
-                      <div className="bg-secondary/50 dark:bg-secondary p-4 sm:p-6 border-b border-border/50">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-2 flex-1 min-w-0">
-                            <h3 className="text-lg sm:text-xl font-bold text-foreground truncate">
-                              {plan.name}
-                            </h3>
-                            <p className="text-sm text-muted-foreground">
-                              {plan.description}
-                            </p>
-                          </div>
-                          <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 ml-3">
-                            <Package className="w-5 h-5 text-primary" />
+                    {t("dashboard.buttons.retry")}
+                  </Button>
+                </div>
+              ) : pricingPlans.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-muted-foreground">
+                    {t("dashboard.packageManagement.noPricingPlans")}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                  {pricingPlans.map((plan) => (
+                    <Card
+                      key={plan.id}
+                      className="relative overflow-hidden border-border/50 p-0"
+                    >
+                      <CardContent className="p-0 dark:bg-secondary">
+                        {/* Header Section */}
+                        <div className="bg-secondary/50 dark:bg-secondary p-4 sm:p-6 border-b border-border/50">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-2 flex-1 min-w-0">
+                              <h3 className="text-lg sm:text-xl font-bold text-foreground truncate">
+                                {plan.name}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                {plan.description}
+                              </p>
+                            </div>
+                            <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 ml-3">
+                              <Package className="w-5 h-5 text-primary" />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      {/* Details Section */}
-                      <div className="p-4 sm:p-6 space-y-4">
-                        {/* Credits and Validity */}
-                        <div className="grid grid-cols-2 gap-3 sm:gap-4">
-                          <div className="space-y-1">
-                            <div
-                              className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
-                            >
-                              <Coins className="w-4 h-4" />
-                              <span>
-                                {t(
-                                  "dashboard.packageManagement.planDetails.credits"
-                                )}
-                              </span>
-                            </div>
-                            <p className="text-base sm:text-lg font-semibold text-foreground">
-                              {plan.credits.toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <div
-                              className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
-                            >
-                              <Timer className="w-4 h-4" />
-                              <span>
-                                {t(
-                                  "dashboard.packageManagement.planDetails.validity"
-                                )}
-                              </span>
-                            </div>
-                            <p className="text-base sm:text-lg font-semibold text-foreground">
-                              {plan.daysValidity}{" "}
-                              {t(
-                                "dashboard.packageManagement.planDetails.days"
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                        {/* Supported Sites */}
-                        {plan.supportedSites &&
-                          plan.supportedSites.length > 0 && (
-                            <div className="space-y-3">
+                        {/* Details Section */}
+                        <div className="p-4 sm:p-6 space-y-4">
+                          {/* Credits and Validity */}
+                          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                            <div className="space-y-1">
                               <div
-                                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
+                                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
                               >
-                                <Globe className="w-4 h-4" />
+                                <Coins className="w-4 h-4" />
                                 <span>
                                   {t(
-                                    "dashboard.packageManagement.planDetails.supportedSites"
+                                    "dashboard.packageManagement.planDetails.credits"
                                   )}
                                 </span>
                               </div>
-                              <div className="flex flex-wrap gap-2">
-                                {plan.supportedSites.map((site, index) => (
-                                  <span
-                                    key={index}
-                                    className={`inline-flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} px-3 py-2 rounded-lg bg-secondary/50 dark:bg-card/50 border border-secondary text-sm font-medium text-foreground`}
-                                  >
-                                    <div className="w-4 h-4 bg-primary/10 border border-primary/10 rounded flex items-center justify-center">
-                                      <Globe className="w-3 h-3 text-primary" />
-                                    </div>
-                                    <span>{site}</span>
-                                  </span>
-                                ))}
-                              </div>
+                              <p className="text-base sm:text-lg font-semibold text-foreground">
+                                {plan.credits.toLocaleString()}
+                              </p>
                             </div>
-                          )}
-                        <div
-                          className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
-                        >
-                          <Check className="w-4 h-4 stroke-3" />
-                          <span>{t("pricing.labels.featuresIncluded")}</span>
-                        </div>
-                        {/* Features */}
-                        <div className="space-y-3">
-                          <div className="space-y-3">
-                            {plan.features.map((feature, index) => (
+                            <div className="space-y-1">
                               <div
-                                key={index}
-                                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg bg-green-50 dark:bg-green-50/10 border border-green-100 dark:border-green-100/10`}
+                                className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-xs sm:text-sm text-muted-foreground`}
                               >
-                                <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                  <Check className="w-4 h-4 text-white" />
-                                </div>
-                                <span className="text-foreground font-medium text-sm">
-                                  {t(feature)}
+                                <Timer className="w-4 h-4" />
+                                <span>
+                                  {t(
+                                    "dashboard.packageManagement.planDetails.validity"
+                                  )}
                                 </span>
                               </div>
-                            ))}
+                              <p className="text-base sm:text-lg font-semibold text-foreground">
+                                {plan.daysValidity}{" "}
+                                {t(
+                                  "dashboard.packageManagement.planDetails.days"
+                                )}
+                              </p>
+                            </div>
+                          </div>
+                          {/* Supported Sites */}
+                          {plan.supportedSites &&
+                            plan.supportedSites.length > 0 && (
+                              <div className="space-y-3">
+                                <div
+                                  className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
+                                >
+                                  <Globe className="w-4 h-4" />
+                                  <span>
+                                    {t(
+                                      "dashboard.packageManagement.planDetails.supportedSites"
+                                    )}
+                                  </span>
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                  {plan.supportedSites.map((site, index) => (
+                                    <span
+                                      key={index}
+                                      className={`inline-flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} px-3 py-2 rounded-lg bg-secondary/50 dark:bg-card/50 border border-secondary text-sm font-medium text-foreground`}
+                                    >
+                                      <div className="w-4 h-4 bg-primary/10 border border-primary/10 rounded flex items-center justify-center">
+                                        <Globe className="w-3 h-3 text-primary" />
+                                      </div>
+                                      <span>{site}</span>
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          <div
+                            className={`flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} text-sm text-muted-foreground`}
+                          >
+                            <Check className="w-4 h-4 stroke-3" />
+                            <span>{t("pricing.labels.featuresIncluded")}</span>
+                          </div>
+                          {/* Features */}
+                          <div className="space-y-3">
+                            <div className="space-y-3">
+                              {plan.features.map((feature, index) => (
+                                <div
+                                  key={index}
+                                  className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg bg-green-50 dark:bg-green-50/10 border border-green-100 dark:border-green-100/10`}
+                                >
+                                  <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                    <Check className="w-4 h-4 text-white" />
+                                  </div>
+                                  <span className="text-foreground font-medium text-sm">
+                                    {t(feature)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      {/* Footer Section */}
-                      <div className="p-4 sm:p-6 !pt-0 space-y-3">
-                        <Button
-                          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
-                          onClick={() => handleEditPackage(plan)}
-                        >
-                          <Settings className="w-4 h-4" />
-                          {t("dashboard.packageManagement.edit")}
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                        {/* Footer Section */}
+                        <div className="p-4 sm:p-6 !pt-0 space-y-3">
+                          <Button
+                            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+                            onClick={() => handleEditPackage(plan)}
+                          >
+                            <Settings className="w-4 h-4" />
+                            {t("dashboard.packageManagement.edit")}
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
         </main>
