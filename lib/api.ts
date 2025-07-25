@@ -2,9 +2,8 @@
 import axios from "axios";
 import { encryptPassword, generateTimestampToken } from "./utils";
 
-// Base API URL - you should set this in environment variables
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "https://api.example.com";
+// Base API URL - use proxy to avoid CORS issues
+const API_BASE_URL = "/api/proxy";
 
 // Create axios instance with default configuration
 const apiClient = axios.create({
@@ -13,8 +12,54 @@ const apiClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true, // Include cookies for session management
 });
+
+// Add request interceptor to include authorization token
+apiClient.interceptors.request.use(
+  (config) => {
+    // Get token from localStorage or sessionStorage
+    const token =
+      localStorage.getItem("access_token") ||
+      sessionStorage.getItem("access_token");
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor to handle authentication errors
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // If we get a 401 or authentication error, clear the token
+    if (
+      error.response?.status === 401 ||
+      error.response?.data?.error?.message?.includes("Session is required") ||
+      error.response?.data?.error?.message?.includes("Invalid token")
+    ) {
+      localStorage.removeItem("access_token");
+      sessionStorage.removeItem("access_token");
+
+      // Optionally redirect to login page
+      if (
+        typeof window !== "undefined" &&
+        window.location.pathname !== "/login"
+      ) {
+        window.location.href = "/login";
+      }
+    }
+
+    return Promise.reject(error);
+  }
+);
 
 // API response types based on swagger documentation
 export interface ApiResponse<T = unknown> {
