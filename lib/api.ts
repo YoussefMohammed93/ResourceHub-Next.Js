@@ -2,13 +2,14 @@
 import axios from "axios";
 import { encryptPassword, generateTimestampToken } from "./utils";
 
-// Base API URL - use proxy to avoid CORS issues
-const API_BASE_URL = "/api/proxy";
+// Base API URL - direct connection to the API server (no proxy)
+const API_BASE_URL = "https://stockaty.virs.tech";
 
 // Create axios instance with default configuration
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000, // 30 seconds timeout
+  withCredentials: true, // Include cookies in requests
   headers: {
     "Content-Type": "application/json",
   },
