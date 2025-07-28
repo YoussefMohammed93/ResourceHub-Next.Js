@@ -6,35 +6,28 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 // Password encryption utilities based on backend requirements
-// Hex + Base64 + ROT13 encoding (in this order)
+// Backend expects: ToHex(passwd) -> ToBase64(reversedHex) -> ToRot13(reversedBase64)
 export function encryptPassword(password: string): string {
-  // Step 1: Hex encoding
-  const hex = Array.from(password)
-    .map((char) => char.charCodeAt(0).toString(16).padStart(2, "0"))
-    .join("");
+  // Step 1: Convert to reversed hex using backend format
+  const reversedHex = _0x8e9a(password);
 
-  // Step 2: Base64 encoding
-  const base64 = btoa(hex);
+  // Step 2: Convert to reversed base64 using backend format
+  const reversedBase64 = _0x2a4b(reversedHex);
 
-  // Step 3: ROT13 encoding
-  const rot13 = base64.replace(/[a-zA-Z]/g, (char) => {
-    const start = char <= "Z" ? 65 : 97;
-    return String.fromCharCode(
-      ((char.charCodeAt(0) - start + 13) % 26) + start
-    );
-  });
+  // Step 3: Apply ROT13 encoding
+  const encodedPassword = _0x6f5d(reversedBase64);
 
   // Debug logging if enabled
   if (process.env.NEXT_PUBLIC_ENABLE_API_LOGGING === "true") {
     console.log("[Password Encryption Debug]", {
       original: password,
-      hex: hex,
-      base64: base64,
-      rot13: rot13,
+      reversedHex: reversedHex,
+      reversedBase64: reversedBase64,
+      encodedPassword: encodedPassword,
     });
   }
 
-  return rot13;
+  return encodedPassword;
 }
 
 // Obfuscated token generation functions for API requests
