@@ -28,12 +28,6 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
       // Also add the token as a custom header in case the backend expects it differently
       config.headers["X-Access-Token"] = token;
-      console.log(
-        "Adding authorization headers:",
-        `Bearer ${token.substring(0, 20)}...`
-      );
-    } else {
-      console.log("No token found for authorization");
     }
 
     return config;
@@ -428,21 +422,11 @@ export function storeAuthToken(
 ): void {
   if (typeof window === "undefined") return;
 
-  console.log("Storing auth token, rememberMe:", rememberMe);
-
   if (rememberMe) {
     localStorage.setItem("access_token", token);
-    console.log("Token stored in localStorage");
   } else {
     sessionStorage.setItem("access_token", token);
-    console.log("Token stored in sessionStorage");
   }
-
-  // Verify token was stored
-  const storedToken =
-    localStorage.getItem("access_token") ||
-    sessionStorage.getItem("access_token");
-  console.log("Token verification - stored successfully:", !!storedToken);
 }
 
 // Helper function to clear authentication token

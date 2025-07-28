@@ -42,9 +42,7 @@ export function UserDropdown() {
 
   // Get user full name
   const getUserFullName = () => {
-    console.log("UserDropdown - user data:", user);
     if (!user?.account) {
-      console.log("UserDropdown - no user account data");
       return "User";
     }
 
@@ -52,20 +50,9 @@ export function UserDropdown() {
     const lastName = user.account.lastName || "";
     const fullName = `${firstName} ${lastName}`.trim();
 
-    console.log(
-      "UserDropdown - firstName:",
-      firstName,
-      "lastName:",
-      lastName,
-      "fullName:",
-      fullName
-    );
-
     // If no name available, use email or fallback to "User"
     if (!fullName) {
-      const emailName = user.account.email?.split("@")[0] || "User";
-      console.log("UserDropdown - using email name:", emailName);
-      return emailName;
+      return user.account.email?.split("@")[0] || "User";
     }
 
     return fullName;

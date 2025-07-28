@@ -3,12 +3,22 @@
 import {
   authApi,
   UserData,
+  UserAccount,
+  Subscription,
   storeAuthToken,
   clearAuthToken,
   isAuthenticated,
   isAdmin,
 } from "@/lib/api";
 import React, { createContext, useContext, useEffect, useState } from "react";
+
+// Type for direct API response structure (without data wrapper)
+interface DirectUserDataResponse {
+  success: boolean;
+  account: UserAccount;
+  subscription: Subscription;
+  role?: string;
+}
 
 interface AuthContextType {
   user: UserData | null;
@@ -53,9 +63,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (isAuthenticated()) {
         try {
           const response = await authApi.getUserData();
-          if (response.success && response.data) {
-            setUser(response.data);
-            setIsAuthenticatedState(true);
+          if (response.success) {
+            if (response.data) {
+              setUser(response.data);
+              setIsAuthenticatedState(true);
+            } else {
+              // Handle direct response structure
+              const directResponse = response as DirectUserDataResponse;
+              if (directResponse.account && directResponse.subscription) {
+                const userData: UserData = {
+                  account: directResponse.account,
+                  subscription: directResponse.subscription,
+                  role: directResponse.role,
+                };
+                setUser(userData);
+                setIsAuthenticatedState(true);
+              } else {
+                // Token might be invalid, clear it
+                clearAuthToken();
+                setUser(null);
+                setIsAuthenticatedState(false);
+              }
+            }
           } else {
             // Token might be invalid, clear it
             clearAuthToken();
@@ -92,20 +121,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (response.success && response.data) {
-        console.log("Login successful, response data:", response.data);
-
         // Store the access token
         storeAuthToken(response.data.access_token, rememberMe);
 
         // Wait a bit to ensure token is stored
         await new Promise((resolve) => setTimeout(resolve, 100));
 
-        console.log("About to refresh user data...");
         // Load user data
         await refreshUser();
 
         setIsAuthenticatedState(true);
-        console.log("Login process completed successfully");
         return { success: true };
       } else {
         return {
@@ -188,10 +213,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const response = await authApi.getUserData();
-      console.log("User data response:", response);
-      if (response.success && response.data) {
-        console.log("Setting user data:", response.data);
-        setUser(response.data);
+      if (response.success) {
+        // The API returns user data directly in the response, not wrapped in 'data'
+        if (response.data) {
+          // Standard structure with data wrapper
+          setUser(response.data);
+        } else {
+          // Direct structure without data wrapper - cast response to access properties
+          const directResponse = response as DirectUserDataResponse;
+          if (directResponse.account && directResponse.subscription) {
+            const userData: UserData = {
+              account: directResponse.account,
+              subscription: directResponse.subscription,
+              role: directResponse.role,
+            };
+            setUser(userData);
+          }
+        }
         setIsAuthenticatedState(true);
       } else {
         // Token might be invalid, clear it
