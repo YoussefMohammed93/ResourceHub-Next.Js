@@ -33,6 +33,19 @@ export async function DELETE(
   return handleProxyRequest(request, resolvedParams.path, "DELETE");
 }
 
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers":
+        "Content-Type, Authorization, X-Access-Token",
+      "Access-Control-Allow-Credentials": "true",
+    },
+  });
+}
+
 async function handleProxyRequest(
   request: NextRequest,
   pathSegments: string[],

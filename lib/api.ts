@@ -3,15 +3,19 @@ import axios from "axios";
 import { encryptPassword, generateTimestampToken } from "./utils";
 import { shouldUseMockData, mockApiResponses } from "./mock-data";
 
-// Base API URL - use proxy in development, direct connection in production
+// Base API URL - use proxy for all browser requests to avoid CORS issues
 const getApiBaseUrl = () => {
-  // Check if we're in development and should use proxy
+  // Always use proxy when running in browser (client-side)
   if (typeof window !== "undefined") {
-    const useProxy =
-      process.env.NODE_ENV === "development" &&
-      process.env.NEXT_PUBLIC_API_BASE_URL;
+    // In production (Vercel), use the deployed domain with proxy
+    if (process.env.NODE_ENV === "production") {
+      const proxyUrl = `${window.location.origin}/api/proxy`;
+      console.log("[API Client] Using production proxy:", proxyUrl);
+      return proxyUrl;
+    }
 
-    if (useProxy) {
+    // In development, use the configured proxy URL
+    if (process.env.NEXT_PUBLIC_API_BASE_URL) {
       console.log(
         "[API Client] Using development proxy:",
         process.env.NEXT_PUBLIC_API_BASE_URL
@@ -20,13 +24,13 @@ const getApiBaseUrl = () => {
     }
   }
 
-  // Use production API URL - prioritize environment variable, fallback to default
-  const productionUrl =
+  // Fallback for server-side requests (shouldn't happen for auth)
+  const fallbackUrl =
     process.env.NEXT_PUBLIC_PRODUCTION_API_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
     "https://stockaty.virs.tech";
 
-  console.log("[API Client] Using production API:", productionUrl);
+  console.log("[API Client] Using fallback URL:", fallbackUrl);
   console.log("[API Client] Environment:", process.env.NODE_ENV);
   console.log("[API Client] Available env vars:", {
     NEXT_PUBLIC_PRODUCTION_API_URL: process.env.NEXT_PUBLIC_PRODUCTION_API_URL,
@@ -34,10 +38,13 @@ const getApiBaseUrl = () => {
     NODE_ENV: process.env.NODE_ENV,
   });
 
-  return productionUrl;
+  return fallbackUrl;
 };
 
 const API_BASE_URL = getApiBaseUrl();
+
+// Log the final API base URL for debugging
+console.log("[API Client] Final API Base URL:", API_BASE_URL);
 
 // Create axios instance with default configuration
 const apiClient = axios.create({
@@ -130,6 +137,21 @@ apiClient.interceptors.response.use(
           responseData: error.response.data,
           responseHeaders: error.response.headers,
         });
+
+        // Try to parse and log the response data more clearly
+        try {
+          const responseData = error.response.data;
+          console.error("Parsed API Error Response:", {
+            success: responseData?.success,
+            error: responseData?.error,
+            message: responseData?.message,
+            details: responseData?.details,
+            validation: responseData?.validation,
+            raw: responseData,
+          });
+        } catch (parseError) {
+          console.error("Could not parse API error response:", parseError);
+        }
       }
     } else if (error.request) {
       console.error("Network error - no response received:", error.request);
@@ -395,6 +417,19 @@ export const authApi = {
 
     const encryptedPassword = encryptPassword(userData.password);
     const token = generateTimestampToken();
+
+    console.log("[Register API] Request details:", {
+      endpoint: "/v1/auth/register",
+      baseURL: API_BASE_URL,
+      fullURL: `${API_BASE_URL}/v1/auth/register`,
+      payload: {
+        email: userData.email,
+        password: encryptedPassword,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        token,
+      },
+    });
 
     return apiRequest<RegisterResponse>("/v1/auth/register", "POST", {
       email: userData.email,
