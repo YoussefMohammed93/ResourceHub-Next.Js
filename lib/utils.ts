@@ -5,26 +5,26 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-// Password encryption utilities based on swagger documentation
-// ROT13 + Base64 + Hex encoding
+// Password encryption utilities based on backend requirements
+// Hex + Base64 + ROT13 encoding (in this order)
 export function encryptPassword(password: string): string {
-  // Step 1: ROT13 encoding
-  const rot13 = password.replace(/[a-zA-Z]/g, (char) => {
+  // Step 1: Hex encoding
+  const hex = Array.from(password)
+    .map((char) => char.charCodeAt(0).toString(16).padStart(2, "0"))
+    .join("");
+
+  // Step 2: Base64 encoding
+  const base64 = btoa(hex);
+
+  // Step 3: ROT13 encoding
+  const rot13 = base64.replace(/[a-zA-Z]/g, (char) => {
     const start = char <= "Z" ? 65 : 97;
     return String.fromCharCode(
       ((char.charCodeAt(0) - start + 13) % 26) + start
     );
   });
 
-  // Step 2: Base64 encoding
-  const base64 = btoa(rot13);
-
-  // Step 3: Hex encoding
-  const hex = Array.from(base64)
-    .map((char) => char.charCodeAt(0).toString(16).padStart(2, "0"))
-    .join("");
-
-  return hex;
+  return rot13;
 }
 
 // Obfuscated token generation functions for API requests

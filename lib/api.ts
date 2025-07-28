@@ -1,9 +1,33 @@
 // API service utilities for authentication and other endpoints
 import axios from "axios";
 import { encryptPassword, generateTimestampToken } from "./utils";
+import { shouldUseMockData, mockApiResponses } from "./mock-data";
 
-// Base API URL - direct connection to the API server (no proxy)
-const API_BASE_URL = "https://stockaty.virs.tech";
+// Base API URL - use proxy in development, direct connection in production
+const getApiBaseUrl = () => {
+  // Check if we're in development and should use proxy
+  if (typeof window !== "undefined") {
+    const useProxy =
+      process.env.NODE_ENV === "development" &&
+      process.env.NEXT_PUBLIC_API_BASE_URL;
+
+    if (useProxy) {
+      console.log(
+        "[API Client] Using development proxy:",
+        process.env.NEXT_PUBLIC_API_BASE_URL
+      );
+      return process.env.NEXT_PUBLIC_API_BASE_URL;
+    }
+  }
+
+  // Use production API URL
+  const productionUrl =
+    process.env.NEXT_PUBLIC_PRODUCTION_API_URL || "https://stockaty.virs.tech";
+  console.log("[API Client] Using production API:", productionUrl);
+  return productionUrl;
+};
+
+const API_BASE_URL = getApiBaseUrl();
 
 // Create axios instance with default configuration
 const apiClient = axios.create({
@@ -30,9 +54,23 @@ apiClient.interceptors.request.use(
       config.headers["X-Access-Token"] = token;
     }
 
+    // Log request details in development
+    if (process.env.NEXT_PUBLIC_ENABLE_API_LOGGING === "true") {
+      console.log(
+        `[API Request] ${config.method?.toUpperCase()} ${config.url}`,
+        {
+          headers: config.headers,
+          data: config.data,
+        }
+      );
+    }
+
     return config;
   },
   (error) => {
+    if (process.env.NEXT_PUBLIC_ENABLE_API_LOGGING === "true") {
+      console.error("[API Request Error]", error);
+    }
     return Promise.reject(error);
   }
 );
@@ -40,6 +78,13 @@ apiClient.interceptors.request.use(
 // Add response interceptor to handle authentication errors
 apiClient.interceptors.response.use(
   (response) => {
+    // Log response details in development
+    if (process.env.NEXT_PUBLIC_ENABLE_API_LOGGING === "true") {
+      console.log(`[API Response] ${response.status} ${response.config.url}`, {
+        data: response.data,
+        headers: response.headers,
+      });
+    }
     return response;
   },
   (error) => {
@@ -278,6 +323,12 @@ async function apiRequest<T>(
 export const authApi = {
   // Login user
   async login(credentials: LoginRequest): Promise<ApiResponse<LoginResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Auth API] Using mock login data");
+      return mockApiResponses.login(credentials.email, credentials.password);
+    }
+
     const encryptedPassword = encryptPassword(credentials.password);
     const token = generateTimestampToken();
 
@@ -293,6 +344,12 @@ export const authApi = {
   async register(
     userData: RegisterRequest
   ): Promise<ApiResponse<RegisterResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Auth API] Using mock register data");
+      return mockApiResponses.register(userData);
+    }
+
     const encryptedPassword = encryptPassword(userData.password);
     const token = generateTimestampToken();
 
@@ -309,11 +366,23 @@ export const authApi = {
   async logout(): Promise<
     ApiResponse<{ access_token: string; message: string }>
   > {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Auth API] Using mock logout data");
+      return mockApiResponses.logout();
+    }
+
     return apiRequest("/v1/auth/logout", "POST");
   },
 
   // Get current user data
   async getUserData(): Promise<ApiResponse<UserData>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Auth API] Using mock user data");
+      return mockApiResponses.getUserData();
+    }
+
     return apiRequest<UserData>("/v1/user/data", "GET");
   },
 };
@@ -322,6 +391,12 @@ export const authApi = {
 export const userApi = {
   // Get user data (line 481 from swagger)
   async getUserData(): Promise<ApiResponse<UserData>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[User API] Using mock user data");
+      return mockApiResponses.getUserData();
+    }
+
     return apiRequest<UserData>("/v1/user/data", "GET");
   },
 
@@ -332,6 +407,12 @@ export const userApi = {
 
   // Get download history (line 547 from swagger)
   async getDownloadHistory(): Promise<ApiResponse<DownloadHistoryResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[User API] Using mock download history data");
+      return mockApiResponses.getDownloadHistory();
+    }
+
     return apiRequest<DownloadHistoryResponse>("/v1/user/history", "GET");
   },
 };

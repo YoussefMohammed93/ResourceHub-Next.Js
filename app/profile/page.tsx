@@ -22,7 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import Image from "next/image";
+
 import {
   Select,
   SelectContent,
@@ -49,142 +49,6 @@ import { useAuth } from "@/components/auth-provider";
 import { useRouter } from "next/navigation";
 import { userApi, type DownloadHistoryEntry } from "@/lib/api";
 
-// const downloadHistory = [
-//   {
-//     id: 1,
-//     title: "Modern Business Team Meeting",
-//     type: "image",
-//     credits: 5,
-//     downloadDate: "2024-01-15",
-//     url: "https://freepik.com/example-1",
-//     thumbnail: "/placeholder.png",
-//     source: "shutterstock",
-//     sourceIcon: "🖼️",
-//     debugId: "f8240...",
-//     fileId: "410883247",
-//     fileUrl: "https://shutterstock.com/410883247",
-//     format: "JPG",
-//     size: "0.5",
-//     previewImage: "/placeholder.png",
-//     sourceUrl: "shutterstock.com • 410883247",
-//     downloadUrl: "https://shutterstock.com/download/410883247",
-//   },
-//   {
-//     id: 2,
-//     title: "Corporate Presentation Video",
-//     type: "video",
-//     credits: 15,
-//     downloadDate: "2024-01-14",
-//     url: "https://freepik.com/example-2",
-//     thumbnail: "/placeholder.png",
-//     source: "shutterstock",
-//     sourceIcon: "🖼️",
-//     debugId: "6ac79...",
-//     fileId: "2174049579",
-//     fileUrl: "https://shutterstock.com/2174049579",
-//     format: "EPS",
-//     size: "0.5",
-//     previewImage: "/placeholder.png",
-//     sourceUrl: "shutterstock.com • 2174049579",
-//     downloadUrl: "https://shutterstock.com/download/2174049579",
-//   },
-//   {
-//     id: 3,
-//     title: "Abstract Background Design",
-//     type: "image",
-//     credits: 3,
-//     downloadDate: "2024-01-13",
-//     url: "https://freepik.com/example-3",
-//     thumbnail: "/placeholder.png",
-//     source: "shutterstock",
-//     sourceIcon: "🖼️",
-//     debugId: "a1b2c...",
-//     fileId: "123456789",
-//     fileUrl: "https://shutterstock.com/123456789",
-//     format: "JPG",
-//     size: "1.2",
-//     previewImage: "/placeholder.png",
-//     sourceUrl: "shutterstock.com • 123456789",
-//     downloadUrl: "https://shutterstock.com/download/123456789",
-//   },
-//   {
-//     id: 4,
-//     title: "Marketing Infographic Template",
-//     type: "image",
-//     credits: 8,
-//     downloadDate: "2024-01-12",
-//     url: "https://freepik.com/example-4",
-//     thumbnail: "/placeholder.png",
-//     source: "freepik",
-//     sourceIcon: "🎨",
-//     debugId: "d4e5f...",
-//     fileId: "987654321",
-//     fileUrl: "https://freepik.com/987654321",
-//     format: "AI",
-//     size: "2.1",
-//     previewImage: "/placeholder.png",
-//     sourceUrl: "freepik.com • 987654321",
-//     downloadUrl: "https://freepik.com/download/987654321",
-//   },
-//   {
-//     id: 5,
-//     title: "Social Media Animation",
-//     type: "video",
-//     credits: 12,
-//     downloadDate: "2024-01-11",
-//     url: "https://freepik.com/example-5",
-//     thumbnail: "/placeholder.png",
-//     source: "shutterstock",
-//     sourceIcon: "🖼️",
-//     debugId: "g7h8i...",
-//     fileId: "555666777",
-//     fileUrl: "https://shutterstock.com/555666777",
-//     format: "MP4",
-//     size: "15.3",
-//     previewImage: "/placeholder.png",
-//     sourceUrl: "shutterstock.com • 555666777",
-//     downloadUrl: "https://shutterstock.com/download/555666777",
-//   },
-//   {
-//     id: 6,
-//     title: "Brand Identity Package",
-//     type: "image",
-//     credits: 10,
-//     downloadDate: "2024-01-10",
-//     url: "https://freepik.com/example-6",
-//     thumbnail: "/placeholder.png",
-//     source: "freepik",
-//     sourceIcon: "🎨",
-//     debugId: "j9k0l...",
-//     fileId: "111222333",
-//     fileUrl: "https://freepik.com/111222333",
-//     format: "PSD",
-//     size: "8.7",
-//     previewImage: "/placeholder.png",
-//     sourceUrl: "freepik.com • 111222333",
-//     downloadUrl: "https://freepik.com/download/111222333",
-//   },
-//   {
-//     id: 7,
-//     title: "Brand Identity Package",
-//     type: "image",
-//     credits: 10,
-//     downloadDate: "2024-01-10",
-//     url: "https://freepik.com/example-6",
-//     thumbnail: "/placeholder.png",
-//     source: "freepik",
-//     sourceIcon: "🎨",
-//     debugId: "j9k0l...",
-//     fileId: "111222333",
-//     fileUrl: "https://freepik.com/111222333",
-//     format: "PSD",
-//     size: "8.7",
-//     previewImage: "/placeholder.png",
-//     sourceUrl: "freepik.com • 111222333",
-//     downloadUrl: "https://freepik.com/download/111222333",
-//   },
-// ];
-
 export default function ProfilePage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
@@ -196,6 +60,9 @@ export default function ProfilePage() {
   const [downloadHistory, setDownloadHistory] = useState<
     DownloadHistoryEntry[]
   >([]);
+  const [downloadHistoryError, setDownloadHistoryError] = useState<
+    string | null
+  >(null);
   const { isRTL, isLoading } = useLanguage();
   const { t } = useTranslation("common");
 
@@ -238,27 +105,27 @@ export default function ProfilePage() {
     e.preventDefault();
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert(t("profile.changePassword.error"));
       return;
     }
 
     if (passwordData.newPassword.length < 8) {
-      alert(t("profile.changePassword.passwordRequirements"));
       return;
     }
 
     setIsPasswordLoading(true);
 
-    // Simulate API call
-    setTimeout(() => {
-      alert(t("profile.changePassword.success"));
+    try {
+      // Password change API implementation would go here
       setPasswordData({
         currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       });
+    } catch {
+      // Error handling would go here
+    } finally {
       setIsPasswordLoading(false);
-    }, 1500);
+    }
   };
 
   // Load download history
@@ -266,13 +133,33 @@ export default function ProfilePage() {
     if (!isAuthenticated) return;
 
     setIsDownloadHistoryLoading(true);
+    setDownloadHistoryError(null);
     try {
       const response = await userApi.getDownloadHistory();
-      if (response.success && response.data) {
-        setDownloadHistory(response.data.downloads);
+
+      if (response.success) {
+        // Handle both response structures: response.data.downloads and direct response.downloads
+        if (response.data && response.data.downloads) {
+          setDownloadHistory(response.data.downloads);
+        } else if (
+          "downloads" in response &&
+          Array.isArray(response.downloads)
+        ) {
+          setDownloadHistory(response.downloads as DownloadHistoryEntry[]);
+        } else {
+          setDownloadHistory([]);
+        }
+      } else {
+        const errorMessage =
+          response.error?.message || "Failed to load download history";
+        setDownloadHistoryError(errorMessage);
+        setDownloadHistory([]);
       }
     } catch (error) {
-      console.error("Failed to load download history:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Network error occurred";
+      setDownloadHistoryError(errorMessage);
+      setDownloadHistory([]);
     } finally {
       setIsDownloadHistoryLoading(false);
     }
@@ -882,7 +769,7 @@ export default function ProfilePage() {
               <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
                 <Download className="w-5 h-5 text-primary" />
               </div>
-              <div>
+              <div className="flex-1">
                 <CardTitle className="text-lg font-semibold text-foreground">
                   {t("profile.downloadHistory.title")}
                 </CardTitle>
@@ -890,6 +777,20 @@ export default function ProfilePage() {
                   {t("profile.downloadHistory.description")}
                 </CardDescription>
               </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={loadDownloadHistory}
+                disabled={isDownloadHistoryLoading}
+                className="flex items-center gap-2"
+              >
+                {isDownloadHistoryLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Download className="w-4 h-4" />
+                )}
+                {t("common.refresh")}
+              </Button>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-5">
               {/* Search Bar */}
@@ -937,6 +838,29 @@ export default function ProfilePage() {
                 {Array.from({ length: 4 }, (_, i) => (
                   <DownloadHistoryItemSkeleton key={i} isRTL={isRTL} />
                 ))}
+              </div>
+            ) : downloadHistoryError ? (
+              <div className="py-12 text-center">
+                <div className="flex flex-col items-center space-y-3">
+                  <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center">
+                    <Download className="w-9 h-9 text-destructive" />
+                  </div>
+                  <div>
+                    <p className="text-lg sm:text-2xl font-medium text-foreground">
+                      Error Loading Download History
+                    </p>
+                    <p className="text-base sm:text-lg pt-2 text-muted-foreground">
+                      {downloadHistoryError}
+                    </p>
+                    <Button
+                      variant="outline"
+                      onClick={loadDownloadHistory}
+                      className="mt-4"
+                    >
+                      Try Again
+                    </Button>
+                  </div>
+                </div>
               </div>
             ) : sortedDownloads.length === 0 ? (
               <div className="py-12 text-center">
@@ -999,14 +923,20 @@ export default function ProfilePage() {
                         </span>
                       </div>
                     </div>
-                    {/* Preview Image */}
-                    <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
-                      <Image
-                        src="/placeholder.svg"
-                        alt={`${item.type} from ${item.from}`}
-                        fill
-                        className="object-cover"
-                      />
+                    {/* File Type Icon Display */}
+                    <div className="relative aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center">
+                      <div className="text-center space-y-2">
+                        <div className="text-4xl">
+                          {item.type === "photo"
+                            ? "📷"
+                            : item.type === "video"
+                              ? "🎥"
+                              : "🎨"}
+                        </div>
+                        <p className="text-sm text-muted-foreground capitalize">
+                          {item.type}
+                        </p>
+                      </div>
                     </div>
                     {/* Footer with source and download button */}
                     <div className="flex items-center justify-between">
