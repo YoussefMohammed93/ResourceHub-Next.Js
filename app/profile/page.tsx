@@ -286,13 +286,6 @@ export default function ProfilePage() {
     }
   }, [isAuthenticated, user, loadDownloadHistory]);
 
-  // Reload download history when sort filter changes
-  useEffect(() => {
-    if (!isProfileLoading && isAuthenticated) {
-      loadDownloadHistory();
-    }
-  }, [sortFilter, isProfileLoading, isAuthenticated, loadDownloadHistory]);
-
   // Show loading skeleton while authentication, language data or profile data is loading
   if (authLoading || isLoading || isProfileLoading) {
     return <ProfilePageSkeleton />;
