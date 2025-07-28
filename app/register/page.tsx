@@ -82,10 +82,10 @@ export default function RegisterPage() {
   const { register, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users to home page
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push("/dashboard");
+      router.push("/");
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -216,8 +216,8 @@ export default function RegisterPage() {
       );
 
       if (result.success) {
-        // Redirect to dashboard on successful registration
-        router.push("/dashboard");
+        // Redirect to home page on successful registration
+        router.push("/");
       } else {
         // Show error message
         setErrors((prev) => ({

@@ -100,6 +100,7 @@ import {
   type UsersStatisticsResponse,
 } from "@/lib/api";
 import { AdminRouteGuard } from "@/components/admin-route-guard";
+import { useAuth } from "@/components/auth-provider";
 
 // Type definitions
 interface PricingPlan {
@@ -117,6 +118,7 @@ interface PricingPlan {
 export default function DashboardPage() {
   const { t } = useTranslation("common");
   const { isRTL, isLoading } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
 
   const [selectedPlan, setSelectedPlan] = useState<string>("");
   const [email, setEmail] = useState<string>("");
@@ -243,6 +245,11 @@ export default function DashboardPage() {
 
   // Load credit analytics data
   const loadCreditAnalytics = async () => {
+    // Only proceed if user is admin
+    if (!isAuthenticated || !user || user.role !== "admin") {
+      return;
+    }
+
     setIsLoadingAnalytics(true);
     setAnalyticsError("");
 
@@ -265,6 +272,11 @@ export default function DashboardPage() {
 
   // Load credit history data
   const loadCreditHistory = async () => {
+    // Only proceed if user is admin
+    if (!isAuthenticated || !user || user.role !== "admin") {
+      return;
+    }
+
     setIsLoadingHistory(true);
     setHistoryError("");
 
@@ -287,6 +299,11 @@ export default function DashboardPage() {
 
   // Load users statistics data
   const loadUsersStatistics = async () => {
+    // Only proceed if user is admin
+    if (!isAuthenticated || !user || user.role !== "admin") {
+      return;
+    }
+
     setIsLoadingUsers(true);
     setUsersError("");
 
@@ -309,6 +326,11 @@ export default function DashboardPage() {
 
   // Load sites data
   const loadSites = async () => {
+    // Only proceed if user is admin
+    if (!isAuthenticated || !user || user.role !== "admin") {
+      return;
+    }
+
     setIsLoadingSites(true);
     setSitesError("");
 
@@ -340,6 +362,11 @@ export default function DashboardPage() {
 
   // Load pricing plans data
   const loadPricingPlans = async () => {
+    // Only proceed if user is admin
+    if (!isAuthenticated || !user || user.role !== "admin") {
+      return;
+    }
+
     setIsLoadingPricingPlans(true);
     setPricingPlansError("");
 
@@ -379,15 +406,18 @@ export default function DashboardPage() {
     }
   };
 
-  // Load data on component mount
+  // Load data on component mount only if user is admin
   useEffect(() => {
-    loadCreditAnalytics();
-    loadCreditHistory();
-    loadUsersStatistics();
-    loadSites();
-    loadPricingPlans();
+    // Only load data if user is authenticated and is admin
+    if (isAuthenticated && user && user.role === "admin") {
+      loadCreditAnalytics();
+      loadCreditHistory();
+      loadUsersStatistics();
+      loadSites();
+      loadPricingPlans();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthenticated, user]);
 
   // Email validation
   const validateEmail = (email: string) => {
@@ -797,6 +827,11 @@ export default function DashboardPage() {
 
   // Handle form submission
   const handleAddSubscription = async () => {
+    // Only proceed if user is admin
+    if (!isAuthenticated || !user || user.role !== "admin") {
+      return;
+    }
+
     // Reset errors
     setEmailError("");
     setPlanError("");
