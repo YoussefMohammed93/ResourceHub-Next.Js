@@ -58,10 +58,10 @@ export default function LoginPage() {
   const { login, isAuthenticated } = useAuth();
   const router = useRouter();
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users to appropriate page
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
-      router.push("/dashboard");
+      router.push("/profile");
     }
   }, [isAuthenticated, isLoading, router]);
 
@@ -138,8 +138,8 @@ export default function LoginPage() {
       );
 
       if (result.success) {
-        // Redirect to dashboard on successful login
-        router.push("/dashboard");
+        // Redirect to profile on successful login
+        router.push("/profile");
       } else {
         // Show error message
         setErrors((prev) => ({
