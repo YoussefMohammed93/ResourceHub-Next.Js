@@ -546,6 +546,24 @@
       "memberSince": "Member Since",
       "onlineStatus": "Online"
     },
+    "stats": {
+      "totalDownloads": {
+        "title": "Total Downloads",
+        "description": "All time downloads"
+      },
+      "creditsUsed": {
+        "title": "Credits Used",
+        "description": "Total consumed"
+      },
+      "creditsRemaining": {
+        "title": "Credits Remaining",
+        "description": "Available balance"
+      },
+      "planStatus": {
+        "title": "Plan Status",
+        "description": "Current subscription"
+      }
+    },
     "subscription": {
       "title": "Subscription Details",
       "description": "Your current plan information",

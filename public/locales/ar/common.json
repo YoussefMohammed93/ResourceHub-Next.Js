@@ -539,11 +539,30 @@
     "title": "الملف الشخصي",
     "userInfo": {
       "member": "عضو",
+      "active": "نشط",
       "editProfile": "تعديل الملف الشخصي",
       "creditsLeft": "النقاط المتبقية",
       "downloads": "التحميلات",
       "memberSince": "عضو منذ",
       "onlineStatus": "متصل"
+    },
+    "stats": {
+      "totalDownloads": {
+        "title": "إجمالي التحميلات",
+        "description": "جميع التحميلات"
+      },
+      "creditsUsed": {
+        "title": "النقاط المستخدمة",
+        "description": "إجمالي المستهلك"
+      },
+      "creditsRemaining": {
+        "title": "النقاط المتبقية",
+        "description": "الرصيد المتاح"
+      },
+      "planStatus": {
+        "title": "حالة الخطة",
+        "description": "الاشتراك الحالي"
+      }
     },
     "subscription": {
       "title": "تفاصيل الاشتراك",
