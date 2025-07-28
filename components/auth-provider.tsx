@@ -92,13 +92,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (response.success && response.data) {
+        console.log("Login successful, response data:", response.data);
+
         // Store the access token
         storeAuthToken(response.data.access_token, rememberMe);
 
+        // Wait a bit to ensure token is stored
+        await new Promise((resolve) => setTimeout(resolve, 100));
+
+        console.log("About to refresh user data...");
         // Load user data
         await refreshUser();
 
         setIsAuthenticatedState(true);
+        console.log("Login process completed successfully");
         return { success: true };
       } else {
         return {
@@ -132,6 +139,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (response.success && response.data) {
         // Store the access token (assuming register also returns a token)
         storeAuthToken(response.data.access_token, false);
+
+        // Wait a bit to ensure token is stored
+        await new Promise((resolve) => setTimeout(resolve, 100));
 
         // Load user data
         await refreshUser();
@@ -178,7 +188,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     try {
       const response = await authApi.getUserData();
+      console.log("User data response:", response);
       if (response.success && response.data) {
+        console.log("Setting user data:", response.data);
         setUser(response.data);
         setIsAuthenticatedState(true);
       } else {

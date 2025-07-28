@@ -42,8 +42,33 @@ export function UserDropdown() {
 
   // Get user full name
   const getUserFullName = () => {
-    if (!user?.account) return "User";
-    return `${user.account.firstName} ${user.account.lastName}`.trim();
+    console.log("UserDropdown - user data:", user);
+    if (!user?.account) {
+      console.log("UserDropdown - no user account data");
+      return "User";
+    }
+
+    const firstName = user.account.firstName || "";
+    const lastName = user.account.lastName || "";
+    const fullName = `${firstName} ${lastName}`.trim();
+
+    console.log(
+      "UserDropdown - firstName:",
+      firstName,
+      "lastName:",
+      lastName,
+      "fullName:",
+      fullName
+    );
+
+    // If no name available, use email or fallback to "User"
+    if (!fullName) {
+      const emailName = user.account.email?.split("@")[0] || "User";
+      console.log("UserDropdown - using email name:", emailName);
+      return emailName;
+    }
+
+    return fullName;
   };
 
   return (
@@ -54,9 +79,7 @@ export function UserDropdown() {
         >
           <Avatar className="w-7 h-7 sm:w-8 sm:h-8">
             <AvatarImage
-              src={
-                user?.account?.picture || "/placeholder.svg?height=32&width=32"
-              }
+              src={user?.account?.picture || undefined}
               alt="avatar"
             />
             <AvatarFallback className="bg-secondary text-secondary-foreground text-xs sm:text-sm">

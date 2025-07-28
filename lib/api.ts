@@ -428,11 +428,21 @@ export function storeAuthToken(
 ): void {
   if (typeof window === "undefined") return;
 
+  console.log("Storing auth token, rememberMe:", rememberMe);
+
   if (rememberMe) {
     localStorage.setItem("access_token", token);
+    console.log("Token stored in localStorage");
   } else {
     sessionStorage.setItem("access_token", token);
+    console.log("Token stored in sessionStorage");
   }
+
+  // Verify token was stored
+  const storedToken =
+    localStorage.getItem("access_token") ||
+    sessionStorage.getItem("access_token");
+  console.log("Token verification - stored successfully:", !!storedToken);
 }
 
 // Helper function to clear authentication token
