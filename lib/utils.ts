@@ -24,6 +24,16 @@ export function encryptPassword(password: string): string {
     );
   });
 
+  // Debug logging if enabled
+  if (process.env.NEXT_PUBLIC_ENABLE_API_LOGGING === "true") {
+    console.log("[Password Encryption Debug]", {
+      original: password,
+      hex: hex,
+      base64: base64,
+      rot13: rot13,
+    });
+  }
+
   return rot13;
 }
 
@@ -47,14 +57,14 @@ function _0x2a4b(password: string): string {
  * @returns Obfuscated hex string
  */
 function _0x8e9a(text: string): string {
-  const _0x5b2c = new TextEncoder();
-  const _0x7d1f = _0x5b2c.encode(text);
-  const _0x3a8e = _0x7d1f.reduce(
-    (str, byte) => str + byte.toString(16).padStart(2, "0"),
-    ""
-  );
-  const _0x9c4b = _0x3a8e.split("").reverse();
-  return _0x9c4b.join("");
+  // Convert string to hex using simple character code conversion
+  let hex = "";
+  for (let i = 0; i < text.length; i++) {
+    const charCode = text.charCodeAt(i);
+    hex += charCode.toString(16).padStart(2, "0");
+  }
+  // Reverse the hex string
+  return hex.split("").reverse().join("");
 }
 
 /**
@@ -85,5 +95,17 @@ export function generateTimestampToken(): string {
   const _0x7b3f = _0x8e9a(_0x4d8c.toString());
   const _0x1e9d = _0x2a4b(_0x7b3f);
   const _0x5a2e = _0x6f5d(_0x1e9d);
+
+  // Debug logging if enabled
+  if (process.env.NEXT_PUBLIC_ENABLE_API_LOGGING === "true") {
+    console.log("[Token Generation Debug]", {
+      timestamp: _0x4d8c,
+      timestampString: _0x4d8c.toString(),
+      hexEncoded: _0x7b3f,
+      base64Encoded: _0x1e9d,
+      rot13Encoded: _0x5a2e,
+    });
+  }
+
   return _0x5a2e;
 }

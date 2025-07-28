@@ -20,10 +20,20 @@ const getApiBaseUrl = () => {
     }
   }
 
-  // Use production API URL
+  // Use production API URL - prioritize environment variable, fallback to default
   const productionUrl =
-    process.env.NEXT_PUBLIC_PRODUCTION_API_URL || "https://stockaty.virs.tech";
+    process.env.NEXT_PUBLIC_PRODUCTION_API_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "https://stockaty.virs.tech";
+
   console.log("[API Client] Using production API:", productionUrl);
+  console.log("[API Client] Environment:", process.env.NODE_ENV);
+  console.log("[API Client] Available env vars:", {
+    NEXT_PUBLIC_PRODUCTION_API_URL: process.env.NEXT_PUBLIC_PRODUCTION_API_URL,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
+    NODE_ENV: process.env.NODE_ENV,
+  });
+
   return productionUrl;
 };
 
@@ -93,6 +103,39 @@ apiClient.interceptors.response.use(
       data: error.response?.data,
       url: error.config?.url,
     });
+
+    // Log detailed error information for debugging
+    console.error("API request failed:", error);
+
+    if (error.response) {
+      console.error("Axios error details:", {
+        status: error.response.status,
+        statusText: error.response.statusText,
+        data: error.response.data,
+        headers: error.response.headers,
+        url: error.config?.url,
+        method: error.config?.method,
+        baseURL: error.config?.baseURL,
+        requestHeaders: error.config?.headers,
+        requestData: error.config?.data,
+      });
+
+      // Log specific error details for 400 errors
+      if (error.response.status === 400) {
+        console.error("400 Bad Request Details:", {
+          requestUrl: `${error.config?.baseURL}${error.config?.url}`,
+          requestMethod: error.config?.method,
+          requestHeaders: error.config?.headers,
+          requestBody: error.config?.data,
+          responseData: error.response.data,
+          responseHeaders: error.response.headers,
+        });
+      }
+    } else if (error.request) {
+      console.error("Network error - no response received:", error.request);
+    } else {
+      console.error("Request setup error:", error.message);
+    }
 
     // If we get a 401 or authentication error, clear the token
     if (
