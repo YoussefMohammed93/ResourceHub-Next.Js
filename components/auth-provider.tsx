@@ -6,6 +6,7 @@ import {
   storeAuthToken,
   clearAuthToken,
   isAuthenticated,
+  isAdmin,
 } from "@/lib/api";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
@@ -13,6 +14,7 @@ interface AuthContextType {
   user: UserData | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  isAdmin: boolean;
   login: (
     email: string,
     password: string,
@@ -197,6 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     user,
     isAuthenticated: isAuthenticatedState,
     isLoading,
+    isAdmin: isAdmin(user),
     login,
     register,
     logout,

@@ -24,7 +24,16 @@ apiClient.interceptors.request.use(
       sessionStorage.getItem("access_token");
 
     if (token) {
+      // Try different authorization formats based on the endpoint
       config.headers.Authorization = `Bearer ${token}`;
+      // Also add the token as a custom header in case the backend expects it differently
+      config.headers["X-Access-Token"] = token;
+      console.log(
+        "Adding authorization headers:",
+        `Bearer ${token.substring(0, 20)}...`
+      );
+    } else {
+      console.log("No token found for authorization");
     }
 
     return config;
@@ -40,19 +49,29 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
+    console.error("API Response Error:", {
+      status: error.response?.status,
+      data: error.response?.data,
+      url: error.config?.url,
+    });
+
     // If we get a 401 or authentication error, clear the token
     if (
       error.response?.status === 401 ||
+      error.response?.status === 403 ||
       error.response?.data?.error?.message?.includes("Session is required") ||
-      error.response?.data?.error?.message?.includes("Invalid token")
+      error.response?.data?.error?.message?.includes("Invalid token") ||
+      error.response?.data?.error?.message?.includes("Unauthorized")
     ) {
+      console.log("Authentication error detected, clearing tokens");
       localStorage.removeItem("access_token");
       sessionStorage.removeItem("access_token");
 
       // Optionally redirect to login page
       if (
         typeof window !== "undefined" &&
-        window.location.pathname !== "/login"
+        window.location.pathname !== "/login" &&
+        window.location.pathname !== "/register"
       ) {
         window.location.href = "/login";
       }
@@ -105,6 +124,7 @@ export interface Subscription {
 export interface UserData {
   account: UserAccount;
   subscription: Subscription;
+  role?: string;
 }
 
 // Credit Analytics Types
@@ -228,6 +248,15 @@ async function apiRequest<T>(
 
     // Handle axios errors
     if (axios.isAxiosError(error)) {
+      console.error("Axios error details:", {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        headers: error.response?.headers,
+        url: error.config?.url,
+        method: error.config?.method,
+      });
+
       if (error.response?.data) {
         return error.response.data;
       }
@@ -374,6 +403,22 @@ export function isAuthenticated(): boolean {
     localStorage.getItem("access_token") ||
     sessionStorage.getItem("access_token");
   return !!token;
+}
+
+// Helper function to check if user has admin role
+export function isAdmin(user: UserData | null): boolean {
+  return user?.role === "admin";
+}
+
+// Helper function to test authorization
+export async function testAuthorization(): Promise<boolean> {
+  try {
+    const response = await userApi.getUserData();
+    return response.success;
+  } catch (error) {
+    console.error("Authorization test failed:", error);
+    return false;
+  }
 }
 
 // Helper function to store authentication token
