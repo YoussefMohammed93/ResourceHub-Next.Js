@@ -20,6 +20,38 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "stockaty.virs.tech",
       },
+      {
+        protocol: "https",
+        hostname: "shutterstock.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.shutterstock.com",
+      },
+      {
+        protocol: "https",
+        hostname: "freepik.com",
+      },
+      {
+        protocol: "https",
+        hostname: "www.freepik.com",
+      },
+      {
+        protocol: "https",
+        hostname: "unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      {
+        protocol: "https",
+        hostname: "pexels.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.pexels.com",
+      },
     ],
   },
 };

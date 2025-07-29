@@ -32,39 +32,13 @@ export const mockUser: UserData = {
 // Mock download history
 export const mockDownloadHistory: DownloadHistoryEntry[] = [
   {
-    from: "shutterstock",
-    type: "photo",
-    price: 5,
-    date: "2024-01-15",
-    file: "https://shutterstock.com/410883247",
-  },
-  {
     from: "freepik",
     type: "vector",
     price: 3,
-    date: "2024-01-14",
-    file: "https://freepik.com/987654321",
-  },
-  {
-    from: "shutterstock",
-    type: "video",
-    price: 15,
-    date: "2024-01-13",
-    file: "https://shutterstock.com/2174049579",
-  },
-  {
-    from: "freepik",
-    type: "photo",
-    price: 8,
-    date: "2024-01-12",
-    file: "https://freepik.com/111222333",
-  },
-  {
-    from: "shutterstock",
-    type: "photo",
-    price: 12,
-    date: "2024-01-11",
-    file: "https://shutterstock.com/555666777",
+    date: "2024-01-15",
+    file: "/freepik-1.jpg",
+    downloadUrl:
+      "https://www.freepik.com/free-vector/flat-design-spring-landscape-concept_6718313.htm#fromView=search&page=1&position=22&uuid=62c6a099-e4cb-455c-a5f7-fd7a424dfe81&query=nature",
   },
 ];
 

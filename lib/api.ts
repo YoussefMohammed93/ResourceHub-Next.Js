@@ -311,6 +311,7 @@ export interface DownloadHistoryEntry {
   price: number;
   date: string;
   file: string;
+  downloadUrl?: string; // Optional field for the actual download link
 }
 
 export interface DownloadHistoryResponse {

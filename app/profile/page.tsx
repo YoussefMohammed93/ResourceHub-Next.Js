@@ -15,6 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -49,6 +50,21 @@ import { useAuth } from "@/components/auth-provider";
 import { useRouter } from "next/navigation";
 import { userApi, type DownloadHistoryEntry } from "@/lib/api";
 
+// Utility function to get the correct image URL based on environment
+const getImageUrl = (item: DownloadHistoryEntry): string => {
+  // For localhost development, use local images
+  if (
+    typeof window !== "undefined" &&
+    window.location.hostname === "localhost"
+  ) {
+    return item.file; // This will be "/freepik-1.jpg" from mock data
+  }
+
+  // For production (Vercel), use the API backend image URL
+  // The backend should provide the actual image URL in the file field
+  return item.file;
+};
+
 export default function ProfilePage() {
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const router = useRouter();
@@ -63,6 +79,8 @@ export default function ProfilePage() {
   const [downloadHistoryError, setDownloadHistoryError] = useState<
     string | null
   >(null);
+  const [imageErrors, setImageErrors] = useState<Set<number>>(new Set());
+  const [imageLoading, setImageLoading] = useState<Set<number>>(new Set());
   const { isRTL, isLoading } = useLanguage();
   const { t } = useTranslation("common");
 
@@ -172,6 +190,17 @@ export default function ProfilePage() {
       loadDownloadHistory();
     }
   }, [isAuthenticated, user, loadDownloadHistory]);
+
+  // Reset image states when download history changes
+  useEffect(() => {
+    setImageErrors(new Set());
+    // Set all images as loading initially
+    const loadingSet = new Set<number>();
+    downloadHistory.forEach((_, index) => {
+      loadingSet.add(index);
+    });
+    setImageLoading(loadingSet);
+  }, [downloadHistory]);
 
   // Show loading skeleton while authentication, language data or profile data is loading
   if (authLoading || isLoading || isProfileLoading) {
@@ -777,20 +806,6 @@ export default function ProfilePage() {
                   {t("profile.downloadHistory.description")}
                 </CardDescription>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={loadDownloadHistory}
-                disabled={isDownloadHistoryLoading}
-                className="flex items-center gap-2"
-              >
-                {isDownloadHistoryLoading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Download className="w-4 h-4" />
-                )}
-                {t("common.refresh")}
-              </Button>
             </div>
             <div className="flex flex-col sm:flex-row items-center gap-5">
               {/* Search Bar */}
@@ -923,19 +938,70 @@ export default function ProfilePage() {
                         </span>
                       </div>
                     </div>
-                    {/* File Type Icon Display */}
-                    <div className="relative aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center">
-                      <div className="text-center space-y-2">
-                        <div className="text-4xl">
-                          {item.type === "photo"
-                            ? "📷"
-                            : item.type === "video"
-                              ? "🎥"
-                              : "🎨"}
+                    {/* Main Image Display */}
+                    <div
+                      className="relative aspect-video bg-muted rounded-lg overflow-hidden cursor-pointer group"
+                      onClick={() =>
+                        window.open(item.downloadUrl || item.file, "_blank")
+                      }
+                    >
+                      {imageErrors.has(index) ? (
+                        // Fallback display when image fails to load
+                        <div className="w-full h-full flex items-center justify-center">
+                          <div className="text-center space-y-2">
+                            <div className="text-4xl">
+                              {item.type === "photo"
+                                ? "📷"
+                                : item.type === "video"
+                                  ? "🎥"
+                                  : "🎨"}
+                            </div>
+                            <p className="text-sm text-muted-foreground capitalize">
+                              {item.type}
+                            </p>
+                          </div>
                         </div>
-                        <p className="text-sm text-muted-foreground capitalize">
+                      ) : (
+                        <>
+                          {/* Loading skeleton */}
+                          {imageLoading.has(index) && (
+                            <div className="absolute inset-0 bg-muted animate-pulse flex items-center justify-center">
+                              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                            </div>
+                          )}
+                          <Image
+                            src={getImageUrl(item)}
+                            alt={`${item.type} from ${item.from}`}
+                            fill
+                            className="object-cover group-hover:scale-105 transition-transform duration-300"
+                            onLoadingComplete={() => {
+                              setImageLoading((prev) => {
+                                const newSet = new Set(prev);
+                                newSet.delete(index);
+                                return newSet;
+                              });
+                            }}
+                            onError={() => {
+                              setImageErrors((prev) =>
+                                new Set(prev).add(index)
+                              );
+                              setImageLoading((prev) => {
+                                const newSet = new Set(prev);
+                                newSet.delete(index);
+                                return newSet;
+                              });
+                            }}
+                          />
+                        </>
+                      )}
+                      {/* Type Badge Overlay */}
+                      <div className="absolute top-2 right-2 z-10">
+                        <Badge
+                          variant="secondary"
+                          className="text-xs bg-black/70 text-white border-none"
+                        >
                           {item.type}
-                        </p>
+                        </Badge>
                       </div>
                     </div>
                     {/* Footer with source and download button */}
@@ -946,7 +1012,9 @@ export default function ProfilePage() {
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => window.open(item.file, "_blank")}
+                        onClick={() =>
+                          window.open(item.downloadUrl || item.file, "_blank")
+                        }
                         className="flex items-center gap-2"
                       >
                         <Download className="h-4 w-4" />
