@@ -11,12 +11,20 @@ import {
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/auth-provider";
 import { useLanguage } from "@/components/i18n-provider";
-import { ChevronDown, LogOut, User2, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import {
+  ChevronDown,
+  LogOut,
+  User2,
+  Loader2,
+  LayoutDashboard,
+} from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function UserDropdown() {
   const { isRTL } = useLanguage();
-  const { user, logout } = useAuth();
+  const { user, logout, isAdmin } = useAuth();
+  const { t } = useTranslation("common");
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
@@ -89,13 +97,24 @@ export function UserDropdown() {
           </p>
         </div>
         <DropdownMenuSeparator />
+        {isAdmin && (
+          <DropdownMenuItem asChild>
+            <a
+              href="/dashboard"
+              className={`flex items-center gap-2 cursor-pointer ${isRTL ? "flex-row-reverse" : ""}`}
+            >
+              <LayoutDashboard className="w-4 h-4 text-foreground" />
+              <span>{t("sidebar.navigation.dashboard")}</span>
+            </a>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild>
           <a
             href="/profile"
             className={`flex items-center gap-2 cursor-pointer ${isRTL ? "flex-row-reverse" : ""}`}
           >
             <User2 className="w-4 h-4 text-foreground" />
-            <span>Profile</span>
+            <span>{t("sidebar.navigation.profile")}</span>
           </a>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
@@ -109,7 +128,11 @@ export function UserDropdown() {
           ) : (
             <LogOut className="w-4 h-4 text-destructive" />
           )}
-          <span>{isLoggingOut ? "Signing out..." : "Sign out"}</span>
+          <span>
+            {isLoggingOut
+              ? t("auth.logout") + "..."
+              : t("sidebar.navigation.signOut")}
+          </span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

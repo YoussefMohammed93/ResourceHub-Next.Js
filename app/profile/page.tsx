@@ -50,19 +50,29 @@ import { useAuth } from "@/components/auth-provider";
 import { useRouter } from "next/navigation";
 import { userApi, type DownloadHistoryEntry } from "@/lib/api";
 
-// Utility function to get the correct image URL based on environment
-const getImageUrl = (item: DownloadHistoryEntry): string => {
-  // For localhost development, use local images
+// Utility function to get the correct media URL based on environment and type
+const getMediaUrl = (item: DownloadHistoryEntry): string => {
+  // For localhost development with local files, use them directly
   if (
     typeof window !== "undefined" &&
-    window.location.hostname === "localhost"
+    window.location.hostname === "localhost" &&
+    item.file.startsWith("/")
   ) {
     return item.file; // This will be "/freepik-1.jpg" from mock data
   }
 
-  // For production (Vercel), use the API backend image URL
-  // The backend should provide the actual image URL in the file field
+  // For external URLs (Freepik, etc.), use the media proxy
+  if (item.file.startsWith("http")) {
+    return `/api/media-proxy?url=${encodeURIComponent(item.file)}`;
+  }
+
+  // Fallback to the original file URL
   return item.file;
+};
+
+// Utility function to check if the item is a video
+const isVideoItem = (item: DownloadHistoryEntry): boolean => {
+  return item.type === "video" || item.file.includes("video");
 };
 
 export default function ProfilePage() {
@@ -317,7 +327,7 @@ export default function ProfilePage() {
                   <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
                   <Avatar className="relative h-24 w-24 sm:h-28 sm:w-28 border-4 border-background/80 backdrop-blur-sm">
                     <AvatarImage
-                      src={user?.account?.picture || "/placeholder.svg"}
+                      src={user?.account?.picture || ""}
                       alt={getUserDisplayName()}
                       className="object-cover"
                     />
@@ -921,16 +931,16 @@ export default function ProfilePage() {
                       </div>
                     </div>
                     {/* File ID and format info */}
-                    <div className="flex items-center justify-between">
+                    <div className="flex-col sm:flex-row flex items-center gap-5 justify-between">
                       <Button
                         variant="link"
-                        className="p-0 h-auto text-blue-600 hover:text-blue-800"
+                        className="p-0 h-auto text-blue-600 hover:text-blue-800 truncate max-w-full w-full sm:w-auto sm:max-w-[200px] md:max-w-[250px] text-left justify-start"
                         onClick={() => window.open(item.file, "_blank")}
                       >
-                        {item.file}
+                        <span className="truncate block">{item.file}</span>
                       </Button>
                       <div className="flex items-center gap-3">
-                        <Badge variant="secondary" className="text-xs">
+                        <Badge variant="outline" className="text-xs">
                           {item.type}
                         </Badge>
                         <span className="text-sm text-muted-foreground">
@@ -938,7 +948,7 @@ export default function ProfilePage() {
                         </span>
                       </div>
                     </div>
-                    {/* Main Image Display */}
+                    {/* Main Media Display */}
                     <div
                       className="relative aspect-video bg-muted rounded-lg overflow-hidden cursor-pointer group"
                       onClick={() =>
@@ -946,7 +956,7 @@ export default function ProfilePage() {
                       }
                     >
                       {imageErrors.has(index) ? (
-                        // Fallback display when image fails to load
+                        // Fallback display when media fails to load
                         <div className="w-full h-full flex items-center justify-center">
                           <div className="text-center space-y-2">
                             <div className="text-4xl">
@@ -959,6 +969,9 @@ export default function ProfilePage() {
                             <p className="text-sm text-muted-foreground capitalize">
                               {item.type}
                             </p>
+                            <p className="text-xs text-muted-foreground">
+                              Click to view on {item.from}
+                            </p>
                           </div>
                         </div>
                       ) : (
@@ -969,29 +982,65 @@ export default function ProfilePage() {
                               <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
                             </div>
                           )}
-                          <Image
-                            src={getImageUrl(item)}
-                            alt={`${item.type} from ${item.from}`}
-                            fill
-                            className="object-cover group-hover:scale-105 transition-transform duration-300"
-                            onLoadingComplete={() => {
-                              setImageLoading((prev) => {
-                                const newSet = new Set(prev);
-                                newSet.delete(index);
-                                return newSet;
-                              });
-                            }}
-                            onError={() => {
-                              setImageErrors((prev) =>
-                                new Set(prev).add(index)
-                              );
-                              setImageLoading((prev) => {
-                                const newSet = new Set(prev);
-                                newSet.delete(index);
-                                return newSet;
-                              });
-                            }}
-                          />
+                          {isVideoItem(item) ? (
+                            // Video preview with play button overlay
+                            <div className="relative w-full h-full">
+                              <Image
+                                src={getMediaUrl(item)}
+                                alt={`${item.type} from ${item.from}`}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                onLoadingComplete={() => {
+                                  setImageLoading((prev) => {
+                                    const newSet = new Set(prev);
+                                    newSet.delete(index);
+                                    return newSet;
+                                  });
+                                }}
+                                onError={() => {
+                                  setImageErrors((prev) =>
+                                    new Set(prev).add(index)
+                                  );
+                                  setImageLoading((prev) => {
+                                    const newSet = new Set(prev);
+                                    newSet.delete(index);
+                                    return newSet;
+                                  });
+                                }}
+                              />
+                              {/* Video play button overlay */}
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
+                                <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                                  <div className="w-0 h-0 border-l-[12px] border-l-black border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1"></div>
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            // Regular image display
+                            <Image
+                              src={getMediaUrl(item)}
+                              alt={`${item.type} from ${item.from}`}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              onLoadingComplete={() => {
+                                setImageLoading((prev) => {
+                                  const newSet = new Set(prev);
+                                  newSet.delete(index);
+                                  return newSet;
+                                });
+                              }}
+                              onError={() => {
+                                setImageErrors((prev) =>
+                                  new Set(prev).add(index)
+                                );
+                                setImageLoading((prev) => {
+                                  const newSet = new Set(prev);
+                                  newSet.delete(index);
+                                  return newSet;
+                                });
+                              }}
+                            />
+                          )}
                         </>
                       )}
                       {/* Type Badge Overlay */}
@@ -1003,6 +1052,17 @@ export default function ProfilePage() {
                           {item.type}
                         </Badge>
                       </div>
+                      {/* Video duration badge for videos */}
+                      {isVideoItem(item) && !imageErrors.has(index) && (
+                        <div className="absolute bottom-2 right-2 z-10">
+                          <Badge
+                            variant="secondary"
+                            className="text-xs bg-black/70 text-white border-none"
+                          >
+                            🎥 Video
+                          </Badge>
+                        </div>
+                      )}
                     </div>
                     {/* Footer with source and download button */}
                     <div className="flex items-center justify-between">

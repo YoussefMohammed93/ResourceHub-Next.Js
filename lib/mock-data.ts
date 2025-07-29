@@ -8,7 +8,7 @@ import {
   DownloadHistoryResponse,
 } from "./api";
 
-// Mock user data
+// Mock user data - Regular user
 export const mockUser: UserData = {
   account: {
     email: "test@example.com",
@@ -29,20 +29,69 @@ export const mockUser: UserData = {
   role: "user",
 };
 
+// Mock admin user data
+export const mockAdminUser: UserData = {
+  account: {
+    email: "admin@example.com",
+    firstName: "Admin",
+    lastName: "User",
+    picture: "/placeholder.svg",
+  },
+  subscription: {
+    plan: "Enterprise",
+    active: true,
+    until: "2025-12-31",
+    credits: {
+      plan: 10000,
+      remaining: 9500,
+    },
+    allowed_sites: [
+      "shutterstock",
+      "freepik",
+      "unsplash",
+      "pexels",
+      "adobe",
+      "getty",
+    ],
+  },
+  role: "admin",
+};
+
 // Mock download history
 export const mockDownloadHistory: DownloadHistoryEntry[] = [
   {
     from: "freepik",
+    type: "photo",
+    price: 2,
+    date: "2024-01-15",
+    file: "https://www.freepik.com/free-photo/side-view-hand-wearing-bracelet_31842933.htm",
+    downloadUrl:
+      "https://www.freepik.com/free-photo/side-view-hand-wearing-bracelet_31842933.htm",
+  },
+  {
+    from: "freepik",
+    type: "video",
+    price: 5,
+    date: "2024-01-14",
+    file: "https://www.freepik.com/free-video/close-up-cat-s-face-eyes_171159",
+    downloadUrl:
+      "https://www.freepik.com/free-video/close-up-cat-s-face-eyes_171159",
+  },
+  {
+    from: "freepik",
     type: "vector",
     price: 3,
-    date: "2024-01-15",
+    date: "2024-01-13",
     file: "/freepik-1.jpg",
     downloadUrl:
-      "https://www.freepik.com/free-vector/flat-design-spring-landscape-concept_6718313.htm#fromView=search&page=1&position=22&uuid=62c6a099-e4cb-455c-a5f7-fd7a424dfe81&query=nature",
+      "https://www.freepik.com/free-vector/flat-design-spring-landscape-concept_6718313.htm",
   },
 ];
 
 // Mock API responses
+// Test credentials:
+// Regular user: test@example.com / password
+// Admin user: admin@example.com / admin
 export const mockApiResponses = {
   // Login response
   login: (
@@ -51,7 +100,13 @@ export const mockApiResponses = {
   ): Promise<ApiResponse<LoginResponse>> => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        if (email === "test@example.com" && password === "password") {
+        if (
+          (email === "test@example.com" && password === "password") ||
+          (email === "admin@example.com" && password === "admin")
+        ) {
+          // Store the current user email for mock data
+          setCurrentMockUserEmail(email);
+
           resolve({
             success: true,
             data: {
@@ -98,9 +153,14 @@ export const mockApiResponses = {
   getUserData: (): Promise<ApiResponse<UserData>> => {
     return new Promise((resolve) => {
       setTimeout(() => {
+        // Check which user is currently logged in based on stored email
+        const currentUserEmail = getCurrentMockUserEmail();
+        const userData =
+          currentUserEmail === "admin@example.com" ? mockAdminUser : mockUser;
+
         resolve({
           success: true,
-          data: mockUser,
+          data: userData,
         });
       }, 500);
     });
@@ -127,6 +187,9 @@ export const mockApiResponses = {
   > => {
     return new Promise((resolve) => {
       setTimeout(() => {
+        // Clear the current user email for mock data
+        clearCurrentMockUserEmail();
+
         resolve({
           success: true,
           data: {
@@ -147,4 +210,26 @@ export function shouldUseMockData(): boolean {
 // Helper function to simulate network delay
 export function simulateNetworkDelay(ms: number = 1000): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// Helper functions to track current mock user
+export function setCurrentMockUserEmail(email: string): void {
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("mock_current_user_email", email);
+  }
+}
+
+export function getCurrentMockUserEmail(): string {
+  if (typeof window !== "undefined") {
+    return (
+      sessionStorage.getItem("mock_current_user_email") || "test@example.com"
+    );
+  }
+  return "test@example.com";
+}
+
+export function clearCurrentMockUserEmail(): void {
+  if (typeof window !== "undefined") {
+    sessionStorage.removeItem("mock_current_user_email");
+  }
 }
