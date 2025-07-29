@@ -64,7 +64,7 @@ export const mockDownloadHistory: DownloadHistoryEntry[] = [
     type: "photo",
     price: 2,
     date: "2024-01-15",
-    file: "https://www.freepik.com/free-photo/side-view-hand-wearing-bracelet_31842933.htm",
+    file: "/image-1.jpg", // Use local image that exists in public folder
     downloadUrl:
       "https://www.freepik.com/free-photo/side-view-hand-wearing-bracelet_31842933.htm",
   },
@@ -73,7 +73,7 @@ export const mockDownloadHistory: DownloadHistoryEntry[] = [
     type: "video",
     price: 5,
     date: "2024-01-14",
-    file: "https://www.freepik.com/free-video/close-up-cat-s-face-eyes_171159",
+    file: "/image-2.webp", // Use local image for video preview
     downloadUrl:
       "https://www.freepik.com/free-video/close-up-cat-s-face-eyes_171159",
   },
@@ -82,9 +82,27 @@ export const mockDownloadHistory: DownloadHistoryEntry[] = [
     type: "vector",
     price: 3,
     date: "2024-01-13",
-    file: "/freepik-1.jpg",
+    file: "/freepik-1.jpg", // Keep this one as it exists
     downloadUrl:
       "https://www.freepik.com/free-vector/flat-design-spring-landscape-concept_6718313.htm",
+  },
+  {
+    from: "freepik",
+    type: "photo",
+    price: 1,
+    date: "2024-01-12",
+    file: "/office.webp", // Add another local image
+    downloadUrl:
+      "https://www.freepik.com/free-photo/modern-office-space_12345678.htm",
+  },
+  {
+    from: "freepik",
+    type: "vector",
+    price: 2,
+    date: "2024-01-11",
+    file: "/placeholder.png", // Add placeholder image
+    downloadUrl:
+      "https://www.freepik.com/free-vector/business-illustration_87654321.htm",
   },
 ];
 
@@ -204,7 +222,13 @@ export const mockApiResponses = {
 
 // Helper function to check if mock data should be used
 export function shouldUseMockData(): boolean {
-  return process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+  // In production, never use mock data unless explicitly enabled
+  if (process.env.NODE_ENV === "production") {
+    return process.env.NEXT_PUBLIC_USE_MOCK_DATA === "true";
+  }
+
+  // In development, use mock data by default unless explicitly disabled
+  return process.env.NEXT_PUBLIC_USE_MOCK_DATA !== "false";
 }
 
 // Helper function to simulate network delay

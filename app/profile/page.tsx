@@ -52,12 +52,8 @@ import { userApi, type DownloadHistoryEntry } from "@/lib/api";
 
 // Utility function to get the correct media URL based on environment and type
 const getMediaUrl = (item: DownloadHistoryEntry): string => {
-  // For localhost development with local files, use them directly
-  if (
-    typeof window !== "undefined" &&
-    window.location.hostname === "localhost" &&
-    item.file.startsWith("/")
-  ) {
+  // For local files (mock data), use them directly - they work on both localhost and Vercel
+  if (item.file.startsWith("/")) {
     return item.file; // This will be "/freepik-1.jpg" from mock data
   }
 
@@ -957,7 +953,7 @@ export default function ProfilePage() {
                     >
                       {imageErrors.has(index) ? (
                         // Fallback display when media fails to load
-                        <div className="w-full h-full flex items-center justify-center">
+                        <div className="w-full h-full flex items-center justify-center bg-muted/50">
                           <div className="text-center space-y-2">
                             <div className="text-4xl">
                               {item.type === "photo"
@@ -966,11 +962,14 @@ export default function ProfilePage() {
                                   ? "🎥"
                                   : "🎨"}
                             </div>
-                            <p className="text-sm text-muted-foreground capitalize">
+                            <p className="text-sm text-muted-foreground capitalize font-medium">
                               {item.type}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               Click to view on {item.from}
+                            </p>
+                            <p className="text-xs text-muted-foreground/70">
+                              Image failed to load
                             </p>
                           </div>
                         </div>
@@ -989,7 +988,7 @@ export default function ProfilePage() {
                                 src={getMediaUrl(item)}
                                 alt={`${item.type} from ${item.from}`}
                                 fill
-                                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                                className="object-contain group-hover:scale-105 transition-transform duration-300"
                                 onLoadingComplete={() => {
                                   setImageLoading((prev) => {
                                     const newSet = new Set(prev);
@@ -1021,7 +1020,7 @@ export default function ProfilePage() {
                               src={getMediaUrl(item)}
                               alt={`${item.type} from ${item.from}`}
                               fill
-                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              className="object-contain group-hover:scale-105 transition-transform duration-300"
                               onLoadingComplete={() => {
                                 setImageLoading((prev) => {
                                   const newSet = new Set(prev);
