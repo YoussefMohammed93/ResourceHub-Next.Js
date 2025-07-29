@@ -52,17 +52,28 @@ import { userApi, type DownloadHistoryEntry } from "@/lib/api";
 
 // Utility function to get the correct media URL based on environment and type
 const getMediaUrl = (item: DownloadHistoryEntry): string => {
+  console.log("[Profile] Processing media URL for item:", {
+    from: item.from,
+    type: item.type,
+    file: item.file,
+    downloadUrl: item.downloadUrl,
+  });
+
   // For local files (mock data), use them directly - they work on both localhost and Vercel
   if (item.file.startsWith("/")) {
+    console.log("[Profile] Using local file:", item.file);
     return item.file; // This will be "/freepik-1.jpg" from mock data
   }
 
   // For external URLs (Freepik, etc.), use the media proxy
   if (item.file.startsWith("http")) {
-    return `/api/media-proxy?url=${encodeURIComponent(item.file)}`;
+    const proxyUrl = `/api/media-proxy?url=${encodeURIComponent(item.file)}`;
+    console.log("[Profile] Using media proxy:", proxyUrl);
+    return proxyUrl;
   }
 
   // Fallback to the original file URL
+  console.log("[Profile] Using fallback URL:", item.file);
   return item.file;
 };
 
@@ -996,7 +1007,16 @@ export default function ProfilePage() {
                                     return newSet;
                                   });
                                 }}
-                                onError={() => {
+                                onError={(e) => {
+                                  console.log(
+                                    "[Profile] Image load error for item:",
+                                    {
+                                      index,
+                                      item,
+                                      src: getMediaUrl(item),
+                                      error: e,
+                                    }
+                                  );
                                   setImageErrors((prev) =>
                                     new Set(prev).add(index)
                                   );
@@ -1028,7 +1048,16 @@ export default function ProfilePage() {
                                   return newSet;
                                 });
                               }}
-                              onError={() => {
+                              onError={(e) => {
+                                console.log(
+                                  "[Profile] Image load error for item:",
+                                  {
+                                    index,
+                                    item,
+                                    src: getMediaUrl(item),
+                                    error: e,
+                                  }
+                                );
                                 setImageErrors((prev) =>
                                   new Set(prev).add(index)
                                 );

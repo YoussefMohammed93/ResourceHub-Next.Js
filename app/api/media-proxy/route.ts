@@ -8,7 +8,10 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const url = searchParams.get("url");
 
+    console.log("[Media Proxy] Received request for URL:", url);
+
     if (!url) {
+      console.log("[Media Proxy] Error: No URL parameter provided");
       return NextResponse.json(
         { error: "URL parameter is required" },
         { status: 400 }
@@ -23,10 +26,12 @@ export async function GET(request: NextRequest) {
       "cdn.freepik.com",
       "shutterstock.com",
       "www.shutterstock.com",
+      "image.shutterstock.com",
       "unsplash.com",
       "images.unsplash.com",
       "pexels.com",
       "images.pexels.com",
+      "stockaty.virs.tech",
     ];
 
     const urlObj = new URL(url);
@@ -34,9 +39,13 @@ export async function GET(request: NextRequest) {
       urlObj.hostname.includes(domain)
     );
 
+    console.log("[Media Proxy] URL hostname:", urlObj.hostname);
+    console.log("[Media Proxy] Is allowed domain:", isAllowedDomain);
+
     if (!isAllowedDomain) {
+      console.log("[Media Proxy] Error: Domain not allowed:", urlObj.hostname);
       return NextResponse.json(
-        { error: "Domain not allowed" },
+        { error: `Domain not allowed: ${urlObj.hostname}` },
         { status: 403 }
       );
     }
