@@ -49,7 +49,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -98,6 +98,7 @@ import {
   type CreditStatistics,
   type CreditHistoryEntry,
   type UsersStatisticsResponse,
+  type UserAccount,
 } from "@/lib/api";
 import { AdminRouteGuard } from "@/components/admin-route-guard";
 import { useAuth } from "@/components/auth-provider";
@@ -184,6 +185,8 @@ export default function DashboardPage() {
   const [packageCreditsError, setPackageCreditsError] = useState<string>("");
   const [packageContactUrlError, setPackageContactUrlError] =
     useState<string>("");
+  const [packageSupportedSitesError, setPackageSupportedSitesError] =
+    useState<string>("");
   const [isAddingPackage, setIsAddingPackage] = useState<boolean>(false);
 
   // Edit package states
@@ -211,6 +214,8 @@ export default function DashboardPage() {
   const [editPackageCreditsError, setEditPackageCreditsError] =
     useState<string>("");
   const [editPackageContactUrlError, setEditPackageContactUrlError] =
+    useState<string>("");
+  const [editPackageSupportedSitesError, setEditPackageSupportedSitesError] =
     useState<string>("");
   const [isEditingPackage, setIsEditingPackage] = useState<boolean>(false);
 
@@ -255,16 +260,31 @@ export default function DashboardPage() {
 
     try {
       const response = await creditApi.getCreditAnalytics();
-      if (response.success && response.data) {
-        setCreditAnalytics(response.data.statistics);
+
+      if (response.success) {
+        // According to Swagger docs, the response structure is:
+        // { success: true, statistics: {...} }
+        if (response.data && response.data.statistics) {
+          // If wrapped in data property
+          setCreditAnalytics(response.data.statistics);
+        } else if (
+          response &&
+          typeof response === "object" &&
+          "statistics" in response
+        ) {
+          // If response is direct (has statistics property)
+          const directResponse = response as { statistics: CreditStatistics };
+          setCreditAnalytics(directResponse.statistics);
+        } else {
+          setAnalyticsError("Invalid response format");
+        }
       } else {
         setAnalyticsError(
           response.error?.message || t("dashboard.errors.failedToLoadAnalytics")
         );
       }
-    } catch (error) {
+    } catch {
       setAnalyticsError(t("dashboard.errors.failedToLoadAnalytics"));
-      console.error("Analytics error:", error);
     } finally {
       setIsLoadingAnalytics(false);
     }
@@ -282,16 +302,31 @@ export default function DashboardPage() {
 
     try {
       const response = await creditApi.getCreditHistory();
-      if (response.success && response.data) {
-        setCreditHistory(response.data.history);
+
+      if (response.success) {
+        // According to Swagger docs, the response structure is:
+        // { success: true, history: [...] }
+        if (response.data && response.data.history) {
+          // If wrapped in data property
+          setCreditHistory(response.data.history);
+        } else if (
+          response &&
+          typeof response === "object" &&
+          "history" in response
+        ) {
+          // If response is direct (has history property)
+          const directResponse = response as { history: CreditHistoryEntry[] };
+          setCreditHistory(directResponse.history);
+        } else {
+          setHistoryError("Invalid response format");
+        }
       } else {
         setHistoryError(
           response.error?.message || t("dashboard.errors.failedToLoadHistory")
         );
       }
-    } catch (error) {
+    } catch {
       setHistoryError(t("dashboard.errors.failedToLoadHistory"));
-      console.error("History error:", error);
     } finally {
       setIsLoadingHistory(false);
     }
@@ -309,16 +344,53 @@ export default function DashboardPage() {
 
     try {
       const response = await userApi.getUsersStatistics();
-      if (response.success && response.data) {
-        setUsersData(response.data);
+
+      if (response.success) {
+        // According to Swagger docs, the response structure is:
+        // { success: true, total_users: number, online_users: number, users: [...] }
+
+        // Try multiple response structure patterns
+        let userData: UsersStatisticsResponse | null = null;
+
+        if (response.data) {
+          // If wrapped in data property
+          userData = response.data;
+        } else {
+          // If response is direct (has total_users, online_users, users properties)
+          const directResponse = response as unknown as Record<string, unknown>;
+          if (
+            directResponse.total_users !== undefined ||
+            directResponse.online_users !== undefined
+          ) {
+            userData = {
+              success: true,
+              total_users:
+                typeof directResponse.total_users === "number"
+                  ? directResponse.total_users
+                  : 0,
+              online_users:
+                typeof directResponse.online_users === "number"
+                  ? directResponse.online_users
+                  : 0,
+              users: Array.isArray(directResponse.users)
+                ? (directResponse.users as UserAccount[])
+                : [],
+            };
+          }
+        }
+
+        if (userData) {
+          setUsersData(userData);
+        } else {
+          setUsersError("Invalid response format");
+        }
       } else {
         setUsersError(
           response.error?.message || t("dashboard.errors.failedToLoadUsers")
         );
       }
-    } catch (error) {
+    } catch {
       setUsersError(t("dashboard.errors.failedToLoadUsers"));
-      console.error("Users error:", error);
     } finally {
       setIsLoadingUsers(false);
     }
@@ -336,15 +408,64 @@ export default function DashboardPage() {
 
     try {
       const response = await siteApi.getSites();
-      if (response.success && response.data) {
-        // Transform API sites to frontend sites
-        const frontendSites: FrontendSite[] = response.data.data.sites.map(
-          (site, index) => ({
-            ...site,
-            id: index + 1,
-            status: "Active",
-            addedDate: site.last_reset,
-          })
+
+      if (response.success) {
+        // According to Swagger docs, the response structure is:
+        // { success: true, data: { sites: [...] } }
+        let apiSites: unknown[] = [];
+
+        if (
+          response.data &&
+          typeof response.data === "object" &&
+          "sites" in response.data
+        ) {
+          // If wrapped in data.sites
+          const dataWithSites = response.data as { sites: unknown[] };
+          apiSites = dataWithSites.sites;
+        } else if (response.data && Array.isArray(response.data)) {
+          // If data is directly an array
+          apiSites = response.data;
+        } else if (
+          response &&
+          typeof response === "object" &&
+          "sites" in response
+        ) {
+          // If response has sites property directly
+          const responseWithSites = response as { sites: unknown[] };
+          apiSites = responseWithSites.sites;
+        } else {
+          setSitesError("Invalid response format");
+          return;
+        }
+
+        const frontendSites: FrontendSite[] = apiSites.map(
+          (site: unknown, index: number) => {
+            const siteObj = site as Record<string, unknown>;
+            return {
+              name: typeof siteObj.name === "string" ? siteObj.name : "",
+              url: typeof siteObj.url === "string" ? siteObj.url : "",
+              icon: typeof siteObj.icon === "string" ? siteObj.icon : undefined,
+              total_downloads:
+                typeof siteObj.total_downloads === "number"
+                  ? siteObj.total_downloads
+                  : 0,
+              today_downloads:
+                typeof siteObj.today_downloads === "number"
+                  ? siteObj.today_downloads
+                  : 0,
+              price: typeof siteObj.price === "number" ? siteObj.price : 0,
+              last_reset:
+                typeof siteObj.last_reset === "string"
+                  ? siteObj.last_reset
+                  : "",
+              id: index + 1,
+              status: "Active" as const,
+              addedDate:
+                typeof siteObj.last_reset === "string"
+                  ? siteObj.last_reset
+                  : "",
+            };
+          }
         );
         setSites(frontendSites);
       } else {
@@ -352,9 +473,8 @@ export default function DashboardPage() {
           response.error?.message || t("dashboard.errors.failedToLoadSites")
         );
       }
-    } catch (error) {
+    } catch {
       setSitesError(t("dashboard.errors.failedToLoadSites"));
-      console.error("Sites error:", error);
     } finally {
       setIsLoadingSites(false);
     }
@@ -372,25 +492,91 @@ export default function DashboardPage() {
 
     try {
       const response = await pricingApi.getPricingPlans();
-      if (response.success && response.data) {
+
+      if (response.success) {
+        // Try multiple response structure patterns
+        let apiPlans: unknown[] = [];
+
+        if (response.data) {
+          // If wrapped in data property
+          if (Array.isArray(response.data)) {
+            apiPlans = response.data;
+          } else if (
+            typeof response.data === "object" &&
+            "plans" in response.data
+          ) {
+            const dataWithPlans = response.data as { plans: unknown[] };
+            apiPlans = dataWithPlans.plans;
+          }
+        } else {
+          // If response is direct array or has plans property
+          const directResponse = response as unknown as Record<string, unknown>;
+          if (Array.isArray(directResponse)) {
+            apiPlans = directResponse;
+          } else if (
+            directResponse.plans &&
+            Array.isArray(directResponse.plans)
+          ) {
+            apiPlans = directResponse.plans;
+          }
+        }
+
         // Transform API pricing plans to frontend pricing plans
-        const frontendPlans: PricingPlan[] = response.data.data.plans.map(
-          (plan, index) => ({
-            id: plan.id || index + 1,
-            name: plan.name,
-            description: plan.description,
-            price: plan.price || "",
-            credits: plan.credits,
-            daysValidity: plan.daysValidity,
-            contactUsUrl: plan.contactUsUrl || "",
-            supportedSites: plan.supportedSites || [],
-            features: plan.features || [
-              t("dashboard.packageManagement.features.accessToSites"),
-              t("dashboard.packageManagement.features.support"),
-              t("dashboard.packageManagement.features.adminManagement"),
-            ],
-          })
+        const frontendPlans: PricingPlan[] = apiPlans.map(
+          (plan: unknown, index: number) => {
+            const planObj = plan as Record<string, unknown>;
+            return {
+              id: index + 1, // API doesn't provide ID, so we generate one
+              name:
+                typeof planObj.name === "string"
+                  ? planObj.name
+                  : typeof planObj.PlanName === "string"
+                    ? planObj.PlanName
+                    : "",
+              description:
+                typeof planObj.description === "string"
+                  ? planObj.description
+                  : typeof planObj.PlanDescription === "string"
+                    ? planObj.PlanDescription
+                    : "",
+              price:
+                typeof planObj.price === "string"
+                  ? planObj.price
+                  : typeof planObj.PlanPrice === "string"
+                    ? planObj.PlanPrice
+                    : "",
+              credits:
+                parseInt(
+                  typeof planObj.credits === "string" ? planObj.credits : "0"
+                ) || 0,
+              daysValidity:
+                parseInt(
+                  typeof planObj.days === "string"
+                    ? planObj.days
+                    : typeof planObj.DaysValidity === "string"
+                      ? planObj.DaysValidity
+                      : "0"
+                ) || 0,
+              contactUsUrl:
+                typeof planObj.contact === "string"
+                  ? planObj.contact
+                  : typeof planObj.ContactUsUrl === "string"
+                    ? planObj.ContactUsUrl
+                    : "",
+              supportedSites: Array.isArray(planObj.sites)
+                ? (planObj.sites as string[])
+                : Array.isArray(planObj.Sites)
+                  ? (planObj.Sites as string[])
+                  : [],
+              features: [
+                t("dashboard.packageManagement.features.accessToSites"),
+                t("dashboard.packageManagement.features.support"),
+                t("dashboard.packageManagement.features.adminManagement"),
+              ],
+            };
+          }
         );
+
         setPricingPlans(frontendPlans);
       } else {
         setPricingPlansError(
@@ -398,9 +584,8 @@ export default function DashboardPage() {
             t("dashboard.errors.failedToLoadPricingPlans")
         );
       }
-    } catch (error) {
+    } catch {
       setPricingPlansError(t("dashboard.errors.failedToLoadPricingPlans"));
-      console.error("Pricing plans error:", error);
     } finally {
       setIsLoadingPricingPlans(false);
     }
@@ -508,12 +693,10 @@ export default function DashboardPage() {
         // Refresh sites list to get updated data
         await loadSites();
       } else {
-        console.error("Failed to add site:", response.error?.message);
-        // You can add error handling here, like showing a toast notification
+        // Handle API error - could add toast notification here
       }
-    } catch (error) {
-      console.error("Error adding site:", error);
-      // You can add error handling here
+    } catch {
+      // Error handling - could add toast notification here
     } finally {
       setIsAddingSite(false);
     }
@@ -531,12 +714,10 @@ export default function DashboardPage() {
         // Refresh sites list to get updated data
         await loadSites();
       } else {
-        console.error("Failed to delete site:", response.error?.message);
-        // You can add error handling here, like showing a toast notification
+        // Handle API error - could add toast notification here
       }
-    } catch (error) {
-      console.error("Error deleting site:", error);
-      // You can add error handling here
+    } catch {
+      // Error handling - could add toast notification here
     }
   };
 
@@ -548,6 +729,7 @@ export default function DashboardPage() {
     setPackageDaysValidityError("");
     setPackageCreditsError("");
     setPackageContactUrlError("");
+    setPackageSupportedSitesError("");
 
     // Validate package name
     if (!packageName.trim()) {
@@ -596,7 +778,66 @@ export default function DashboardPage() {
       return;
     }
 
-    // Validate contact URL if provided
+    // Validate supported sites (required)
+    const sitesArray = packageSupportedSites
+      .split(",")
+      .map((site) => site.trim())
+      .filter((site) => site.length > 0);
+
+    if (sitesArray.length === 0) {
+      setPackageSupportedSitesError(
+        t("dashboard.packageManagement.validation.sitesRequired")
+      );
+      return;
+    }
+
+    // Validate that all sites exist in the system (only if sites are loaded and we have data)
+    if (sites.length > 0 && !isLoadingSites) {
+      // Check both site names and URLs for flexibility
+      const availableSiteNames = sites.map((site) => site.name.toLowerCase());
+      const availableSiteUrls = sites.map((site) => site.url.toLowerCase());
+
+      const invalidSites = sitesArray.filter((site) => {
+        const lowerSite = site.toLowerCase();
+        return (
+          !availableSiteNames.includes(lowerSite) &&
+          !availableSiteUrls.includes(lowerSite)
+        );
+      });
+
+      if (invalidSites.length > 0) {
+        setPackageSupportedSitesError(
+          `Invalid sites: ${invalidSites.join(", ")}. Available sites: ${sites.map((s) => `${s.name} (${s.url})`).join(", ")}`
+        );
+        return;
+      }
+    }
+
+    // Use the exact site URLs from the system (API expects URLs/identifiers)
+    const validatedSites =
+      sites.length > 0
+        ? sitesArray.map((inputSite) => {
+            const lowerInput = inputSite.toLowerCase();
+            // First try to match by name, then by URL
+            const matchingSite = sites.find(
+              (site) =>
+                site.name.toLowerCase() === lowerInput ||
+                site.url.toLowerCase() === lowerInput
+            );
+            // Return the site identifier (domain without .com) as that's what the API expects
+            if (matchingSite) {
+              // Extract domain from URL and remove .com/.net etc
+              const domain = matchingSite.url
+                .replace(/^https?:\/\/(www\.)?/, "")
+                .split("/")[0]
+                .replace(/\.(com|net|org|io)$/, "");
+              return domain.toLowerCase();
+            }
+            return inputSite.toLowerCase();
+          })
+        : sitesArray.map((site) => site.toLowerCase()); // If no sites loaded, use lowercase
+
+    // Validate contact URL if provided (optional)
     if (packageContactUrl.trim() && !validateUrl(packageContactUrl)) {
       setPackageContactUrlError(
         t("dashboard.packageManagement.validation.invalidUrl")
@@ -611,23 +852,16 @@ export default function DashboardPage() {
         PlanName: packageName,
         PlanPrice: packagePrice.trim() || undefined,
         DaysValidity: packageDaysValidity,
-        Sites: packageSupportedSites.trim()
-          ? packageSupportedSites.split(",").map((site) => site.trim())
-          : [],
+        Sites: validatedSites, // Use the validated sites with correct names
         PlanDescription: packageDescription,
-        ContactUsUrl: packageContactUrl.trim(),
+        ContactUsUrl: packageContactUrl.trim() || "",
         credits: packageCredits,
       };
 
       const response = await pricingApi.addPricingPlan(pricingPlanData);
 
       if (response.success) {
-        // Reload pricing plans to get the updated list
-        await loadPricingPlans();
-
-        setIsAddPackageDialogOpen(false);
-
-        // Reset form
+        // Reset form first
         setPackageName("");
         setPackagePrice("");
         setPackageDescription("");
@@ -635,14 +869,43 @@ export default function DashboardPage() {
         setPackageCredits("");
         setPackageContactUrl("");
         setPackageSupportedSites("");
+
+        // Close dialog
+        setIsAddPackageDialogOpen(false);
+
+        // Reload pricing plans to get the updated list
+        await loadPricingPlans();
       } else {
         // Handle API error
-        console.error("Failed to add pricing plan:", response.error?.message);
-        // You can show an error toast here
+        const errorMessage =
+          response.error?.message || "Failed to add pricing plan";
+
+        // Show error in appropriate field based on error message
+        if (errorMessage.toLowerCase().includes("sites")) {
+          setPackageSupportedSitesError(errorMessage);
+        } else if (errorMessage.toLowerCase().includes("name")) {
+          setPackageNameError(errorMessage);
+        } else if (errorMessage.toLowerCase().includes("description")) {
+          setPackageDescriptionError(errorMessage);
+        } else if (
+          errorMessage.toLowerCase().includes("days") ||
+          errorMessage.toLowerCase().includes("validity")
+        ) {
+          setPackageDaysValidityError(errorMessage);
+        } else if (errorMessage.toLowerCase().includes("credits")) {
+          setPackageCreditsError(errorMessage);
+        } else if (
+          errorMessage.toLowerCase().includes("contact") ||
+          errorMessage.toLowerCase().includes("url")
+        ) {
+          setPackageContactUrlError(errorMessage);
+        } else {
+          // Generic error - show under plan name
+          setPackageNameError(errorMessage);
+        }
       }
-    } catch (error) {
-      console.error("Error adding pricing plan:", error);
-      // You can show an error toast here
+    } catch {
+      setPackageNameError("Network error occurred. Please try again.");
     } finally {
       setIsAddingPackage(false);
     }
@@ -671,6 +934,7 @@ export default function DashboardPage() {
     setEditPackageDaysValidityError("");
     setEditPackageCreditsError("");
     setEditPackageContactUrlError("");
+    setEditPackageSupportedSitesError("");
 
     // Validate package name
     if (!editPackageName.trim()) {
@@ -719,7 +983,66 @@ export default function DashboardPage() {
       return;
     }
 
-    // Validate contact URL if provided
+    // Validate supported sites (required)
+    const editSitesArray = editPackageSupportedSites
+      .split(",")
+      .map((site) => site.trim())
+      .filter((site) => site.length > 0);
+
+    if (editSitesArray.length === 0) {
+      setEditPackageSupportedSitesError(
+        t("dashboard.packageManagement.validation.sitesRequired")
+      );
+      return;
+    }
+
+    // Validate that all sites exist in the system (only if sites are loaded and we have data)
+    if (sites.length > 0 && !isLoadingSites) {
+      // Check both site names and URLs for flexibility
+      const availableSiteNames = sites.map((site) => site.name.toLowerCase());
+      const availableSiteUrls = sites.map((site) => site.url.toLowerCase());
+
+      const invalidSites = editSitesArray.filter((site) => {
+        const lowerSite = site.toLowerCase();
+        return (
+          !availableSiteNames.includes(lowerSite) &&
+          !availableSiteUrls.includes(lowerSite)
+        );
+      });
+
+      if (invalidSites.length > 0) {
+        setEditPackageSupportedSitesError(
+          `Invalid sites: ${invalidSites.join(", ")}. Available sites: ${sites.map((s) => `${s.name} (${s.url})`).join(", ")}`
+        );
+        return;
+      }
+    }
+
+    // Use the exact site URLs from the system (API expects URLs/identifiers)
+    const validatedEditSites =
+      sites.length > 0
+        ? editSitesArray.map((inputSite) => {
+            const lowerInput = inputSite.toLowerCase();
+            // First try to match by name, then by URL
+            const matchingSite = sites.find(
+              (site) =>
+                site.name.toLowerCase() === lowerInput ||
+                site.url.toLowerCase() === lowerInput
+            );
+            // Return the site identifier (domain without .com) as that's what the API expects
+            if (matchingSite) {
+              // Extract domain from URL and remove .com/.net etc
+              const domain = matchingSite.url
+                .replace(/^https?:\/\/(www\.)?/, "")
+                .split("/")[0]
+                .replace(/\.(com|net|org|io)$/, "");
+              return domain.toLowerCase();
+            }
+            return inputSite.toLowerCase();
+          })
+        : editSitesArray.map((site) => site.toLowerCase()); // If no sites loaded, use lowercase
+
+    // Validate contact URL if provided (optional)
     if (editPackageContactUrl.trim() && !validateUrl(editPackageContactUrl)) {
       setEditPackageContactUrlError(
         t("dashboard.packageManagement.validation.invalidUrl")
@@ -736,11 +1059,9 @@ export default function DashboardPage() {
         PlanName: editPackageName,
         PlanPrice: editPackagePrice.trim() || undefined,
         DaysValidity: editPackageDaysValidity,
-        Sites: editPackageSupportedSites.trim()
-          ? editPackageSupportedSites.split(",").map((site) => site.trim())
-          : [],
+        Sites: validatedEditSites, // Use the validated sites with correct names
         PlanDescription: editPackageDescription,
-        ContactUsUrl: editPackageContactUrl.trim(),
+        ContactUsUrl: editPackageContactUrl.trim() || "",
         credits: editPackageCredits,
       };
 
@@ -762,16 +1083,10 @@ export default function DashboardPage() {
         setEditPackageContactUrl("");
         setEditPackageSupportedSites("");
       } else {
-        // Handle API error
-        console.error(
-          "Failed to update pricing plan:",
-          response.error?.message
-        );
-        // You can show an error toast here
+        // Handle API error - could show error toast here
       }
-    } catch (error) {
-      console.error("Error updating pricing plan:", error);
-      // You can show an error toast here
+    } catch {
+      // Error handling - could show error toast here
     } finally {
       setIsEditingPackage(false);
     }
@@ -810,16 +1125,10 @@ export default function DashboardPage() {
           setEditPackageSupportedSites("");
         }, 300);
       } else {
-        // Handle API error
-        console.error(
-          "Failed to delete pricing plan:",
-          response.error?.message
-        );
-        // You can show an error toast here
+        // Handle API error - could show error toast here
       }
-    } catch (error) {
-      console.error("Error deleting pricing plan:", error);
-      // You can show an error toast here
+    } catch {
+      // Error handling - could show error toast here
     } finally {
       setIsDeletingPackage(false);
     }
@@ -874,9 +1183,8 @@ export default function DashboardPage() {
             t("dashboard.errors.failedToAddSubscription")
         );
       }
-    } catch (error) {
+    } catch {
       setEmailError(t("dashboard.errors.failedToAddSubscription"));
-      console.error("Add subscription error:", error);
     } finally {
       setIsSubmitting(false);
     }
@@ -927,9 +1235,8 @@ export default function DashboardPage() {
             t("dashboard.errors.failedToUpgradeSubscription")
         );
       }
-    } catch (error) {
+    } catch {
       setUpgradeEmailError(t("dashboard.errors.failedToUpgradeSubscription"));
-      console.error("Upgrade subscription error:", error);
     } finally {
       setIsUpgradeSubmitting(false);
     }
@@ -980,9 +1287,8 @@ export default function DashboardPage() {
             t("dashboard.errors.failedToExtendSubscription")
         );
       }
-    } catch (error) {
+    } catch {
       setExtendEmailError(t("dashboard.errors.failedToExtendSubscription"));
-      console.error("Extend subscription error:", error);
     } finally {
       setIsExtendSubmitting(false);
     }
@@ -1024,9 +1330,8 @@ export default function DashboardPage() {
             t("dashboard.errors.failedToDeleteSubscription")
         );
       }
-    } catch (error) {
+    } catch {
       setDeleteEmailError(t("dashboard.errors.failedToDeleteSubscription"));
-      console.error("Delete subscription error:", error);
     } finally {
       setIsDeleteSubmitting(false);
     }
@@ -1071,20 +1376,85 @@ export default function DashboardPage() {
   ]);
 
   // Transform API user data to match the expected format
-  const transformedUsers =
-    usersData?.users?.map((user, index) => ({
-      id: index + 1,
-      name: `${user.firstName} ${user.lastName}`,
-      email: user.email,
-      phone: "+1-555-0123", // Default phone since API doesn't provide it
-      credits: 0, // Default credits since API doesn't provide it in user list
-      status: "Active", // Default status since API doesn't provide it
-      expiry: "2024-12-31", // Default expiry since API doesn't provide it
-      plan: "Basic Plan", // Default plan since API doesn't provide it
-      avatar: `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`,
-      joinDate: "2024-01-15", // Default join date since API doesn't provide it
-      lastActive: "2 hours ago", // Default last active since API doesn't provide it
-    })) || [];
+  const transformedUsers = useMemo(() => {
+    // If we have an error or no data, return empty array
+    if (usersError || isLoadingUsers) {
+      return [];
+    }
+
+    // Check if we have users data
+    if (!usersData) {
+      return [];
+    }
+
+    // Try to find users array in different possible locations
+    let usersArray: unknown[] = [];
+
+    if (Array.isArray(usersData.users)) {
+      usersArray = usersData.users;
+    } else if (Array.isArray(usersData)) {
+      usersArray = usersData as unknown[];
+    } else {
+      return [];
+    }
+
+    if (usersArray.length === 0) {
+      return [];
+    }
+
+    const transformed = usersArray.map((user, index) => {
+      const userObj = user as Record<string, unknown>;
+      const firstName =
+        typeof userObj.firstName === "string"
+          ? userObj.firstName
+          : typeof userObj.first_name === "string"
+            ? userObj.first_name
+            : "Unknown";
+      const lastName =
+        typeof userObj.lastName === "string"
+          ? userObj.lastName
+          : typeof userObj.last_name === "string"
+            ? userObj.last_name
+            : "User";
+
+      return {
+        id: index + 1,
+        name: `${firstName} ${lastName}`,
+        email: typeof userObj.email === "string" ? userObj.email : "No email",
+        phone:
+          typeof userObj.phone === "string" ? userObj.phone : "+1-555-0123", // Default phone since API might not provide it
+        credits: typeof userObj.credits === "number" ? userObj.credits : 0, // Default credits since API might not provide it in user list
+        status: typeof userObj.status === "string" ? userObj.status : "Active", // Default status since API might not provide it
+        expiry:
+          typeof userObj.expiry === "string"
+            ? userObj.expiry
+            : typeof userObj.subscription_expiry === "string"
+              ? userObj.subscription_expiry
+              : "2024-12-31", // Default expiry since API might not provide it
+        plan:
+          typeof userObj.plan === "string"
+            ? userObj.plan
+            : typeof userObj.subscription_plan === "string"
+              ? userObj.subscription_plan
+              : "Basic Plan", // Default plan since API might not provide it
+        avatar: `${firstName.charAt(0)}${lastName.charAt(0)}`,
+        joinDate:
+          typeof userObj.joinDate === "string"
+            ? userObj.joinDate
+            : typeof userObj.created_at === "string"
+              ? userObj.created_at
+              : "2024-01-15", // Default join date since API might not provide it
+        lastActive:
+          typeof userObj.lastActive === "string"
+            ? userObj.lastActive
+            : typeof userObj.last_active === "string"
+              ? userObj.last_active
+              : "2 hours ago", // Default last active since API might not provide it
+      };
+    });
+
+    return transformed;
+  }, [usersData, usersError, isLoadingUsers]);
 
   // Filter users based on search term and status
   const filteredUsers = transformedUsers.filter((user) => {
@@ -1211,6 +1581,14 @@ export default function DashboardPage() {
                               {usersData?.total_users?.toLocaleString() || "0"}
                             </span>
                           </div>
+                          {process.env.NODE_ENV === "development" && (
+                            <div className="text-xs text-muted-foreground">
+                              Debug:{" "}
+                              {JSON.stringify({
+                                total: usersData?.total_users,
+                              })}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1270,6 +1648,15 @@ export default function DashboardPage() {
                               {usersData?.online_users?.toLocaleString() || "0"}
                             </span>
                           </div>
+                          {process.env.NODE_ENV === "development" && (
+                            <div className="text-xs text-muted-foreground">
+                              Debug:{" "}
+                              {JSON.stringify({
+                                online: usersData?.online_users,
+                                raw: usersData,
+                              })}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -1422,6 +1809,35 @@ export default function DashboardPage() {
                                     "dashboard.usersManagement.table.noUsersDescription"
                                   )}
                                 </p>
+                                {process.env.NODE_ENV === "development" && (
+                                  <div className="mt-4 text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                                    <div>Debug Info:</div>
+                                    <div>
+                                      transformedUsers.length:{" "}
+                                      {transformedUsers.length}
+                                    </div>
+                                    <div>
+                                      filteredUsers.length:{" "}
+                                      {filteredUsers.length}
+                                    </div>
+                                    <div>
+                                      searchTerm: &quot;{searchTerm}&quot;
+                                    </div>
+                                    <div>
+                                      statusFilter: &quot;{statusFilter}&quot;
+                                    </div>
+                                    <div>
+                                      usersData: {usersData ? "exists" : "null"}
+                                    </div>
+                                    <div>
+                                      usersError: {usersError || "none"}
+                                    </div>
+                                    <div>
+                                      isLoadingUsers:{" "}
+                                      {isLoadingUsers.toString()}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </td>
@@ -1861,7 +2277,9 @@ export default function DashboardPage() {
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center space-x-2">
                                   <span className="text-sm font-medium text-foreground truncate">
-                                    {entry.user_email}
+                                    {entry.user_email ||
+                                      entry.email ||
+                                      "Unknown User"}
                                   </span>
                                   {entry.plan_name && (
                                     <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
@@ -1907,7 +2325,7 @@ export default function DashboardPage() {
                         )}
                       </div>
                     ) : (
-                      <div className="text-center py-8">
+                      <div className="flex items-center justify-center text-center p-20">
                         <p className="text-sm text-muted-foreground">
                           {t("dashboard.creditHistory.noHistoryData")}
                         </p>
@@ -1956,7 +2374,7 @@ export default function DashboardPage() {
                     ) : creditAnalytics ? (
                       <div className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
-                          <div className="space-y-1">
+                          <div className="space-y-1 text-center p-4 bg-primary/10 border border-primary/10 rounded-xl">
                             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                               {t("dashboard.creditAnalytics.totalIssued")}
                             </p>
@@ -1964,7 +2382,7 @@ export default function DashboardPage() {
                               {creditAnalytics.total_credits_issued.toLocaleString()}
                             </p>
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-1 text-center p-4 bg-green-400/10 border border-green-400/10 rounded-xl">
                             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                               {t("dashboard.creditAnalytics.totalUsed")}
                             </p>
@@ -1972,7 +2390,7 @@ export default function DashboardPage() {
                               {creditAnalytics.total_credits_used.toLocaleString()}
                             </p>
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-1 text-center p-4 bg-blue-400/10 border border-blue-400/10 rounded-xl">
                             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                               {t("dashboard.creditAnalytics.remaining")}
                             </p>
@@ -1980,7 +2398,7 @@ export default function DashboardPage() {
                               {creditAnalytics.total_remaining_credits.toLocaleString()}
                             </p>
                           </div>
-                          <div className="space-y-1">
+                          <div className="space-y-1 text-center p-4 bg-pink-400/10 border border-pink-400/10 rounded-xl">
                             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                               {t("dashboard.creditAnalytics.dailyAverage")}
                             </p>
@@ -3033,14 +3451,23 @@ export default function DashboardPage() {
                           <Input
                             id="package-sites"
                             value={packageSupportedSites}
-                            onChange={(e) =>
-                              setPackageSupportedSites(e.target.value)
-                            }
+                            onChange={(e) => {
+                              setPackageSupportedSites(e.target.value);
+                              if (packageSupportedSitesError) {
+                                setPackageSupportedSitesError("");
+                              }
+                            }}
                             placeholder={t(
                               "dashboard.packageManagement.placeholders.supportedSites"
                             )}
                             className="transition-all focus-visible:ring-primary/20"
                           />
+                          {packageSupportedSitesError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{packageSupportedSitesError}</span>
+                            </p>
+                          )}
                           <p className="text-xs text-muted-foreground">
                             {t(
                               "dashboard.packageManagement.placeholders.supportedSitesHelp"
@@ -3300,14 +3727,23 @@ export default function DashboardPage() {
                           <Input
                             id="edit-package-sites"
                             value={editPackageSupportedSites}
-                            onChange={(e) =>
-                              setEditPackageSupportedSites(e.target.value)
-                            }
+                            onChange={(e) => {
+                              setEditPackageSupportedSites(e.target.value);
+                              if (editPackageSupportedSitesError) {
+                                setEditPackageSupportedSitesError("");
+                              }
+                            }}
                             placeholder={t(
                               "dashboard.packageManagement.placeholders.supportedSites"
                             )}
                             className="transition-all focus-visible:ring-primary/20"
                           />
+                          {editPackageSupportedSitesError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{editPackageSupportedSitesError}</span>
+                            </p>
+                          )}
                           <p className="text-xs text-muted-foreground">
                             {t(
                               "dashboard.packageManagement.placeholders.supportedSitesHelp"
@@ -3414,7 +3850,7 @@ export default function DashboardPage() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                       {[...Array(3)].map((_, index) => (
                         <Card
-                          key={index}
+                          key={`pricing-skeleton-${index}`}
                           className="relative overflow-hidden border-border/50 p-0"
                         >
                           <CardContent className="p-0 dark:bg-secondary">
@@ -3534,10 +3970,10 @@ export default function DashboardPage() {
                                       </span>
                                     </div>
                                     <div className="flex flex-wrap gap-2">
-                                      {plan.supportedSites.map(
+                                      {(plan.supportedSites || []).map(
                                         (site, index) => (
                                           <span
-                                            key={index}
+                                            key={`${plan.id}-site-${index}`}
                                             className={`inline-flex items-center ${isRTL ? "space-x-reverse !space-x-2" : "space-x-2"} px-3 py-2 rounded-lg bg-secondary/50 dark:bg-card/50 border border-secondary text-sm font-medium text-foreground`}
                                           >
                                             <div className="w-4 h-4 bg-primary/10 border border-primary/10 rounded flex items-center justify-center">
@@ -3561,19 +3997,21 @@ export default function DashboardPage() {
                               {/* Features */}
                               <div className="space-y-3">
                                 <div className="space-y-3">
-                                  {plan.features.map((feature, index) => (
-                                    <div
-                                      key={index}
-                                      className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg bg-green-50 dark:bg-green-50/10 border border-green-100 dark:border-green-100/10`}
-                                    >
-                                      <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
-                                        <Check className="w-4 h-4 text-white" />
+                                  {(plan.features || []).map(
+                                    (feature, index) => (
+                                      <div
+                                        key={`${plan.id}-feature-${index}`}
+                                        className={`flex items-center ${isRTL ? "space-x-reverse !space-x-3" : "space-x-3"} px-3 py-2 rounded-lg bg-green-50 dark:bg-green-50/10 border border-green-100 dark:border-green-100/10`}
+                                      >
+                                        <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center flex-shrink-0">
+                                          <Check className="w-4 h-4 text-white" />
+                                        </div>
+                                        <span className="text-foreground font-medium text-sm">
+                                          {t(feature)}
+                                        </span>
                                       </div>
-                                      <span className="text-foreground font-medium text-sm">
-                                        {t(feature)}
-                                      </span>
-                                    </div>
-                                  ))}
+                                    )
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -3645,13 +4083,17 @@ export default function DashboardPage() {
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-full flex items-center justify-center">
                             <span className="text-xs font-medium text-primary">
-                              {entry.user_email.charAt(0).toUpperCase()}
+                              {(entry.user_email || entry.email || "U")
+                                .charAt(0)
+                                .toUpperCase()}
                             </span>
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center space-x-2">
                               <span className="text-sm font-medium text-foreground truncate">
-                                {entry.user_email}
+                                {entry.user_email ||
+                                  entry.email ||
+                                  "Unknown User"}
                               </span>
                               {entry.plan_name && (
                                 <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">

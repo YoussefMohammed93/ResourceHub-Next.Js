@@ -436,8 +436,8 @@
         "daysValidity": "30",
         "credits": "100",
         "contactUrl": "https://example.com/contact",
-        "supportedSites": "الموقع أ، الموقع ب، الموقع ج",
-        "supportedSitesHelp": "أدخل قائمة مفصولة بفواصل للمواقع المدعومة"
+        "supportedSites": "freepik, shutterstock, adobe",
+        "supportedSitesHelp": "أدخل قائمة مفصولة بفواصل لأسماء المواقع أو النطاقات (يجب أن تطابق المواقع الموجودة)"
       },
       "buttons": {
         "cancel": "إلغاء",
@@ -453,6 +453,8 @@
         "invalidDays": "يرجى إدخال عدد صحيح من الأيام",
         "creditsRequired": "عدد النقاط مطلوب",
         "invalidCredits": "يرجى إدخال عدد صحيح من النقاط",
+        "sitesRequired": "موقع واحد مدعوم على الأقل مطلوب",
+        "contactUrlRequired": "رابط التواصل مطلوب",
         "invalidUrl": "يرجى إدخال رابط صحيح"
       },
       "features": {

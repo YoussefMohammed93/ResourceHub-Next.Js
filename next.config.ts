@@ -58,6 +58,14 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "www.flaticon.com",
+      },
+      {
+        protocol: "https",
+        hostname: "flaticon.com",
+      },
+      {
+        protocol: "https",
         hostname: "localhost",
       },
       {

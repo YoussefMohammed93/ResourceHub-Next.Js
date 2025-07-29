@@ -3,15 +3,17 @@ import axios from "axios";
 import { encryptPassword, generateTimestampToken } from "./utils";
 import { shouldUseMockData, mockApiResponses } from "./mock-data";
 
-// Base API URL - use proxy for all browser requests to avoid CORS issues
+// Base API URL - use proxy for development, direct API for production
 const getApiBaseUrl = () => {
   // Always use proxy when running in browser (client-side)
   if (typeof window !== "undefined") {
-    // In production (Vercel), use the deployed domain with proxy
+    // In production (Vercel), use direct API URL to avoid proxy issues
     if (process.env.NODE_ENV === "production") {
-      const proxyUrl = `${window.location.origin}/api/proxy`;
-      console.log("[API Client] Using production proxy:", proxyUrl);
-      return proxyUrl;
+      const directApiUrl =
+        process.env.NEXT_PUBLIC_PRODUCTION_API_URL ||
+        "https://stockaty.virs.tech";
+      console.log("[API Client] Using production direct API:", directApiUrl);
+      return directApiUrl;
     }
 
     // In development, use the configured proxy URL
@@ -50,9 +52,16 @@ console.log("[API Client] Final API Base URL:", API_BASE_URL);
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
   timeout: 30000, // 30 seconds timeout
-  withCredentials: true, // Include cookies in requests
+  withCredentials: true, // Include cookies in requests for session management
   headers: {
     "Content-Type": "application/json",
+    // Add CORS headers for production
+    ...(process.env.NODE_ENV === "production" && {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers":
+        "Content-Type, Authorization, X-Access-Token",
+    }),
   },
 });
 
@@ -65,7 +74,7 @@ apiClient.interceptors.request.use(
       sessionStorage.getItem("access_token");
 
     if (token) {
-      // Try different authorization formats based on the endpoint
+      // According to Swagger docs, API uses session cookies, but we'll also send token as header
       config.headers.Authorization = `Bearer ${token}`;
       // Also add the token as a custom header in case the backend expects it differently
       config.headers["X-Access-Token"] = token;
@@ -249,7 +258,8 @@ export interface CreditAnalyticsResponse {
 // Credit History Types
 export interface CreditHistoryEntry {
   id: number;
-  user_email: string;
+  user_email?: string; // Legacy field name
+  email?: string; // New field name from API
   action: string;
   credits_changed: number;
   credits_before: number;
@@ -481,6 +491,12 @@ export const userApi = {
 
   // Get users statistics (line 511 from swagger)
   async getUsersStatistics(): Promise<ApiResponse<UsersStatisticsResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[User API] Using mock users statistics data");
+      return mockApiResponses.getUsersStatistics();
+    }
+
     return apiRequest<UsersStatisticsResponse>("/v1/user/users", "GET");
   },
 
@@ -539,11 +555,23 @@ export const creditApi = {
 
   // Get credit analytics (line 397 from swagger)
   async getCreditAnalytics(): Promise<ApiResponse<CreditAnalyticsResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Credit API] Using mock credit analytics data");
+      return mockApiResponses.getCreditAnalytics();
+    }
+
     return apiRequest<CreditAnalyticsResponse>("/v1/credit/analytics", "GET");
   },
 
   // Get credit history (line 450 from swagger)
   async getCreditHistory(): Promise<ApiResponse<CreditHistoryResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Credit API] Using mock credit history data");
+      return mockApiResponses.getCreditHistory();
+    }
+
     return apiRequest<CreditHistoryResponse>("/v1/credit/history", "GET");
   },
 };
@@ -654,6 +682,12 @@ export interface DeleteSiteResponse {
 export const siteApi = {
   // Get all sites (line 868 from swagger)
   async getSites(): Promise<ApiResponse<SitesResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Site API] Using mock sites data");
+      return mockApiResponses.getSites();
+    }
+
     return apiRequest<SitesResponse>("/v1/sites/get", "GET");
   },
 
@@ -694,7 +728,7 @@ export interface PricingPlanInput {
   DaysValidity: string;
   Sites: string[];
   PlanDescription: string;
-  ContactUsUrl: string;
+  ContactUsUrl?: string;
   credits: string;
 }
 
@@ -717,9 +751,7 @@ export interface PricingPlanResponse {
 
 export interface GetPricingPlansResponse {
   success: boolean;
-  data: {
-    plans: PricingPlan[];
-  };
+  data: PricingPlan[];
 }
 
 export interface DeletePricingPlanRequest {
@@ -730,6 +762,12 @@ export interface DeletePricingPlanRequest {
 export const pricingApi = {
   // Get all pricing plans (line 708 from swagger)
   async getPricingPlans(): Promise<ApiResponse<GetPricingPlansResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Pricing API] Using mock pricing plans data");
+      return mockApiResponses.getPricingPlans();
+    }
+
     return apiRequest<GetPricingPlansResponse>("/v1/pricing/get", "GET");
   },
 
@@ -737,13 +775,19 @@ export const pricingApi = {
   async addPricingPlan(
     data: PricingPlanInput
   ): Promise<ApiResponse<PricingPlanResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Pricing API] Using mock add pricing plan data");
+      return mockApiResponses.addPricingPlan(data);
+    }
+
     return apiRequest<PricingPlanResponse>("/v1/pricing/add", "POST", {
       PlanName: data.PlanName,
       PlanPrice: data.PlanPrice,
       DaysValidity: data.DaysValidity,
       Sites: data.Sites,
       PlanDescription: data.PlanDescription,
-      ContactUsUrl: data.ContactUsUrl,
+      ContactUsUrl: data.ContactUsUrl || "",
       credits: data.credits,
     });
   },
@@ -752,13 +796,19 @@ export const pricingApi = {
   async editPricingPlan(
     data: PricingPlanInput
   ): Promise<ApiResponse<PricingPlanResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Pricing API] Using mock edit pricing plan data");
+      return mockApiResponses.editPricingPlan(data);
+    }
+
     return apiRequest<PricingPlanResponse>("/v1/pricing/edit", "POST", {
       PlanName: data.PlanName,
       PlanPrice: data.PlanPrice,
       DaysValidity: data.DaysValidity,
       Sites: data.Sites,
       PlanDescription: data.PlanDescription,
-      ContactUsUrl: data.ContactUsUrl,
+      ContactUsUrl: data.ContactUsUrl || "",
       credits: data.credits,
     });
   },
@@ -767,6 +817,12 @@ export const pricingApi = {
   async deletePricingPlan(
     data: DeletePricingPlanRequest
   ): Promise<ApiResponse<PricingPlanResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Pricing API] Using mock delete pricing plan data");
+      return mockApiResponses.deletePricingPlan(data.PlanName);
+    }
+
     return apiRequest<PricingPlanResponse>("/v1/pricing/delete", "POST", {
       PlanName: data.PlanName,
     });

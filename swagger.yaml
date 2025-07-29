@@ -3,15 +3,15 @@ info:
   title: Stockaty API
   description: |
     A comprehensive API for managing stock media downloads with subscription-based credit system.
-    
+
     ## Authentication
     Most endpoints require authentication via session cookies. After successful login, include the session cookie in subsequent requests.
-    
+
     ## Credit System
     - Users have subscription plans with allocated credits
     - Each download consumes credits based on site pricing
     - Credits are tracked and managed through the subscription system
-    
+
     ## Error Handling
     All endpoints return standardized error responses with specific error IDs for client-side handling.
   version: 1.0.0
@@ -52,7 +52,7 @@ paths:
                   description: "Extend session to 30 days if true, otherwise 24 hours"
                   default: false
       responses:
-        '200':
+        "200":
           description: Login successful
           content:
             application/json:
@@ -74,12 +74,12 @@ paths:
                       message:
                         type: string
                         example: "Login successful."
-        '400':
+        "400":
           description: Bad request
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
               examples:
                 missing_email:
                   value:
@@ -154,7 +154,7 @@ paths:
                   type: string
                   description: "Timestamp token for request validation"
       responses:
-        '200':
+        "200":
           description: Registration successful
           content:
             application/json:
@@ -175,12 +175,12 @@ paths:
                       message:
                         type: string
                         example: "register successful."
-        '400':
+        "400":
           description: Registration failed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/auth/logout:
     post:
@@ -191,7 +191,7 @@ paths:
       security:
         - sessionAuth: []
       responses:
-        '200':
+        "200":
           description: Logout successful
           content:
             application/json:
@@ -209,12 +209,12 @@ paths:
                       message:
                         type: string
                         example: "logout successful."
-        '400':
+        "400":
           description: Logout failed
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   # Credit Management Endpoints
   /v1/credit/subscribe:
@@ -242,7 +242,7 @@ paths:
                   type: string
                   example: "premium"
       responses:
-        '200':
+        "200":
           description: Subscription added successfully
           content:
             application/json:
@@ -253,15 +253,15 @@ paths:
                     type: boolean
                     example: true
                   account:
-                    $ref: '#/components/schemas/UserAccount'
+                    $ref: "#/components/schemas/UserAccount"
                   subscription:
-                    $ref: '#/components/schemas/Subscription'
-        '400':
+                    $ref: "#/components/schemas/Subscription"
+        "400":
           description: Failed to add subscription
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/credit/upgrade:
     post:
@@ -288,7 +288,7 @@ paths:
                   type: string
                   example: "enterprise"
       responses:
-        '200':
+        "200":
           description: Subscription upgraded successfully
           content:
             application/json:
@@ -299,15 +299,15 @@ paths:
                     type: boolean
                     example: true
                   account:
-                    $ref: '#/components/schemas/UserAccount'
+                    $ref: "#/components/schemas/UserAccount"
                   subscription:
-                    $ref: '#/components/schemas/Subscription'
-        '400':
+                    $ref: "#/components/schemas/Subscription"
+        "400":
           description: Failed to upgrade subscription
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/credit/extend:
     post:
@@ -335,7 +335,7 @@ paths:
                   minimum: 1
                   example: 30
       responses:
-        '200':
+        "200":
           description: Subscription extended successfully
           content:
             application/json:
@@ -346,15 +346,15 @@ paths:
                     type: boolean
                     example: true
                   account:
-                    $ref: '#/components/schemas/UserAccount'
+                    $ref: "#/components/schemas/UserAccount"
                   subscription:
-                    $ref: '#/components/schemas/Subscription'
-        '400':
+                    $ref: "#/components/schemas/Subscription"
+        "400":
           description: Failed to extend subscription
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/credit/delete:
     post:
@@ -377,7 +377,7 @@ paths:
                   type: string
                   format: email
       responses:
-        '200':
+        "200":
           description: Subscription deleted successfully
           content:
             application/json:
@@ -387,12 +387,12 @@ paths:
                   success:
                     type: boolean
                     example: true
-        '400':
+        "400":
           description: Failed to delete subscription
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/credit/analytics:
     get:
@@ -403,7 +403,7 @@ paths:
       security:
         - sessionAuth: []
       responses:
-        '200':
+        "200":
           description: Credit analytics retrieved successfully
           content:
             application/json:
@@ -440,12 +440,12 @@ paths:
                         type: string
                         format: date-time
                         example: "2024-01-05 14:30:00"
-        '400':
+        "400":
           description: Failed to retrieve analytics
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/credit/history:
     get:
@@ -456,7 +456,7 @@ paths:
       security:
         - sessionAuth: []
       responses:
-        '200':
+        "200":
           description: Credit history retrieved successfully
           content:
             application/json:
@@ -469,13 +469,13 @@ paths:
                   history:
                     type: array
                     items:
-                      $ref: '#/components/schemas/CreditHistoryEntry'
-        '400':
+                      $ref: "#/components/schemas/CreditHistoryEntry"
+        "400":
           description: Failed to retrieve history
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   # User Management Endpoints
   /v1/user/data:
@@ -487,7 +487,7 @@ paths:
       security:
         - sessionAuth: []
       responses:
-        '200':
+        "200":
           description: User data retrieved successfully
           content:
             application/json:
@@ -498,15 +498,15 @@ paths:
                     type: boolean
                     example: true
                   account:
-                    $ref: '#/components/schemas/UserAccount'
+                    $ref: "#/components/schemas/UserAccount"
                   subscription:
-                    $ref: '#/components/schemas/Subscription'
-        '400':
+                    $ref: "#/components/schemas/Subscription"
+        "400":
           description: Failed to retrieve user data
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/user/users:
     get:
@@ -517,7 +517,7 @@ paths:
       security:
         - sessionAuth: []
       responses:
-        '200':
+        "200":
           description: Users statistics retrieved successfully
           content:
             application/json:
@@ -536,13 +536,13 @@ paths:
                   users:
                     type: array
                     items:
-                      $ref: '#/components/schemas/UserAccount'
-        '400':
+                      $ref: "#/components/schemas/UserAccount"
+        "400":
           description: Failed to retrieve users statistics
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/user/history:
     get:
@@ -553,7 +553,7 @@ paths:
       security:
         - sessionAuth: []
       responses:
-        '200':
+        "200":
           description: Download history retrieved successfully
           content:
             application/json:
@@ -586,12 +586,12 @@ paths:
                           type: string
                           format: uri
                           example: "https://www.freepik.com/free-photo/example"
-        '400':
+        "400":
           description: Failed to retrieve download history
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   # Pricing Management Endpoints
   /v1/pricing/add:
@@ -607,9 +607,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PricingPlanInput'
+              $ref: "#/components/schemas/PricingPlanInput"
       responses:
-        '200':
+        "200":
           description: Pricing plan added successfully
           content:
             application/json:
@@ -622,12 +622,12 @@ paths:
                   message:
                     type: string
                     example: "Pricing added successfully."
-        '400':
+        "400":
           description: Failed to add pricing plan
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/pricing/edit:
     post:
@@ -642,9 +642,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PricingPlanInput'
+              $ref: "#/components/schemas/PricingPlanInput"
       responses:
-        '200':
+        "200":
           description: Pricing plan updated successfully
           content:
             application/json:
@@ -657,12 +657,12 @@ paths:
                   message:
                     type: string
                     example: "Pricing plan updated successfully."
-        '400':
+        "400":
           description: Failed to update pricing plan
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/pricing/delete:
     post:
@@ -685,7 +685,7 @@ paths:
                   type: string
                   example: "premium"
       responses:
-        '200':
+        "200":
           description: Pricing plan deleted successfully
           content:
             application/json:
@@ -698,12 +698,12 @@ paths:
                   message:
                     type: string
                     example: "Pricing plan deleted successfully."
-        '400':
+        "400":
           description: Failed to delete pricing plan
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/pricing/get:
     get:
@@ -712,7 +712,7 @@ paths:
       summary: Get pricing plans
       description: Retrieve all available pricing plans
       responses:
-        '200':
+        "200":
           description: Pricing plans retrieved successfully
           content:
             application/json:
@@ -725,13 +725,13 @@ paths:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/PricingPlan'
-        '500':
+                      $ref: "#/components/schemas/PricingPlan"
+        "500":
           description: Internal server error
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   # Site Management Endpoints
   /v1/sites/add:
@@ -747,9 +747,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SiteInput'
+              $ref: "#/components/schemas/SiteInput"
       responses:
-        '200':
+        "200":
           description: Site added successfully
           content:
             application/json:
@@ -766,13 +766,13 @@ paths:
                         type: string
                         example: "Site added successfully."
                       site:
-                        $ref: '#/components/schemas/SiteResponse'
-        '400':
+                        $ref: "#/components/schemas/SiteResponse"
+        "400":
           description: Failed to add site
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/sites/edit:
     post:
@@ -787,9 +787,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SiteInput'
+              $ref: "#/components/schemas/SiteInput"
       responses:
-        '200':
+        "200":
           description: Site updated successfully
           content:
             application/json:
@@ -806,13 +806,13 @@ paths:
                         type: string
                         example: "Site edited successfully."
                       site:
-                        $ref: '#/components/schemas/SiteResponse'
-        '400':
+                        $ref: "#/components/schemas/SiteResponse"
+        "400":
           description: Failed to update site
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/sites/delete:
     post:
@@ -836,7 +836,7 @@ paths:
                   format: uri
                   example: "https://example.com"
       responses:
-        '200':
+        "200":
           description: Site deleted successfully
           content:
             application/json:
@@ -858,12 +858,12 @@ paths:
                           Url:
                             type: string
                             format: uri
-        '400':
+        "400":
           description: Failed to delete site
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /v1/sites/get:
     get:
@@ -874,7 +874,7 @@ paths:
       security:
         - sessionAuth: []
       responses:
-        '200':
+        "200":
           description: Sites retrieved successfully
           content:
             application/json:
@@ -890,13 +890,13 @@ paths:
                       sites:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Site'
-        '400':
+                          $ref: "#/components/schemas/Site"
+        "400":
           description: Failed to retrieve sites
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   securitySchemes:
@@ -1069,7 +1069,6 @@ components:
         - DaysValidity
         - Sites
         - PlanDescription
-        - ContactUsUrl
         - credits
       properties:
         PlanName:

@@ -436,8 +436,8 @@
         "daysValidity": "30",
         "credits": "100",
         "contactUrl": "https://example.com/contact",
-        "supportedSites": "Site A, Site B, Site C",
-        "supportedSitesHelp": "Enter comma-separated list of supported sites"
+        "supportedSites": "freepik, shutterstock, adobe",
+        "supportedSitesHelp": "Enter comma-separated list of site names or domains (must match existing sites)"
       },
       "buttons": {
         "cancel": "Cancel",
@@ -453,6 +453,8 @@
         "invalidDays": "Please enter a valid number of days",
         "creditsRequired": "Number of credits is required",
         "invalidCredits": "Please enter a valid number of credits",
+        "sitesRequired": "At least one supported site is required",
+        "contactUrlRequired": "Contact URL is required",
         "invalidUrl": "Please enter a valid URL"
       },
       "features": {
