@@ -67,7 +67,7 @@ export async function GET(request: NextRequest) {
 
         // Add more possible URLs based on the media type and different formats
         const possibleUrls = [
-          // Try the specific content type first
+          // Try the specific content type first with different extensions
           `https://img.freepik.com/free-${contentType}/${pageId}.jpg`,
           `https://img.freepik.com/free-${contentType}/${pageId}.jpeg`,
           `https://img.freepik.com/free-${contentType}/${pageId}.webp`,
@@ -76,6 +76,7 @@ export async function GET(request: NextRequest) {
           // Try CDN versions
           `https://cdn.freepik.com/free-${contentType}/${pageId}.jpg`,
           `https://cdn.freepik.com/free-${contentType}/${pageId}.jpeg`,
+          `https://cdn.freepik.com/free-${contentType}/${pageId}.webp`,
 
           // Try all content types in case URL classification is wrong
           `https://img.freepik.com/free-photo/${pageId}.jpg`,
@@ -87,6 +88,17 @@ export async function GET(request: NextRequest) {
           `https://img.freepik.com/photos/${pageId}.jpg`,
           `https://img.freepik.com/vectors/${pageId}.jpg`,
           `https://img.freepik.com/videos/${pageId}.jpg`,
+
+          // Try with premium prefix (sometimes works)
+          `https://img.freepik.com/premium-${contentType}/${pageId}.jpg`,
+
+          // Try with different size variants
+          `https://img.freepik.com/free-${contentType}/${pageId}_size2.jpg`,
+          `https://img.freepik.com/free-${contentType}/${pageId}_size1.jpg`,
+
+          // Try with thumbnail versions
+          `https://img.freepik.com/free-${contentType}/${pageId}_thumb.jpg`,
+          `https://img.freepik.com/free-${contentType}/thumb/${pageId}.jpg`,
         ];
 
         console.log(
@@ -142,7 +154,9 @@ export async function GET(request: NextRequest) {
     }
 
     // If all URLs fail, return a sample image as placeholder
-    console.log("All URLs failed, returning sample image placeholder");
+    console.log(
+      "[Media Proxy] All URLs failed, returning sample image placeholder"
+    );
     return await generateSampleImageResponse(mediaInfo.type);
   } catch (error) {
     console.error("Media proxy error:", error);
@@ -155,29 +169,37 @@ export async function GET(request: NextRequest) {
 function extractFreepikId(url: string): string | null {
   // Extract ID from Freepik URLs - updated patterns for current URL structure
   const patterns = [
-    // Pattern: /free-photo/description_31842933.htm
-    /\/free-(?:photo|video|vector)\/[^_]+_(\d+)\.htm/,
-    // Pattern: /free-video/description_171159 (no .htm)
+    // Pattern: /free-photo/side-view-hand-wearing-bracelet_31842933.htm
+    /\/free-(?:photo|video|vector)\/[^_]+_(\d+)\.htm$/,
+    // Pattern: /free-video/close-up-cat-s-face-eyes_171159 (no .htm)
     /\/free-(?:photo|video|vector)\/[^_]+_(\d+)$/,
     // Pattern: /free-photo/description-31842933.htm
-    /\/free-(?:photo|video|vector)\/[^-]+-(\d+)\.htm/,
+    /\/free-(?:photo|video|vector)\/[^-]+-(\d+)\.htm$/,
     // Pattern: /free-video/description-171159
     /\/free-(?:photo|video|vector)\/[^-]+-(\d+)$/,
     // Pattern: /free-photo/description/31842933
-    /\/free-(?:photo|video|vector)\/[^\/]+\/(\d+)/,
+    /\/free-(?:photo|video|vector)\/[^\/]+\/(\d+)$/,
+    // Pattern: just the number at the end after underscore
+    /_(\d+)\.htm?$/,
+    // Pattern: just the number at the end
+    /_(\d+)$/,
   ];
 
-  console.log("Extracting ID from URL:", url);
+  console.log("[Media Proxy] Extracting ID from URL:", url);
 
-  for (const pattern of patterns) {
+  for (let i = 0; i < patterns.length; i++) {
+    const pattern = patterns[i];
     const match = url.match(pattern);
     if (match && match[1]) {
-      console.log("Found ID:", match[1], "using pattern:", pattern);
+      console.log(
+        `[Media Proxy] Found ID: ${match[1]} using pattern ${i + 1}:`,
+        pattern
+      );
       return match[1];
     }
   }
 
-  console.log("No ID found for URL:", url);
+  console.log("[Media Proxy] No ID found for URL:", url);
   return null;
 }
 
