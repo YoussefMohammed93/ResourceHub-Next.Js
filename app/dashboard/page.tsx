@@ -3563,13 +3563,9 @@ export default function DashboardPage() {
                           <Input
                             id="edit-package-name"
                             value={editPackageName}
-                            onChange={(e) => {
-                              setEditPackageName(e.target.value);
-                              if (editPackageNameError)
-                                setEditPackageNameError("");
-                            }}
+                            readOnly
                             placeholder="Enter package name"
-                            className={`transition-all ${
+                            className={`transition-all cursor-not-allowed opacity-60 bg-muted/50 ${
                               editPackageNameError
                                 ? "border-destructive focus-visible:ring-destructive/20"
                                 : "focus-visible:ring-primary/20"
