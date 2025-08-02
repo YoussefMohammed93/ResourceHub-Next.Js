@@ -734,7 +734,19 @@
       },
       "phone": {
         "label": "Phone Number",
-        "placeholder": "Enter your phone number"
+        "placeholder": "Enter your phone number",
+        "otpMessage": "OTP code will be sent to you via WhatsApp",
+        "sendCodeButton": "Send Code",
+        "sendingCode": "Sending Code...",
+        "codeSent": "Code sent to your WhatsApp"
+      },
+      "otp": {
+        "label": "Verification Code",
+        "placeholder": "Enter 6-digit code",
+        "verifyButton": "Verify Code",
+        "verifying": "Verifying...",
+        "resendCode": "Resend Code",
+        "resending": "Resending..."
       },
       "password": {
         "label": "Password",
@@ -765,7 +777,11 @@
       "passwordWeak": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
       "confirmPasswordRequired": "Please confirm your password",
       "passwordsDoNotMatch": "Passwords do not match",
-      "termsRequired": "You must agree to the Terms of Service and Privacy Policy"
+      "termsRequired": "You must agree to the Terms of Service and Privacy Policy",
+      "otpRequired": "Verification code is required",
+      "invalidOtp": "Please enter a valid 6-digit code",
+      "otpIncorrect": "The code is wrong, please try again",
+      "phoneNotVerified": "Please verify your phone number first"
     },
     "footer": {
       "alreadyHaveAccount": "Already have an account?",

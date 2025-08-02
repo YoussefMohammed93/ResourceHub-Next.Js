@@ -28,6 +28,8 @@ import {
   Lightbulb,
   Target,
   Trophy,
+  MessageSquare,
+  Send,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -98,6 +100,7 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     agreeToTerms: false,
+    otp: "",
   });
 
   // Error state
@@ -110,12 +113,23 @@ export default function RegisterPage() {
     confirmPassword: "",
     terms: "",
     general: "",
+    otp: "",
   });
 
   // UI state
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // OTP state
+  const [otpSent, setOtpSent] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [otpMessage, setOtpMessage] = useState("");
+
+  // Hardcoded OTP for testing
+  const MOCK_OTP = "123456";
 
   // Handle input changes
   const handleInputChange = (field: string, value: string | boolean) => {
@@ -124,6 +138,89 @@ export default function RegisterPage() {
     // Clear error when user starts typing
     if (errors[field as keyof typeof errors]) {
       setErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+
+    // Reset phone verification if phone number changes
+    if (field === "phone" && phoneVerified) {
+      setPhoneVerified(false);
+      setOtpSent(false);
+      setOtpMessage("");
+      setFormData((prev) => ({ ...prev, otp: "" }));
+    }
+  };
+
+  // Send OTP code
+  const handleSendOtp = async () => {
+    if (!validatePhone(formData.phone)) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: t("register.validation.invalidPhone"),
+      }));
+      return;
+    }
+
+    setIsSendingOtp(true);
+    setErrors((prev) => ({ ...prev, phone: "", otp: "" }));
+
+    try {
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+
+      setOtpSent(true);
+      setOtpMessage(t("register.form.phone.codeSent"));
+    } catch (error) {
+      setErrors((prev) => ({
+        ...prev,
+        general: "Failed to send OTP. Please try again.",
+      }));
+      console.error("Failed to send OTP:", error);
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  // Verify OTP code
+  const handleVerifyOtp = async () => {
+    if (!formData.otp.trim()) {
+      setErrors((prev) => ({
+        ...prev,
+        otp: t("register.validation.otpRequired"),
+      }));
+      return;
+    }
+
+    if (formData.otp.length !== 6 || !/^\d{6}$/.test(formData.otp)) {
+      setErrors((prev) => ({
+        ...prev,
+        otp: t("register.validation.invalidOtp"),
+      }));
+      return;
+    }
+
+    setIsVerifyingOtp(true);
+    setErrors((prev) => ({ ...prev, otp: "" }));
+
+    try {
+      // Simulate API call delay
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      if (formData.otp === MOCK_OTP) {
+        setPhoneVerified(true);
+        setOtpMessage("");
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          otp: t("register.validation.otpIncorrect"),
+        }));
+      }
+    } catch (error) {
+      setErrors((prev) => ({
+        ...prev,
+        general: "Failed to verify OTP. Please try again.",
+      }));
+      console.error("Failed to verify OTP:", error);
+    } finally {
+      setIsVerifyingOtp(false);
     }
   };
 
@@ -138,6 +235,7 @@ export default function RegisterPage() {
       confirmPassword: "",
       terms: "",
       general: "",
+      otp: "",
     };
 
     // First name validation
@@ -162,6 +260,8 @@ export default function RegisterPage() {
       newErrors.phone = t("register.validation.phoneRequired");
     } else if (!validatePhone(formData.phone)) {
       newErrors.phone = t("register.validation.invalidPhone");
+    } else if (!phoneVerified) {
+      newErrors.phone = t("register.validation.phoneNotVerified");
     }
 
     // Password validation
@@ -663,15 +763,75 @@ export default function RegisterPage() {
                     <Phone className="w-4 h-4 inline" />
                     {t("register.form.phone.label")}
                   </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder={t("register.form.phone.placeholder")}
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange("phone", e.target.value)}
-                    className={`${isRTL ? "text-right" : "text-left"} ${errors.phone ? "border-destructive" : ""}`}
-                    dir={isRTL ? "rtl" : "ltr"}
-                  />
+                  <div className="space-y-3">
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder={t("register.form.phone.placeholder")}
+                        value={formData.phone}
+                        onChange={(e) =>
+                          handleInputChange("phone", e.target.value)
+                        }
+                        className={`flex-1 ${isRTL ? "text-right" : "text-left"} ${errors.phone ? "border-destructive" : ""}`}
+                        dir={isRTL ? "rtl" : "ltr"}
+                        disabled={phoneVerified}
+                      />
+                      {!phoneVerified && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleSendOtp}
+                          disabled={
+                            !validatePhone(formData.phone) || isSendingOtp
+                          }
+                          className="whitespace-nowrap sm:w-auto w-full"
+                        >
+                          {isSendingOtp ? (
+                            <>
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                              {t("register.form.phone.sendingCode")}
+                            </>
+                          ) : (
+                            <>
+                              <MessageSquare className="w-4 h-4" />
+                              {t("register.form.phone.sendCodeButton")}
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      {phoneVerified && (
+                        <div className="flex items-center px-3 py-2 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md">
+                          <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400" />
+                          <span className="mx-2 text-sm text-green-700 dark:text-green-300">
+                            {isRTL ? "تم التحقق" : "Verified"}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* WhatsApp OTP Message */}
+                    {formData.phone &&
+                      validatePhone(formData.phone) &&
+                      !phoneVerified && (
+                        <p
+                          className={`text-xs text-muted-foreground flex items-center gap-1 ${isRTL ? "text-right" : "text-left"}`}
+                        >
+                          <MessageSquare className="w-3 h-3" />
+                          {t("register.form.phone.otpMessage")}
+                        </p>
+                      )}
+
+                    {/* Code Sent Message */}
+                    {otpMessage && (
+                      <p
+                        className={`text-xs text-green-600 dark:text-green-400 flex items-center gap-1 ${isRTL ? "text-right" : "text-left"}`}
+                      >
+                        <CheckCircle className="w-3 h-3" />
+                        {otpMessage}
+                      </p>
+                    )}
+                  </div>
                   {errors.phone && (
                     <p
                       className={`text-sm text-destructive ${isRTL ? "text-right" : "text-left"}`}
@@ -680,6 +840,87 @@ export default function RegisterPage() {
                     </p>
                   )}
                 </div>
+
+                {/* OTP Verification */}
+                {otpSent && !phoneVerified && (
+                  <div className="space-y-2">
+                    <Label
+                      htmlFor="otp"
+                      className={isRTL ? "text-right" : "text-left"}
+                    >
+                      <Lock className="w-4 h-4 inline" />
+                      {t("register.form.otp.label")}
+                    </Label>
+                    <div className="flex flex-col sm:flex-row gap-2">
+                      <Input
+                        id="otp"
+                        type="text"
+                        placeholder={t("register.form.otp.placeholder")}
+                        value={formData.otp}
+                        onChange={(e) => {
+                          const value = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 6);
+                          handleInputChange("otp", value);
+                        }}
+                        className={`flex-1 ${isRTL ? "text-right" : "text-left"} ${errors.otp ? "border-destructive" : ""}`}
+                        dir={isRTL ? "rtl" : "ltr"}
+                        maxLength={6}
+                      />
+                      <Button
+                        type="button"
+                        onClick={handleVerifyOtp}
+                        disabled={formData.otp.length !== 6 || isVerifyingOtp}
+                        className="whitespace-nowrap sm:w-auto w-full"
+                      >
+                        {isVerifyingOtp ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            {t("register.form.otp.verifying")}
+                          </>
+                        ) : (
+                          <>
+                            <CheckCircle className="w-4 h-4" />
+                            {t("register.form.otp.verifyButton")}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                    {errors.otp && (
+                      <p
+                        className={`text-sm text-destructive ${isRTL ? "text-right" : "text-left"}`}
+                      >
+                        {errors.otp}
+                      </p>
+                    )}
+
+                    {/* Resend Code */}
+                    <div
+                      className={`flex ${isRTL ? "justify-start" : "justify-end"}`}
+                    >
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleSendOtp}
+                        disabled={isSendingOtp}
+                        className="text-xs"
+                      >
+                        {isSendingOtp ? (
+                          <>
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            {t("register.form.otp.resending")}
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-3 h-3" />
+                            {t("register.form.otp.resendCode")}
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                )}
 
                 {/* Password */}
                 <div className="space-y-2">
@@ -824,7 +1065,7 @@ export default function RegisterPage() {
                 <Button
                   type="submit"
                   className="w-full"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || isSendingOtp || isVerifyingOtp}
                 >
                   {isSubmitting ? (
                     <>
