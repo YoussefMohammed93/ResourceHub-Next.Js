@@ -390,6 +390,12 @@
         "invalidUrl": "Please enter a valid URL",
         "priceRequired": "Price is required",
         "invalidPrice": "Please enter a valid price"
+      },
+      "toast": {
+        "addSuccess": "Website added successfully",
+        "addError": "Failed to add website",
+        "deleteSuccess": "Website deleted successfully",
+        "deleteError": "Failed to delete website"
       }
     },
     "packageManagement": {
@@ -402,7 +408,7 @@
       "packageDescription": "Plan Description",
       "daysValidity": "Validity Period (in days)",
       "credits": "Number of Credits",
-      "contactUrl": "Contact Us URL (Optional)",
+      "contactUrl": "Contact Us URL",
       "supportedSites": "Supported Sites (comma-separated)",
       "adding": "Adding Plan...",
       "updating": "Updating Plan...",
@@ -456,6 +462,14 @@
         "sitesRequired": "At least one supported site is required",
         "contactUrlRequired": "Contact URL is required",
         "invalidUrl": "Please enter a valid URL"
+      },
+      "toast": {
+        "addSuccess": "Pricing plan added successfully",
+        "addError": "Failed to add pricing plan",
+        "updateSuccess": "Pricing plan updated successfully",
+        "updateError": "Failed to update pricing plan",
+        "deleteSuccess": "Pricing plan deleted successfully",
+        "deleteError": "Failed to delete pricing plan"
       },
       "features": {
         "accessToSites": "Access to supported sites",

@@ -12,16 +12,12 @@ const getApiBaseUrl = () => {
       const directApiUrl =
         process.env.NEXT_PUBLIC_PRODUCTION_API_URL ||
         "https://stockaty.virs.tech";
-      console.log("[API Client] Using production direct API:", directApiUrl);
+
       return directApiUrl;
     }
 
     // In development, use the configured proxy URL
     if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-      console.log(
-        "[API Client] Using development proxy:",
-        process.env.NEXT_PUBLIC_API_BASE_URL
-      );
       return process.env.NEXT_PUBLIC_API_BASE_URL;
     }
   }
@@ -32,21 +28,10 @@ const getApiBaseUrl = () => {
     process.env.NEXT_PUBLIC_API_URL ||
     "https://stockaty.virs.tech";
 
-  console.log("[API Client] Using fallback URL:", fallbackUrl);
-  console.log("[API Client] Environment:", process.env.NODE_ENV);
-  console.log("[API Client] Available env vars:", {
-    NEXT_PUBLIC_PRODUCTION_API_URL: process.env.NEXT_PUBLIC_PRODUCTION_API_URL,
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
-    NODE_ENV: process.env.NODE_ENV,
-  });
-
   return fallbackUrl;
 };
 
 const API_BASE_URL = getApiBaseUrl();
-
-// Log the final API base URL for debugging
-console.log("[API Client] Final API Base URL:", API_BASE_URL);
 
 // Create axios instance with default configuration
 const apiClient = axios.create({
@@ -80,23 +65,9 @@ apiClient.interceptors.request.use(
       config.headers["X-Access-Token"] = token;
     }
 
-    // Log request details in development
-    if (process.env.NEXT_PUBLIC_ENABLE_API_LOGGING === "true") {
-      console.log(
-        `[API Request] ${config.method?.toUpperCase()} ${config.url}`,
-        {
-          headers: config.headers,
-          data: config.data,
-        }
-      );
-    }
-
     return config;
   },
   (error) => {
-    if (process.env.NEXT_PUBLIC_ENABLE_API_LOGGING === "true") {
-      console.error("[API Request Error]", error);
-    }
     return Promise.reject(error);
   }
 );
@@ -104,13 +75,6 @@ apiClient.interceptors.request.use(
 // Add response interceptor to handle authentication errors
 apiClient.interceptors.response.use(
   (response) => {
-    // Log response details in development
-    if (process.env.NEXT_PUBLIC_ENABLE_API_LOGGING === "true") {
-      console.log(`[API Response] ${response.status} ${response.config.url}`, {
-        data: response.data,
-        headers: response.headers,
-      });
-    }
     return response;
   },
   (error) => {
@@ -363,14 +327,13 @@ async function apiRequest<T>(
 
     // Handle axios errors
     if (axios.isAxiosError(error)) {
-      console.error("Axios error details:", {
+      console.error("API Response Error:", {
         status: error.response?.status,
-        statusText: error.response?.statusText,
         data: error.response?.data,
-        headers: error.response?.headers,
         url: error.config?.url,
-        method: error.config?.method,
       });
+      console.error("API request failed:", error);
+      console.error("Parsed API Error Response:", error.response?.data);
 
       if (error.response?.data) {
         return error.response.data;
@@ -726,9 +689,9 @@ export interface PricingPlanInput {
   PlanName: string;
   PlanPrice?: string;
   DaysValidity: string;
-  Sites: string[];
+  Sites: string[]; // Backend expects array of site URLs
   PlanDescription: string;
-  ContactUsUrl?: string;
+  ContactUsUrl: string; // Required field
   credits: string;
 }
 
@@ -781,15 +744,26 @@ export const pricingApi = {
       return mockApiResponses.addPricingPlan(data);
     }
 
-    return apiRequest<PricingPlanResponse>("/v1/pricing/add", "POST", {
+    const requestData = {
       PlanName: data.PlanName,
       PlanPrice: data.PlanPrice,
       DaysValidity: data.DaysValidity,
-      Sites: data.Sites,
+      Sites: data.Sites, // Send as array
       PlanDescription: data.PlanDescription,
-      ContactUsUrl: data.ContactUsUrl || "",
+      ContactUsUrl: data.ContactUsUrl, // Required field
       credits: data.credits,
-    });
+    };
+
+    console.log(
+      "[Pricing API] Sending request to /v1/pricing/add with data:",
+      requestData
+    );
+
+    return apiRequest<PricingPlanResponse>(
+      "/v1/pricing/add",
+      "POST",
+      requestData
+    );
   },
 
   // Edit existing pricing plan (line 632 from swagger)
@@ -806,9 +780,9 @@ export const pricingApi = {
       PlanName: data.PlanName,
       PlanPrice: data.PlanPrice,
       DaysValidity: data.DaysValidity,
-      Sites: data.Sites,
+      Sites: data.Sites, // Send as array
       PlanDescription: data.PlanDescription,
-      ContactUsUrl: data.ContactUsUrl || "",
+      ContactUsUrl: data.ContactUsUrl, // Required field
       credits: data.credits,
     });
   },

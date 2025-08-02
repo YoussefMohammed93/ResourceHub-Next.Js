@@ -31,6 +31,7 @@ import {
   Menu,
   Loader2,
 } from "lucide-react";
+import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -346,8 +347,10 @@ export default function DashboardPage() {
       const response = await userApi.getUsersStatistics();
 
       if (response.success) {
-        // According to Swagger docs, the response structure is:
-        // { success: true, total_users: number, online_users: number, users: [...] }
+        // Backend returns different responses based on user type:
+        // 1. Subscribed users only: { success: true, total_users: 2, online_users: 0, users: [] }
+        // 2. Premium users: { success: true, total_users: 2, online_users: 0, users: [...] }
+        // The users array will be empty for subscribed users, populated for premium users
 
         // Try multiple response structure patterns
         let userData: UsersStatisticsResponse | null = null;
@@ -468,12 +471,15 @@ export default function DashboardPage() {
           }
         );
         setSites(frontendSites);
+        console.log("[Sites] Loaded sites:", frontendSites);
       } else {
+        console.log("[Sites] Failed to load sites:", response);
         setSitesError(
           response.error?.message || t("dashboard.errors.failedToLoadSites")
         );
       }
-    } catch {
+    } catch (error) {
+      console.log("[Sites] Error loading sites:", error);
       setSitesError(t("dashboard.errors.failedToLoadSites"));
     } finally {
       setIsLoadingSites(false);
@@ -567,7 +573,16 @@ export default function DashboardPage() {
                 ? (planObj.sites as string[])
                 : Array.isArray(planObj.Sites)
                   ? (planObj.Sites as string[])
-                  : [],
+                  : typeof planObj.sites === "string"
+                    ? planObj.sites
+                        .split(",")
+                        .map((site) => site.trim())
+                        .filter((site) => site.length > 0)
+                    : typeof planObj.Sites === "string"
+                      ? planObj.Sites.split(",")
+                          .map((site) => site.trim())
+                          .filter((site) => site.length > 0)
+                      : [],
               features: [
                 t("dashboard.packageManagement.features.accessToSites"),
                 t("dashboard.packageManagement.features.support"),
@@ -666,15 +681,18 @@ export default function DashboardPage() {
       const response = await siteApi.addSite(siteData);
 
       if (response.success && response.data) {
-        // Create a new site object with all required fields
+        // response.data is of type SiteActionResponse
+        // SiteActionResponse has: { success: boolean, data: { message: string, site: SiteResponse } }
+        const siteData = response.data.data?.site;
+
         const newSite: FrontendSite = {
-          name: response.data.data.site.name,
-          url: response.data.data.site.url,
-          price: Number(response.data.data.site.price),
+          name: siteData?.name || siteName,
+          url: siteData?.url || siteUrl,
+          price: siteData?.price ? Number(siteData.price) : Number(sitePrice),
           icon: siteIcon || `${siteUrl}/favicon.ico`,
-          total_downloads: 0,
-          today_downloads: 0,
-          last_reset: new Date().toISOString().split("T")[0],
+          total_downloads: 0, // Default value since not returned by API
+          today_downloads: 0, // Default value since not returned by API
+          last_reset: new Date().toISOString().split("T")[0], // Default to today
           id: sites.length + 1,
           status: "Active",
           addedDate: new Date().toISOString().split("T")[0],
@@ -690,13 +708,21 @@ export default function DashboardPage() {
         setSitePrice("");
         setSiteIcon("");
 
+        // Show success toast
+        toast.success(t("dashboard.siteManagement.toast.addSuccess"));
+
         // Refresh sites list to get updated data
         await loadSites();
       } else {
-        // Handle API error - could add toast notification here
+        // Handle API error
+        const errorMessage =
+          response.error?.message ||
+          t("dashboard.siteManagement.toast.addError");
+        toast.error(errorMessage);
       }
     } catch {
-      // Error handling - could add toast notification here
+      // Error handling
+      toast.error(t("dashboard.siteManagement.toast.addError"));
     } finally {
       setIsAddingSite(false);
     }
@@ -711,13 +737,21 @@ export default function DashboardPage() {
         // Remove the site from the local state
         setSites(sites.filter((site) => site.url !== siteUrl));
 
+        // Show success toast
+        toast.success(t("dashboard.siteManagement.toast.deleteSuccess"));
+
         // Refresh sites list to get updated data
         await loadSites();
       } else {
-        // Handle API error - could add toast notification here
+        // Handle API error
+        const errorMessage =
+          response.error?.message ||
+          t("dashboard.siteManagement.toast.deleteError");
+        toast.error(errorMessage);
       }
     } catch {
-      // Error handling - could add toast notification here
+      // Error handling
+      toast.error(t("dashboard.siteManagement.toast.deleteError"));
     }
   };
 
@@ -791,6 +825,14 @@ export default function DashboardPage() {
       return;
     }
 
+    // Debug logging
+    console.log("[Pricing Plan] Sites validation debug:", {
+      sitesArray,
+      loadedSitesCount: sites.length,
+      isLoadingSites,
+      loadedSites: sites.map((s) => ({ name: s.name, url: s.url })),
+    });
+
     // Validate that all sites exist in the system (only if sites are loaded and we have data)
     if (sites.length > 0 && !isLoadingSites) {
       // Check both site names and URLs for flexibility
@@ -813,32 +855,29 @@ export default function DashboardPage() {
       }
     }
 
-    // Use the exact site URLs from the system (API expects URLs/identifiers)
-    const validatedSites =
-      sites.length > 0
-        ? sitesArray.map((inputSite) => {
-            const lowerInput = inputSite.toLowerCase();
-            // First try to match by name, then by URL
-            const matchingSite = sites.find(
-              (site) =>
-                site.name.toLowerCase() === lowerInput ||
-                site.url.toLowerCase() === lowerInput
-            );
-            // Return the site identifier (domain without .com) as that's what the API expects
-            if (matchingSite) {
-              // Extract domain from URL and remove .com/.net etc
-              const domain = matchingSite.url
-                .replace(/^https?:\/\/(www\.)?/, "")
-                .split("/")[0]
-                .replace(/\.(com|net|org|io)$/, "");
-              return domain.toLowerCase();
-            }
-            return inputSite.toLowerCase();
-          })
-        : sitesArray.map((site) => site.toLowerCase()); // If no sites loaded, use lowercase
+    // Match the exact case from the loaded sites to ensure backend compatibility
+    const validatedSites = sitesArray.map((inputSite) => {
+      const lowerInput = inputSite.toLowerCase();
+      // Find the matching site from loaded sites to get the exact URL
+      const matchingSite = sites.find(
+        (site) =>
+          site.name.toLowerCase() === lowerInput ||
+          site.url.toLowerCase() === lowerInput
+      );
+      // Return the exact site URL as expected by the backend
+      return matchingSite ? matchingSite.url : inputSite;
+    });
 
-    // Validate contact URL if provided (optional)
-    if (packageContactUrl.trim() && !validateUrl(packageContactUrl)) {
+    console.log("[Pricing Plan] Final validated sites:", validatedSites);
+
+    // Validate contact URL (required)
+    if (!packageContactUrl.trim()) {
+      setPackageContactUrlError(
+        t("dashboard.packageManagement.validation.contactUrlRequired")
+      );
+      return;
+    }
+    if (!validateUrl(packageContactUrl)) {
       setPackageContactUrlError(
         t("dashboard.packageManagement.validation.invalidUrl")
       );
@@ -852,11 +891,16 @@ export default function DashboardPage() {
         PlanName: packageName,
         PlanPrice: packagePrice.trim() || undefined,
         DaysValidity: packageDaysValidity,
-        Sites: validatedSites, // Use the validated sites with correct names
+        Sites: validatedSites, // Send as array to backend
         PlanDescription: packageDescription,
-        ContactUsUrl: packageContactUrl.trim() || "",
+        ContactUsUrl: packageContactUrl.trim(), // Required field
         credits: packageCredits,
       };
+
+      console.log(
+        "[Pricing Plan] Sending API request with data:",
+        pricingPlanData
+      );
 
       const response = await pricingApi.addPricingPlan(pricingPlanData);
 
@@ -873,12 +917,28 @@ export default function DashboardPage() {
         // Close dialog
         setIsAddPackageDialogOpen(false);
 
+        // Show success toast
+        toast.success(t("dashboard.packageManagement.toast.addSuccess"));
+
         // Reload pricing plans to get the updated list
         await loadPricingPlans();
       } else {
         // Handle API error
+        console.log("[Pricing Plan] API Error Response:", response);
+        console.log("[Pricing Plan] Full Error Details:", response.error);
+        console.log("[Pricing Plan] Error Message:", response.error?.message);
+        console.log("[Pricing Plan] Raw Response:", response);
+
+        // Try to get more detailed error information
         const errorMessage =
-          response.error?.message || "Failed to add pricing plan";
+          response.error?.message ||
+          (typeof response.error === "string" ? response.error : null) ||
+          t("dashboard.packageManagement.toast.addError");
+
+        console.log("[Pricing Plan] Final Error Message:", errorMessage);
+
+        // Show error toast
+        toast.error(errorMessage);
 
         // Show error in appropriate field based on error message
         if (errorMessage.toLowerCase().includes("sites")) {
@@ -905,7 +965,9 @@ export default function DashboardPage() {
         }
       }
     } catch {
-      setPackageNameError("Network error occurred. Please try again.");
+      const errorMessage = t("dashboard.packageManagement.toast.addError");
+      setPackageNameError(errorMessage);
+      toast.error(errorMessage);
     } finally {
       setIsAddingPackage(false);
     }
@@ -1018,32 +1080,27 @@ export default function DashboardPage() {
       }
     }
 
-    // Use the exact site URLs from the system (API expects URLs/identifiers)
-    const validatedEditSites =
-      sites.length > 0
-        ? editSitesArray.map((inputSite) => {
-            const lowerInput = inputSite.toLowerCase();
-            // First try to match by name, then by URL
-            const matchingSite = sites.find(
-              (site) =>
-                site.name.toLowerCase() === lowerInput ||
-                site.url.toLowerCase() === lowerInput
-            );
-            // Return the site identifier (domain without .com) as that's what the API expects
-            if (matchingSite) {
-              // Extract domain from URL and remove .com/.net etc
-              const domain = matchingSite.url
-                .replace(/^https?:\/\/(www\.)?/, "")
-                .split("/")[0]
-                .replace(/\.(com|net|org|io)$/, "");
-              return domain.toLowerCase();
-            }
-            return inputSite.toLowerCase();
-          })
-        : editSitesArray.map((site) => site.toLowerCase()); // If no sites loaded, use lowercase
+    // Match the exact case from the loaded sites to ensure backend compatibility
+    const validatedEditSites = editSitesArray.map((inputSite) => {
+      const lowerInput = inputSite.toLowerCase();
+      // Find the matching site from loaded sites to get the exact URL
+      const matchingSite = sites.find(
+        (site) =>
+          site.name.toLowerCase() === lowerInput ||
+          site.url.toLowerCase() === lowerInput
+      );
+      // Return the exact site URL as expected by the backend
+      return matchingSite ? matchingSite.url : inputSite;
+    });
 
-    // Validate contact URL if provided (optional)
-    if (editPackageContactUrl.trim() && !validateUrl(editPackageContactUrl)) {
+    // Validate contact URL (required)
+    if (!editPackageContactUrl.trim()) {
+      setEditPackageContactUrlError(
+        t("dashboard.packageManagement.validation.contactUrlRequired")
+      );
+      return;
+    }
+    if (!validateUrl(editPackageContactUrl)) {
       setEditPackageContactUrlError(
         t("dashboard.packageManagement.validation.invalidUrl")
       );
@@ -1059,9 +1116,9 @@ export default function DashboardPage() {
         PlanName: editPackageName,
         PlanPrice: editPackagePrice.trim() || undefined,
         DaysValidity: editPackageDaysValidity,
-        Sites: validatedEditSites, // Use the validated sites with correct names
+        Sites: validatedEditSites, // Send as array to backend
         PlanDescription: editPackageDescription,
-        ContactUsUrl: editPackageContactUrl.trim() || "",
+        ContactUsUrl: editPackageContactUrl.trim(), // Required field
         credits: editPackageCredits,
       };
 
@@ -1073,6 +1130,9 @@ export default function DashboardPage() {
 
         setIsEditPackageDialogOpen(false);
 
+        // Show success toast
+        toast.success(t("dashboard.packageManagement.toast.updateSuccess"));
+
         // Reset form
         setEditingPackage(null);
         setEditPackageName("");
@@ -1083,10 +1143,15 @@ export default function DashboardPage() {
         setEditPackageContactUrl("");
         setEditPackageSupportedSites("");
       } else {
-        // Handle API error - could show error toast here
+        // Handle API error
+        const errorMessage =
+          response.error?.message ||
+          t("dashboard.packageManagement.toast.updateError");
+        toast.error(errorMessage);
       }
     } catch {
-      // Error handling - could show error toast here
+      // Error handling
+      toast.error(t("dashboard.packageManagement.toast.updateError"));
     } finally {
       setIsEditingPackage(false);
     }
@@ -1107,6 +1172,9 @@ export default function DashboardPage() {
         // Reload pricing plans to get the updated list
         await loadPricingPlans();
 
+        // Show success toast
+        toast.success(t("dashboard.packageManagement.toast.deleteSuccess"));
+
         // Close alert dialog first
         setIsDeleteDialogOpen(false);
 
@@ -1125,10 +1193,15 @@ export default function DashboardPage() {
           setEditPackageSupportedSites("");
         }, 300);
       } else {
-        // Handle API error - could show error toast here
+        // Handle API error
+        const errorMessage =
+          response.error?.message ||
+          t("dashboard.packageManagement.toast.deleteError");
+        toast.error(errorMessage);
       }
     } catch {
-      // Error handling - could show error toast here
+      // Error handling
+      toast.error(t("dashboard.packageManagement.toast.deleteError"));
     } finally {
       setIsDeletingPackage(false);
     }
@@ -1581,14 +1654,6 @@ export default function DashboardPage() {
                               {usersData?.total_users?.toLocaleString() || "0"}
                             </span>
                           </div>
-                          {process.env.NODE_ENV === "development" && (
-                            <div className="text-xs text-muted-foreground">
-                              Debug:{" "}
-                              {JSON.stringify({
-                                total: usersData?.total_users,
-                              })}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -1648,15 +1713,6 @@ export default function DashboardPage() {
                               {usersData?.online_users?.toLocaleString() || "0"}
                             </span>
                           </div>
-                          {process.env.NODE_ENV === "development" && (
-                            <div className="text-xs text-muted-foreground">
-                              Debug:{" "}
-                              {JSON.stringify({
-                                online: usersData?.online_users,
-                                raw: usersData,
-                              })}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </div>
@@ -1809,35 +1865,6 @@ export default function DashboardPage() {
                                     "dashboard.usersManagement.table.noUsersDescription"
                                   )}
                                 </p>
-                                {process.env.NODE_ENV === "development" && (
-                                  <div className="mt-4 text-xs text-muted-foreground bg-muted/50 p-2 rounded">
-                                    <div>Debug Info:</div>
-                                    <div>
-                                      transformedUsers.length:{" "}
-                                      {transformedUsers.length}
-                                    </div>
-                                    <div>
-                                      filteredUsers.length:{" "}
-                                      {filteredUsers.length}
-                                    </div>
-                                    <div>
-                                      searchTerm: &quot;{searchTerm}&quot;
-                                    </div>
-                                    <div>
-                                      statusFilter: &quot;{statusFilter}&quot;
-                                    </div>
-                                    <div>
-                                      usersData: {usersData ? "exists" : "null"}
-                                    </div>
-                                    <div>
-                                      usersError: {usersError || "none"}
-                                    </div>
-                                    <div>
-                                      isLoadingUsers:{" "}
-                                      {isLoadingUsers.toString()}
-                                    </div>
-                                  </div>
-                                )}
                               </div>
                             </div>
                           </td>

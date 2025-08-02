@@ -196,6 +196,15 @@ export const mockSites: Site[] = [
     price: 1,
     last_reset: "2024-01-15",
   },
+  {
+    name: "Adobe",
+    url: "https://adobe.com",
+    icon: "https://adobe.com/favicon.ico",
+    total_downloads: 9500,
+    today_downloads: 52,
+    price: 4,
+    last_reset: "2024-01-15",
+  },
 ];
 
 // Mock pricing plans data
@@ -470,8 +479,8 @@ export const mockApiResponses = {
           price: data.PlanPrice,
           credits: parseInt(data.credits),
           daysValidity: parseInt(data.DaysValidity),
-          contactUsUrl: data.ContactUsUrl || "",
-          supportedSites: data.Sites,
+          contactUsUrl: data.ContactUsUrl,
+          supportedSites: data.Sites, // Sites is already an array
           features: [
             "Access to supported sites",
             "24/7 Support",
@@ -509,8 +518,8 @@ export const mockApiResponses = {
             price: data.PlanPrice,
             credits: parseInt(data.credits),
             daysValidity: parseInt(data.DaysValidity),
-            contactUsUrl: data.ContactUsUrl || "",
-            supportedSites: data.Sites,
+            contactUsUrl: data.ContactUsUrl,
+            supportedSites: data.Sites, // Sites is already an array
           };
         }
 

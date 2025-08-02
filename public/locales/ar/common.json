@@ -390,6 +390,12 @@
         "invalidUrl": "يرجى إدخال رابط صحيح",
         "priceRequired": "السعر مطلوب",
         "invalidPrice": "يرجى إدخال سعر صحيح"
+      },
+      "toast": {
+        "addSuccess": "تم إضافة الموقع بنجاح",
+        "addError": "فشل في إضافة الموقع",
+        "deleteSuccess": "تم حذف الموقع بنجاح",
+        "deleteError": "فشل في حذف الموقع"
       }
     },
     "packageManagement": {
@@ -402,7 +408,7 @@
       "packageDescription": "وصف الخطة",
       "daysValidity": "مدة الصلاحية (بالأيام)",
       "credits": "عدد النقاط",
-      "contactUrl": "رابط تواصل معنا (اختياري)",
+      "contactUrl": "رابط تواصل معنا",
       "supportedSites": "المواقع المدعومة (مفصولة بفواصل)",
       "adding": "جاري إضافة الخطة...",
       "updating": "جاري تحديث الخطة...",
@@ -456,6 +462,14 @@
         "sitesRequired": "موقع واحد مدعوم على الأقل مطلوب",
         "contactUrlRequired": "رابط التواصل مطلوب",
         "invalidUrl": "يرجى إدخال رابط صحيح"
+      },
+      "toast": {
+        "addSuccess": "تم إضافة خطة الأسعار بنجاح",
+        "addError": "فشل في إضافة خطة الأسعار",
+        "updateSuccess": "تم تحديث خطة الأسعار بنجاح",
+        "updateError": "فشل في تحديث خطة الأسعار",
+        "deleteSuccess": "تم حذف خطة الأسعار بنجاح",
+        "deleteError": "فشل في حذف خطة الأسعار"
       },
       "features": {
         "accessToSites": "الوصول للمواقع المدعومة",
