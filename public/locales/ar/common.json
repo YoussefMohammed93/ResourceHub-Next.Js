@@ -542,6 +542,7 @@
     },
     "navigation": {
       "dashboard": "لوحة التحكم",
+      "broadcast": "الإذاعة",
       "usersManagement": "إدارة المستخدمين",
       "sitesManagement": "إدارة المواقع",
       "pricingManagement": "إدارة الأسعار",
@@ -945,6 +946,145 @@
         ],
         "compatibility": "الويب، آيفون، أندرويد",
         "support": "دعم المجتمع والبريد الإلكتروني"
+      }
+    }
+  },
+  "broadcast": {
+    "title": "الإذاعة",
+    "description": "إرسال رسائل إذاعية للمستخدمين",
+    "stats": {
+      "totalUsers": {
+        "title": "إجمالي المستخدمين",
+        "description": "المستخدمون المسجلون"
+      },
+      "messagesSentToday": {
+        "title": "المرسلة اليوم",
+        "description": "الرسائل المرسلة اليوم"
+      },
+      "messagesInQueue": {
+        "title": "في الانتظار",
+        "description": "الرسائل في قائمة الانتظار"
+      },
+      "failedMessages": {
+        "title": "الفاشلة",
+        "description": "فشل في إرسال الرسائل "
+      }
+    },
+    "form": {
+      "title": "إرسال رسالة إذاعية جديدة",
+      "description": "أرسل رسالة لجميع المستخدمين أو مجموعة محددة",
+      "messageTitle": "عنوان الرسالة",
+      "messageContent": "محتوى الرسالة",
+      "targetAudience": "الجمهور المستهدف",
+      "allUsers": "جميع المستخدمين",
+      "activeUsers": "المستخدمون النشطون فقط",
+      "premiumUsers": "المستخدمون المميزون فقط",
+      "messageCategory": "نوع الرسالة",
+      "textOnly": "نص فقط",
+      "textWithImage": "نص مع صورة",
+      "uploadImage": "رفع صورة",
+      "imageUpload": {
+        "title": "رفع صورة للرسالة",
+        "description": "اختر صورة لإرفاقها مع الرسالة",
+        "dragAndDrop": "اسحب وأفلت الصورة هنا",
+        "orClickToBrowse": "أو انقر للتصفح",
+        "supportedFormats": "الصيغ المدعومة: JPG, PNG, GIF (حد أقصى 5MB)",
+        "uploading": "جاري الرفع...",
+        "uploadSuccess": "تم رفع الصورة بنجاح",
+        "uploadError": "فشل في رفع الصورة",
+        "removeImage": "إزالة الصورة",
+        "imagePreview": "معاينة الصورة"
+      },
+      "scheduleMessage": "جدولة الرسالة",
+      "sendNow": "إرسال الآن",
+      "scheduleForLater": "جدولة لوقت لاحق",
+      "scheduledDate": "تاريخ الإرسال المجدول",
+      "scheduledTime": "وقت الإرسال المجدول",
+      "sending": "جاري الإرسال...",
+      "scheduling": "جاري الجدولة...",
+      "send": "إرسال الرسالة",
+      "placeholders": {
+        "messageTitle": "أدخل عنوان الرسالة",
+        "messageContent": "اكتب محتوى الرسالة هنا..."
+      },
+      "validation": {
+        "titleRequired": "عنوان الرسالة مطلوب",
+        "contentRequired": "محتوى الرسالة مطلوب",
+        "audienceRequired": "يرجى اختيار الجمهور المستهدف",
+        "categoryRequired": "يرجى اختيار نوع الرسالة",
+        "dateRequired": "تاريخ الإرسال مطلوب",
+        "timeRequired": "وقت الإرسال مطلوب"
+      }
+    },
+    "quickStats": {
+      "title": "إحصائيات سريعة",
+      "description": "نظرة عامة على أداء الإذاعة",
+      "messagesThisWeek": "رسائل هذا الأسبوع",
+      "totalRecipients": "إجمالي المستقبلين",
+      "successRate": "معدل نجاح الإرسال"
+    },
+    "recentActivity": {
+      "title": "النشاط الأخير",
+      "description": "آخر الرسائل المرسلة والأنشطة",
+      "noActivity": "لا يوجد نشاط حديث",
+      "noActivityDescription": "ستظهر الرسائل المرسلة هنا",
+      "showAll": "عرض الكل",
+      "allActivities": {
+        "title": "جميع الأنشطة",
+        "description": "السجل الكامل لجميع أنشطة البث"
+      },
+      "messageTypes": {
+        "broadcast": "رسالة إذاعية",
+        "notification": "إشعار",
+        "announcement": "إعلان",
+        "alert": "تنبيه"
+      },
+      "timeAgo": {
+        "now": "الآن",
+        "minutesAgo": "منذ {{count}}د",
+        "minutesAgo_one": "منذ دقيقة واحدة",
+        "minutesAgo_other": "منذ {{count}} دقائق",
+        "hoursAgo": "منذ {{count}}س",
+        "hoursAgo_one": "منذ ساعة واحدة",
+        "hoursAgo_other": "منذ {{count}} ساعات",
+        "daysAgo": "منذ {{count}}ي",
+        "daysAgo_one": "منذ يوم واحد",
+        "daysAgo_other": "منذ {{count}} أيام"
+      }
+    },
+    "toast": {
+      "sendSuccess": "تم إرسال الرسالة بنجاح",
+      "sendError": "فشل في إرسال الرسالة",
+      "scheduleSuccess": "تم جدولة الرسالة بنجاح",
+      "scheduleError": "فشل في جدولة الرسالة"
+    },
+    "messagesLog": {
+      "title": "سجل الرسائل",
+      "description": "سجل الرسائل الإذاعية المرسلة",
+      "table": {
+        "headers": {
+          "broadcastName": "اسم البث",
+          "broadcastDetails": "تفاصيل البث",
+          "targetRecipients": "المستهدفين",
+          "sentSuccessfully": "تم الإرسال",
+          "failed": "فشل",
+          "date": "التاريخ",
+          "status": "الحالة",
+          "options": "خيارات"
+        },
+        "status": {
+          "completed": "تم",
+          "sending": "جاري الإرسال"
+        },
+        "actions": {
+          "view": "عرض",
+          "resend": "إعادة إرسال",
+          "delete": "حذف"
+        }
+      },
+      "empty": {
+        "title": "لا توجد رسائل",
+        "description": "لم يتم إرسال أي رسائل إذاعية بعد"
       }
     }
   },

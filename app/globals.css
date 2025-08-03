@@ -299,3 +299,7 @@ section[id] {
     grid-template-columns: repeat(14, minmax(0, 1fr));
   }
 }
+
+.dir-rtl {
+  direction: rtl;
+}

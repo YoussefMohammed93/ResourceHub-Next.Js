@@ -542,6 +542,7 @@
     },
     "navigation": {
       "dashboard": "Dashboard",
+      "broadcast": "Broadcast",
       "usersManagement": "Users Management",
       "sitesManagement": "Sites Management",
       "pricingManagement": "Pricing Management",
@@ -945,6 +946,146 @@
         ],
         "compatibility": "Web, iOS, Android",
         "support": "Community and email support"
+      }
+    }
+  },
+  "broadcast": {
+    "title": "Broadcast",
+    "description": "Send broadcast messages to users",
+    "stats": {
+      "totalUsers": {
+        "title": "Total Users",
+        "description": "Registered users"
+      },
+      "messagesSentToday": {
+        "title": "Sent Today",
+        "description": "Messages Sent today"
+      },
+      "messagesInQueue": {
+        "title": "in Queue",
+        "description": "Messages Waiting to send"
+      },
+      "failedMessages": {
+        "title": "Failed",
+        "description": "Messages Failed to send"
+      }
+    },
+    "form": {
+      "title": "Send New Broadcast Message",
+      "description": "Send a message to all users or a specific group",
+      "messageTitle": "Message Title",
+      "messageContent": "Message Content",
+      "targetAudience": "Target Audience",
+      "allUsers": "All Users",
+      "activeUsers": "Active Users Only",
+      "premiumUsers": "Premium Users Only",
+      "messageCategory": "Message Category",
+      "textOnly": "Text Only",
+      "textWithImage": "Text with Image",
+      "uploadImage": "Upload Image",
+      "imageUpload": {
+        "title": "Upload Image for Message",
+        "description": "Choose an image to attach with your message",
+        "dragAndDrop": "Drag and drop image here",
+        "orClickToBrowse": "or click to browse",
+        "supportedFormats": "Supported formats: JPG, PNG, GIF (max 5MB)",
+        "uploading": "Uploading...",
+        "uploadSuccess": "Image uploaded successfully",
+        "uploadError": "Failed to upload image",
+        "removeImage": "Remove Image",
+        "imagePreview": "Image Preview"
+      },
+      "scheduleMessage": "Schedule Message",
+      "sendNow": "Send Now",
+      "scheduleForLater": "Schedule for Later",
+      "scheduledDate": "Scheduled Date",
+      "scheduledTime": "Scheduled Time",
+      "sending": "Sending...",
+      "scheduling": "Scheduling...",
+      "send": "Send Message",
+      "placeholders": {
+        "messageTitle": "Enter message title",
+        "messageContent": "Write your message content here..."
+      },
+      "validation": {
+        "titleRequired": "Message title is required",
+        "contentRequired": "Message content is required",
+        "audienceRequired": "Please select target audience",
+        "categoryRequired": "Please select message category",
+        "dateRequired": "Scheduled date is required",
+        "timeRequired": "Scheduled time is required"
+      }
+    },
+    "quickStats": {
+      "title": "Quick Statistics",
+      "description": "Overview of broadcast performance",
+      "messagesThisWeek": "Messages This Week",
+      "averageOpenRate": "Average Open Rate",
+      "totalRecipients": "Total Recipients",
+      "successRate": "Success Rate"
+    },
+    "recentActivity": {
+      "title": "Recent Activity",
+      "description": "Latest sent messages and activities",
+      "noActivity": "No recent activity",
+      "noActivityDescription": "Sent messages will appear here",
+      "showAll": "Show All",
+      "allActivities": {
+        "title": "All Activities",
+        "description": "Complete history of all broadcast activities"
+      },
+      "messageTypes": {
+        "broadcast": "Broadcast Message",
+        "notification": "Notification",
+        "announcement": "Announcement",
+        "alert": "Alert"
+      },
+      "timeAgo": {
+        "now": "Now",
+        "minutesAgo": "{{count}}m ago",
+        "minutesAgo_one": "1 minute ago",
+        "minutesAgo_other": "{{count}} minutes ago",
+        "hoursAgo": "{{count}}h ago",
+        "hoursAgo_one": "1 hour ago",
+        "hoursAgo_other": "{{count}} hours ago",
+        "daysAgo": "{{count}}d ago",
+        "daysAgo_one": "1 day ago",
+        "daysAgo_other": "{{count}} days ago"
+      }
+    },
+    "toast": {
+      "sendSuccess": "Message sent successfully",
+      "sendError": "Failed to send message",
+      "scheduleSuccess": "Message scheduled successfully",
+      "scheduleError": "Failed to schedule message"
+    },
+    "messagesLog": {
+      "title": "Messages Log",
+      "description": "Broadcast messages history",
+      "table": {
+        "headers": {
+          "broadcastName": "Broadcast Name",
+          "broadcastDetails": "Broadcast Details",
+          "targetRecipients": "Target Recipients",
+          "sentSuccessfully": "Sent Successfully",
+          "failed": "Failed",
+          "date": "Date",
+          "status": "Status",
+          "options": "Options"
+        },
+        "status": {
+          "completed": "Completed",
+          "sending": "Sending"
+        },
+        "actions": {
+          "view": "View",
+          "resend": "Resend",
+          "delete": "Delete"
+        }
+      },
+      "empty": {
+        "title": "No Messages",
+        "description": "No broadcast messages have been sent yet"
       }
     }
   },
