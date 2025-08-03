@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/components/i18n-provider";
 import { AdminRouteGuard } from "@/components/admin-route-guard";
@@ -127,7 +127,7 @@ export default function BroadcastPage() {
   };
 
   // Load users statistics from API
-  const loadUsersStatistics = async () => {
+  const loadUsersStatistics = useCallback(async () => {
     if (!isAuthenticated || !user || user.role !== "admin") {
       return;
     }
@@ -166,7 +166,7 @@ export default function BroadcastPage() {
     } finally {
       setIsLoadingUsers(false);
     }
-  };
+  }, [isAuthenticated, user]);
 
   // Load data on component mount only if user is admin
   useEffect(() => {
@@ -174,7 +174,7 @@ export default function BroadcastPage() {
     if (isAuthenticated && user && user.role === "admin") {
       loadUsersStatistics();
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, loadUsersStatistics]);
 
   const handleSendMessage = async () => {
     setIsLoading(true);
