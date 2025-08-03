@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/components/i18n-provider";
 import { AdminRouteGuard } from "@/components/admin-route-guard";
@@ -18,8 +18,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Progress } from "@/components/ui/progress";
 import {
   Dialog,
   DialogContent,
@@ -38,11 +36,8 @@ import {
   Menu,
   Radio,
   Users,
-  AlertTriangle,
   Send,
-  Clock,
   Activity,
-  BarChart3,
   Upload,
   X,
   Image as ImageIcon,
@@ -56,21 +51,28 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
+import { userApi, type UsersStatisticsResponse } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
 
 export default function BroadcastPage() {
   const { t } = useTranslation("common");
   const { isRTL } = useLanguage();
+  const { isAuthenticated, user } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // API state for Total Users
+  const [usersData, setUsersData] = useState<UsersStatisticsResponse | null>(
+    null
+  );
+  const [isLoadingUsers, setIsLoadingUsers] = useState<boolean>(false);
+  const [usersError, setUsersError] = useState<string>("");
 
   // Form state
   const [messageTitle, setMessageTitle] = useState("");
   const [messageContent, setMessageContent] = useState("");
   const [targetAudience, setTargetAudience] = useState("allUsers");
   const [messageCategory, setMessageCategory] = useState("textOnly");
-  const [scheduleType, setScheduleType] = useState("sendNow");
-  const [scheduledDate, setScheduledDate] = useState("");
-  const [scheduledTime, setScheduledTime] = useState("");
 
   // Image upload state
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -124,15 +126,61 @@ export default function BroadcastPage() {
     setUploadedImage(null);
   };
 
+  // Load users statistics from API
+  const loadUsersStatistics = async () => {
+    if (!isAuthenticated || !user || user.role !== "admin") {
+      return;
+    }
+
+    setIsLoadingUsers(true);
+    setUsersError("");
+
+    try {
+      const response = await userApi.getUsersStatistics();
+
+      if (response.success) {
+        // Backend returns different responses based on user type:
+        // 1. Subscribed users only: { success: true, total_users: 2, online_users: 0, users: [] }
+        // 2. Premium users: { success: true, total_users: 2, online_users: 0, users: [...] }
+
+        // Handle different response structures
+        let userData: UsersStatisticsResponse;
+
+        if (response.data) {
+          // If wrapped in data property
+          userData = response.data as UsersStatisticsResponse;
+        } else {
+          // If response is direct
+          userData = response as unknown as UsersStatisticsResponse;
+        }
+
+        setUsersData(userData);
+      } else {
+        setUsersError(
+          response.error?.message || "Failed to load users statistics"
+        );
+      }
+    } catch (error) {
+      console.error("Failed to load users statistics:", error);
+      setUsersError("Failed to load users statistics");
+    } finally {
+      setIsLoadingUsers(false);
+    }
+  };
+
+  // Load data on component mount only if user is admin
+  useEffect(() => {
+    // Only load data if user is authenticated and is admin
+    if (isAuthenticated && user && user.role === "admin") {
+      loadUsersStatistics();
+    }
+  }, [isAuthenticated, user]);
+
   const handleSendMessage = async () => {
     setIsLoading(true);
 
     // Show loading toast
-    const loadingToast = toast.loading(
-      scheduleType === "sendNow"
-        ? t("broadcast.form.sending")
-        : t("broadcast.form.scheduling")
-    );
+    const loadingToast = toast.loading(t("broadcast.form.sending"));
 
     try {
       // Simulate API call
@@ -151,31 +199,18 @@ export default function BroadcastPage() {
 
       // Dismiss loading toast and show success
       toast.dismiss(loadingToast);
-
-      if (scheduleType === "sendNow") {
-        toast.success(t("broadcast.toast.sendSuccess"));
-      } else {
-        toast.success(t("broadcast.toast.scheduleSuccess"));
-      }
+      toast.success(t("broadcast.toast.sendSuccess"));
 
       // Reset form on success
       setMessageTitle("");
       setMessageContent("");
       setTargetAudience("allUsers");
       setMessageCategory("textOnly");
-      setScheduleType("sendNow");
-      setScheduledDate("");
-      setScheduledTime("");
       setUploadedImage(null);
     } catch (error) {
       // Dismiss loading toast and show error
       toast.dismiss(loadingToast);
-
-      if (scheduleType === "sendNow") {
-        toast.error(t("broadcast.toast.sendError"));
-      } else {
-        toast.error(t("broadcast.toast.scheduleError"));
-      }
+      toast.error(t("broadcast.toast.sendError"));
 
       console.error("Failed to send message:", error);
     } finally {
@@ -183,19 +218,8 @@ export default function BroadcastPage() {
     }
   };
 
-  // Mock data for statistics
-  const stats = {
-    totalUsers: 2847,
-    messagesSentToday: 89,
-    messagesInQueue: 12,
-    failedMessages: 3,
-  };
-
-  const quickStats = {
-    messagesThisWeek: 45,
-    totalRecipients: 2847,
-    successRate: 94.2,
-  };
+  // Mock data for messages sent today (this could also be from API in the future)
+  const messagesSentToday = 89;
 
   const recentActivity = [
     {
@@ -225,6 +249,20 @@ export default function BroadcastPage() {
       title: "Security Update Required",
       recipients: 2156,
       time: "1 day ago",
+    },
+    {
+      id: 6,
+      type: "broadcast",
+      title: "Welcome Message for New Users",
+      recipients: 456,
+      time: "2 days ago",
+    },
+    {
+      id: 7,
+      type: "notification",
+      title: "Payment Reminder",
+      recipients: 789,
+      time: "3 days ago",
     },
   ];
 
@@ -370,7 +408,7 @@ export default function BroadcastPage() {
             className={`flex-1 ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
           >
             {/* Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
               {/* Total Users Card */}
               <Card className="group dark:bg-muted/50">
                 <CardContent>
@@ -392,7 +430,15 @@ export default function BroadcastPage() {
                       <div className="space-y-2">
                         <div className="flex items-baseline space-x-2">
                           <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
-                            {stats.totalUsers.toLocaleString()}
+                            {isLoadingUsers ? (
+                              <span className="text-muted-foreground">
+                                Loading...
+                              </span>
+                            ) : usersError ? (
+                              <span className="text-destructive">Error</span>
+                            ) : (
+                              usersData?.total_users?.toLocaleString() || "0"
+                            )}
                           </span>
                         </div>
                       </div>
@@ -422,67 +468,7 @@ export default function BroadcastPage() {
                       <div className="space-y-2">
                         <div className="flex items-baseline space-x-2">
                           <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
-                            {stats.messagesSentToday.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Messages in Queue Card */}
-              <Card className="group dark:bg-muted/50">
-                <CardContent>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-3 sm:space-y-4 flex-1">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
-                          <Clock className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
-                            {t("broadcast.stats.messagesInQueue.title")}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-muted-foreground/80">
-                            {t("broadcast.stats.messagesInQueue.description")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-baseline space-x-2">
-                          <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
-                            {stats.messagesInQueue.toLocaleString()}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Failed Messages Card */}
-              <Card className="group dark:bg-muted/50">
-                <CardContent>
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-3 sm:space-y-4 flex-1">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
-                          <AlertTriangle className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
-                        </div>
-                        <div>
-                          <h3 className="text-sm sm:text-base lg:text-lg font-medium text-foreground uppercase tracking-wide">
-                            {t("broadcast.stats.failedMessages.title")}
-                          </h3>
-                          <p className="text-xs sm:text-sm text-muted-foreground/80">
-                            {t("broadcast.stats.failedMessages.description")}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-baseline space-x-2">
-                          <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
-                            {stats.failedMessages.toLocaleString()}
+                            {messagesSentToday.toLocaleString()}
                           </span>
                         </div>
                       </div>
@@ -720,71 +706,6 @@ export default function BroadcastPage() {
                       </Select>
                     </div>
 
-                    {/* Schedule Message */}
-                    <div className="space-y-4">
-                      <Label className="text-sm font-medium">
-                        {t("broadcast.form.scheduleMessage")}
-                      </Label>
-                      <RadioGroup
-                        value={scheduleType}
-                        onValueChange={setScheduleType}
-                        className={`${isRTL ? "dir-rtl" : ""}`}
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="sendNow" id="sendNow" />
-                          <Label htmlFor="sendNow" className="text-sm">
-                            {t("broadcast.form.sendNow")}
-                          </Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem
-                            value="scheduleForLater"
-                            id="scheduleForLater"
-                          />
-                          <Label htmlFor="scheduleForLater" className="text-sm">
-                            {t("broadcast.form.scheduleForLater")}
-                          </Label>
-                        </div>
-                      </RadioGroup>
-
-                      {scheduleType === "scheduleForLater" && (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                          <div className="space-y-2">
-                            <Label
-                              htmlFor="scheduledDate"
-                              className="text-sm font-medium"
-                            >
-                              {t("broadcast.form.scheduledDate")}
-                            </Label>
-                            <Input
-                              id="scheduledDate"
-                              type="date"
-                              value={scheduledDate}
-                              onChange={(e) => setScheduledDate(e.target.value)}
-                              className={isRTL ? "text-right" : "text-left"}
-                              dir={isRTL ? "rtl" : "ltr"}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label
-                              htmlFor="scheduledTime"
-                              className="text-sm font-medium"
-                            >
-                              {t("broadcast.form.scheduledTime")}
-                            </Label>
-                            <Input
-                              id="scheduledTime"
-                              type="time"
-                              value={scheduledTime}
-                              onChange={(e) => setScheduledTime(e.target.value)}
-                              className={isRTL ? "text-right" : "text-left"}
-                              dir={isRTL ? "rtl" : "ltr"}
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-
                     {/* Send Button */}
                     <div className="pt-4">
                       <Button
@@ -795,9 +716,7 @@ export default function BroadcastPage() {
                         {isLoading ? (
                           <>
                             <Loader2 className="w-4 h-4 animate-spin" />
-                            {scheduleType === "sendNow"
-                              ? t("broadcast.form.sending")
-                              : t("broadcast.form.scheduling")}
+                            {t("broadcast.form.sending")}
                           </>
                         ) : (
                           <>
@@ -811,61 +730,8 @@ export default function BroadcastPage() {
                 </Card>
               </div>
 
-              {/* Left Sidebar - Quick Stats and Recent Activity */}
+              {/* Left Sidebar - Recent Activity */}
               <div className="lg:col-span-2 space-y-4 sm:space-y-5">
-                {/* Quick Statistics Card */}
-                <Card className="dark:bg-muted/50">
-                  <CardHeader>
-                    <div className="flex items-center space-x-3">
-                      <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-                        <BarChart3 className="w-4 h-4 text-primary" />
-                      </div>
-                      <div>
-                        <CardTitle className="text-base font-semibold text-foreground">
-                          {t("broadcast.quickStats.title")}
-                        </CardTitle>
-                        <p className="text-xs text-muted-foreground">
-                          {t("broadcast.quickStats.description")}
-                        </p>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          {t("broadcast.quickStats.messagesThisWeek")}
-                        </span>
-                        <span className="text-sm font-semibold text-foreground">
-                          {quickStats.messagesThisWeek}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm text-muted-foreground">
-                          {t("broadcast.quickStats.totalRecipients")}
-                        </span>
-                        <span className="text-sm font-semibold text-foreground">
-                          {quickStats.totalRecipients.toLocaleString()}
-                        </span>
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground">
-                            {t("broadcast.quickStats.successRate")}
-                          </span>
-                          <span className="text-sm font-semibold text-foreground">
-                            {quickStats.successRate}%
-                          </span>
-                        </div>
-                        <Progress
-                          value={quickStats.successRate}
-                          className="h-2"
-                        />
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
                 {/* Recent Activity Card */}
                 <Card className="dark:bg-muted/50">
                   <CardHeader>

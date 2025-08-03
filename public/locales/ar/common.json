@@ -961,14 +961,6 @@
       "messagesSentToday": {
         "title": "المرسلة اليوم",
         "description": "الرسائل المرسلة اليوم"
-      },
-      "messagesInQueue": {
-        "title": "في الانتظار",
-        "description": "الرسائل في قائمة الانتظار"
-      },
-      "failedMessages": {
-        "title": "الفاشلة",
-        "description": "فشل في إرسال الرسائل "
       }
     },
     "form": {
@@ -996,13 +988,7 @@
         "removeImage": "إزالة الصورة",
         "imagePreview": "معاينة الصورة"
       },
-      "scheduleMessage": "جدولة الرسالة",
-      "sendNow": "إرسال الآن",
-      "scheduleForLater": "جدولة لوقت لاحق",
-      "scheduledDate": "تاريخ الإرسال المجدول",
-      "scheduledTime": "وقت الإرسال المجدول",
       "sending": "جاري الإرسال...",
-      "scheduling": "جاري الجدولة...",
       "send": "إرسال الرسالة",
       "placeholders": {
         "messageTitle": "أدخل عنوان الرسالة",
@@ -1012,17 +998,8 @@
         "titleRequired": "عنوان الرسالة مطلوب",
         "contentRequired": "محتوى الرسالة مطلوب",
         "audienceRequired": "يرجى اختيار الجمهور المستهدف",
-        "categoryRequired": "يرجى اختيار نوع الرسالة",
-        "dateRequired": "تاريخ الإرسال مطلوب",
-        "timeRequired": "وقت الإرسال مطلوب"
+        "categoryRequired": "يرجى اختيار نوع الرسالة"
       }
-    },
-    "quickStats": {
-      "title": "إحصائيات سريعة",
-      "description": "نظرة عامة على أداء الإذاعة",
-      "messagesThisWeek": "رسائل هذا الأسبوع",
-      "totalRecipients": "إجمالي المستقبلين",
-      "successRate": "معدل نجاح الإرسال"
     },
     "recentActivity": {
       "title": "النشاط الأخير",
@@ -1055,9 +1032,7 @@
     },
     "toast": {
       "sendSuccess": "تم إرسال الرسالة بنجاح",
-      "sendError": "فشل في إرسال الرسالة",
-      "scheduleSuccess": "تم جدولة الرسالة بنجاح",
-      "scheduleError": "فشل في جدولة الرسالة"
+      "sendError": "فشل في إرسال الرسالة"
     },
     "messagesLog": {
       "title": "سجل الرسائل",

@@ -961,14 +961,6 @@
       "messagesSentToday": {
         "title": "Sent Today",
         "description": "Messages Sent today"
-      },
-      "messagesInQueue": {
-        "title": "in Queue",
-        "description": "Messages Waiting to send"
-      },
-      "failedMessages": {
-        "title": "Failed",
-        "description": "Messages Failed to send"
       }
     },
     "form": {
@@ -996,13 +988,7 @@
         "removeImage": "Remove Image",
         "imagePreview": "Image Preview"
       },
-      "scheduleMessage": "Schedule Message",
-      "sendNow": "Send Now",
-      "scheduleForLater": "Schedule for Later",
-      "scheduledDate": "Scheduled Date",
-      "scheduledTime": "Scheduled Time",
       "sending": "Sending...",
-      "scheduling": "Scheduling...",
       "send": "Send Message",
       "placeholders": {
         "messageTitle": "Enter message title",
@@ -1012,18 +998,8 @@
         "titleRequired": "Message title is required",
         "contentRequired": "Message content is required",
         "audienceRequired": "Please select target audience",
-        "categoryRequired": "Please select message category",
-        "dateRequired": "Scheduled date is required",
-        "timeRequired": "Scheduled time is required"
+        "categoryRequired": "Please select message category"
       }
-    },
-    "quickStats": {
-      "title": "Quick Statistics",
-      "description": "Overview of broadcast performance",
-      "messagesThisWeek": "Messages This Week",
-      "averageOpenRate": "Average Open Rate",
-      "totalRecipients": "Total Recipients",
-      "successRate": "Success Rate"
     },
     "recentActivity": {
       "title": "Recent Activity",
@@ -1056,9 +1032,7 @@
     },
     "toast": {
       "sendSuccess": "Message sent successfully",
-      "sendError": "Failed to send message",
-      "scheduleSuccess": "Message scheduled successfully",
-      "scheduleError": "Failed to schedule message"
+      "sendError": "Failed to send message"
     },
     "messagesLog": {
       "title": "Messages Log",
