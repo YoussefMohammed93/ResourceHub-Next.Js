@@ -333,12 +333,24 @@ export default function RegisterPage() {
     // Clear any previous general errors
     setErrors((prev) => ({ ...prev, general: "" }));
 
+    // Ensure phone verification is completed before registration
+    if (!phoneVerified) {
+      setErrors((prev) => ({
+        ...prev,
+        general: t("register.validation.phoneNotVerified"),
+      }));
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const result = await register(
         formData.email,
         formData.password,
         formData.firstName,
-        formData.lastName
+        formData.lastName,
+        formData.phone,
+        formData.otp
       );
 
       if (result.success) {

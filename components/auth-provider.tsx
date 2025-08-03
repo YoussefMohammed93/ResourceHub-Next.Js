@@ -34,7 +34,9 @@ interface AuthContextType {
     email: string,
     password: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    phone: string,
+    otp: string
   ) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
@@ -151,7 +153,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     email: string,
     password: string,
     firstName: string,
-    lastName: string
+    lastName: string,
+    phone: string,
+    otp: string
   ) => {
     try {
       const response = await authApi.register({
@@ -159,6 +163,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password,
         firstName,
         lastName,
+        phone,
+        otp,
       });
 
       if (response.success && response.data) {

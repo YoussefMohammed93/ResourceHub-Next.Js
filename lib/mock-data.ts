@@ -300,6 +300,8 @@ export const mockApiResponses = {
     password: string;
     firstName?: string;
     lastName?: string;
+    phone?: string;
+    otp?: string;
   }): Promise<ApiResponse<RegisterResponse>> => {
     return new Promise((resolve) => {
       setTimeout(() => {

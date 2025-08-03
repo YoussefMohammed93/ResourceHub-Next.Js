@@ -306,6 +306,8 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName: string;
+  phone: string;
+  otp: string;
 }
 
 // Generic API request function using axios
@@ -401,6 +403,8 @@ export const authApi = {
         password: encryptedPassword,
         firstName: userData.firstName,
         lastName: userData.lastName,
+        phoneNum: userData.phone,
+        otp: userData.otp,
         token,
       },
     });
@@ -410,6 +414,8 @@ export const authApi = {
       password: encryptedPassword,
       firstName: userData.firstName,
       lastName: userData.lastName,
+      phoneNum: userData.phone,
+      otp: userData.otp,
       token,
     });
   },
