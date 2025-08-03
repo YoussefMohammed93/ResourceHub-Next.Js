@@ -539,6 +539,173 @@ export const creditApi = {
   },
 };
 
+// OTP API response types
+export interface SendOtpResponse {
+  message: string;
+}
+
+export interface VerifyOtpResponse {
+  message: string;
+}
+
+export interface SendOtpRequest {
+  phoneNum: string;
+  token: string;
+}
+
+export interface VerifyOtpRequest {
+  phoneNum: string;
+  otp: string;
+}
+
+// OTP Management API functions
+export const otpApi = {
+  // Send OTP to phone number
+  async sendOtp(phoneNumber: string): Promise<ApiResponse<SendOtpResponse>> {
+    // Validate phone number format (must start with +)
+    if (!phoneNumber.startsWith("+")) {
+      return {
+        success: false,
+        error: {
+          id: "invalid_phone_format",
+          message: "Phone number must start with + and include country code",
+        },
+      };
+    }
+
+    const token = generateTimestampToken();
+
+    try {
+      const response = await apiRequest<SendOtpResponse>(
+        "/v1/otp/send",
+        "POST",
+        {
+          phoneNum: phoneNumber,
+          token,
+        }
+      );
+
+      // If the API returns an error response, handle it appropriately
+      if (!response.success && response.error) {
+        // Map specific error IDs to user-friendly messages
+        const errorMessages: Record<string, string> = {
+          "5": "Failed to send OTP. Please check your phone number and try again.",
+          "6": "Service temporarily unavailable. Please try again later.",
+          invalid_phone:
+            "Invalid phone number format. Please include country code.",
+          rate_limit: "Too many requests. Please wait before trying again.",
+          network_error:
+            "Network connection failed. Please check your internet connection.",
+        };
+
+        const errorMessage =
+          errorMessages[response.error.id.toString()] ||
+          response.error.message ||
+          "Failed to send OTP. Please try again.";
+
+        return {
+          success: false,
+          error: {
+            id: response.error.id,
+            message: errorMessage,
+          },
+        };
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Failed to send OTP:", error);
+      return {
+        success: false,
+        error: {
+          id: "send_otp_failed",
+          message: "Failed to send OTP. Please try again.",
+        },
+      };
+    }
+  },
+
+  // Verify OTP code
+  async verifyOtp(
+    phoneNumber: string,
+    otpCode: string
+  ): Promise<ApiResponse<VerifyOtpResponse>> {
+    // Validate inputs
+    if (!phoneNumber.startsWith("+")) {
+      return {
+        success: false,
+        error: {
+          id: "invalid_phone_format",
+          message: "Phone number must start with + and include country code",
+        },
+      };
+    }
+
+    if (!otpCode || otpCode.length !== 6 || !/^\d{6}$/.test(otpCode)) {
+      return {
+        success: false,
+        error: {
+          id: "invalid_otp_format",
+          message: "OTP must be a 6-digit number",
+        },
+      };
+    }
+
+    try {
+      // The verify endpoint has been confirmed by backend developer
+      // It only requires phoneNum and otp (no token needed)
+      const response = await apiRequest<VerifyOtpResponse>(
+        "/v1/otp/verify",
+        "POST",
+        {
+          phoneNum: phoneNumber,
+          otp: otpCode,
+        }
+      );
+
+      // If the API returns an error response, handle it appropriately
+      if (!response.success && response.error) {
+        // Map specific error IDs to user-friendly messages for verification
+        const errorMessages: Record<string, string> = {
+          "5": "Invalid OTP code. Please check and try again.",
+          "6": "Service temporarily unavailable. Please try again later.",
+          invalid_otp:
+            "Invalid OTP code. Please enter the correct 6-digit code.",
+          expired_otp: "OTP code has expired. Please request a new code.",
+          rate_limit:
+            "Too many verification attempts. Please wait before trying again.",
+          network_error:
+            "Network connection failed. Please check your internet connection.",
+        };
+
+        const errorMessage =
+          errorMessages[response.error.id.toString()] ||
+          response.error.message ||
+          "Failed to verify OTP. Please try again.";
+
+        return {
+          success: false,
+          error: {
+            id: response.error.id,
+            message: errorMessage,
+          },
+        };
+      }
+
+      return response;
+    } catch (error) {
+      console.error("Failed to verify OTP:", error);
+      return {
+        success: false,
+        error: {
+          id: "verify_otp_failed",
+          message: "Failed to verify OTP. Please try again.",
+        },
+      };
+    }
+  },
+};
+
 // Helper function to check if user is authenticated
 export function isAuthenticated(): boolean {
   if (typeof window === "undefined") return false;

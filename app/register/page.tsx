@@ -49,6 +49,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/components/auth-provider";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
+import { otpApi } from "@/lib/api";
 
 // Email validation function
 const validateEmail = (email: string) => {
@@ -128,9 +129,6 @@ export default function RegisterPage() {
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpMessage, setOtpMessage] = useState("");
 
-  // Hardcoded OTP for testing
-  const MOCK_OTP = "123456";
-
   // Handle input changes
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -159,15 +157,34 @@ export default function RegisterPage() {
       return;
     }
 
+    // Ensure phone number starts with + for API requirement
+    const phoneNumber = formData.phone.trim();
+    if (!phoneNumber.startsWith("+")) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: t("register.validation.phoneCountryCode"),
+      }));
+      return;
+    }
+
     setIsSendingOtp(true);
-    setErrors((prev) => ({ ...prev, phone: "", otp: "" }));
+    setErrors((prev) => ({ ...prev, phone: "", otp: "", general: "" }));
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const response = await otpApi.sendOtp(phoneNumber);
 
-      setOtpSent(true);
-      setOtpMessage(t("register.form.phone.codeSent"));
+      if (response.success) {
+        setOtpSent(true);
+        setOtpMessage(
+          response.data?.message || t("register.form.phone.codeSent")
+        );
+      } else {
+        setErrors((prev) => ({
+          ...prev,
+          general:
+            response.error?.message || "Failed to send OTP. Please try again.",
+        }));
+      }
     } catch (error) {
       setErrors((prev) => ({
         ...prev,
@@ -197,20 +214,29 @@ export default function RegisterPage() {
       return;
     }
 
+    // Ensure phone number starts with + for API requirement
+    const phoneNumber = formData.phone.trim();
+    if (!phoneNumber.startsWith("+")) {
+      setErrors((prev) => ({
+        ...prev,
+        phone: t("register.validation.phoneCountryCode"),
+      }));
+      return;
+    }
+
     setIsVerifyingOtp(true);
-    setErrors((prev) => ({ ...prev, otp: "" }));
+    setErrors((prev) => ({ ...prev, otp: "", general: "" }));
 
     try {
-      // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      const response = await otpApi.verifyOtp(phoneNumber, formData.otp);
 
-      if (formData.otp === MOCK_OTP) {
+      if (response.success) {
         setPhoneVerified(true);
         setOtpMessage("");
       } else {
         setErrors((prev) => ({
           ...prev,
-          otp: t("register.validation.otpIncorrect"),
+          otp: response.error?.message || t("register.validation.otpIncorrect"),
         }));
       }
     } catch (error) {

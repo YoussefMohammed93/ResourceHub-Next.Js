@@ -773,6 +773,7 @@
       "invalidEmail": "Please enter a valid email address",
       "phoneRequired": "Phone number is required",
       "invalidPhone": "Please enter a valid phone number",
+      "phoneCountryCode": "Phone number must include country code (e.g., +1234567890)",
       "passwordRequired": "Password is required",
       "passwordTooShort": "Password must be at least 8 characters long",
       "passwordWeak": "Password must contain at least one uppercase letter, one lowercase letter, and one number",
