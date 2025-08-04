@@ -265,7 +265,7 @@ function SearchContent() {
           {/* Sidebar - Fixed position always */}
           <aside
             className={`
-            fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 sidebar-3xl h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
+            fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-72 sidebar-3xl h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
             ${isRTL ? "translate-x-full lg:translate-x-0" : "-translate-x-full lg:translate-x-0"}
           `}
           >
@@ -306,7 +306,7 @@ function SearchContent() {
 
           {/* Main Content - 9 columns on desktop, full width on mobile */}
           <main
-            className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/15 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-96 main-content-3xl rtl" : "lg:ml-96 main-content-3xl"}`}
+            className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/15 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-72 main-content-3xl rtl" : "lg:ml-72 main-content-3xl"}`}
           >
             {/* Background Pattern */}
             <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-80"></div>
@@ -546,7 +546,7 @@ function SearchContent() {
         {/* Sidebar - Filters - Fixed position always */}
         <aside
           className={`
-          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-96 sidebar-3xl h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
+          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-72 sidebar-3xl h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
           ${isSidebarOpen ? "translate-x-0" : `${isRTL ? "translate-x-full" : "-translate-x-full"} lg:translate-x-0`}
         `}
         >
@@ -716,7 +716,7 @@ function SearchContent() {
 
         {/* Main Content - 9 columns on desktop, full width on mobile */}
         <main
-          className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/15 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-96 main-content-3xl rtl" : "lg:ml-96 main-content-3xl"}`}
+          className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/15 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-72 main-content-3xl rtl" : "lg:ml-72 main-content-3xl"}`}
         >
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-80"></div>
@@ -1772,7 +1772,7 @@ function SearchPageLoading() {
 
         {/* Main Content - Matches current layout */}
         <main
-          className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-96" : "lg:ml-96"}`}
+          className={`relative col-span-12 lg:col-span-9 min-w-0 bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 overflow-hidden ${isRTL ? "lg:mr-72" : "lg:ml-72"}`}
         >
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
