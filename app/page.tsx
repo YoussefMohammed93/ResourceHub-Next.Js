@@ -99,6 +99,26 @@ const platformsByCategory = {
       bgColor: "bg-red-600",
       initials: "Ae",
     },
+        {
+      id: 101,
+      name: "Freepik",
+      url: "https://www.freepik.com",
+      icon: "/freepik-small.png",
+    },
+    {
+      id: 200,
+      name: "Shutterstock",
+      url: "https://www.shutterstock.com",
+      icon: "/shutterstock-small.webp",
+    },
+    {
+      id: 300,
+      name: "Adobe Stock",
+      url: "https://stock.adobe.com",
+      icon: null,
+      bgColor: "bg-red-600",
+      initials: "Ae",
+    },
     {
       id: 4,
       name: "Getty Images",
@@ -639,7 +659,7 @@ const PlatformCard = ({ platform }: { platform: Platform }) => (
   >
     <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
     <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-      <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative">
+      <div className="w-12 h-12 sm:w-24 sm:h-24 mb-1 sm:mb-2 relative">
         {platform.icon ? (
           <Image
             src={platform.icon}
@@ -651,13 +671,13 @@ const PlatformCard = ({ platform }: { platform: Platform }) => (
           <div
             className={`w-full h-full ${platform.bgColor} rounded flex items-center justify-center`}
           >
-            <span className="text-white font-bold text-xs sm:text-sm">
+            <span className="text-white font-bold text-sm sm:text-lg">
               {platform.initials}
             </span>
           </div>
         )}
       </div>
-      <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+      <span className="text-xs sm:text-base font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
         {platform.name}
       </span>
     </div>
@@ -1514,7 +1534,7 @@ export default function HomePage() {
               </p>
             </div>
             {/* Tabbed Platforms Interface */}
-            <div className="max-w-[1000px] mx-auto">
+            <div className="max-w-[1200px] mx-auto">
               <Tabs defaultValue="imagesVectors" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-8">
                   <TabsTrigger
@@ -1534,9 +1554,9 @@ export default function HomePage() {
                   </TabsTrigger>
                 </TabsList>
 
-                <div className="max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40 scrollbar-thumb-rounded-full">
+                <div className="max-h-[50vh] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40 scrollbar-thumb-rounded-full">
                   <TabsContent value="imagesVectors" className="mt-0">
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 py-5 sm:gap-4 w-full">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 py-5 sm:gap-4 w-full">
                       {platformsByCategory.imagesVectors.map((platform) => (
                         <PlatformCard key={platform.id} platform={platform} />
                       ))}
@@ -1544,7 +1564,7 @@ export default function HomePage() {
                   </TabsContent>
 
                   <TabsContent value="videos" className="mt-0">
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 py-5 sm:gap-4 w-full">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 py-5 sm:gap-4 w-full">
                       {platformsByCategory.videos.map((platform) => (
                         <PlatformCard key={platform.id} platform={platform} />
                       ))}
@@ -1552,7 +1572,7 @@ export default function HomePage() {
                   </TabsContent>
 
                   <TabsContent value="soundEffects" className="mt-0">
-                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 py-5 sm:gap-4 w-full">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 py-5 sm:gap-4 w-full">
                       {platformsByCategory.soundEffects.map((platform) => (
                         <PlatformCard key={platform.id} platform={platform} />
                       ))}

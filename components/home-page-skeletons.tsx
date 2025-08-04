@@ -150,23 +150,42 @@ export function SupportedPlatformsSkeleton() {
         {/* Section Header */}
         <div className="text-center mb-12 lg:mb-16">
           <div className="space-y-4">
-            <Skeleton className="h-12 w-80 mx-auto" />
-            <Skeleton className="h-6 w-96 mx-auto" />
+            <Skeleton className="h-12 w-80 mx-auto bg-white dark:bg-muted" />
+            <Skeleton className="h-6 w-96 mx-auto bg-white dark:bg-muted" />
           </div>
         </div>
-        {/* Platforms Grid - Modern Card Design */}
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 gap-4 sm:gap-5 max-w-[1400px] mx-auto">
-          {Array.from({ length: 7 }, (_, i) => (
-            <div
-              key={i}
-              className="bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl"
-            >
-              <div className="flex items-center justify-center gap-2 p-2">
-                <Skeleton className="w-8 h-8 rounded hidden md:block" />
-                <Skeleton className="w-[90px] h-8 rounded-2xl" />
+        {/* Tabbed Platforms Interface */}
+        <div className="max-w-[1200px] mx-auto">
+          {/* Tabs List Skeleton */}
+          <div className="grid w-full grid-cols-3 mb-8 bg-muted rounded-lg p-1">
+            {Array.from({ length: 3 }, (_, i) => (
+              <div key={i} className="flex items-center justify-center py-2">
+                <Skeleton className="h-6 w-32 bg-white dark:bg-muted" />
               </div>
+            ))}
+          </div>
+
+          {/* Scrollable Content Area */}
+          <div className="max-h-[50vh] overflow-y-auto overflow-x-hidden pr-2">
+            {/* Platform Cards Grid */}
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 py-5 sm:gap-4 w-full">
+              {Array.from({ length: 14 }, (_, i) => (
+                <div
+                  key={i}
+                  className="group relative aspect-square bg-background dark:bg-muted/50 border border-border/50 rounded-lg transition-all duration-200"
+                >
+                  <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                    {/* Platform Icon/Logo */}
+                    <div className="w-12 h-12 sm:w-24 sm:h-24 mb-1 sm:mb-2 relative">
+                      <Skeleton className="w-full h-full rounded" />
+                    </div>
+                    {/* Platform Name */}
+                    <Skeleton className="h-3 w-16 sm:h-4 sm:w-24" />
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
       </div>
     </section>
