@@ -27,7 +27,28 @@
     "searchButton": "بحث",
     "popularSearches": "البحث الشائع :",
     "viewPricing": "عرض الأسعار",
-    "contactUs": "تواصل معنا"
+    "contactUs": "تواصل معنا",
+    "searchType": {
+      "placeholder": "جميع المحتويات",
+      "all": "جميع المحتويات",
+      "images": "الصور",
+      "vectors": "الرسوم المتجهة",
+      "videos": "مقاطع الفيديو",
+      "templates": "القوالب",
+      "icons": "الأيقونات"
+    },
+    "imageSearch": {
+      "buttonText": "البحث بالصورة",
+      "dialogTitle": "البحث بالصورة",
+      "dialogDescription": "ارفع صورة للعثور على محتوى مشابه عبر منصاتنا",
+      "dragAndDrop": "اسحب وأفلت صورتك هنا",
+      "orClickToBrowse": "أو انقر لتصفح الملفات",
+      "tipText": "يجب أن تكون صورتك بصيغة JPG أو PNG وأصغر من 5 ميجابايت",
+      "uploading": "جاري رفع الصورة...",
+      "uploadSuccess": "تم رفع الصورة بنجاح!",
+      "uploadError": "فشل في رفع الصورة. يرجى المحاولة مرة أخرى.",
+      "supportedFormats": "الصيغ المدعومة: JPG، PNG (حد أقصى 5 ميجابايت)"
+    }
   },
   "features": {
     "title": "لماذا تختار",

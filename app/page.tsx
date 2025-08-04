@@ -3,7 +3,6 @@
 import {
   Search,
   Image as ImageIcon,
-  Video,
   Eye,
   PhoneCall,
   Menu,
@@ -21,6 +20,9 @@ import {
   Sparkles,
   Users,
   Star,
+  Palette,
+  Camera,
+  File,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -34,6 +36,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState } from "react";
 import Footer from "@/components/footer";
 import FAQSection from "@/components/faq-section";
@@ -53,6 +62,7 @@ import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
+import { ImageSearchDialog } from "@/components/image-search-dialog";
 
 const categoryKeys = [
   "nature",
@@ -128,6 +138,8 @@ export default function HomePage() {
   const { isRTL, isLoading } = useLanguage();
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [searchType, setSearchType] = useState("all");
+  const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
 
   const handleSearch = () => {
     if (searchQuery.trim()) {
@@ -458,7 +470,7 @@ export default function HomePage() {
         </div>
         {/* Shape 5 - Top Center Right Floating Icon */}
         <div
-          className={`hidden md:block absolute top-8 ${isRTL ? "left-1/3 md:left-2/12" : "right-1/3 md:right-2/5"} md:top-12`}
+          className={`hidden md:block absolute top-8 ${isRTL ? "left-1/3 md:left-2/12" : "right-1/3 md:right-4/5"} md:top-12`}
         >
           <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
             <Shield className="w-5 h-5 text-primary" />
@@ -475,9 +487,9 @@ export default function HomePage() {
             fill="none"
             className="text-primary/30"
           >
-            {/* Small squares grid - 3x3 */}
-            {Array.from({ length: 3 }, (_, row) =>
-              Array.from({ length: 3 }, (_, col) => (
+            {/* Small squares grid - 5x5 */}
+            {Array.from({ length: 5 }, (_, row) =>
+              Array.from({ length: 5 }, (_, col) => (
                 <rect
                   key={`square-top-${row}-${col}`}
                   x={6 + col * 12}
@@ -495,148 +507,353 @@ export default function HomePage() {
             )}
           </svg>
         </div>
-        <div className="container mx-auto max-w-7xl px-5 relative z-10">
-          <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center min-h-[80vh]">
-            {/* Left Content */}
-            <div className="space-y-8 lg:space-y-10">
-              <div className="space-y-6">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-foreground font-sans">
-                  {t("hero.title")}{" "}
-                  <span className="text-primary sm:text-6xl">
-                    {t("hero.titleHighlight")}
-                  </span>
-                </h1>
-                <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                  {t("hero.description")}
-                </p>
-              </div>
-              {/* Search Bar */}
-              <div className="w-full max-w-2xl">
-                {/* Mobile Layout */}
-                <div className="sm:hidden space-y-3">
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 stroke-3 text-muted-foreground w-5 h-5" />
-                    <Input
-                      type="text"
-                      placeholder={t("hero.searchPlaceholderMobile")}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                      className="pl-12 pr-4 py-6 text-lg border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm w-full"
-                    />
-                  </div>
+
+        {/* Additional Floating Icons - 9 more decorative elements */}
+        {/* Icon 1 - Top Left Corner */}
+        <div
+          className={`hidden lg:block absolute top-20 ${isRTL ? "right-8" : "left-8"}`}
+        >
+          <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
+            <Zap className="w-6 h-6 text-primary" />
+          </div>
+        </div>
+
+        {/* Icon 2 - Top Right Corner */}
+        <div
+          className={`hidden lg:block absolute top-24 ${isRTL ? "left-12" : "right-12"}`}
+        >
+          <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-bounce-slow">
+            <Crown className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        {/* Icon 3 - Middle Left */}
+        <div
+          className={`hidden md:block absolute top-1/2 ${isRTL ? "right-4" : "left-4"} transform -translate-y-1/2`}
+        >
+          <div className="w-11 h-11 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float-delayed">
+            <Users className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        {/* Icon 4 - Middle Right */}
+        <div
+          className={`hidden md:block absolute top-1/2 ${isRTL ? "left-6" : "right-6"} transform -translate-y-1/2`}
+        >
+          <div className="w-9 h-9 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
+            <Timer className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        {/* Icon 5 - Bottom Left */}
+        <div
+          className={`hidden md:block absolute bottom-24 ${isRTL ? "right-16" : "left-16"}`}
+        >
+          <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-bounce-slow">
+            <Coins className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        {/* Icon 6 - Bottom Right */}
+        <div
+          className={`hidden md:block absolute bottom-28 ${isRTL ? "left-20" : "right-20"}`}
+        >
+          <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float-delayed">
+            <Check className="w-6 h-6 text-primary" />
+          </div>
+        </div>
+
+        {/* Icon 7 - Top Center */}
+        <div
+          className={`hidden lg:block absolute top-16 ${isRTL ? "right-5/6" : "left-5/6"} transform -translate-x-1/2`}
+        >
+          <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
+            <ExternalLink className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        {/* Icon 8 - Bottom Center Left */}
+        <div
+          className={`hidden md:block absolute bottom-16 ${isRTL ? "right-1/3" : "left-1/3"}`}
+        >
+          <div className="w-11 h-11 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-bounce-slow">
+            <Cat className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        {/* Icon 9 - Bottom Center Right */}
+        <div
+          className={`hidden md:block absolute bottom-20 ${isRTL ? "left-1/4" : "right-1/4"}`}
+        >
+          <div className="w-9 h-9 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float-delayed">
+            <Sparkles className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        <div className="container mx-auto max-w-7xl px-4 sm:px-5 relative z-10">
+          <div className="flex flex-col items-center justify-center min-h-[85vh] sm:min-h-[80vh] text-center space-y-6 sm:space-y-8 lg:space-y-12 py-8 sm:py-0">
+            {/* Centered Content */}
+            <div className="space-y-4 sm:space-y-6 max-w-4xl px-2 sm:px-0">
+              <h1 className="text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight text-foreground font-sans leading-tight sm:leading-tight">
+                {t("hero.title")}{" "}
+                <span className="text-primary block sm:inline">
+                  {t("hero.titleHighlight")}
+                </span>
+              </h1>
+              <p className="text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto px-2 sm:px-0">
+                {t("hero.description")}
+              </p>
+            </div>
+            {/* Centered Search Bar */}
+            <div className="w-full max-w-4xl px-4 sm:px-0">
+              {/* Mobile Layout */}
+              <div className="sm:hidden space-y-4">
+                {/* Search Type Dropdown for Mobile */}
+                <div className="w-full">
+                  <Select value={searchType} onValueChange={setSearchType}>
+                    <SelectTrigger className="w-full h-14 text-base border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm">
+                      <SelectValue
+                        placeholder={t("hero.searchType.placeholder")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">
+                        <div className="flex items-center gap-2">
+                          <Search className="w-4 h-4" />
+                          <span>{t("hero.searchType.all")}</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="images">
+                        <div className="flex items-center gap-2">
+                          <ImageIcon className="w-4 h-4" />
+                          <span>{t("hero.searchType.images")}</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="vectors">
+                        <div className="flex items-center gap-2">
+                          <Palette className="w-4 h-4" />
+                          <span>{t("hero.searchType.vectors")}</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="videos">
+                        <div className="flex items-center gap-2">
+                          <Camera className="w-4 h-4" />
+                          <span>{t("hero.searchType.videos")}</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="templates">
+                        <div className="flex items-center gap-2">
+                          <File className="w-4 h-4" />
+                          <span>{t("hero.searchType.templates")}</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="icons">
+                        <div className="flex items-center gap-2">
+                          <Star className="w-4 h-4" />
+                          <span>{t("hero.searchType.icons")}</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Search Input */}
+                <div className="relative">
+                  <Search
+                    className={`absolute ${isRTL ? "right-4" : "left-4"} top-1/2 transform -translate-y-1/2 stroke-2 text-muted-foreground w-5 h-5`}
+                  />
+                  <Input
+                    type="text"
+                    placeholder={t("hero.searchPlaceholderMobile")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    className={`${isRTL ? "pr-12 pl-4" : "pl-12 pr-4"} py-7 text-base border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm w-full`}
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-3">
                   <Button
                     onClick={handleSearch}
-                    className="w-full py-6 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    className="flex-1 py-7 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl min-h-[3.5rem] touch-manipulation"
                   >
-                    <Search className="w-5 h-5 stroke-3" />
+                    <Search className="w-5 h-5 stroke-2 mr-2" />
+                    {t("hero.searchButton")}
+                  </Button>
+                  <Button
+                    onClick={() => setIsImageSearchOpen(true)}
+                    variant="outline"
+                    className="py-7 px-6 text-base font-semibold rounded-xl border-2 border-border hover:border-primary/50 min-h-[3.5rem] touch-manipulation flex flex-col gap-1"
+                  >
+                    <ImageIcon className="w-5 h-5" />
+                    <span className="text-xs font-medium leading-tight">
+                      {t("hero.imageSearch.buttonText")}
+                    </span>
+                  </Button>
+                </div>
+              </div>
+              {/* Desktop Layout */}
+              <div className="hidden sm:flex items-center gap-5">
+                <div className="w-full relative flex items-center">
+                  {/* Search Type Dropdown */}
+                  <div
+                    className={`absolute ${isRTL ? "right-2" : "left-2"} top-1/2 transform -translate-y-1/2 z-10`}
+                  >
+                    <Select value={searchType} onValueChange={setSearchType}>
+                      <SelectTrigger className="w-44 !h-14 border-0 bg-secondary hover:bg-secondary/70 dark:hover:bg-muted/50 focus:ring-0 focus:ring-offset-0">
+                        <SelectValue
+                          placeholder={t("hero.searchType.placeholder")}
+                        />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">
+                          <div
+                            className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                          >
+                            <Search className="w-4 h-4" />
+                            <span>{t("hero.searchType.all")}</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="images">
+                          <div
+                            className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                          >
+                            <ImageIcon className="w-4 h-4" />
+                            <span>{t("hero.searchType.images")}</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="vectors">
+                          <div
+                            className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                          >
+                            <Palette className="w-4 h-4" />
+                            <span>{t("hero.searchType.vectors")}</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="videos">
+                          <div
+                            className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                          >
+                            <Camera className="w-4 h-4" />
+                            <span>{t("hero.searchType.videos")}</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="templates">
+                          <div
+                            className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                          >
+                            <File className="w-4 h-4" />
+                            <span>{t("hero.searchType.templates")}</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="icons">
+                          <div
+                            className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                          >
+                            <Star className="w-4 h-4" />
+                            <span>{t("hero.searchType.icons")}</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Search Input */}
+                  <Input
+                    type="text"
+                    placeholder={t("hero.searchPlaceholder")}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+                    className={`${isRTL ? "pr-48 pl-32" : "pl-48 pr-32"} py-7 h-[4.5rem] text-lg border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm ${isRTL && "placeholder:text-lg"}`}
+                  />
+
+                  {/* Search Button */}
+                  <Button
+                    onClick={handleSearch}
+                    className={`absolute ${isRTL ? "left-2" : "right-2"} top-1/2 transform -translate-y-1/2 !px-6 !h-14 bg-primary hover:bg-primary/90 ${isRTL && "text-base"}`}
+                  >
+                    <Search className="w-4 h-4 stroke-3" />
                     {t("hero.searchButton")}
                   </Button>
                 </div>
-                {/* Desktop Layout */}
-                <div className="hidden sm:block">
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                    <Input
-                      type="text"
-                      placeholder={t("hero.searchPlaceholder")}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                      className={`pl-4 sm:pl-8 pr-32 py-7 text-lg border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm ${isRTL && "placeholder:text-lg"}`}
-                    />
-                    <Button
-                      onClick={handleSearch}
-                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 !px-6 !h-11 bg-primary hover:bg-primary/90 ${isRTL && "text-base"}`}
-                    >
-                      <Search className="w-4 h-4 stroke-3" />
-                      {t("hero.searchButton")}
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              {/* Popular Searches */}
-              <div className="space-y-3">
-                <p
-                  className={`text-sm text-muted-foreground font-medium ${isRTL && "!text-base"}`}
-                >
-                  {t("hero.popularSearches")}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    "Business",
-                    "Nature",
-                    "Technology",
-                    "People",
-                    "Abstract",
-                    "Astronomy",
-                  ].map((term) => (
-                    <Badge
-                      key={term}
-                      variant="outline"
-                      onClick={() => {
-                        setSearchQuery(term);
-                        window.location.href = `/search?q=${encodeURIComponent(term)}`;
-                      }}
-                      className="px-4 py-4 text-sm cursor-pointer bg-background dark:bg-background/20 dark:hover:bg-primary hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors"
-                    >
-                      {term}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-              {/* CTA Buttons */}
-              <div className="pt-4 flex flex-col sm:flex-row gap-4">
-                <Button size="lg" className="!px-8 py-6 font-semibold">
-                  <Eye className="size-5" />
-                  {t("hero.viewPricing")}
-                </Button>
+                {/* Image Search Button */}
                 <Button
-                  size="lg"
+                  onClick={() => setIsImageSearchOpen(true)}
                   variant="outline"
-                  className="!px-8 py-6 font-semibold"
+                  className="!px-5 border-2 border-border hover:border-primary/50 flex flex-col gap-2 h-auto min-h-[4.5rem]"
                 >
-                  <PhoneCall className="size-5" />
-                  {t("hero.contactUs")}
+                  <ImageIcon className="!w-6 !h-6" />
+                  <span className="text-xs font-medium">
+                    {t("hero.imageSearch.buttonText")}
+                  </span>
                 </Button>
               </div>
             </div>
-            {/* Right Image */}
-            <div className="flex justify-center lg:justify-end">
-              <div className="relative w-full max-w-lg lg:max-w-xl">
-                <div className="relative">
-                  <Image
-                    src="/hero.svg"
-                    alt="Creative resources illustration"
-                    width={500}
-                    height={500}
-                    className="w-full h-auto"
-                    priority
-                  />
-                  {/* Floating elements for visual appeal */}
-                  <div className="absolute -top-3 right-3 sm:-right-3 w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center animate-float">
-                    <ImageIcon className="w-7 h-7 text-primary" />
-                  </div>
-                  <div className="absolute -bottom-8 -left-1 sm:-left-8 w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center animate-float-delayed">
-                    <Video className="w-7 h-7 text-primary" />
-                  </div>
-                  <div className="absolute top-1/4 -left-6 sm:-left-10 w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center animate-bounce-slow">
-                    <Download className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="absolute top-5/8 -right-4 sm:-right-8 w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center animate-float-delayed">
-                    <Star className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="absolute top-3/4 -left-8 sm:-left-12 w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
-                    <Sparkles className="w-5 h-5 text-primary" />
-                  </div>
-                  <div className="absolute bottom-5/8 -right-6 sm:-right-10 w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-bounce-slow">
-                    <Globe className="w-5 h-5 text-primary" />
-                  </div>
-                </div>
+            {/* Popular Searches - Centered */}
+            <div className="space-y-4 max-w-4xl px-4 sm:px-0">
+              <p
+                className={`text-sm sm:text-base text-muted-foreground font-medium text-center ${isRTL && "!text-base sm:!text-lg"}`}
+              >
+                {t("hero.popularSearches")}
+              </p>
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+                {[
+                  "Business",
+                  "Nature",
+                  "Technology",
+                  "People",
+                  "Abstract",
+                  "Astronomy",
+                ].map((term) => (
+                  <Badge
+                    key={term}
+                    variant="outline"
+                    onClick={() => {
+                      setSearchQuery(term);
+                      window.location.href = `/search?q=${encodeURIComponent(term)}`;
+                    }}
+                    className="px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base cursor-pointer bg-background dark:bg-background/50 dark:hover:bg-primary hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors touch-manipulation min-h-[2.5rem] flex items-center"
+                  >
+                    {term}
+                  </Badge>
+                ))}
               </div>
+            </div>
+
+            {/* CTA Buttons - Centered */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 sm:px-0 w-full max-w-md sm:max-w-none">
+              <Button
+                size="lg"
+                className="!px-8 py-6 sm:py-7 text-base sm:text-lg font-semibold border-2 border-primary min-h-[3.5rem] touch-manipulation w-full sm:w-auto"
+                onClick={() => handleSmoothScroll("pricing")}
+              >
+                <Eye className="size-5 mr-2" />
+                {t("hero.viewPricing")}
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="!px-8 py-6 sm:py-7 text-base sm:text-lg font-semibold border-2 border-border hover:border-primary/50 min-h-[3.5rem] touch-manipulation w-full sm:w-auto"
+                onClick={() => handleSmoothScroll("faq")}
+              >
+                <PhoneCall className="size-5 mr-2" />
+                {t("hero.contactUs")}
+              </Button>
             </div>
           </div>
         </div>
+
+        {/* Image Search Dialog */}
+        <ImageSearchDialog
+          open={isImageSearchOpen}
+          onOpenChange={setIsImageSearchOpen}
+          onImageUpload={(file) => {
+            console.log("Image uploaded:", file.name);
+            // Handle image upload logic here
+          }}
+        />
       </section>
       {/* Supported Platforms Section */}
       {isLoading ? (

@@ -27,7 +27,28 @@
     "searchButton": "Search",
     "popularSearches": "Popular searches :",
     "viewPricing": "View Pricing",
-    "contactUs": "Contact Us"
+    "contactUs": "Contact Us",
+    "searchType": {
+      "placeholder": "All Content",
+      "all": "All Content",
+      "images": "Images",
+      "vectors": "Vectors",
+      "videos": "Videos",
+      "templates": "Templates",
+      "icons": "Icons"
+    },
+    "imageSearch": {
+      "buttonText": "Search by Image",
+      "dialogTitle": "Search by Image",
+      "dialogDescription": "Upload an image to find similar content across our platforms",
+      "dragAndDrop": "Drag and drop your image here",
+      "orClickToBrowse": "or click to browse files",
+      "tipText": "Your image must be a JPG or PNG and be smaller than 5MB",
+      "uploading": "Uploading image...",
+      "uploadSuccess": "Image uploaded successfully!",
+      "uploadError": "Failed to upload image. Please try again.",
+      "supportedFormats": "Supported formats: JPG, PNG (max 5MB)"
+    }
   },
   "features": {
     "title": "Why Choose",

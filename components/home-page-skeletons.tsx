@@ -36,54 +36,64 @@ export function HeroSkeleton() {
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-primary/20 via-primary/5 to-primary/20 py-12 md:pb-20 md:pt-8 overflow-hidden">
       {/* Background Pattern */}
-      <div className="absolute inset-0 bg-grid-pattern opacity-35"></div>
+      <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
 
-      <div className="container mx-auto max-w-7xl px-5 relative z-10">
-        <div className="grid gap-12 lg:grid-cols-2 lg:gap-16 items-center min-h-[80vh]">
-          {/* Left Content */}
-          <div className="space-y-8 lg:space-y-10">
-            <div className="space-y-6">
-              <div className="space-y-4">
-                <Skeleton className="h-12 w-full max-w-2xl" />
-                <Skeleton className="h-12 w-3/4 max-w-xl" />
-              </div>
-              <div className="space-y-2">
-                <Skeleton className="h-6 w-full max-w-2xl" />
-                <Skeleton className="h-6 w-5/6 max-w-xl" />
-              </div>
-            </div>
-            {/* Search Bar */}
-            <div className="w-full max-w-2xl">
-              {/* Mobile Layout */}
-              <div className="sm:hidden space-y-3">
-                <Skeleton className="h-16 w-full rounded-xl" />
-                <Skeleton className="h-16 w-full rounded-xl" />
-              </div>
-              {/* Desktop Layout */}
-              <div className="hidden sm:block">
-                <Skeleton className="h-16 w-full rounded-xl" />
-              </div>
-            </div>
-            {/* Popular Searches */}
+      <div className="w-full container mx-auto max-w-7xl px-4 sm:px-5 relative z-10">
+        <div className="flex flex-col items-center justify-center min-h-[85vh] sm:min-h-[80vh] text-center space-y-6 sm:space-y-8 lg:space-y-12 py-8 sm:py-0">
+          {/* Centered Content */}
+          <div className="space-y-4 sm:space-y-6 max-w-4xl px-4 sm:px-0 w-full">
+            {/* Heading Skeleton - matches h1 structure with better visibility */}
             <div className="space-y-3">
-              <Skeleton className="h-4 w-32" />
-              <div className="flex flex-wrap gap-2">
-                {Array.from({ length: 6 }, (_, i) => (
-                  <Skeleton key={i} className="h-8 w-20 rounded-full" />
-                ))}
-              </div>
+              <Skeleton className="h-8 sm:h-10 md:h-12 lg:h-16 xl:h-20 w-full max-w-3xl mx-auto bg-white dark:bg-accent border border-border/20" />
             </div>
-            {/* CTA Buttons */}
-            <div className="pt-4 flex flex-col sm:flex-row gap-4">
-              <Skeleton className="h-12 w-40" />
-              <Skeleton className="h-12 w-36" />
+            {/* Paragraph Skeleton - matches p structure with better visibility */}
+            <div className="space-y-2 mt-4 sm:mt-6">
+              <Skeleton className="h-4 sm:h-5 md:h-6 lg:h-7 w-full max-w-3xl mx-auto bg-white dark:bg-accent/80 border border-border/15" />
+              <Skeleton className="h-4 sm:h-5 md:h-6 lg:h-7 w-5/6 max-w-2xl mx-auto bg-white dark:bg-accent/80 border border-border/15" />
+              <Skeleton className="h-4 sm:h-5 md:h-6 lg:h-7 w-4/5 max-w-xl mx-auto bg-white dark:bg-accent/80 border border-border/15" />
             </div>
           </div>
-          {/* Right Image */}
-          <div className="flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-lg lg:max-w-xl">
-              <Skeleton className="w-full h-96 rounded-2xl" />
+
+          {/* Centered Search Bar */}
+          <div className="w-full max-w-4xl px-4 sm:px-0">
+            {/* Mobile Layout */}
+            <div className="sm:hidden space-y-4">
+              {/* Search Type Dropdown for Mobile */}
+              <Skeleton className="h-14 w-full rounded-xl bg-white dark:bg-accent/80" />
+              {/* Search Input */}
+              <Skeleton className="h-16 w-full rounded-xl bg-white dark:bg-accent/80" />
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                <Skeleton className="h-14 flex-1 rounded-xl bg-white dark:bg-accent/80" />
+                <Skeleton className="h-14 w-24 rounded-xl bg-white dark:bg-accent/80" />
+              </div>
             </div>
+            {/* Desktop Layout */}
+            <div className="hidden sm:block">
+              <div className="flex items-center gap-5">
+                <Skeleton className="h-16 w-full rounded-xl bg-white dark:bg-accent/80" />
+                <Skeleton className="h-16 w-24 rounded-xl bg-white dark:bg-accent/80" />
+              </div>
+            </div>
+          </div>
+
+          {/* Popular Searches - Centered */}
+          <div className="space-y-4 max-w-4xl px-4 sm:px-0">
+            <Skeleton className="h-4 sm:h-5 w-32 mx-auto bg-white dark:bg-accent/80" />
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
+              {Array.from({ length: 6 }, (_, i) => (
+                <Skeleton
+                  key={i}
+                  className="h-8 sm:h-10 w-20 sm:w-24 rounded-full bg-white dark:bg-accent/80"
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* CTA Buttons - Centered */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 sm:px-0 w-full max-w-md sm:max-w-none">
+            <Skeleton className="h-12 sm:h-14 w-full sm:w-40 rounded-xl bg-white dark:bg-accent/80" />
+            <Skeleton className="h-12 sm:h-14 w-full sm:w-36 rounded-xl bg-white dark:bg-accent/80" />
           </div>
         </div>
       </div>
