@@ -1534,7 +1534,7 @@ export default function HomePage() {
               </p>
             </div>
             {/* Tabbed Platforms Interface */}
-            <div className="max-w-[1200px] mx-auto">
+            <div className="max-w-[1200px] mx-auto border border-primary/80 dark:border-primary/30 p-5 rounded-xl shadow-2xs">
               <Tabs defaultValue="imagesVectors" className="w-full">
                 <TabsList className="grid w-full grid-cols-3 mb-8">
                   <TabsTrigger
