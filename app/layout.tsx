@@ -6,6 +6,7 @@ import { GeistSans } from "geist/font/sans";
 import { I18nProvider } from "@/components/i18n-provider";
 import { AuthProvider } from "@/components/auth-provider";
 import { ThemeProvider } from "@/components/theme-provider";
+import { ScrollToTop } from "@/components/scroll-to-top";
 import { Toaster } from "sonner";
 
 const geistSans = GeistSans;
@@ -58,6 +59,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <AuthProvider>{children}</AuthProvider>
+            <ScrollToTop />
             <Toaster />
           </ThemeProvider>
         </I18nProvider>
