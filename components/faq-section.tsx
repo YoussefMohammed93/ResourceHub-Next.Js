@@ -16,6 +16,8 @@ import {
   Shield,
   Users,
   Zap,
+  Music,
+  Ban,
 } from "lucide-react";
 
 // FAQ Skeleton Component
@@ -402,6 +404,36 @@ export default function FAQSection() {
                       className={`text-muted-foreground leading-relaxed ${isRTL ? "font-tajawal" : "font-sans"}`}
                     >
                       {t("faq.questions.safetyLegal.answer")}
+                    </p>
+                  </div>
+                </AccordionContent>
+              </div>
+            </AccordionItem>
+
+            {/* Question 6: Music Download Restrictions */}
+            <AccordionItem value="music-restrictions" className="border-none">
+              <div className="bg-card/80 backdrop-blur-sm border border-border/50 rounded-xl hover:bg-card/90 transition-all duration-300 overflow-hidden">
+                <AccordionTrigger className="px-6 py-6 hover:no-underline cursor-pointer">
+                  <div className="flex items-center gap-4 text-left">
+                    <div className="relative w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center shrink-0">
+                      <Music className="w-5 h-5 text-primary" />
+                      <div className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full flex items-center justify-center">
+                        <Ban className="w-2.5 h-2.5 text-primary-foreground" />
+                      </div>
+                    </div>
+                    <span
+                      className={`text-lg font-semibold text-foreground ${isRTL ? "font-tajawal text-start" : "font-sans"}`}
+                    >
+                      {t("faq.questions.musicRestrictions.question")}
+                    </span>
+                  </div>
+                </AccordionTrigger>
+                <AccordionContent className="px-6 pb-6">
+                  <div className="pl-14">
+                    <p
+                      className={`text-muted-foreground leading-relaxed ${isRTL ? "font-tajawal text-start" : "font-sans"}`}
+                    >
+                      {t("faq.questions.musicRestrictions.answer")}
                     </p>
                   </div>
                 </AccordionContent>

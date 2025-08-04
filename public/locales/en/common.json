@@ -91,9 +91,14 @@
     }
   },
   "supportedPlatforms": {
-    "title": "Trusted by Millions",
-    "titleHighlight": "Worldwide",
-    "description": "Access premium content from the world's leading creative platforms. One subscription, unlimited possibilities.",
+    "title": "Download from all your favorite sites",
+    "titleHighlight": "with original quality!",
+    "description": "Our platform automatically downloads content from all major creative platforms in original quality without any loss in resolution or details. Simply copy the link and leave the rest to us!",
+    "tabs": {
+      "imagesVectors": "Images & Vectors",
+      "videos": "Videos",
+      "soundEffects": "Sound Effects"
+    },
     "platforms": {
       "freepik": "Freepik",
       "shutterstock": "Shutterstock",
@@ -202,6 +207,10 @@
       "safetyLegal": {
         "question": "Is it safe and legal to use these resources?",
         "answer": "Yes, absolutely! All resources available through our platform are legally licensed and safe to use for commercial and personal projects. We maintain partnerships with content creators and platforms to ensure all downloads are legitimate and properly licensed."
+      },
+      "musicRestrictions": {
+        "question": "Can I download music or audio files from this platform?",
+        "answer": "No, our platform does not support music downloads or any audio content. We strictly focus on visual creative resources such as images, vectors, graphics, and videos. Music downloads are prohibited due to copyright and licensing restrictions. For audio content, please use specialized music licensing platforms."
       }
     }
   },
@@ -746,6 +755,10 @@
       "dataRetention": {
         "title": "How long we retain your data",
         "content": "If you leave a comment, the comment and its metadata are retained indefinitely. This is so we can recognize and approve any follow-up comments automatically instead of holding them in a moderation queue. For users that register on our website (if any), we also store the personal information they provide in their user profile. All users can see, edit, or delete their personal information at any time (except they cannot change their username). Website administrators can also view and edit that information."
+      },
+      "musicRestriction": {
+        "title": "Music Download Restrictions",
+        "content": "This platform does not support or facilitate music downloads in any form. We strictly prohibit the downloading, distribution, or sharing of copyrighted music content due to copyright and licensing restrictions. Our services are designed to respect intellectual property rights and comply with applicable copyright laws. Any attempt to use our platform for music-related downloads may result in account suspension or termination."
       }
     }
   },

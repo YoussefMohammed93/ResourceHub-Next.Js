@@ -46,6 +46,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import Footer from "@/components/footer";
 import FAQSection from "@/components/faq-section";
@@ -75,7 +76,489 @@ const categoryKeys = [
   "art",
 ];
 
-// Fake site data for supported sites
+// Platform data organized by categories for tabbed interface
+const platformsByCategory = {
+  imagesVectors: [
+    {
+      id: 1,
+      name: "Freepik",
+      url: "https://www.freepik.com",
+      icon: "/freepik-small.png",
+    },
+    {
+      id: 2,
+      name: "Shutterstock",
+      url: "https://www.shutterstock.com",
+      icon: "/shutterstock-small.webp",
+    },
+    {
+      id: 3,
+      name: "Adobe Stock",
+      url: "https://stock.adobe.com",
+      icon: null,
+      bgColor: "bg-red-600",
+      initials: "Ae",
+    },
+    {
+      id: 4,
+      name: "Getty Images",
+      url: "https://www.gettyimages.com",
+      icon: null,
+      bgColor: "bg-violet-500",
+      initials: "G",
+    },
+    {
+      id: 5,
+      name: "Unsplash",
+      url: "https://unsplash.com",
+      icon: null,
+      bgColor: "bg-blue-500",
+      initials: "U",
+    },
+    {
+      id: 6,
+      name: "Pexels",
+      url: "https://www.pexels.com",
+      icon: null,
+      bgColor: "bg-green-600",
+      initials: "P",
+    },
+    {
+      id: 7,
+      name: "Pixabay",
+      url: "https://pixabay.com",
+      icon: null,
+      bgColor: "bg-blue-600",
+      initials: "Px",
+    },
+    {
+      id: 8,
+      name: "Vecteezy",
+      url: "https://www.vecteezy.com",
+      icon: null,
+      bgColor: "bg-indigo-600",
+      initials: "V",
+    },
+    {
+      id: 9,
+      name: "Dreamstime",
+      url: "https://www.dreamstime.com",
+      icon: null,
+      bgColor: "bg-teal-600",
+      initials: "DT",
+    },
+    {
+      id: 10,
+      name: "123RF",
+      url: "https://www.123rf.com",
+      icon: null,
+      bgColor: "bg-purple-600",
+      initials: "123",
+    },
+    {
+      id: 11,
+      name: "Depositphotos",
+      url: "https://depositphotos.com",
+      icon: null,
+      bgColor: "bg-orange-600",
+      initials: "D",
+    },
+    {
+      id: 12,
+      name: "iStock",
+      url: "https://www.istockphoto.com",
+      icon: null,
+      bgColor: "bg-emerald-600",
+      initials: "iS",
+    },
+    {
+      id: 13,
+      name: "Envato Elements",
+      url: "https://elements.envato.com",
+      icon: null,
+      bgColor: "bg-green-700",
+      initials: "EE",
+    },
+    {
+      id: 14,
+      name: "Creative Market",
+      url: "https://creativemarket.com",
+      icon: null,
+      bgColor: "bg-pink-600",
+      initials: "CM",
+    },
+    {
+      id: 15,
+      name: "Canva",
+      url: "https://www.canva.com",
+      icon: null,
+      bgColor: "bg-cyan-500",
+      initials: "C",
+    },
+    {
+      id: 16,
+      name: "Figma Community",
+      url: "https://www.figma.com/community",
+      icon: null,
+      bgColor: "bg-purple-500",
+      initials: "F",
+    },
+    {
+      id: 17,
+      name: "Flaticon",
+      url: "https://www.flaticon.com",
+      icon: null,
+      bgColor: "bg-blue-700",
+      initials: "FI",
+    },
+    {
+      id: 18,
+      name: "Icons8",
+      url: "https://icons8.com",
+      icon: null,
+      bgColor: "bg-yellow-600",
+      initials: "I8",
+    },
+    {
+      id: 19,
+      name: "Noun Project",
+      url: "https://thenounproject.com",
+      icon: null,
+      bgColor: "bg-gray-700",
+      initials: "NP",
+    },
+    {
+      id: 20,
+      name: "Storyset",
+      url: "https://storyset.com",
+      icon: null,
+      bgColor: "bg-rose-600",
+      initials: "SS",
+    },
+  ],
+  videos: [
+    {
+      id: 21,
+      name: "Shutterstock",
+      url: "https://www.shutterstock.com/video",
+      icon: "/shutterstock-small.webp",
+    },
+    {
+      id: 22,
+      name: "Adobe Stock",
+      url: "https://stock.adobe.com/video",
+      icon: null,
+      bgColor: "bg-red-600",
+      initials: "Ae",
+    },
+    {
+      id: 23,
+      name: "Getty Images",
+      url: "https://www.gettyimages.com/video",
+      icon: null,
+      bgColor: "bg-violet-500",
+      initials: "G",
+    },
+    {
+      id: 24,
+      name: "Pond5",
+      url: "https://www.pond5.com",
+      icon: null,
+      bgColor: "bg-emerald-600",
+      initials: "P5",
+    },
+    {
+      id: 25,
+      name: "VideoHive",
+      url: "https://videohive.net",
+      icon: null,
+      bgColor: "bg-orange-600",
+      initials: "VH",
+    },
+    {
+      id: 26,
+      name: "Pexels Videos",
+      url: "https://www.pexels.com/videos",
+      icon: null,
+      bgColor: "bg-green-600",
+      initials: "P",
+    },
+    {
+      id: 27,
+      name: "Pixabay Videos",
+      url: "https://pixabay.com/videos",
+      icon: null,
+      bgColor: "bg-blue-600",
+      initials: "Px",
+    },
+    {
+      id: 28,
+      name: "Vimeo Stock",
+      url: "https://vimeo.com/stock",
+      icon: null,
+      bgColor: "bg-blue-500",
+      initials: "V",
+    },
+    {
+      id: 29,
+      name: "Motion Array",
+      url: "https://motionarray.com",
+      icon: null,
+      bgColor: "bg-purple-600",
+      initials: "MA",
+    },
+    {
+      id: 30,
+      name: "Storyblocks",
+      url: "https://www.storyblocks.com",
+      icon: null,
+      bgColor: "bg-indigo-600",
+      initials: "SB",
+    },
+    {
+      id: 31,
+      name: "Artgrid",
+      url: "https://artgrid.io",
+      icon: null,
+      bgColor: "bg-gray-700",
+      initials: "AG",
+    },
+    {
+      id: 32,
+      name: "Coverr",
+      url: "https://coverr.co",
+      icon: null,
+      bgColor: "bg-teal-600",
+      initials: "C",
+    },
+    {
+      id: 33,
+      name: "Mixkit",
+      url: "https://mixkit.co",
+      icon: null,
+      bgColor: "bg-pink-600",
+      initials: "MK",
+    },
+    {
+      id: 34,
+      name: "Videvo",
+      url: "https://www.videvo.net",
+      icon: null,
+      bgColor: "bg-cyan-600",
+      initials: "VD",
+    },
+    {
+      id: 35,
+      name: "Life of Vids",
+      url: "https://www.lifeofvids.com",
+      icon: null,
+      bgColor: "bg-rose-600",
+      initials: "LV",
+    },
+    {
+      id: 36,
+      name: "Mazwai",
+      url: "https://mazwai.com",
+      icon: null,
+      bgColor: "bg-amber-600",
+      initials: "M",
+    },
+    {
+      id: 37,
+      name: "Dissolve",
+      url: "https://dissolve.com",
+      icon: null,
+      bgColor: "bg-lime-600",
+      initials: "D",
+    },
+    {
+      id: 38,
+      name: "Clipstill",
+      url: "https://www.clipstill.com",
+      icon: null,
+      bgColor: "bg-violet-600",
+      initials: "CS",
+    },
+    {
+      id: 39,
+      name: "Envato Elements",
+      url: "https://elements.envato.com/video",
+      icon: null,
+      bgColor: "bg-green-700",
+      initials: "EE",
+    },
+    {
+      id: 40,
+      name: "Footage Firm",
+      url: "https://footagefirm.com",
+      icon: null,
+      bgColor: "bg-slate-600",
+      initials: "FF",
+    },
+  ],
+  soundEffects: [
+    {
+      id: 41,
+      name: "AudioJungle",
+      url: "https://audiojungle.net",
+      icon: null,
+      bgColor: "bg-purple-600",
+      initials: "AJ",
+    },
+    {
+      id: 42,
+      name: "Pond5",
+      url: "https://www.pond5.com/sound-effects",
+      icon: null,
+      bgColor: "bg-emerald-600",
+      initials: "P5",
+    },
+    {
+      id: 43,
+      name: "Adobe Stock",
+      url: "https://stock.adobe.com/audio",
+      icon: null,
+      bgColor: "bg-red-600",
+      initials: "Ae",
+    },
+    {
+      id: 44,
+      name: "Shutterstock",
+      url: "https://www.shutterstock.com/music",
+      icon: "/shutterstock-small.webp",
+    },
+    {
+      id: 45,
+      name: "Freesound",
+      url: "https://freesound.org",
+      icon: null,
+      bgColor: "bg-blue-700",
+      initials: "FS",
+    },
+    {
+      id: 46,
+      name: "Zapsplat",
+      url: "https://www.zapsplat.com",
+      icon: null,
+      bgColor: "bg-yellow-600",
+      initials: "ZS",
+    },
+    {
+      id: 47,
+      name: "Epidemic Sound",
+      url: "https://www.epidemicsound.com",
+      icon: null,
+      bgColor: "bg-green-600",
+      initials: "ES",
+    },
+    {
+      id: 48,
+      name: "Artlist",
+      url: "https://artlist.io",
+      icon: null,
+      bgColor: "bg-black",
+      initials: "AL",
+    },
+    {
+      id: 49,
+      name: "Musicbed",
+      url: "https://www.musicbed.com",
+      icon: null,
+      bgColor: "bg-blue-600",
+      initials: "MB",
+    },
+    {
+      id: 50,
+      name: "PremiumBeat",
+      url: "https://www.premiumbeat.com",
+      icon: null,
+      bgColor: "bg-orange-600",
+      initials: "PB",
+    },
+    {
+      id: 51,
+      name: "AudioBlocks",
+      url: "https://www.audioblocks.com",
+      icon: null,
+      bgColor: "bg-indigo-600",
+      initials: "AB",
+    },
+    {
+      id: 52,
+      name: "Soundstripe",
+      url: "https://www.soundstripe.com",
+      icon: null,
+      bgColor: "bg-pink-600",
+      initials: "SS",
+    },
+    {
+      id: 53,
+      name: "Bensound",
+      url: "https://www.bensound.com",
+      icon: null,
+      bgColor: "bg-teal-600",
+      initials: "BS",
+    },
+    {
+      id: 54,
+      name: "YouTube Audio Library",
+      url: "https://www.youtube.com/audiolibrary",
+      icon: null,
+      bgColor: "bg-red-500",
+      initials: "YT",
+    },
+    {
+      id: 55,
+      name: "BBC Sound Effects",
+      url: "https://sound-effects.bbcrewind.co.uk",
+      icon: null,
+      bgColor: "bg-gray-700",
+      initials: "BBC",
+    },
+    {
+      id: 56,
+      name: "Splice Sounds",
+      url: "https://splice.com/sounds",
+      icon: null,
+      bgColor: "bg-cyan-600",
+      initials: "SP",
+    },
+    {
+      id: 57,
+      name: "Loopmasters",
+      url: "https://www.loopmasters.com",
+      icon: null,
+      bgColor: "bg-violet-600",
+      initials: "LM",
+    },
+    {
+      id: 58,
+      name: "Native Instruments",
+      url: "https://www.native-instruments.com",
+      icon: null,
+      bgColor: "bg-slate-700",
+      initials: "NI",
+    },
+    {
+      id: 59,
+      name: "Envato Elements",
+      url: "https://elements.envato.com/audio",
+      icon: null,
+      bgColor: "bg-green-700",
+      initials: "EE",
+    },
+    {
+      id: 60,
+      name: "Motion Array",
+      url: "https://motionarray.com/browse/music",
+      icon: null,
+      bgColor: "bg-purple-600",
+      initials: "MA",
+    },
+  ],
+};
+
+// Fake site data for supported sites (keeping for pricing section)
 const supportedSites = {
   basic: [
     {
@@ -134,6 +617,52 @@ const supportedSites = {
     },
   ],
 };
+
+// Platform interface
+interface Platform {
+  id: number;
+  name: string;
+  url?: string;
+  icon: string | null;
+  bgColor?: string;
+  initials?: string;
+}
+
+// Helper function to render platform cards
+const PlatformCard = ({ platform }: { platform: Platform }) => (
+  <a
+    href={platform.url}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="group relative aspect-square bg-background dark:bg-muted/50 border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 cursor-pointer overflow-hidden"
+    title={platform.name}
+  >
+    <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+    <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+      <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative">
+        {platform.icon ? (
+          <Image
+            src={platform.icon}
+            alt={platform.name}
+            fill
+            className="object-contain"
+          />
+        ) : (
+          <div
+            className={`w-full h-full ${platform.bgColor} rounded flex items-center justify-center`}
+          >
+            <span className="text-white font-bold text-xs sm:text-sm">
+              {platform.initials}
+            </span>
+          </div>
+        )}
+      </div>
+      <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+        {platform.name}
+      </span>
+    </div>
+  </a>
+);
 
 export default function HomePage() {
   const { t } = useTranslation("common");
@@ -972,256 +1501,65 @@ export default function HomePage() {
           <div className="px-5 relative z-10">
             {/* Section Header */}
             <div className="text-center mb-12 lg:mb-16">
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground mb-4 leading-tight font-sans">
                 {t("supportedPlatforms.title")}{" "}
                 <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                   {t("supportedPlatforms.titleHighlight")}
                 </span>
               </h2>
               <p
-                className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+                className={`text-base text-muted-foreground max-w-3xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
               >
                 {t("supportedPlatforms.description")}
               </p>
             </div>
-            {/* Platforms Grid - Clean & Scalable Design */}
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-11 gap-3 sm:gap-4 max-w-[1400px] mx-auto">
-              {/* Freepik Card */}
-              <a
-                href="https://www.freepik.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Freepik"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative">
-                    <Image
-                      src="/freepik-small.png"
-                      alt="Freepik"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Freepik
-                  </span>
-                </div>
-              </a>
+            {/* Tabbed Platforms Interface */}
+            <div className="max-w-[1000px] mx-auto">
+              <Tabs defaultValue="imagesVectors" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-8">
+                  <TabsTrigger
+                    value="imagesVectors"
+                    className="text-sm sm:text-base"
+                  >
+                    {t("supportedPlatforms.tabs.imagesVectors")}
+                  </TabsTrigger>
+                  <TabsTrigger value="videos" className="text-sm sm:text-base">
+                    {t("supportedPlatforms.tabs.videos")}
+                  </TabsTrigger>
+                  <TabsTrigger
+                    value="soundEffects"
+                    className="text-sm sm:text-base"
+                  >
+                    {t("supportedPlatforms.tabs.soundEffects")}
+                  </TabsTrigger>
+                </TabsList>
 
-              {/* Shutterstock Card */}
-              <a
-                href="https://www.shutterstock.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Shutterstock"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative">
-                    <Image
-                      src="/shutterstock-small.webp"
-                      alt="Shutterstock"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Shutterstock
-                  </span>
-                </div>
-              </a>
+                <div className="max-h-[60vh] overflow-y-auto overflow-x-hidden pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40 scrollbar-thumb-rounded-full">
+                  <TabsContent value="imagesVectors" className="mt-0">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 py-5 sm:gap-4 w-full">
+                      {platformsByCategory.imagesVectors.map((platform) => (
+                        <PlatformCard key={platform.id} platform={platform} />
+                      ))}
+                    </div>
+                  </TabsContent>
 
-              {/* Adobe Stock Card */}
-              <a
-                href="https://stock.adobe.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Adobe Stock"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-red-600 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      Ae
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Adobe Stock
-                  </span>
-                </div>
-              </a>
+                  <TabsContent value="videos" className="mt-0">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 py-5 sm:gap-4 w-full">
+                      {platformsByCategory.videos.map((platform) => (
+                        <PlatformCard key={platform.id} platform={platform} />
+                      ))}
+                    </div>
+                  </TabsContent>
 
-              {/* Getty Images Card */}
-              <a
-                href="https://www.gettyimages.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Getty Images"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-violet-500 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      G
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Getty Images
-                  </span>
+                  <TabsContent value="soundEffects" className="mt-0">
+                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 py-5 sm:gap-4 w-full">
+                      {platformsByCategory.soundEffects.map((platform) => (
+                        <PlatformCard key={platform.id} platform={platform} />
+                      ))}
+                    </div>
+                  </TabsContent>
                 </div>
-              </a>
-
-              {/* Unsplash Card */}
-              <a
-                href="https://unsplash.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Unsplash"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-blue-500 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      U
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Unsplash
-                  </span>
-                </div>
-              </a>
-
-              {/* Pexels Card */}
-              <a
-                href="https://www.pexels.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Pexels"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-green-600 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      P
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Pexels
-                  </span>
-                </div>
-              </a>
-
-              {/* Pixabay Card */}
-              <a
-                href="https://pixabay.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Pixabay"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-blue-600 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      Px
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Pixabay
-                  </span>
-                </div>
-              </a>
-
-              {/* Depositphotos Card */}
-              <a
-                href="https://depositphotos.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Depositphotos"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-orange-600 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      D
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Depositphotos
-                  </span>
-                </div>
-              </a>
-
-              {/* 123RF Card */}
-              <a
-                href="https://www.123rf.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="123RF"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-purple-600 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      123
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    123RF
-                  </span>
-                </div>
-              </a>
-
-              {/* Dreamstime Card */}
-              <a
-                href="https://www.dreamstime.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Dreamstime"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-teal-600 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      DT
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Dreamstime
-                  </span>
-                </div>
-              </a>
-
-              {/* Vecteezy Card */}
-              <a
-                href="https://www.vecteezy.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
-                title="Vecteezy"
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
-                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-indigo-600 rounded flex items-center justify-center">
-                    <span className="text-white font-bold text-xs sm:text-sm">
-                      V
-                    </span>
-                  </div>
-                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
-                    Vecteezy
-                  </span>
-                </div>
-              </a>
+              </Tabs>
             </div>
           </div>
         </section>

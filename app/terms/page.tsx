@@ -18,6 +18,8 @@ import {
   Heart,
   Bookmark,
   Undo,
+  Music,
+  Ban,
 } from "lucide-react";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -210,28 +212,36 @@ export default function TermsPage() {
         </div>
 
         {/* Shape 9 - Small Floating Icon (Top Left Corner) */}
-        <div className={`absolute hidden md:block top-24 ${isRTL ? "right-20" : "left-20"}`}>
+        <div
+          className={`absolute hidden md:block top-24 ${isRTL ? "right-20" : "left-20"}`}
+        >
           <div className="w-6 h-6 bg-primary/10 border border-primary/10 rounded-md flex items-center justify-center animate-bounce-slow">
             <Settings className="w-3 h-3 text-primary" />
           </div>
         </div>
 
         {/* Shape 10 - Small Floating Icon (Top Right Corner) */}
-        <div className={`absolute hidden md:block top-28 ${isRTL ? "left-16" : "right-16"}`}>
+        <div
+          className={`absolute hidden md:block top-28 ${isRTL ? "left-16" : "right-16"}`}
+        >
           <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-pulse">
             <Zap className="w-4 h-4 text-primary" />
           </div>
         </div>
 
         {/* Shape 11 - Medium Floating Icon (Bottom Left Corner) */}
-        <div className={`absolute hidden md:block bottom-32 ${isRTL ? "right-16" : "left-16"}`}>
+        <div
+          className={`absolute hidden md:block bottom-32 ${isRTL ? "right-16" : "left-16"}`}
+        >
           <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center animate-float">
             <Star className="w-5 h-5 text-primary" />
           </div>
         </div>
 
         {/* Shape 12 - Small Floating Icon (Bottom Right Corner) */}
-        <div className={`absolute hidden md:block bottom-24 ${isRTL ? "left-20" : "right-20"}`}>
+        <div
+          className={`absolute hidden md:block bottom-24 ${isRTL ? "left-20" : "right-20"}`}
+        >
           <div className="w-6 h-6 bg-primary/10 border border-primary/10 rounded-md flex items-center justify-center animate-pulse-slow">
             <Heart className="w-3 h-3 text-primary" />
           </div>
@@ -276,6 +286,25 @@ export default function TermsPage() {
 
             {/* Terms Sections */}
             <div className="space-y-6">
+              {/* Music Download Restriction Section */}
+              <Card className="bg-card/80 backdrop-blur-sm border border-border/50 hover:bg-card/90 transition-all duration-300">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3 text-xl font-semibold text-foreground">
+                    <div className="relative w-12 h-12 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                      <Music className="w-6 h-6 text-primary" />
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-primary rounded-full flex items-center justify-center">
+                        <Ban className="w-4 h-4 text-primary-foreground" />
+                      </div>
+                    </div>
+                    {t("terms.sections.musicRestriction.title")}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                    {t("terms.sections.musicRestriction.content")}
+                  </p>
+                </CardContent>
+              </Card>
               {/* Cookies Section */}
               <Card className="bg-card/80 backdrop-blur-sm border border-border/50 hover:bg-card/90 transition-all duration-300">
                 <CardHeader>
