@@ -26,6 +26,17 @@
     "searchPlaceholderMobile": "Search photos, vectors...",
     "searchButton": "Search",
     "popularSearches": "Popular searches :",
+    "categories": {
+      "title": "Browse by Category",
+      "video": "Video",
+      "photos": "Photos",
+      "vector": "Vector",
+      "psd": "PSD",
+      "icons": "Icons",
+      "templates": "Templates",
+      "illustrations": "Illustrations",
+      "audio": "Audio"
+    },
     "viewPricing": "View Pricing",
     "contactUs": "Contact Us",
     "searchType": {

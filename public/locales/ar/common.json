@@ -26,6 +26,17 @@
     "searchPlaceholderMobile": "ابحث عن الصور، الرسوم...",
     "searchButton": "بحث",
     "popularSearches": "البحث الشائع :",
+    "categories": {
+      "title": "تصفح حسب الفئة",
+      "video": "فيديو",
+      "photos": "صور",
+      "vector": "رسوم متجهة",
+      "psd": "ملفات PSD",
+      "icons": "أيقونات",
+      "templates": "قوالب",
+      "illustrations": "رسوم توضيحية",
+      "audio": "صوتيات"
+    },
     "viewPricing": "عرض الأسعار",
     "contactUs": "تواصل معنا",
     "searchType": {

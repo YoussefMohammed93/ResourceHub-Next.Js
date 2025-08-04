@@ -77,14 +77,14 @@ export function HeroSkeleton() {
             </div>
           </div>
 
-          {/* Popular Searches - Centered */}
-          <div className="space-y-4 max-w-4xl px-4 sm:px-0">
-            <Skeleton className="h-4 sm:h-5 w-32 mx-auto bg-white dark:bg-accent/80" />
-            <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-              {Array.from({ length: 6 }, (_, i) => (
+          {/* Category Cards Grid - Centered */}
+          <div className="w-full space-y-6 max-w-7xl px-4 sm:px-6">
+            <Skeleton className="h-4 sm:h-5 w-40 mx-auto bg-white dark:bg-accent/80" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 justify-items-center">
+              {Array.from({ length: 5 }, (_, i) => (
                 <Skeleton
                   key={i}
-                  className="h-8 sm:h-10 w-20 sm:w-24 rounded-full bg-white dark:bg-accent/80"
+                  className="w-full max-w-[300px] h-[80px] rounded-xl bg-white dark:bg-accent/80"
                 />
               ))}
             </div>

@@ -23,6 +23,9 @@ import {
   Palette,
   Camera,
   File,
+  Play,
+  Layers,
+  FileImage,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -57,7 +60,6 @@ import {
   FAQSkeleton,
 } from "@/components/home-page-skeletons";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/i18n-provider";
@@ -791,34 +793,138 @@ export default function HomePage() {
                 </Button>
               </div>
             </div>
-            {/* Popular Searches - Centered */}
-            <div className="space-y-4 max-w-4xl px-4 sm:px-0">
+            {/* Category Cards Grid - Centered */}
+            <div className="w-full space-y-6 px-4 sm:px-6">
               <p
                 className={`text-sm sm:text-base text-muted-foreground font-medium text-center ${isRTL && "!text-base sm:!text-lg"}`}
               >
-                {t("hero.popularSearches")}
+                {t("hero.categories.title")}
               </p>
-              <div className="flex flex-wrap justify-center gap-2 sm:gap-3">
-                {[
-                  "Business",
-                  "Nature",
-                  "Technology",
-                  "People",
-                  "Abstract",
-                  "Astronomy",
-                ].map((term) => (
-                  <Badge
-                    key={term}
-                    variant="outline"
-                    onClick={() => {
-                      setSearchQuery(term);
-                      window.location.href = `/search?q=${encodeURIComponent(term)}`;
-                    }}
-                    className="px-3 py-2 sm:px-4 sm:py-2 text-sm sm:text-base cursor-pointer bg-background dark:bg-background/50 dark:hover:bg-primary hover:bg-primary hover:border-primary hover:text-primary-foreground transition-colors touch-manipulation min-h-[2.5rem] flex items-center"
-                  >
-                    {term}
-                  </Badge>
-                ))}
+              <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 justify-items-center">
+                {/* Video Category */}
+                <div
+                  className="group relative w-full max-w-[300px] h-[80px] bg-gradient-to-br from-blue-500/20 to-blue-600/30 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  onClick={() => {
+                    setSearchQuery("video");
+                    window.location.href = `/search?q=${encodeURIComponent("video")}`;
+                  }}
+                >
+                  <Image
+                    src="/placeholder.png"
+                    alt={t("hero.categories.video")}
+                    fill
+                    className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <Play className="w-8 h-8 text-white mb-2 mx-auto" />
+                      <span className="text-white font-semibold text-base sm:text-lg">
+                        {t("hero.categories.video")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Photos Category */}
+                <div
+                  className="group relative w-full max-w-[300px] h-[80px] bg-gradient-to-br from-green-500/20 to-green-600/30 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  onClick={() => {
+                    setSearchQuery("photos");
+                    window.location.href = `/search?q=${encodeURIComponent("photos")}`;
+                  }}
+                >
+                  <Image
+                    src="/image-1.jpg"
+                    alt={t("hero.categories.photos")}
+                    fill
+                    className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <Camera className="w-8 h-8 text-white mb-2 mx-auto" />
+                      <span className="text-white font-semibold text-base sm:text-lg">
+                        {t("hero.categories.photos")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Vector Category */}
+                <div
+                  className="group relative w-full max-w-[300px] h-[80px] bg-gradient-to-br from-purple-500/20 to-purple-600/30 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  onClick={() => {
+                    setSearchQuery("vector");
+                    window.location.href = `/search?q=${encodeURIComponent("vector")}`;
+                  }}
+                >
+                  <Image
+                    src="/image-2.webp"
+                    alt={t("hero.categories.vector")}
+                    fill
+                    className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <Layers className="w-8 h-8 text-white mb-2 mx-auto" />
+                      <span className="text-white font-semibold text-base sm:text-lg">
+                        {t("hero.categories.vector")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* PSD Category */}
+                <div
+                  className="group relative w-full max-w-[300px] h-[80px] bg-gradient-to-br from-orange-500/20 to-orange-600/30 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  onClick={() => {
+                    setSearchQuery("psd");
+                    window.location.href = `/search?q=${encodeURIComponent("psd")}`;
+                  }}
+                >
+                  <Image
+                    src="/adobe.jpg"
+                    alt={t("hero.categories.psd")}
+                    fill
+                    className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <FileImage className="w-8 h-8 text-white mb-2 mx-auto" />
+                      <span className="text-white font-semibold text-base sm:text-lg">
+                        {t("hero.categories.psd")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Icons Category */}
+                <div
+                  className="group relative w-full max-w-[300px] h-[80px] bg-gradient-to-br from-pink-500/20 to-pink-600/30 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  onClick={() => {
+                    setSearchQuery("icons");
+                    window.location.href = `/search?q=${encodeURIComponent("icons")}`;
+                  }}
+                >
+                  <Image
+                    src="/placeholder.png"
+                    alt={t("hero.categories.icons")}
+                    fill
+                    className="object-cover opacity-60 group-hover:opacity-80 transition-opacity duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="text-center">
+                      <Star className="w-8 h-8 text-white mb-2 mx-auto" />
+                      <span className="text-white font-semibold text-base sm:text-lg">
+                        {t("hero.categories.icons")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -878,154 +984,244 @@ export default function HomePage() {
                 {t("supportedPlatforms.description")}
               </p>
             </div>
-            {/* Platforms Grid - Modern Card Design */}
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 platforms-grid-3xl-home gap-1 sm:gap-2 max-w-[1800px] mx-auto">
-              {/* Freepik Card 1 */}
-              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="w-fit flex items-center justify-center   gap-2">
-                  <Image
-                    src="/freepik-small.png"
-                    alt={t("supportedPlatforms.platforms.freepik")}
-                    width={20}
-                    height={20}
-                    className="object-contain hidden md:block"
-                  />
-                  <Image
-                    src="/freepik-big.png"
-                    alt=""
-                    width={80}
-                    height={100}
-                    className="object-cover rounded-2xl"
-                  />
+            {/* Platforms Grid - Clean & Scalable Design */}
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-11 gap-3 sm:gap-4 max-w-[1400px] mx-auto">
+              {/* Freepik Card */}
+              <a
+                href="https://www.freepik.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Freepik"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative">
+                    <Image
+                      src="/freepik-small.png"
+                      alt="Freepik"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Freepik
+                  </span>
                 </div>
-              </div>
+              </a>
 
-              {/* Shutterstock Card 1 */}
-              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="w-fit flex items-center justify-center gap-2">
-                  <Image
-                    src="/shutterstock-small.webp"
-                    alt={t("supportedPlatforms.platforms.shutterstock")}
-                    width={20}
-                    height={20}
-                    className="object-contain hidden md:block"
-                  />
-                  <Image
-                    src="/shutterstock-big.png"
-                    alt=""
-                    width={80}
-                    height={100}
-                    className="object-cover rounded-2xl"
-                  />
+              {/* Shutterstock Card */}
+              <a
+                href="https://www.shutterstock.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Shutterstock"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative">
+                    <Image
+                      src="/shutterstock-small.webp"
+                      alt="Shutterstock"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Shutterstock
+                  </span>
                 </div>
-              </div>
+              </a>
 
-              {/* Freepik Card 2 */}
-              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="w-fit flex items-center justify-center gap-2">
-                  <Image
-                    src="/freepik-small.png"
-                    alt={t("supportedPlatforms.platforms.freepik")}
-                    width={20}
-                    height={20}
-                    className="object-contain hidden md:block"
-                  />
-                  <Image
-                    src="/freepik-big.png"
-                    alt=""
-                    width={80}
-                    height={100}
-                    className="object-cover rounded-2xl"
-                  />
+              {/* Adobe Stock Card */}
+              <a
+                href="https://stock.adobe.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Adobe Stock"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-red-600 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      Ae
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Adobe Stock
+                  </span>
                 </div>
-              </div>
+              </a>
 
-              {/* Shutterstock Card 2 */}
-              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="w-fit flex items-center justify-center gap-2">
-                  <Image
-                    src="/shutterstock-small.webp"
-                    alt={t("supportedPlatforms.platforms.shutterstock")}
-                    width={20}
-                    height={20}
-                    className="object-contain hidden md:block"
-                  />
-                  <Image
-                    src="/shutterstock-big.png"
-                    alt=""
-                    width={80}
-                    height={100}
-                    className="object-cover rounded-2xl"
-                  />
+              {/* Getty Images Card */}
+              <a
+                href="https://www.gettyimages.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Getty Images"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-violet-500 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      G
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Getty Images
+                  </span>
                 </div>
-              </div>
+              </a>
 
-              {/* Freepik Card 3 */}
-              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="w-fit flex items-center justify-center gap-2">
-                  <Image
-                    src="/freepik-small.png"
-                    alt={t("supportedPlatforms.platforms.freepik")}
-                    width={20}
-                    height={20}
-                    className="object-contain hidden md:block"
-                  />
-                  <Image
-                    src="/freepik-big.png"
-                    alt=""
-                    width={80}
-                    height={100}
-                    className="object-cover rounded-2xl"
-                  />
+              {/* Unsplash Card */}
+              <a
+                href="https://unsplash.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Unsplash"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-blue-500 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      U
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Unsplash
+                  </span>
                 </div>
-              </div>
+              </a>
 
-              {/* Shutterstock Card 3 */}
-              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="w-fit flex items-center justify-center gap-2">
-                  <Image
-                    src="/shutterstock-small.webp"
-                    alt={t("supportedPlatforms.platforms.shutterstock")}
-                    width={20}
-                    height={20}
-                    className="object-contain hidden md:block"
-                  />
-                  <Image
-                    src="/shutterstock-big.png"
-                    alt=""
-                    width={80}
-                    height={100}
-                    className="object-cover rounded-2xl"
-                  />
+              {/* Pexels Card */}
+              <a
+                href="https://www.pexels.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Pexels"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-green-600 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      P
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Pexels
+                  </span>
                 </div>
-              </div>
+              </a>
 
-              {/* Freepik Card 4 */}
-              <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="w-fit flex items-center justify-center gap-2">
-                  <Image
-                    src="/freepik-small.png"
-                    alt={t("supportedPlatforms.platforms.freepik")}
-                    width={20}
-                    height={20}
-                    className="object-contain hidden md:block"
-                  />
-                  <Image
-                    src="/freepik-big.png"
-                    alt=""
-                    width={80}
-                    height={100}
-                    className="object-cover rounded-2xl"
-                  />
+              {/* Pixabay Card */}
+              <a
+                href="https://pixabay.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Pixabay"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-blue-600 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      Px
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Pixabay
+                  </span>
                 </div>
-              </div>
+              </a>
+
+              {/* Depositphotos Card */}
+              <a
+                href="https://depositphotos.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Depositphotos"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-orange-600 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      D
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Depositphotos
+                  </span>
+                </div>
+              </a>
+
+              {/* 123RF Card */}
+              <a
+                href="https://www.123rf.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="123RF"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-purple-600 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      123
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    123RF
+                  </span>
+                </div>
+              </a>
+
+              {/* Dreamstime Card */}
+              <a
+                href="https://www.dreamstime.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Dreamstime"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-teal-600 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      DT
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Dreamstime
+                  </span>
+                </div>
+              </a>
+
+              {/* Vecteezy Card */}
+              <a
+                href="https://www.vecteezy.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group relative aspect-square bg-background border border-border/50 rounded-lg transition-all duration-200 hover:border-primary/40 hover:scale-[1.02] cursor-pointer overflow-hidden"
+                title="Vecteezy"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/3 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <div className="relative w-full h-full p-2 flex flex-col items-center justify-center">
+                  <div className="w-10 h-10 sm:w-14 sm:h-14 mb-1 sm:mb-2 relative bg-indigo-600 rounded flex items-center justify-center">
+                    <span className="text-white font-bold text-xs sm:text-sm">
+                      V
+                    </span>
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-muted-foreground group-hover:text-foreground transition-colors text-center leading-tight">
+                    Vecteezy
+                  </span>
+                </div>
+              </a>
             </div>
           </div>
         </section>
