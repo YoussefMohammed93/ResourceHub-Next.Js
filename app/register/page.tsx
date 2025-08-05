@@ -30,6 +30,7 @@ import {
   Trophy,
   MessageSquare,
   Send,
+  Home,
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect } from "react";
@@ -50,6 +51,7 @@ import { useAuth } from "@/components/auth-provider";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { otpApi } from "@/lib/api";
+import Footer from "@/components/footer";
 
 // Email validation function
 const validateEmail = (email: string) => {
@@ -688,7 +690,7 @@ export default function RegisterPage() {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 flex items-center justify-center px-4 py-8 sm:py-12">
+      <main className="relative z-10 min-h-screen flex items-center justify-center px-4 py-8 sm:py-12">
         <div className="w-full max-w-lg">
           <Card className="border-border dark:bg-muted/80 shadow-xs">
             <CardHeader className="space-y-1 text-center">
@@ -1133,8 +1135,22 @@ export default function RegisterPage() {
               </form>
             </CardContent>
           </Card>
+
+          {/* Back to Home Button */}
+          <div className="mt-6 text-center">
+            <Link href="/">
+              <Button
+                variant="outline"
+                className={`flex items-center gap-2 mx-auto ${isRTL ? "flex-row-reverse" : ""}`}
+              >
+                <Home className="w-4 h-4" />
+                {t("common.back")} {t("header.navigation.home")}
+              </Button>
+            </Link>
+          </div>
         </div>
       </main>
+      <Footer />
     </div>
   );
 }

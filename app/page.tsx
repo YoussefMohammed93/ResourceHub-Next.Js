@@ -99,7 +99,7 @@ const platformsByCategory = {
       bgColor: "bg-red-600",
       initials: "Ae",
     },
-        {
+    {
       id: 101,
       name: "Freepik",
       url: "https://www.freepik.com",
@@ -1792,13 +1792,8 @@ export default function HomePage() {
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-baseline space-x-2">
-                      <span className="text-4xl font-bold text-primary">
-                        {t("pricing.advanced.price")}
-                      </span>
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg font-medium"}`}
-                      >
-                        /{t("common.month")}
+                      <span className="text-3xl font-bold text-foreground">
+                        Contact Us
                       </span>
                     </div>
                     <p
@@ -1921,9 +1916,18 @@ export default function HomePage() {
                 </div>
                 {/* CTA Button - Now at bottom */}
                 <div className="mt-auto pt-4">
-                  <Button className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
-                    <Crown className="w-4 h-4" />
-                    {t("pricing.advanced.button")}
+                  <Button
+                    className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    asChild
+                  >
+                    <a
+                      href="https://example.com/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="w-4 h-4 stroke-3" />
+                      Contact Us
+                    </a>
                   </Button>
                 </div>
               </div>
@@ -1953,12 +1957,7 @@ export default function HomePage() {
                   <div className="space-y-2">
                     <div className="flex items-baseline space-x-2">
                       <span className="text-3xl font-bold text-foreground">
-                        {t("pricing.premium.price")}
-                      </span>
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg font-medium"}`}
-                      >
-                        /{t("common.month")}
+                        Contact Us
                       </span>
                     </div>
                     <p
@@ -2081,9 +2080,18 @@ export default function HomePage() {
                 </div>
                 {/* CTA Button - Now at bottom */}
                 <div className="mt-auto pt-4">
-                  <Button className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
-                    <Globe className="w-4 h-4" />
-                    {t("pricing.premium.button")}
+                  <Button
+                    className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    asChild
+                  >
+                    <a
+                      href="https://example.com/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="w-4 h-4 stroke-3" />
+                      Contact Us
+                    </a>
                   </Button>
                 </div>
               </div>
@@ -2113,12 +2121,7 @@ export default function HomePage() {
                   <div className="space-y-2">
                     <div className="flex items-baseline space-x-2">
                       <span className="text-3xl font-bold text-foreground">
-                        {t("pricing.premium.price")}
-                      </span>
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg font-medium"}`}
-                      >
-                        /{t("common.month")}
+                        Contact Us
                       </span>
                     </div>
                     <p
@@ -2241,9 +2244,18 @@ export default function HomePage() {
                 </div>
                 {/* CTA Button - Now at bottom */}
                 <div className="mt-auto pt-4">
-                  <Button className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl">
-                    <Globe className="w-4 h-4" />
-                    {t("pricing.premium.button")}
+                  <Button
+                    className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                    asChild
+                  >
+                    <a
+                      href="https://example.com/contact"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="w-4 h-4 stroke-3" />
+                      Contact Us
+                    </a>
                   </Button>
                 </div>
               </div>
