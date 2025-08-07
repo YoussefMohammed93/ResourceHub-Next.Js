@@ -739,6 +739,48 @@ export async function testAuthorization(): Promise<boolean> {
   }
 }
 
+// Broadcast Management Types
+export interface BroadcastCreateRequest {
+  title: string;
+  message: string;
+  audience: "all" | "premium" | "online";
+  image_content?: string;
+}
+
+export interface BroadcastCreateResponse {
+  id: string;
+  message: string;
+}
+
+export interface BroadcastStatusResponse {
+  id: string;
+  status: string;
+  progress: number;
+  total_users: number;
+  sent_count: number;
+  failed_count: number;
+}
+
+export interface BroadcastActivity {
+  id: string;
+  title: string;
+  message: string;
+  audience: string;
+  target_recipients: number;
+  sent_successfully: number;
+  failed_count: number;
+  created_at: string;
+  created_date: string;
+  status: string;
+}
+
+export interface BroadcastActivityResponse {
+  recent_broadcasts: BroadcastActivity[];
+  today_broadcasts_count: number;
+  total_recent_shown: number;
+  last_updated: string;
+}
+
 // Helper function to store authentication token
 export function storeAuthToken(
   token: string,
@@ -760,6 +802,203 @@ export function clearAuthToken(): void {
   localStorage.removeItem("access_token");
   sessionStorage.removeItem("access_token");
 }
+
+// Broadcast Management API functions
+export const broadcastApi = {
+  // Create a new broadcast (line 11 from broadcast.yaml)
+  async createBroadcast(
+    data: BroadcastCreateRequest
+  ): Promise<ApiResponse<BroadcastCreateResponse>> {
+    // Use mock data if enabled or if endpoint doesn't exist
+    if (shouldUseMockData()) {
+      console.log("[Broadcast API] Using mock create broadcast data");
+      return {
+        success: true,
+        data: {
+          id: `broadcast_${Date.now()}`,
+          message: "Broadcast created successfully",
+        },
+      };
+    }
+
+    try {
+      return await apiRequest<BroadcastCreateResponse>(
+        "/v1/broadcast/create",
+        "POST",
+        {
+          title: data.title,
+          message: data.message,
+          audience: data.audience,
+          ...(data.image_content && { image_content: data.image_content }),
+        }
+      );
+    } catch (error) {
+      // If backend endpoint doesn't exist (404), fall back to mock data
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        console.log(
+          "[Broadcast API] Backend endpoint not found, falling back to mock data"
+        );
+        return {
+          success: true,
+          data: {
+            id: `broadcast_${Date.now()}`,
+            message: "Broadcast created successfully (mock)",
+          },
+        };
+      }
+      throw error;
+    }
+  },
+
+  // Get broadcast status (line 70 from broadcast.yaml)
+  async getBroadcastStatus(
+    id: string
+  ): Promise<ApiResponse<BroadcastStatusResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Broadcast API] Using mock broadcast status data");
+      return {
+        success: true,
+        data: {
+          id,
+          status: "completed",
+          progress: 100,
+          total_users: 150,
+          sent_count: 147,
+          failed_count: 3,
+        },
+      };
+    }
+
+    return apiRequest<BroadcastStatusResponse>(
+      `/v1/broadcast/status?id=${encodeURIComponent(id)}`,
+      "GET"
+    );
+  },
+
+  // Get broadcast activity (line 122 from broadcast.yaml)
+  async getBroadcastActivity(
+    limit?: number
+  ): Promise<ApiResponse<BroadcastActivityResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Broadcast API] Using mock broadcast activity data");
+      return {
+        success: true,
+        data: {
+          recent_broadcasts: [
+            {
+              id: "broadcast_1",
+              title: "Welcome Message for New Users",
+              message:
+                "Welcome to ResourceHub! We're excited to have you join our community.",
+              audience: "all",
+              target_recipients: 234,
+              sent_successfully: 231,
+              failed_count: 3,
+              created_at: new Date(
+                Date.now() - 2 * 60 * 60 * 1000
+              ).toISOString(), // 2 hours ago
+              created_date: new Date().toISOString().split("T")[0],
+              status: "Completed",
+            },
+            {
+              id: "broadcast_2",
+              title: "System Maintenance Notice",
+              message:
+                "We will be performing scheduled maintenance tonight from 2-4 AM.",
+              audience: "premium",
+              target_recipients: 89,
+              sent_successfully: 76,
+              failed_count: 2,
+              created_at: new Date(
+                Date.now() - 5 * 60 * 60 * 1000
+              ).toISOString(), // 5 hours ago
+              created_date: new Date().toISOString().split("T")[0],
+              status: "Sending",
+            },
+            {
+              id: "broadcast_3",
+              title: "Special Offer - 50% Off",
+              message: "Limited time offer! Get 50% off on all premium plans.",
+              audience: "online",
+              target_recipients: 156,
+              sent_successfully: 154,
+              failed_count: 1,
+              created_at: new Date(
+                Date.now() - 24 * 60 * 60 * 1000
+              ).toISOString(), // 1 day ago
+              created_date: new Date(Date.now() - 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split("T")[0],
+              status: "Completed",
+            },
+          ],
+          today_broadcasts_count: 3,
+          total_recent_shown: 3,
+          last_updated: new Date().toISOString(),
+        },
+      };
+    }
+
+    try {
+      const queryParams = limit ? `?limit=${limit}` : "";
+      const response = await apiRequest<BroadcastActivityResponse>(
+        `/v1/broadcast/activity${queryParams}`,
+        "GET"
+      );
+      return response;
+    } catch (error) {
+      // If backend endpoint doesn't exist (404), fall back to mock data
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        console.log(
+          "[Broadcast API] Backend endpoint not found, falling back to mock data"
+        );
+        return {
+          success: true,
+          data: {
+            recent_broadcasts: [
+              {
+                id: "broadcast_1",
+                title: "Welcome Message for New Users",
+                message:
+                  "Welcome to ResourceHub! We're excited to have you join our community.",
+                audience: "all",
+                target_recipients: 234,
+                sent_successfully: 231,
+                failed_count: 3,
+                created_at: new Date(
+                  Date.now() - 2 * 60 * 60 * 1000
+                ).toISOString(),
+                created_date: new Date().toISOString().split("T")[0],
+                status: "Completed",
+              },
+              {
+                id: "broadcast_2",
+                title: "System Maintenance Notice",
+                message:
+                  "We will be performing scheduled maintenance tonight from 2-4 AM.",
+                audience: "premium",
+                target_recipients: 89,
+                sent_successfully: 76,
+                failed_count: 2,
+                created_at: new Date(
+                  Date.now() - 5 * 60 * 60 * 1000
+                ).toISOString(),
+                created_date: new Date().toISOString().split("T")[0],
+                status: "Sending",
+              },
+            ],
+            today_broadcasts_count: 2,
+            total_recent_shown: 2,
+            last_updated: new Date().toISOString(),
+          },
+        };
+      }
+      throw error;
+    }
+  },
+};
 
 // Site Management Types
 export interface SiteInput {

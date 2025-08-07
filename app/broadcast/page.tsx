@@ -51,7 +51,12 @@ import {
 import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
-import { userApi, type UsersStatisticsResponse } from "@/lib/api";
+import {
+  userApi,
+  broadcastApi,
+  type UsersStatisticsResponse,
+  type BroadcastActivityResponse,
+} from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
 
 export default function BroadcastPage() {
@@ -71,7 +76,9 @@ export default function BroadcastPage() {
   // Form state
   const [messageTitle, setMessageTitle] = useState("");
   const [messageContent, setMessageContent] = useState("");
-  const [targetAudience, setTargetAudience] = useState("allUsers");
+  const [targetAudience, setTargetAudience] = useState<
+    "all" | "premium" | "online"
+  >("all");
   const [messageCategory, setMessageCategory] = useState("textOnly");
 
   // Image upload state
@@ -82,6 +89,12 @@ export default function BroadcastPage() {
   // Recent Activity dialog state
   const [isAllActivitiesDialogOpen, setIsAllActivitiesDialogOpen] =
     useState(false);
+
+  // Broadcast activity state
+  const [broadcastActivity, setBroadcastActivity] =
+    useState<BroadcastActivityResponse | null>(null);
+  const [isLoadingActivity, setIsLoadingActivity] = useState<boolean>(false);
+  const [activityError, setActivityError] = useState<string>("");
 
   const handleImageUpload = async (file: File) => {
     setIsUploading(true);
@@ -168,194 +181,206 @@ export default function BroadcastPage() {
     }
   }, [isAuthenticated, user]);
 
+  // Load broadcast activity from API
+  const loadBroadcastActivity = useCallback(async () => {
+    if (!isAuthenticated || !user || user.role !== "admin") {
+      return;
+    }
+
+    setIsLoadingActivity(true);
+    setActivityError("");
+
+    try {
+      const response = await broadcastApi.getBroadcastActivity();
+
+      if (response.success) {
+        // Handle different response structures
+        let activityData: BroadcastActivityResponse;
+
+        if (response.data) {
+          // If wrapped in data property
+          activityData = response.data as BroadcastActivityResponse;
+        } else {
+          // If response is direct
+          activityData = response as unknown as BroadcastActivityResponse;
+        }
+
+        setBroadcastActivity(activityData);
+      } else {
+        setActivityError(
+          response.error?.message || "Failed to load broadcast activity"
+        );
+      }
+    } catch (error) {
+      console.error("Failed to load broadcast activity:", error);
+      setActivityError("Failed to load broadcast activity");
+    } finally {
+      setIsLoadingActivity(false);
+    }
+  }, [isAuthenticated, user]);
+
   // Load data on component mount only if user is admin
   useEffect(() => {
     // Only load data if user is authenticated and is admin
     if (isAuthenticated && user && user.role === "admin") {
       loadUsersStatistics();
+      loadBroadcastActivity();
     }
-  }, [isAuthenticated, user, loadUsersStatistics]);
+  }, [isAuthenticated, user, loadUsersStatistics, loadBroadcastActivity]);
 
   const handleSendMessage = async () => {
+    // Validate form fields
+    if (!messageTitle.trim()) {
+      toast.error(t("broadcast.form.validation.titleRequired"));
+      return;
+    }
+
+    if (!messageContent.trim()) {
+      toast.error(t("broadcast.form.validation.contentRequired"));
+      return;
+    }
+
     setIsLoading(true);
 
     // Show loading toast
     const loadingToast = toast.loading(t("broadcast.form.sending"));
 
     try {
-      // Simulate API call
-      await new Promise((resolve, reject) => {
-        setTimeout(() => {
-          // Simulate random success/failure for demo purposes
-          // In real implementation, this would be an actual API call
-          const isSuccess = Math.random() > 0.2; // 80% success rate
-          if (isSuccess) {
-            resolve(true);
-          } else {
-            reject(new Error("API Error"));
-          }
-        }, 2000);
-      });
+      // Prepare the request data
+      const requestData = {
+        title: messageTitle.trim(),
+        message: messageContent.trim(),
+        audience: targetAudience,
+        ...(uploadedImage &&
+          messageCategory === "textWithImage" && {
+            image_content: uploadedImage,
+          }),
+      };
 
-      // Dismiss loading toast and show success
-      toast.dismiss(loadingToast);
-      toast.success(t("broadcast.toast.sendSuccess"));
+      // Call the broadcast API
+      const response = await broadcastApi.createBroadcast(requestData);
 
-      // Reset form on success
-      setMessageTitle("");
-      setMessageContent("");
-      setTargetAudience("allUsers");
-      setMessageCategory("textOnly");
-      setUploadedImage(null);
+      if (response.success) {
+        // Dismiss loading toast and show success
+        toast.dismiss(loadingToast);
+        toast.success(t("broadcast.toast.sendSuccess"));
+
+        // Reset form on success
+        setMessageTitle("");
+        setMessageContent("");
+        setTargetAudience("all");
+        setMessageCategory("textOnly");
+        setUploadedImage(null);
+
+        // Reload activity data to show the new broadcast
+        loadBroadcastActivity();
+      } else {
+        // Dismiss loading toast and show error
+        toast.dismiss(loadingToast);
+        const errorMessage =
+          response.error?.message || t("broadcast.toast.sendError");
+        toast.error(errorMessage);
+      }
     } catch (error) {
       // Dismiss loading toast and show error
       toast.dismiss(loadingToast);
       toast.error(t("broadcast.toast.sendError"));
 
-      console.error("Failed to send message:", error);
+      console.error("Failed to send broadcast message:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Mock data for messages sent today (this could also be from API in the future)
-  const messagesSentToday = 89;
+  // Get messages sent today from broadcast activity data
+  const messagesSentToday = broadcastActivity?.today_broadcasts_count || 0;
 
-  const recentActivity = [
-    {
-      id: 1,
-      type: "broadcast",
-      title: "System Maintenance Notice",
-      recipients: 1234,
-      time: "2 hours ago",
-    },
-    {
-      id: 2,
-      type: "notification",
-      title: "New Feature Announcement",
-      recipients: 987,
-      time: "5 hours ago",
-    },
-    {
-      id: 3,
-      type: "alert",
-      title: "Security Update Required",
-      recipients: 2156,
-      time: "1 day ago",
-    },
-    {
-      id: 4,
-      type: "alert",
-      title: "Security Update Required",
-      recipients: 2156,
-      time: "1 day ago",
-    },
-    {
-      id: 6,
-      type: "broadcast",
-      title: "Welcome Message for New Users",
-      recipients: 456,
-      time: "2 days ago",
-    },
-    {
-      id: 7,
-      type: "notification",
-      title: "Payment Reminder",
-      recipients: 789,
-      time: "3 days ago",
-    },
-  ];
+  // Helper function to format time ago
+  const formatTimeAgo = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
 
-  // Extended activity data for "Show All" dialog
-  const allActivities = [
-    ...recentActivity,
-    {
-      id: 6,
-      type: "broadcast",
-      title: "Welcome Message for New Users",
-      recipients: 456,
-      time: "2 days ago",
-    },
-    {
-      id: 7,
-      type: "notification",
-      title: "Payment Reminder",
-      recipients: 789,
-      time: "3 days ago",
-    },
-    {
-      id: 8,
-      type: "announcement",
-      title: "Holiday Schedule Update",
-      recipients: 2847,
-      time: "4 days ago",
-    },
-    {
-      id: 9,
-      type: "alert",
-      title: "Server Maintenance Complete",
-      recipients: 1567,
-      time: "5 days ago",
-    },
-    {
-      id: 10,
-      type: "broadcast",
-      title: "Monthly Newsletter",
-      recipients: 2234,
-      time: "1 week ago",
-    },
-    {
-      id: 11,
-      type: "notification",
-      title: "Account Verification Required",
-      recipients: 345,
-      time: "1 week ago",
-    },
-    {
-      id: 12,
-      type: "announcement",
-      title: "New Terms of Service",
-      recipients: 2847,
-      time: "2 weeks ago",
-    },
-  ];
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return "Unknown time";
+      }
 
-  // Mock data for broadcast messages log
-  const broadcastMessages = [
-    {
-      id: 1,
-      broadcastName: "رسالة ترحيب للعملاء الجدد",
-      messageContent: "مرحباً بك في مركز الموارد، نحن سعداء لانضمامك إلينا...",
-      targetRecipients: 234,
-      sentSuccessfully: 231,
-      failed: 3,
-      date: "2024/01/15",
-      time: "14:30",
-      status: "completed",
-    },
-    {
-      id: 2,
-      broadcastName: "تحديث لشروط الاشتراك",
-      messageContent: "نود إعلامكم بتحديث شروط الاشتراك الجديدة...",
-      targetRecipients: 89,
-      sentSuccessfully: 76,
-      failed: 2,
-      date: "2024/01/15",
-      time: "10:15",
-      status: "sending",
-    },
-    {
-      id: 3,
-      broadcastName: "عرض خاص لفترة محدودة",
-      messageContent: "استفد من عرضنا الخاص بخصم 50% على جميع الخطط...",
-      targetRecipients: 156,
-      sentSuccessfully: 154,
-      failed: 1,
-      date: "2024/01/14",
-      time: "09:45",
-      status: "completed",
-    },
-  ];
+      const now = new Date();
+      const diffInMinutes = Math.floor(
+        (now.getTime() - date.getTime()) / (1000 * 60)
+      );
+
+      if (diffInMinutes < 0) {
+        return "Just now";
+      }
+
+      if (diffInMinutes < 60) {
+        return diffInMinutes <= 1
+          ? "1 minute ago"
+          : `${diffInMinutes} minutes ago`;
+      }
+
+      const diffInHours = Math.floor(diffInMinutes / 60);
+      if (diffInHours < 24) {
+        return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;
+      }
+
+      const diffInDays = Math.floor(diffInHours / 24);
+      return diffInDays === 1 ? "1 day ago" : `${diffInDays} days ago`;
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return "Unknown time";
+    }
+  };
+
+  // Get recent activity from broadcast activity data (limit to 6 items for display)
+  const recentActivity =
+    broadcastActivity?.recent_broadcasts
+      ?.slice(0, 6)
+      .map((activity, index) => ({
+        id: index + 1,
+        type: "broadcast",
+        title: activity.title || "Untitled Broadcast",
+        recipients: activity.target_recipients || 0,
+        time: activity.created_at
+          ? formatTimeAgo(activity.created_at)
+          : "Unknown time",
+      })) || [];
+
+  // Extended activity data for "Show All" dialog - use all broadcast activities
+  const allActivities =
+    broadcastActivity?.recent_broadcasts?.map((activity, index) => ({
+      id: index + 1,
+      type: "broadcast",
+      title: activity.title || "Untitled Broadcast",
+      recipients: activity.target_recipients || 0,
+      time: activity.created_at
+        ? formatTimeAgo(activity.created_at)
+        : "Unknown time",
+    })) || [];
+
+  // Get broadcast messages from activity data
+  const broadcastMessages =
+    broadcastActivity?.recent_broadcasts?.map((activity, index) => ({
+      id: index + 1,
+      broadcastName: activity.title || "Untitled Broadcast",
+      messageContent: activity.message || "No message content",
+      targetRecipients: activity.target_recipients || 0,
+      sentSuccessfully: activity.sent_successfully || 0,
+      failed: activity.failed_count || 0,
+      date: activity.created_date || "Unknown date",
+      time: activity.created_at
+        ? new Date(activity.created_at).toLocaleTimeString("en-US", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
+          })
+        : "Unknown time",
+      status:
+        activity.status?.toLowerCase() === "completed"
+          ? "completed"
+          : "sending",
+    })) || [];
 
   return (
     <AdminRouteGuard>
@@ -468,7 +493,15 @@ export default function BroadcastPage() {
                       <div className="space-y-2">
                         <div className="flex items-baseline space-x-2">
                           <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-foreground group-hover:text-primary transition-colors">
-                            {messagesSentToday.toLocaleString()}
+                            {isLoadingActivity ? (
+                              <span className="text-muted-foreground">
+                                Loading...
+                              </span>
+                            ) : activityError ? (
+                              <span className="text-destructive">Error</span>
+                            ) : (
+                              messagesSentToday.toLocaleString()
+                            )}
                           </span>
                         </div>
                       </div>
@@ -685,7 +718,11 @@ export default function BroadcastPage() {
                       </Label>
                       <Select
                         value={targetAudience}
-                        onValueChange={setTargetAudience}
+                        onValueChange={(value) =>
+                          setTargetAudience(
+                            value as "all" | "premium" | "online"
+                          )
+                        }
                       >
                         <SelectTrigger
                           className={`w-full sm:w-auto ${isRTL ? "text-right" : "text-left"}`}
@@ -693,13 +730,13 @@ export default function BroadcastPage() {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="allUsers">
+                          <SelectItem value="all">
                             {t("broadcast.form.allUsers")}
                           </SelectItem>
-                          <SelectItem value="activeUsers">
+                          <SelectItem value="online">
                             {t("broadcast.form.activeUsers")}
                           </SelectItem>
-                          <SelectItem value="premiumUsers">
+                          <SelectItem value="premium">
                             {t("broadcast.form.premiumUsers")}
                           </SelectItem>
                         </SelectContent>
@@ -750,7 +787,21 @@ export default function BroadcastPage() {
                     </div>
                   </CardHeader>
                   <CardContent>
-                    {recentActivity.length > 0 ? (
+                    {isLoadingActivity ? (
+                      <div className="text-center py-8">
+                        <Activity className="w-8 h-8 text-muted-foreground mx-auto mb-2 animate-pulse" />
+                        <p className="text-sm text-muted-foreground">
+                          {t("common.loading")}
+                        </p>
+                      </div>
+                    ) : activityError ? (
+                      <div className="text-center py-8">
+                        <Activity className="w-8 h-8 text-destructive mx-auto mb-2" />
+                        <p className="text-sm text-destructive">
+                          {activityError}
+                        </p>
+                      </div>
+                    ) : recentActivity.length > 0 ? (
                       <div className="space-y-4">
                         <div className="space-y-3">
                           {recentActivity.map((activity) => (
@@ -858,7 +909,25 @@ export default function BroadcastPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                {broadcastMessages.length > 0 ? (
+                {isLoadingActivity ? (
+                  <div className="text-center py-12">
+                    <History className="w-12 h-12 text-muted-foreground mx-auto mb-4 animate-pulse" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      {t("common.loading")}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      Loading broadcast messages...
+                    </p>
+                  </div>
+                ) : activityError ? (
+                  <div className="text-center py-12">
+                    <History className="w-12 h-12 text-destructive mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      {t("common.error")}
+                    </h3>
+                    <p className="text-sm text-destructive">{activityError}</p>
+                  </div>
+                ) : broadcastMessages.length > 0 ? (
                   <>
                     {/* Desktop Table View */}
                     <div className="hidden lg:block overflow-x-auto max-h-[400px] overflow-y-auto">
