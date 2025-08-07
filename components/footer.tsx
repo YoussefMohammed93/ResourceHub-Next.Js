@@ -9,9 +9,11 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useTranslation } from "react-i18next";
+import { useLanguage } from "@/components/i18n-provider";
 
 export default function Footer() {
   const { t } = useTranslation("common");
+  const { isRTL } = useLanguage();
 
   return (
     <footer className="bg-foreground dark:bg-muted border-t border-border py-16 lg:py-20 relative overflow-hidden">
@@ -26,11 +28,15 @@ export default function Footer() {
                 <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                   <div className="w-5 h-5 bg-primary-foreground rounded-sm"></div>
                 </div>
-                <span className="text-xl font-bold text-background dark:text-foreground">
+                <span
+                  className={`text-xl font-bold text-background dark:text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                >
                   {t("header.logo")}
                 </span>
               </div>
-              <p className="text-background/80 dark:text-muted-foreground leading-relaxed text-sm lg:text-base">
+              <p
+                className={`text-background/80 dark:text-muted-foreground leading-relaxed text-sm lg:text-base ${isRTL ? "font-tajawal font-medium" : "font-sans"}`}
+              >
                 {t("footer.description")}
               </p>
             </div>
@@ -38,13 +44,17 @@ export default function Footer() {
             <div className="space-y-3">
               <div className="flex items-center space-x-3">
                 <Mail className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-background/80 dark:text-muted-foreground text-sm">
+                <span
+                  className={`text-background/80 dark:text-muted-foreground text-sm ${isRTL ? "font-tajawal" : "font-sans"}`}
+                >
                   support@resourcehub.com
                 </span>
               </div>
               <div className="flex items-center space-x-3">
                 <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-background/80 dark:text-muted-foreground text-sm">
+                <span
+                  className={`text-background/80 dark:text-muted-foreground text-sm ${isRTL ? "font-tajawal" : "font-sans"}`}
+                >
                   123 Creative Street, Design City
                 </span>
               </div>
@@ -52,7 +62,9 @@ export default function Footer() {
           </div>
           {/* Quick Links */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-background dark:text-foreground">
+            <h3
+              className={`text-lg font-semibold text-background dark:text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+            >
               {t("footer.quickLinks")}
             </h3>
             <ul className="space-y-3">
@@ -66,7 +78,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-background/80 dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base"
+                    className={`text-background/80 dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base ${isRTL ? "font-tajawal" : "font-sans"}`}
                   >
                     {link.name}
                   </Link>
@@ -76,7 +88,9 @@ export default function Footer() {
           </div>
           {/* Resources */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-background dark:text-foreground">
+            <h3
+              className={`text-lg font-semibold text-background dark:text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+            >
               {t("footer.resources")}
             </h3>
             <ul className="space-y-3">
@@ -99,7 +113,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-background/80 dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base"
+                    className={`text-background/80 dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base ${isRTL ? "font-tajawal" : "font-sans"}`}
                   >
                     {link.name}
                   </Link>
@@ -109,7 +123,9 @@ export default function Footer() {
           </div>
           {/* Support & Legal */}
           <div className="space-y-6">
-            <h3 className="text-lg font-semibold text-background dark:text-foreground">
+            <h3
+              className={`text-lg font-semibold text-background dark:text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+            >
               {t("footer.support")} & {t("footer.legal")}
             </h3>
             <ul className="space-y-3">
@@ -123,7 +139,7 @@ export default function Footer() {
                 <li key={link.name}>
                   <Link
                     href={link.href}
-                    className="text-background/80 dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base"
+                    className={`text-background/80 dark:text-muted-foreground hover:text-primary dark:hover:text-primary hover:underline transition-all duration-200 text-sm lg:text-base ${isRTL ? "font-tajawal" : "font-sans"}`}
                   >
                     {link.name}
                   </Link>
@@ -137,7 +153,9 @@ export default function Footer() {
           <div className="flex flex-col lg:flex-row justify-between items-center space-y-6 lg:space-y-0">
             {/* Social Media Links */}
             <div className="flex items-center space-x-4">
-              <span className="text-background/80 dark:text-muted-foreground text-sm font-medium">
+              <span
+                className={`text-background/80 dark:text-muted-foreground text-sm font-medium ${isRTL ? "font-tajawal" : "font-sans"}`}
+              >
                 {t("footer.followUs")}:
               </span>
               <div className="flex items-center space-x-3">
@@ -182,7 +200,9 @@ export default function Footer() {
               </div>
             </div>
             {/* Copyright */}
-            <div className="flex items-center space-x-2 text-background/80 dark:text-muted-foreground text-sm">
+            <div
+              className={`flex items-center space-x-2 text-background/80 dark:text-muted-foreground text-sm ${isRTL ? "font-tajawal" : "font-sans"}`}
+            >
               <span>
                 ©{new Date().getFullYear()} {t("header.logo")},{" "}
                 {t("footer.allRightsReserved")}

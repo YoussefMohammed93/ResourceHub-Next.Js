@@ -372,7 +372,7 @@ export default function BroadcastPage() {
           : "Unknown time",
       })) || []
     );
-  }, [broadcastActivity, currentTime, formatTimeAgo]);
+  }, [broadcastActivity, formatTimeAgo]);
 
   // Get displayed recent activity (first 6 items or all if expanded)
   const recentActivity = useMemo(() => {

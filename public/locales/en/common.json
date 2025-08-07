@@ -995,6 +995,112 @@
       }
     }
   },
+  "helpCenter": {
+    "hero": {
+      "title": "Frequently Asked",
+      "titleHighlight": "Questions",
+      "description": "Find quick answers to the most common questions about our platform"
+    },
+    "search": {
+      "placeholder": "Search for help articles, guides, and FAQs...",
+      "button": "Search",
+      "noResults": "No results found",
+      "searching": "Searching...",
+      "resultsFor": "Results for",
+      "showingResults": "Showing {count} results"
+    },
+    "categories": {
+      "title": "Browse Help Topics",
+      "description": "Find the information you need organized by category",
+      "gettingStarted": {
+        "title": "Getting Started",
+        "description": "Learn the basics of using our platform and downloading resources",
+        "articles": "12 articles"
+      },
+      "accountManagement": {
+        "title": "Account Management",
+        "description": "Manage your profile, settings, and account preferences",
+        "articles": "8 articles"
+      },
+      "billingPayments": {
+        "title": "Billing & Payments",
+        "description": "Understand pricing, manage subscriptions, and payment methods",
+        "articles": "15 articles"
+      },
+      "downloadsUsage": {
+        "title": "Downloads & Usage",
+        "description": "Learn how to download, use, and manage your creative resources",
+        "articles": "20 articles"
+      },
+      "troubleshooting": {
+        "title": "Troubleshooting",
+        "description": "Solve common issues and technical problems",
+        "articles": "18 articles"
+      },
+      "platformSupport": {
+        "title": "Platform Support",
+        "description": "Information about supported websites and platforms",
+        "articles": "10 articles"
+      },
+      "contactSupport": {
+        "title": "Contact Support",
+        "description": "Get in touch with our support team for personalized help",
+        "articles": "5 articles"
+      },
+      "apiDevelopers": {
+        "title": "API & Developers",
+        "description": "Technical documentation and developer resources",
+        "articles": "14 articles"
+      }
+    },
+    "popularArticles": {
+      "title": "Popular Articles",
+      "description": "Most viewed help articles this month",
+      "viewAll": "View All Articles"
+    },
+    "quickActions": {
+      "title": "Quick Actions",
+      "description": "Common tasks and shortcuts",
+      "downloadGuide": "Download Guide",
+      "accountSettings": "Account Settings",
+      "billingInfo": "Billing Information",
+      "contactUs": "Contact Us",
+      "reportIssue": "Report an Issue",
+      "requestFeature": "Request Feature"
+    },
+    "contact": {
+      "title": "Still need help?",
+      "description": "Can't find what you're looking for? Our support team is here to help.",
+      "methods": {
+        "email": {
+          "title": "Email Support",
+          "description": "Get detailed help via email",
+          "action": "Send Email",
+          "responseTime": "Response within 24 hours"
+        },
+        "chat": {
+          "title": "Live Chat",
+          "description": "Chat with our support team",
+          "action": "Start Chat",
+          "availability": "Available 24/7"
+        },
+        "phone": {
+          "title": "Phone Support",
+          "description": "Speak directly with support",
+          "action": "Call Now",
+          "hours": "Mon-Fri 9AM-6PM EGYPT"
+        }
+      }
+    },
+    "feedback": {
+      "title": "Was this helpful?",
+      "yes": "Yes",
+      "no": "No",
+      "thanks": "Thank you for your feedback!",
+      "improve": "How can we improve this article?",
+      "submit": "Submit Feedback"
+    }
+  },
   "broadcast": {
     "title": "Broadcast",
     "description": "Send broadcast messages to users",
