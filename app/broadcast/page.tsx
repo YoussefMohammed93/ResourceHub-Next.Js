@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useLanguage } from "@/components/i18n-provider";
 import { AdminRouteGuard } from "@/components/admin-route-guard";
@@ -26,12 +26,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import {
   Menu,
   Radio,
@@ -42,10 +37,7 @@ import {
   X,
   Image as ImageIcon,
   Loader2,
-  MoreHorizontal,
   Eye,
-  RotateCcw,
-  Trash2,
   History,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -58,6 +50,7 @@ import {
   type BroadcastActivityResponse,
 } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
+import { BroadcastPageSkeleton } from "@/components/broadcast-page-skeletons";
 
 export default function BroadcastPage() {
   const { t } = useTranslation("common");
@@ -86,15 +79,17 @@ export default function BroadcastPage() {
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Recent Activity dialog state
-  const [isAllActivitiesDialogOpen, setIsAllActivitiesDialogOpen] =
-    useState(false);
+  // Recent Activity expanded state
+  const [showAllRecentActivity, setShowAllRecentActivity] = useState(false);
 
   // Broadcast activity state
   const [broadcastActivity, setBroadcastActivity] =
     useState<BroadcastActivityResponse | null>(null);
   const [isLoadingActivity, setIsLoadingActivity] = useState<boolean>(false);
   const [activityError, setActivityError] = useState<string>("");
+
+  // Dynamic time update state
+  const [currentTime, setCurrentTime] = useState(new Date());
 
   const handleImageUpload = async (file: File) => {
     setIsUploading(true);
@@ -219,6 +214,9 @@ export default function BroadcastPage() {
     }
   }, [isAuthenticated, user]);
 
+  // Check if initial data is still loading
+  const isInitialLoading = isLoadingUsers || isLoadingActivity;
+
   // Load data on component mount only if user is admin
   useEffect(() => {
     // Only load data if user is authenticated and is admin
@@ -227,6 +225,15 @@ export default function BroadcastPage() {
       loadBroadcastActivity();
     }
   }, [isAuthenticated, user, loadUsersStatistics, loadBroadcastActivity]);
+
+  // Dynamic time update effect - updates every minute
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000); // Update every minute
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleSendMessage = async () => {
     // Validate form fields
@@ -293,9 +300,26 @@ export default function BroadcastPage() {
   };
 
   // Get messages sent today from broadcast activity data
-  const messagesSentToday = broadcastActivity?.today_broadcasts_count || 0;
+  // Calculate the correct count from actual broadcast data as a workaround for backend issue
+  const messagesSentToday = useMemo(() => {
+    if (!broadcastActivity?.recent_broadcasts) return 0;
 
-  // Helper function to format time ago
+    const today = new Date().toISOString().split("T")[0]; // Get today's date in YYYY-MM-DD format
+
+    const actualTodayCount = broadcastActivity.recent_broadcasts.filter(
+      (broadcast) => broadcast.created_date === today
+    ).length;
+
+    // Log for debugging
+    console.log("Today's date:", today);
+    console.log("Backend count:", broadcastActivity.today_broadcasts_count);
+    console.log("Actual count from data:", actualTodayCount);
+
+    // Use the actual count calculated from the data instead of the incorrect backend count
+    return actualTodayCount;
+  }, [broadcastActivity]);
+
+  // Helper function to format time ago (now uses currentTime for dynamic updates)
   const formatTimeAgo = (dateString: string): string => {
     try {
       const date = new Date(dateString);
@@ -305,7 +329,8 @@ export default function BroadcastPage() {
         return "Unknown time";
       }
 
-      const now = new Date();
+      // Use currentTime state instead of new Date() for dynamic updates
+      const now = currentTime;
       const diffInMinutes = Math.floor(
         (now.getTime() - date.getTime()) / (1000 * 60)
       );
@@ -333,11 +358,11 @@ export default function BroadcastPage() {
     }
   };
 
-  // Get recent activity from broadcast activity data (limit to 6 items for display)
-  const recentActivity =
-    broadcastActivity?.recent_broadcasts
-      ?.slice(0, 6)
-      .map((activity, index) => ({
+  // Get recent activity from broadcast activity data
+  // Using useMemo to recalculate when currentTime or broadcastActivity changes
+  const allRecentActivity = useMemo(() => {
+    return (
+      broadcastActivity?.recent_broadcasts?.map((activity, index) => ({
         id: index + 1,
         type: "broadcast",
         title: activity.title || "Untitled Broadcast",
@@ -345,19 +370,19 @@ export default function BroadcastPage() {
         time: activity.created_at
           ? formatTimeAgo(activity.created_at)
           : "Unknown time",
-      })) || [];
+      })) || []
+    );
+  }, [broadcastActivity, currentTime, formatTimeAgo]);
 
-  // Extended activity data for "Show All" dialog - use all broadcast activities
-  const allActivities =
-    broadcastActivity?.recent_broadcasts?.map((activity, index) => ({
-      id: index + 1,
-      type: "broadcast",
-      title: activity.title || "Untitled Broadcast",
-      recipients: activity.target_recipients || 0,
-      time: activity.created_at
-        ? formatTimeAgo(activity.created_at)
-        : "Unknown time",
-    })) || [];
+  // Get displayed recent activity (first 6 items or all if expanded)
+  const recentActivity = useMemo(() => {
+    return showAllRecentActivity
+      ? allRecentActivity
+      : allRecentActivity.slice(0, 6);
+  }, [allRecentActivity, showAllRecentActivity]);
+
+  // Check if there are more than 6 items to show "Show All" button
+  const hasMoreActivity = allRecentActivity.length > 6;
 
   // Get broadcast messages from activity data
   const broadcastMessages =
@@ -381,6 +406,15 @@ export default function BroadcastPage() {
           ? "completed"
           : "sending",
     })) || [];
+
+  // Show skeleton while initial data is loading
+  if (isInitialLoading) {
+    return (
+      <AdminRouteGuard>
+        <BroadcastPageSkeleton isRTL={isRTL} />
+      </AdminRouteGuard>
+    );
+  }
 
   return (
     <AdminRouteGuard>
@@ -822,58 +856,24 @@ export default function BroadcastPage() {
                             </div>
                           ))}
                         </div>
-                        <div className="pt-4 border-t border-border">
-                          <Dialog
-                            open={isAllActivitiesDialogOpen}
-                            onOpenChange={setIsAllActivitiesDialogOpen}
-                          >
-                            <DialogTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="w-full"
-                              >
-                                <Eye className="w-4 h-4" />
-                                {t("broadcast.recentActivity.showAll")}
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-2xl max-h-[80vh] overflow-hidden">
-                              <DialogHeader>
-                                <DialogTitle>
-                                  {t(
-                                    "broadcast.recentActivity.allActivities.title"
-                                  )}
-                                </DialogTitle>
-                                <DialogDescription>
-                                  {t(
-                                    "broadcast.recentActivity.allActivities.description"
-                                  )}
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="max-h-[60vh] overflow-y-auto">
-                                <div className="space-y-3 pr-2">
-                                  {allActivities.map((activity) => (
-                                    <div
-                                      key={activity.id}
-                                      className="flex items-start space-x-3 p-3 rounded-lg bg-muted hover:bg-muted/50 transition-colors duration-200"
-                                    >
-                                      <div className="w-2 h-2 bg-primary rounded-full mt-2 flex-shrink-0"></div>
-                                      <div className="flex-1 min-w-0">
-                                        <p className="text-sm font-medium text-foreground truncate">
-                                          {activity.title}
-                                        </p>
-                                        <p className="text-xs text-muted-foreground mt-1">
-                                          {activity.recipients.toLocaleString()}{" "}
-                                          recipients • {activity.time}
-                                        </p>
-                                      </div>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
+                        {hasMoreActivity && (
+                          <div className="pt-4 border-t border-border">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                              onClick={() =>
+                                setShowAllRecentActivity(!showAllRecentActivity)
+                              }
+                            >
+                              <Eye className="w-4 h-4" />
+                              {showAllRecentActivity
+                                ? t("broadcast.recentActivity.showLess") ||
+                                  "Show Less"
+                                : t("broadcast.recentActivity.showAll")}
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       <div className="text-center py-8">
@@ -970,11 +970,6 @@ export default function BroadcastPage() {
                             >
                               {t("broadcast.messagesLog.table.headers.status")}
                             </th>
-                            <th
-                              className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
-                            >
-                              {t("broadcast.messagesLog.table.headers.options")}
-                            </th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-border">
@@ -1033,41 +1028,6 @@ export default function BroadcastPage() {
                                       )}
                                 </div>
                               </td>
-                              <td className="py-4 px-4">
-                                <DropdownMenu>
-                                  <DropdownMenuTrigger asChild>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-8 w-8 p-0"
-                                    >
-                                      <MoreHorizontal className="h-4 w-4" />
-                                    </Button>
-                                  </DropdownMenuTrigger>
-                                  <DropdownMenuContent
-                                    align={isRTL ? "start" : "end"}
-                                  >
-                                    <DropdownMenuItem>
-                                      <Eye className="h-4 w-4" />
-                                      {t(
-                                        "broadcast.messagesLog.table.actions.view"
-                                      )}
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <RotateCcw className="h-4 w-4" />
-                                      {t(
-                                        "broadcast.messagesLog.table.actions.resend"
-                                      )}
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <Trash2 className="h-4 w-4 text-destructive" />
-                                      {t(
-                                        "broadcast.messagesLog.table.actions.delete"
-                                      )}
-                                    </DropdownMenuItem>
-                                  </DropdownMenuContent>
-                                </DropdownMenu>
-                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -1090,39 +1050,6 @@ export default function BroadcastPage() {
                                 {message.messageContent}
                               </p>
                             </div>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-8 w-8 p-0"
-                                >
-                                  <MoreHorizontal className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent
-                                align={isRTL ? "start" : "end"}
-                              >
-                                <DropdownMenuItem>
-                                  <Eye className="h-4 w-4" />
-                                  {t(
-                                    "broadcast.messagesLog.table.actions.view"
-                                  )}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <RotateCcw className="h-4 w-4" />
-                                  {t(
-                                    "broadcast.messagesLog.table.actions.resend"
-                                  )}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem>
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                  {t(
-                                    "broadcast.messagesLog.table.actions.delete"
-                                  )}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
                           </div>
 
                           <div className="grid grid-cols-2 gap-4 text-xs">

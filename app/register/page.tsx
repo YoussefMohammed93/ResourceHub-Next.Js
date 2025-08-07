@@ -150,7 +150,7 @@ export default function RegisterPage() {
   };
 
   // Send OTP code
-  const handleSendOtp = async () => {
+  const handleSendOtp = async (isResend: boolean = false) => {
     if (!validatePhone(formData.phone)) {
       setErrors((prev) => ({
         ...prev,
@@ -173,7 +173,7 @@ export default function RegisterPage() {
     setErrors((prev) => ({ ...prev, phone: "", otp: "", general: "" }));
 
     try {
-      const response = await otpApi.sendOtp(phoneNumber);
+      const response = await otpApi.sendOtp(phoneNumber, isResend);
 
       if (response.success) {
         setOtpSent(true);
@@ -196,6 +196,11 @@ export default function RegisterPage() {
     } finally {
       setIsSendingOtp(false);
     }
+  };
+
+  // Handle resend OTP
+  const handleResendOtp = async () => {
+    await handleSendOtp(true);
   };
 
   // Verify OTP code
@@ -821,7 +826,7 @@ export default function RegisterPage() {
                         <Button
                           type="button"
                           variant="outline"
-                          onClick={handleSendOtp}
+                          onClick={() => handleSendOtp(false)}
                           disabled={
                             !validatePhone(formData.phone) || isSendingOtp
                           }
@@ -942,7 +947,7 @@ export default function RegisterPage() {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        onClick={handleSendOtp}
+                        onClick={handleResendOtp}
                         disabled={isSendingOtp}
                         className="text-xs"
                       >

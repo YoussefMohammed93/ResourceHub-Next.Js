@@ -1090,17 +1090,11 @@
           "sentSuccessfully": "Sent Successfully",
           "failed": "Failed",
           "date": "Date",
-          "status": "Status",
-          "options": "Options"
+          "status": "Status"
         },
         "status": {
           "completed": "Completed",
           "sending": "Sending"
-        },
-        "actions": {
-          "view": "View",
-          "resend": "Resend",
-          "delete": "Delete"
         }
       },
       "empty": {

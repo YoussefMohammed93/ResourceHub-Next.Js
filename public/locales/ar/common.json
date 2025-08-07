@@ -1090,17 +1090,11 @@
           "sentSuccessfully": "تم الإرسال",
           "failed": "فشل",
           "date": "التاريخ",
-          "status": "الحالة",
-          "options": "خيارات"
+          "status": "الحالة"
         },
         "status": {
           "completed": "تم",
           "sending": "جاري الإرسال"
-        },
-        "actions": {
-          "view": "عرض",
-          "resend": "إعادة إرسال",
-          "delete": "حذف"
         }
       },
       "empty": {

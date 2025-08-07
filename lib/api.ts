@@ -567,7 +567,10 @@ export interface VerifyOtpRequest {
 // OTP Management API functions
 export const otpApi = {
   // Send OTP to phone number
-  async sendOtp(phoneNumber: string): Promise<ApiResponse<SendOtpResponse>> {
+  async sendOtp(
+    phoneNumber: string,
+    isResend: boolean = false
+  ): Promise<ApiResponse<SendOtpResponse>> {
     // Validate phone number format (must start with +)
     if (!phoneNumber.startsWith("+")) {
       return {
@@ -582,13 +585,24 @@ export const otpApi = {
     const token = generateTimestampToken();
 
     try {
+      const requestBody: {
+        phoneNum: string;
+        token: string;
+        resend?: boolean;
+      } = {
+        phoneNum: phoneNumber,
+        token,
+      };
+
+      // Add resend parameter if this is a resend request
+      if (isResend) {
+        requestBody.resend = true;
+      }
+
       const response = await apiRequest<SendOtpResponse>(
         "/v1/otp/send",
         "POST",
-        {
-          phoneNum: phoneNumber,
-          token,
-        }
+        requestBody
       );
 
       // If the API returns an error response, handle it appropriately
