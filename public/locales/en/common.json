@@ -762,6 +762,82 @@
       }
     }
   },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Augest 15, 2025",
+    "effectiveDate": "Augest 15, 2025",
+    "tableOfContents": {
+      "title": "Table of Contents",
+      "sections": [
+        "Information We Collect",
+        "How We Use Your Information",
+        "Data Sharing and Disclosure",
+        "Cookies and Tracking Technologies",
+        "Data Security",
+        "Your Rights and Choices",
+        "International Data Transfers",
+        "Data Retention",
+        "Children's Privacy",
+        "Third-Party Services",
+        "Updates to This Policy",
+        "Contact Information"
+      ]
+    },
+    "introduction": {
+      "title": "Introduction",
+      "content": "At ResourceHub, we are committed to protecting your privacy and ensuring the security of your personal information. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you visit our website and use our services. By accessing or using our platform, you agree to the collection and use of information in accordance with this policy."
+    },
+    "sections": {
+      "informationCollection": {
+        "title": "Information We Collect",
+        "content": "We collect several types of information from and about users of our platform, including: (1) Personal Information: When you create an account, we collect your name, email address, phone number, and payment information. (2) Usage Data: We automatically collect information about how you interact with our platform, including pages visited, downloads, search queries, and time spent on our site. (3) Device Information: We collect information about your device, including IP address, browser type, operating system, and device identifiers. (4) Cookies and Tracking Data: We use cookies and similar technologies to collect information about your browsing behavior and preferences."
+      },
+      "informationUse": {
+        "title": "How We Use Your Information",
+        "content": "We use the information we collect for various purposes, including: (1) Providing and maintaining our services, including processing downloads and managing your account. (2) Personalizing your experience and improving our platform based on your preferences and usage patterns. (3) Communicating with you about your account, updates, and promotional offers (with your consent). (4) Processing payments and preventing fraud. (5) Complying with legal obligations and protecting our rights and the rights of others. (6) Analyzing usage trends to improve our services and develop new features."
+      },
+      "dataSharing": {
+        "title": "Data Sharing and Disclosure",
+        "content": "We do not sell, rent, or trade your personal information to third parties. However, we may share your information in the following circumstances: (1) Service Providers: We may share information with trusted third-party service providers who assist us in operating our platform, processing payments, or providing customer support. (2) Legal Requirements: We may disclose information when required by law, court order, or government request. (3) Business Transfers: In the event of a merger, acquisition, or sale of assets, your information may be transferred as part of the transaction. (4) Consent: We may share information with your explicit consent for specific purposes."
+      },
+      "cookiesTracking": {
+        "title": "Cookies and Tracking Technologies",
+        "content": "We use cookies, web beacons, and similar tracking technologies to enhance your browsing experience and collect information about how you use our platform. These technologies help us: (1) Remember your preferences and settings. (2) Analyze site traffic and usage patterns. (3) Provide personalized content and recommendations. (4) Improve our services and user experience. You can control cookie settings through your browser preferences, but disabling cookies may affect the functionality of our platform."
+      },
+      "dataSecurity": {
+        "title": "Data Security",
+        "content": "We implement appropriate technical and organizational security measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction. These measures include: (1) Encryption of sensitive data in transit and at rest. (2) Regular security assessments and updates. (3) Access controls and authentication mechanisms. (4) Employee training on data protection practices. However, no method of transmission over the internet or electronic storage is 100% secure, and we cannot guarantee absolute security."
+      },
+      "userRights": {
+        "title": "Your Rights and Choices",
+        "content": "Depending on your location, you may have certain rights regarding your personal information, including: (1) Access: The right to request access to your personal information. (2) Correction: The right to request correction of inaccurate or incomplete information. (3) Deletion: The right to request deletion of your personal information (subject to certain exceptions). (4) Portability: The right to receive your personal information in a portable format. (5) Objection: The right to object to certain processing of your personal information. (6) Withdrawal of Consent: The right to withdraw consent where processing is based on consent. To exercise these rights, please contact us using the information provided below."
+      },
+      "internationalTransfers": {
+        "title": "International Data Transfers",
+        "content": "Your information may be transferred to and processed in countries other than your country of residence. These countries may have different data protection laws than your country. When we transfer your information internationally, we ensure appropriate safeguards are in place to protect your information, including: (1) Adequacy decisions by relevant authorities. (2) Standard contractual clauses approved by relevant authorities. (3) Certification schemes and codes of conduct. (4) Other legally recognized transfer mechanisms."
+      },
+      "dataRetention": {
+        "title": "Data Retention",
+        "content": "We retain your personal information for as long as necessary to fulfill the purposes outlined in this Privacy Policy, unless a longer retention period is required or permitted by law. The retention period depends on various factors, including: (1) The type of information and the purposes for which it was collected. (2) Legal, regulatory, or contractual requirements. (3) The need to resolve disputes or enforce our agreements. (4) Your preferences and choices regarding data retention. When we no longer need your information, we will securely delete or anonymize it."
+      },
+      "childrensPrivacy": {
+        "title": "Children's Privacy",
+        "content": "Our platform is not intended for children under the age of 13 (or the minimum age required in your jurisdiction). We do not knowingly collect personal information from children under this age. If we become aware that we have collected personal information from a child under the applicable age without parental consent, we will take steps to delete such information. If you believe we have collected information from a child, please contact us immediately."
+      },
+      "thirdPartyServices": {
+        "title": "Third-Party Services",
+        "content": "Our platform may contain links to third-party websites, services, or applications that are not owned or controlled by us. This Privacy Policy does not apply to these third-party services. We encourage you to review the privacy policies of any third-party services you access through our platform. We are not responsible for the privacy practices or content of these third-party services."
+      },
+      "policyUpdates": {
+        "title": "Updates to This Policy",
+        "content": "We may update this Privacy Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. We will notify you of any material changes by posting the updated policy on our website and updating the 'Last Updated' date. For significant changes, we may also provide additional notice, such as email notification. Your continued use of our platform after any changes indicates your acceptance of the updated policy."
+      },
+      "contactInformation": {
+        "title": "Contact Information",
+        "content": "If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at: Email: privacy@resourcehub.com | Phone: +1 (555) 123-4567 | Address: ResourceHub Privacy Team, 123 Privacy Street, Data City, DC 12345, United States. We will respond to your inquiries within a reasonable timeframe and in accordance with applicable law."
+      }
+    }
+  },
   "register": {
     "title": "Create Your Account",
     "subtitle": "Join our community today.",
@@ -1088,7 +1164,7 @@
           "title": "Phone Support",
           "description": "Speak directly with support",
           "action": "Call Now",
-          "hours": "Mon-Fri 9AM-6PM EGYPT"
+          "hours": "Mon-Fri 9AM-6PM EST"
         }
       }
     },
