@@ -764,8 +764,8 @@
   },
   "privacy": {
     "title": "Privacy Policy",
-    "lastUpdated": "Augest 15, 2025",
-    "effectiveDate": "Augest 15, 2025",
+    "lastUpdated": "January 15, 2025",
+    "effectiveDate": "January 15, 2025",
     "tableOfContents": {
       "title": "Table of Contents",
       "sections": [
@@ -836,6 +836,90 @@
         "title": "Contact Information",
         "content": "If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at: Email: privacy@resourcehub.com | Phone: +1 (555) 123-4567 | Address: ResourceHub Privacy Team, 123 Privacy Street, Data City, DC 12345, United States. We will respond to your inquiries within a reasonable timeframe and in accordance with applicable law."
       }
+    }
+  },
+  "cookiePolicy": {
+    "title": "Cookie Policy",
+    "description": "Understanding how we use cookies to enhance your browsing experience and provide better services.",
+    "lastUpdated": "Last updated: January 15, 2025",
+    "introduction": {
+      "content": "This Cookie Policy explains how ResourceHub uses cookies and similar tracking technologies when you visit our website. We want to be transparent about the data we collect, how we use it, and the choices you have regarding cookies. By continuing to use our website, you consent to our use of cookies as described in this policy."
+    },
+    "sections": {
+      "essential": {
+        "title": "Essential Cookies",
+        "content": "Essential cookies are necessary for the basic functionality of our website. These cookies enable core features such as security, network management, and accessibility. Without these cookies, services you have asked for cannot be provided. Essential cookies are always enabled and cannot be disabled.",
+        "examples": {
+          "title": "Examples of Essential Cookies:",
+          "sessionCookies": "Session cookies for user authentication and security",
+          "securityCookies": "Security cookies to prevent fraudulent activity",
+          "loadBalancing": "Load balancing cookies to distribute server load"
+        }
+      },
+      "analytics": {
+        "title": "Analytics Cookies",
+        "content": "Analytics cookies help us understand how visitors interact with our website by collecting and reporting information anonymously. These cookies allow us to count visits, identify traffic sources, and understand which pages are most popular. This information helps us improve our website and user experience.",
+        "examples": {
+          "title": "Examples of Analytics Cookies:",
+          "googleAnalytics": "Google Analytics cookies to track website usage",
+          "pageViews": "Page view tracking cookies to understand content popularity",
+          "userBehavior": "User behavior analysis cookies to improve site navigation"
+        }
+      },
+      "marketing": {
+        "title": "Marketing Cookies",
+        "content": "Marketing cookies are used to track visitors across websites with the intention of displaying relevant and engaging advertisements. These cookies may be set by us or by third-party advertising partners. They help us deliver personalized content and measure the effectiveness of our advertising campaigns.",
+        "examples": {
+          "title": "Examples of Marketing Cookies:",
+          "advertising": "Advertising cookies to display relevant ads",
+          "retargeting": "Retargeting cookies to show personalized content",
+          "socialMedia": "Social media cookies for sharing and engagement tracking"
+        }
+      },
+      "thirdParty": {
+        "title": "Third-Party Cookies",
+        "content": "Third-party cookies are set by domains other than ResourceHub. These cookies are typically used by external services we integrate with, such as social media platforms, payment processors, or analytics providers. We do not control these cookies, and their use is governed by the privacy policies of the respective third parties.",
+        "examples": {
+          "title": "Examples of Third-Party Cookies:",
+          "socialPlugins": "Social media plugins and sharing buttons",
+          "embeddedContent": "Embedded content from external platforms",
+          "paymentProcessors": "Payment processing and security services"
+        }
+      },
+      "management": {
+        "title": "Cookie Management",
+        "content": "You have several options to manage and control cookies on our website. You can modify your browser settings to accept or reject cookies, delete existing cookies, or receive notifications when cookies are being set. Please note that disabling certain cookies may affect the functionality of our website.",
+        "options": {
+          "title": "Cookie Management Options:",
+          "browserSettings": "Browser settings to control cookie acceptance and deletion",
+          "cookiePreferences": "Cookie preference center to customize your choices",
+          "optOut": "Opt-out links for specific third-party services"
+        }
+      },
+      "userRights": {
+        "title": "Your Rights",
+        "content": "Under applicable privacy laws, you have certain rights regarding cookies and the data they collect. You have the right to be informed about cookie usage, give or withdraw consent, and access information about the cookies we use. We respect your privacy choices and provide tools to exercise these rights.",
+        "rights": {
+          "title": "Your Cookie Rights:",
+          "consent": "Right to give or refuse consent for non-essential cookies",
+          "withdraw": "Right to withdraw consent at any time",
+          "information": "Right to information about cookies and their purposes"
+        }
+      },
+      "contact": {
+        "title": "Contact Information",
+        "content": "If you have any questions, concerns, or requests regarding this Cookie Policy or our cookie practices, please don't hesitate to contact us. We are committed to addressing your inquiries promptly and transparently.",
+        "info": {
+          "title": "Contact Details:",
+          "email": "Email: cookies@resourcehub.com",
+          "phone": "Phone: +1 (555) 123-4567",
+          "address": "Address: ResourceHub Cookie Team, 123 Cookie Street, Data City, DC 12345, United States"
+        }
+      }
+    },
+    "updates": {
+      "title": "Policy Updates",
+      "content": "We may update this Cookie Policy from time to time to reflect changes in our practices, technology, legal requirements, or other factors. We will notify you of any material changes by posting the updated policy on our website and updating the 'Last Updated' date. We encourage you to review this policy periodically."
     }
   },
   "register": {

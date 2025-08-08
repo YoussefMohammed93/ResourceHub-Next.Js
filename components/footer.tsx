@@ -133,7 +133,7 @@ export default function Footer() {
                 { name: t("footer.links.helpCenter"), href: "/help" },
                 { name: t("footer.links.termsOfService"), href: "/terms" },
                 { name: t("footer.links.privacyPolicy"), href: "/privacy" },
-                { name: t("footer.links.cookiePolicy"), href: "/cookies" },
+                { name: t("footer.links.cookiePolicy"), href: "/cookie-policy" },
                 { name: t("footer.links.faq"), href: "/faq" },
               ].map((link) => (
                 <li key={link.name}>
