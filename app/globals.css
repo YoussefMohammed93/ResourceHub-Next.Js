@@ -202,6 +202,10 @@ section[id] {
     animation: bounce-slow 3s ease-in-out infinite;
   }
 
+  .animate-float-slow {
+    animation: float-slow 10s ease-in-out infinite;
+  }
+
   @keyframes float {
     0%,
     100% {
@@ -229,6 +233,16 @@ section[id] {
     }
     50% {
       transform: translateY(-8px);
+    }
+  }
+
+  @keyframes float-slow {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-5px);
     }
   }
 

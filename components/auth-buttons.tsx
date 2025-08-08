@@ -12,7 +12,7 @@ export function AuthButtons() {
 
   return (
     <div
-      className={`flex items-center gap-1 sm:gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+      className={`flex items-center gap-1 sm:gap-2 ${isRTL ? "flex-row-reverse font-tajawal" : ""}`}
     >
       {/* Login Button */}
       <Link href="/login">

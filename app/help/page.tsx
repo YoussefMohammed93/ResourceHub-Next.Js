@@ -105,6 +105,7 @@ function HelpCenterSkeleton() {
           </div>
         </div>
       </section>
+      <Footer />
     </div>
   );
 }
