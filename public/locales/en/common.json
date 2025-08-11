@@ -25,6 +25,7 @@
     "searchPlaceholder": "Search for photos, vectors, illustrations...",
     "searchPlaceholderMobile": "Search photos, vectors...",
     "searchButton": "Search",
+    "searching": "Searching...",
     "popularSearches": "Popular searches :",
     "categories": {
       "title": "Browse by Category",
@@ -1077,6 +1078,14 @@
       "offline": "Offline",
       "someProvidersOffline": "Some providers are currently offline",
       "offlineProvidersMessage": "The following providers are temporarily unavailable. Results from these sources may be limited."
+    },
+    "errors": {
+      "emptyQuery": "Please enter a search term",
+      "tooShort": "Search term must be at least 2 characters long",
+      "tooLong": "Search term must be less than 100 characters",
+      "urlNotAllowed": "URLs are not allowed in search queries",
+      "invalid": "Invalid search query",
+      "navigation": "Failed to navigate to search results"
     }
   },
   "services": {

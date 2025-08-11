@@ -691,10 +691,95 @@ export default function HomePage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [searchType, setSearchType] = useState("all");
   const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
-  const handleSearch = () => {
-    if (searchQuery.trim()) {
-      window.location.href = `/search?q=${encodeURIComponent(searchQuery)}`;
+  // URL validation regex patterns
+  const urlRegex =
+    /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+  const domainRegex =
+    /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+
+  // Validate and clean search query
+  const validateAndCleanQuery = (
+    query: string
+  ): { isValid: boolean; cleanedQuery: string; error?: string } => {
+    const trimmedQuery = query.trim();
+
+    if (!trimmedQuery) {
+      return {
+        isValid: false,
+        cleanedQuery: "",
+        error: t("search.errors.emptyQuery"),
+      };
+    }
+
+    if (trimmedQuery.length < 2) {
+      return {
+        isValid: false,
+        cleanedQuery: "",
+        error: t("search.errors.tooShort"),
+      };
+    }
+
+    if (trimmedQuery.length > 100) {
+      return {
+        isValid: false,
+        cleanedQuery: "",
+        error: t("search.errors.tooLong"),
+      };
+    }
+
+    // Check if it's a URL
+    if (urlRegex.test(trimmedQuery) || domainRegex.test(trimmedQuery)) {
+      return {
+        isValid: false,
+        cleanedQuery: "",
+        error: t("search.errors.urlNotAllowed"),
+      };
+    }
+
+    // Remove special characters that might cause issues
+    const cleanedQuery = trimmedQuery
+      .replace(/[<>\"'&]/g, "")
+      .replace(/\s+/g, " ");
+
+    if (cleanedQuery !== trimmedQuery) {
+      console.warn("Query was cleaned:", {
+        original: trimmedQuery,
+        cleaned: cleanedQuery,
+      });
+    }
+
+    return { isValid: true, cleanedQuery };
+  };
+
+  const handleSearch = async () => {
+    const validation = validateAndCleanQuery(searchQuery);
+
+    if (!validation.isValid) {
+      setSearchError(validation.error || t("search.errors.invalid"));
+      return;
+    }
+
+    setIsSearching(true);
+    setSearchError(null);
+
+    try {
+      // Build search URL with type filter
+      const searchParams = new URLSearchParams();
+      searchParams.set("q", validation.cleanedQuery);
+
+      if (searchType !== "all") {
+        searchParams.set("type", searchType);
+      }
+
+      // Navigate to search page
+      window.location.href = `/search?${searchParams.toString()}`;
+    } catch (error) {
+      console.error("Search navigation error:", error);
+      setSearchError(t("search.errors.navigation"));
+      setIsSearching(false);
     }
   };
 
@@ -1217,25 +1302,56 @@ export default function HomePage() {
                     type="text"
                     placeholder={t("hero.searchPlaceholderMobile")}
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className={`${isRTL ? "pr-12 pl-4" : "pl-12 pr-4"} py-7 text-base border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm w-full`}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (searchError) setSearchError(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSearch();
+                      }
+                    }}
+                    disabled={isSearching}
+                    className={`${isRTL ? "pr-12 pl-4" : "pl-12 pr-4"} py-7 text-base border-2 ${
+                      searchError
+                        ? "border-red-500 focus:border-red-500"
+                        : "border-border focus:border-primary"
+                    } rounded-xl bg-background/80 backdrop-blur-sm w-full ${isSearching ? "opacity-50" : ""}`}
                   />
+                  {searchError && (
+                    <div className="absolute top-full left-0 right-0 mt-2 p-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                      <p className="text-sm text-red-600 dark:text-red-400">
+                        {searchError}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex gap-3">
                   <Button
                     onClick={handleSearch}
-                    className="flex-1 py-7 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl min-h-[3.5rem] touch-manipulation"
+                    disabled={isSearching || !searchQuery.trim()}
+                    className="flex-1 py-7 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl min-h-[3.5rem] touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Search className="w-5 h-5 stroke-2 mr-2" />
-                    {t("hero.searchButton")}
+                    {isSearching ? (
+                      <>
+                        <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2" />
+                        {t("hero.searching")}
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-5 h-5 stroke-2 mr-2" />
+                        {t("hero.searchButton")}
+                      </>
+                    )}
                   </Button>
                   <Button
                     onClick={() => setIsImageSearchOpen(true)}
                     variant="outline"
-                    className="py-7 px-6 text-base font-semibold rounded-xl border-2 border-border hover:border-primary/50 min-h-[3.5rem] touch-manipulation flex flex-col gap-1"
+                    disabled={isSearching}
+                    className="py-7 px-6 text-base font-semibold rounded-xl border-2 border-border hover:border-primary/50 min-h-[3.5rem] touch-manipulation flex flex-col gap-1 disabled:opacity-50"
                   >
                     <ImageIcon className="w-5 h-5" />
                     <span className="text-xs font-medium leading-tight">
@@ -1315,25 +1431,49 @@ export default function HomePage() {
                     type="text"
                     placeholder={t("hero.searchPlaceholder")}
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-                    className={`${isRTL ? "pr-48 pl-32" : "pl-48 pr-32"} py-7 h-[4.5rem] text-lg border-2 border-border focus:border-primary rounded-xl bg-background/80 backdrop-blur-sm ${isRTL && "placeholder:text-lg"}`}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (searchError) setSearchError(null);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleSearch();
+                      }
+                    }}
+                    disabled={isSearching}
+                    className={`${isRTL ? "pr-48 pl-32" : "pl-48 pr-32"} py-7 h-[4.5rem] text-lg border-2 ${
+                      searchError
+                        ? "border-red-500 focus:border-red-500"
+                        : "border-border focus:border-primary"
+                    } rounded-xl bg-background/80 backdrop-blur-sm ${isRTL && "placeholder:text-lg"} ${isSearching ? "opacity-50" : ""}`}
                   />
 
                   {/* Search Button */}
                   <Button
                     onClick={handleSearch}
-                    className={`absolute ${isRTL ? "left-2" : "right-2"} top-1/2 transform -translate-y-1/2 !px-6 !h-14 bg-primary hover:bg-primary/90 ${isRTL && "text-base"}`}
+                    disabled={isSearching || !searchQuery.trim()}
+                    className={`absolute ${isRTL ? "left-2" : "right-2"} top-1/2 transform -translate-y-1/2 !px-6 !h-14 bg-primary hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed ${isRTL && "text-base"}`}
                   >
-                    <Search className="w-4 h-4 stroke-3" />
-                    {t("hero.searchButton")}
+                    {isSearching ? (
+                      <>
+                        <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2" />
+                        {t("hero.searching")}
+                      </>
+                    ) : (
+                      <>
+                        <Search className="w-4 h-4 stroke-3 mr-2" />
+                        {t("hero.searchButton")}
+                      </>
+                    )}
                   </Button>
                 </div>
                 {/* Image Search Button */}
                 <Button
                   onClick={() => setIsImageSearchOpen(true)}
                   variant="outline"
-                  className="!px-5 border-2 border-border hover:border-primary/50 flex flex-col gap-2 h-auto min-h-[4.5rem]"
+                  disabled={isSearching}
+                  className="!px-5 border-2 border-border hover:border-primary/50 flex flex-col gap-2 h-auto min-h-[4.5rem] disabled:opacity-50"
                 >
                   <ImageIcon className="!w-6 !h-6" />
                   <span className="text-xs font-medium">
@@ -1341,6 +1481,17 @@ export default function HomePage() {
                   </span>
                 </Button>
               </div>
+
+              {/* Error Display for Desktop */}
+              {searchError && (
+                <div className="w-full max-w-4xl px-4 sm:px-0">
+                  <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+                    <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                      {searchError}
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
             {/* Category Cards Grid - Centered */}
             <div className="w-full space-y-6 px-4 sm:px-6">

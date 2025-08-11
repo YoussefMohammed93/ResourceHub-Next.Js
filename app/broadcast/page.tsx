@@ -319,48 +319,48 @@ export default function BroadcastPage() {
     return actualTodayCount;
   }, [broadcastActivity]);
 
-  // Helper function to format time ago (now uses currentTime for dynamic updates)
-  const formatTimeAgo = (dateString: string): string => {
-    try {
-      const date = new Date(dateString);
-
-      // Check if date is valid
-      if (isNaN(date.getTime())) {
-        return "Unknown time";
-      }
-
-      // Use currentTime state instead of new Date() for dynamic updates
-      const now = currentTime;
-      const diffInMinutes = Math.floor(
-        (now.getTime() - date.getTime()) / (1000 * 60)
-      );
-
-      if (diffInMinutes < 0) {
-        return "Just now";
-      }
-
-      if (diffInMinutes < 60) {
-        return diffInMinutes <= 1
-          ? "1 minute ago"
-          : `${diffInMinutes} minutes ago`;
-      }
-
-      const diffInHours = Math.floor(diffInMinutes / 60);
-      if (diffInHours < 24) {
-        return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;
-      }
-
-      const diffInDays = Math.floor(diffInHours / 24);
-      return diffInDays === 1 ? "1 day ago" : `${diffInDays} days ago`;
-    } catch (error) {
-      console.error("Error formatting time:", error);
-      return "Unknown time";
-    }
-  };
-
   // Get recent activity from broadcast activity data
   // Using useMemo to recalculate when currentTime or broadcastActivity changes
   const allRecentActivity = useMemo(() => {
+    // Helper function to format time ago (now uses currentTime for dynamic updates)
+    const formatTimeAgo = (dateString: string): string => {
+      try {
+        const date = new Date(dateString);
+
+        // Check if date is valid
+        if (isNaN(date.getTime())) {
+          return "Unknown time";
+        }
+
+        // Use currentTime state instead of new Date() for dynamic updates
+        const now = currentTime;
+        const diffInMinutes = Math.floor(
+          (now.getTime() - date.getTime()) / (1000 * 60)
+        );
+
+        if (diffInMinutes < 0) {
+          return "Just now";
+        }
+
+        if (diffInMinutes < 60) {
+          return diffInMinutes <= 1
+            ? "1 minute ago"
+            : `${diffInMinutes} minutes ago`;
+        }
+
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) {
+          return diffInHours === 1 ? "1 hour ago" : `${diffInHours} hours ago`;
+        }
+
+        const diffInDays = Math.floor(diffInHours / 24);
+        return diffInDays === 1 ? "1 day ago" : `${diffInDays} days ago`;
+      } catch (error) {
+        console.error("Error formatting time:", error);
+        return "Unknown time";
+      }
+    };
+
     return (
       broadcastActivity?.recent_broadcasts?.map((activity, index) => ({
         id: index + 1,
@@ -372,7 +372,7 @@ export default function BroadcastPage() {
           : "Unknown time",
       })) || []
     );
-  }, [broadcastActivity, formatTimeAgo]);
+  }, [broadcastActivity, currentTime]);
 
   // Get displayed recent activity (first 6 items or all if expanded)
   const recentActivity = useMemo(() => {

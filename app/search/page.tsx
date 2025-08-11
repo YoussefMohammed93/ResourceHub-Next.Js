@@ -4,7 +4,6 @@ import {
   X,
   Search,
   Heart,
-  Share2,
   Download,
   ChevronLeft,
   ChevronRight,
@@ -19,14 +18,14 @@ import {
   Users,
   Star,
   Zap,
-  Camera,
   Palette,
+  Camera,
   AlertCircle,
   WifiOff,
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, Suspense } from "react";
+import { useState, Suspense, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -43,29 +42,174 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Type definitions
-interface Provider {
-  id: string;
-  name: string;
-  logo: string;
-  count: number;
-  isOnline: boolean;
+// Type definitions for API response
+interface ApiSearchResult {
+  url: string;
+  file_id: string;
+  file_type: string;
+  image_type: string;
+  metadata: {
+    title: string;
+    description: string | null;
+  };
+  preview: {
+    src: string;
+    width: number | null;
+    height: number | null;
+  };
 }
 
+interface ApiResponse {
+  success: boolean;
+  data: {
+    query: string;
+    page: string;
+  };
+  results: {
+    [provider: string]: ApiSearchResult[];
+  };
+}
+
+// Transformed search result for UI
 interface SearchResult {
-  id: number;
+  id: string;
   title: string;
-  thumbnail: string;
-  provider: Provider;
+  thumbnail: string; // For images: image URL; for videos: preview .mp4
+  provider: string;
   type: string;
-  width: number;
-  height: number;
-  isFavorite: boolean;
-  isPremium: boolean;
-  creditRequired: number;
-  imageId: string;
-  resolution: string;
-  fullImageUrl: string;
+  file_type: string; // 'video' | 'image' | etc
+  width: number | null;
+  height: number | null;
+  url: string; // Provider page URL
+  file_id: string;
+  image_type: string;
+  poster?: string; // Poster image URL for videos
+}
+
+// API integration functions - using internal API route to avoid CORS issues
+async function searchAPI(
+  query: string,
+  page: number = 1
+): Promise<ApiResponse> {
+  try {
+    const response = await fetch(
+      `/api/search?query=${encodeURIComponent(query)}&page=${page}`
+    );
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error || `HTTP error! status: ${response.status}`
+      );
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Search API error:", error);
+    throw error;
+  }
+}
+
+// Helpers for deterministic shuffling and file type normalization
+function hashString(input: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash +=
+      (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+  }
+  return hash >>> 0;
+}
+function mulberry32(a: number) {
+  return function () {
+    let t = (a += 0x6d2b79f5);
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+function seededShuffle<T>(array: T[], seedStr: string): T[] {
+  const arr = array.slice();
+  const rng = mulberry32(hashString(seedStr));
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+function normalizeFileType(
+  fileTypeRaw: string | null | undefined,
+  imageTypeRaw: string | null | undefined
+): string {
+  const ft = (fileTypeRaw || "").toString().trim().toLowerCase();
+  const it = (imageTypeRaw || "").toString().trim().toLowerCase();
+  // Videos: exclude video-templates from plain videos
+  if (ft === "video" || ft === "stock-video" || it === "video") return "video";
+  // Images and photos (raster/illustrations/graphics)
+  if (
+    ft === "image" ||
+    ft === "images" ||
+    ft === "photo" ||
+    ft === "photos" ||
+    ft === "illustration" ||
+    ft === "illustrations" ||
+    ft === "graphics" ||
+    it === "image" ||
+    it === "photo" ||
+    it === "illustration"
+  )
+    return "image";
+  // Vectors
+  if (ft === "vector" || ft === "vectors" || it === "vector") return "vector";
+  // Templates (graphic/presentation/video templates, psd)
+  if (ft.endsWith("-templates") || ft === "templates" || ft === "psd")
+    return "template";
+  // Icons
+  if (ft === "icon" || ft === "icons" || it === "icon") return "icon";
+  // Audio
+  if (ft === "sound-effects" || ft === "audio" || it === "audio")
+    return "audio";
+  // 3D
+  if (ft === "3d" || it === "3d" || ft === "3d printing") return "3d";
+  // Fonts
+  if (ft === "fonts" || ft === "font") return "font";
+  // Fallback to fileType if present
+  return ft || it || "other";
+}
+
+// Transform API results to UI format with randomized mixing across providers
+function transformApiResults(
+  apiResponse: ApiResponse,
+  limitResults: boolean = true
+): SearchResult[] {
+  const all: SearchResult[] = [];
+
+  Object.entries(apiResponse.results).forEach(([provider, items]) => {
+    items.forEach((item, index) => {
+      const normalizedType = normalizeFileType(item.file_type, item.image_type);
+      const base: SearchResult = {
+        id: `${provider}-${item.file_id}-${index}-${apiResponse.data?.page || "1"}`, // Include page in ID to avoid duplicates
+        title: item.metadata.title || "Untitled",
+        thumbnail: item.preview.src,
+        provider,
+        type: item.image_type,
+        file_type: normalizedType,
+        width: item.preview.width,
+        height: item.preview.height,
+        url: item.url,
+        file_id: item.file_id,
+        image_type: item.image_type,
+      };
+      if (normalizedType === "video" && item.url) {
+        base.poster = `/api/video-thumbnail?url=${encodeURIComponent(item.url)}`;
+      }
+      all.push(base);
+    });
+  });
+
+  // Randomize/mix results deterministically by query+page to avoid provider grouping
+  const seed = `${apiResponse.data?.query || ""}::${apiResponse.data?.page || "1"}`;
+  const shuffled = seededShuffle(all, seed);
+  return limitResults ? shuffled.slice(0, 60) : shuffled;
 }
 
 // Mock data for providers
@@ -136,7 +280,7 @@ const providers = [
   },
 ];
 
-// Mock data for file types
+// Mock data for file types (kept for sidebar filters)
 const fileTypes = [
   { id: "photos", count: 2450 },
   { id: "vectors", count: 1890 },
@@ -144,29 +288,6 @@ const fileTypes = [
   { id: "icons", count: 950 },
   { id: "templates", count: 680 },
 ];
-
-// Mock data for search results
-const generateMockResults = (query: string): SearchResult[] => {
-  const results: SearchResult[] = [];
-  for (let i = 1; i <= 24; i++) {
-    results.push({
-      id: i,
-      title: `${query || "Sample"} Image ${i}`,
-      thumbnail: "/placeholder.png",
-      provider: providers[Math.floor(Math.random() * providers.length)],
-      type: fileTypes[Math.floor(Math.random() * fileTypes.length)].id,
-      width: Math.floor(Math.random() * 400) + 200,
-      height: Math.floor(Math.random() * 400) + 200,
-      isFavorite: Math.random() > 0.8,
-      isPremium: Math.random() > 0.7,
-      creditRequired: Math.floor(Math.random() * 3) + 1,
-      imageId: `#${17486346 + i}`,
-      resolution: "300 dpi",
-      fullImageUrl: "/image-1.jpg", // In real app, this would be the full resolution image
-    });
-  }
-  return results;
-};
 
 // Mock suggestions
 const suggestions = [
@@ -182,31 +303,310 @@ function SearchContent() {
   const { isRTL, isLoading } = useLanguage();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
+  const initialType = searchParams.get("type") || "all";
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedFileTypes, setSelectedFileTypes] = useState<string[]>([]);
-  const [selectedFilter, setSelectedFilter] = useState<string>("all");
+  const [selectedFilter, setSelectedFilter] = useState<string>(initialType);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [hoveredImage, setHoveredImage] = useState<number | null>(null);
+  const [hoveredImage, setHoveredImage] = useState<string | null>(null);
   const [selectedImage, setSelectedImage] = useState<SearchResult | null>(null);
   const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
   const [isFullImageDialogOpen, setIsFullImageDialogOpen] = useState(false);
 
-  const resultsPerPage = 24;
-  const mockResults = generateMockResults(searchQuery);
-  const totalResults = 1247; // Mock total
+  // API state
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [allResults, setAllResults] = useState<SearchResult[]>([]); // Store all unfiltered results
+  const [isSearchLoading, setIsSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
+  const [totalResults, setTotalResults] = useState(0);
+
+  const resultsPerPage = 60; // Updated to match requirements
   const totalPages = Math.ceil(totalResults / resultsPerPage);
 
+  // Apply filter to results
+  const applyCurrentFilter = (results: SearchResult[]) => {
+    const filterMap: Record<string, string> = {
+      images: "image",
+      videos: "video",
+      vectors: "vector",
+      templates: "template",
+      icons: "icon",
+      audio: "audio",
+      "3d": "3d",
+      fonts: "font",
+    };
+
+    const filteredResults =
+      selectedFilter === "all"
+        ? results.slice(0, 60) // Limit to 60 for "all"
+        : results
+            .filter((result) => {
+              const target = filterMap[selectedFilter];
+              return target ? result.file_type === target : true;
+            })
+            .slice(0, 60); // Limit to 60 for filtered results too
+
+    setSearchResults(filteredResults);
+
+    // Update total results for pagination - be more generous with estimates
+    const estimatedTotal =
+      selectedFilter === "all"
+        ? results.length >= 60
+          ? results.length * 10
+          : results.length
+        : filteredResults.length >= 60
+          ? filteredResults.length * 5
+          : Math.max(filteredResults.length * 3, filteredResults.length);
+
+    setTotalResults(estimatedTotal);
+  };
+  // Perform search API call with retry logic and timeout
+  const performSearch = async (
+    query: string,
+    page: number = 1,
+    retryCount: number = 0
+  ) => {
+    if (!query.trim()) return;
+
+    setIsSearchLoading(true);
+    setSearchError(null);
+
+    // Show loading message after 5 seconds (API can take up to 30 seconds)
+    const loadingTimeout = setTimeout(() => {
+      if (isSearchLoading) {
+        console.log("Search is taking longer than expected, please wait...");
+      }
+    }, 5000);
+
+    try {
+      // Fetch multiple pages to ensure we have enough results for filtering
+      const maxPages = selectedFilter === "all" ? 1 : 5; // Fetch more pages when filtering
+      const allApiResults: SearchResult[] = [];
+
+      for (let p = 1; p <= maxPages; p++) {
+        const apiResponse = await searchAPI(query, p);
+
+        if (!apiResponse.success || !apiResponse.results) {
+          if (p === 1) throw new Error("Invalid API response format");
+          break; // Stop if subsequent pages fail
+        }
+
+        const pageResults = transformApiResults(apiResponse, false); // Don't limit individual pages
+        allApiResults.push(...pageResults);
+
+        // If we got less than 60 results, no more pages available
+        if (pageResults.length < 60) break;
+
+        // If we're filtering and have enough of the target type, we can stop early
+        if (selectedFilter !== "all") {
+          const filterMap: Record<string, string> = {
+            images: "image",
+            videos: "video",
+            vectors: "vector",
+            templates: "template",
+            icons: "icon",
+            audio: "audio",
+            "3d": "3d",
+            fonts: "font",
+          };
+          const target = filterMap[selectedFilter];
+          const filteredCount = allApiResults.filter(
+            (r) => r.file_type === target
+          ).length;
+          if (filteredCount >= 60) break; // We have enough results of the target type
+        }
+      }
+
+      // Store all results for filtering
+      setAllResults(allApiResults);
+
+      // Apply current filter to new results
+      applyCurrentFilter(allApiResults);
+
+      setCurrentPage(page);
+
+      // Clear any previous errors
+      setSearchError(null);
+      clearTimeout(loadingTimeout);
+    } catch (error) {
+      clearTimeout(loadingTimeout);
+      console.error(`Search attempt ${retryCount + 1} failed:`, error);
+
+      // Retry logic - retry up to 2 times with exponential backoff
+      if (retryCount < 2) {
+        const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+        setTimeout(() => {
+          performSearch(query, page, retryCount + 1);
+        }, delay);
+        return;
+      }
+
+      // Final failure after retries
+      const errorMessage =
+        error instanceof Error ? error.message : "Search failed";
+      setSearchError(
+        `${errorMessage}${retryCount > 0 ? ` (after ${retryCount + 1} attempts)` : ""}`
+      );
+      setSearchResults([]);
+      setAllResults([]);
+      setTotalResults(0);
+    } finally {
+      clearTimeout(loadingTimeout);
+      if (retryCount === 0) {
+        // Only set loading false on the initial call
+        setIsSearchLoading(false);
+      }
+    }
+  };
+
+  // Handle search button click
   const handleSearch = () => {
     if (searchQuery.trim()) {
       // Update URL without page reload
       const url = new URL(window.location.href);
       url.searchParams.set("q", searchQuery);
       window.history.pushState({}, "", url.toString());
+
+      // Perform search
+      performSearch(searchQuery, 1);
     }
   };
+
+  // Load initial search results
+  useEffect(() => {
+    if (initialQuery) {
+      performSearch(initialQuery, 1);
+    }
+  }, [initialQuery]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (allResults.length > 0) {
+      applyCurrentFilter(allResults);
+
+      // If filtered results are too few, trigger a new search to get more
+      const filterMap: Record<string, string> = {
+        images: "image",
+        videos: "video",
+        vectors: "vector",
+        templates: "template",
+        icons: "icon",
+        audio: "audio",
+        "3d": "3d",
+        fonts: "font",
+      };
+
+      if (selectedFilter !== "all") {
+        const target = filterMap[selectedFilter];
+        const filteredCount = allResults.filter(
+          (r) => r.file_type === target
+        ).length;
+
+        // If we have less than 30 results of the selected type, search for more
+        if (filteredCount < 30 && searchQuery) {
+          performSearch(searchQuery, 1);
+        }
+      }
+    }
+  }, [selectedFilter]);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    return () => {
+      // Cleanup all video elements when component unmounts
+      const videos = document.querySelectorAll("video");
+      videos.forEach((video) => {
+        video.pause();
+        video.currentTime = 0;
+        video.src = "";
+        video.load();
+      });
+    };
+  }, [currentPage, searchResults]);
+
+  // Handle video play/pause with proper error handling
+  const handleVideoHover = useCallback(
+    (video: HTMLVideoElement, play: boolean) => {
+      if (play) {
+        video.play().catch((error) => {
+          console.warn("Video play failed:", error);
+          // Fallback: show poster image by hiding video
+          video.style.display = "none";
+          const poster = video.nextElementSibling as HTMLImageElement;
+          if (poster && poster.tagName === "IMG") {
+            poster.style.display = "block";
+          }
+        });
+      } else {
+        video.pause();
+        video.currentTime = 0;
+      }
+    },
+    []
+  );
+
+  // Check if URL is a valid video URL
+  const isValidVideoUrl = useCallback((url: string): boolean => {
+    if (!url) return false;
+
+    // Check for common video file extensions
+    const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
+    const hasVideoExtension = videoExtensions.some((ext) =>
+      url.toLowerCase().includes(ext)
+    );
+
+    // Check for video streaming domains
+    const videoStreamingDomains = [
+      "cloudfront.net",
+      "amazonaws.com",
+      "vimeo.com",
+      "youtube.com",
+    ];
+    const hasVideoStreamingDomain = videoStreamingDomains.some((domain) =>
+      url.includes(domain)
+    );
+
+    return hasVideoExtension || hasVideoStreamingDomain;
+  }, []);
+
+  // Generate video thumbnail using canvas (client-side)
+  const generateVideoThumbnail = useCallback(
+    (videoElement: HTMLVideoElement): Promise<string> => {
+      return new Promise((resolve) => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        if (!ctx) {
+          resolve("/placeholder.png");
+          return;
+        }
+
+        // Set canvas size to video dimensions
+        canvas.width = videoElement.videoWidth || 320;
+        canvas.height = videoElement.videoHeight || 240;
+
+        // Draw the current frame
+        ctx.drawImage(videoElement, 0, 0, canvas.width, canvas.height);
+
+        // Convert to data URL
+        const thumbnailUrl = canvas.toDataURL("image/jpeg", 0.8);
+        resolve(thumbnailUrl);
+      });
+    },
+    []
+  );
+
+  // Get video poster - use a simple approach that works
+  const getVideoPoster = useCallback((videoUrl: string): string => {
+    if (!videoUrl) return "/placeholder.png";
+
+    // For now, we'll use placeholder and generate thumbnail on load
+    // This is more reliable than trying to extract frames from URLs
+    return "/placeholder.png";
+  }, []);
 
   const toggleProvider = (providerId: string) => {
     setSelectedProviders((prev) =>
@@ -233,6 +633,55 @@ function SearchContent() {
   const handleImageClick = (result: SearchResult) => {
     setSelectedImage(result);
     setIsImageDialogOpen(true);
+  };
+
+  // Smooth scroll to top of results
+  const scrollToResultsTop = () => {
+    const el = document.getElementById("results-top");
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  // Handle pagination
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages && searchQuery) {
+      scrollToResultsTop();
+      performSearch(searchQuery, page);
+    }
+  };
+
+  // Get fallback dimensions for items with null width/height
+  const getFallbackDimensions = (result: SearchResult) => {
+    if (result.width && result.height) {
+      return { width: result.width, height: result.height };
+    }
+
+    // Fallback dimensions based on content type
+    if (result.file_type === "video") {
+      return { width: 400, height: 225 }; // 16:9 aspect ratio
+    } else {
+      return { width: 300, height: 200 }; // 3:2 aspect ratio for images
+    }
+  };
+
+  // Get responsive height for mobile/desktop
+  const getResponsiveHeight = (
+    result: SearchResult,
+    isMobile: boolean = false
+  ) => {
+    const dimensions = getFallbackDimensions(result);
+    const aspectRatio = dimensions.height / dimensions.width;
+
+    if (isMobile) {
+      // Mobile: limit height to reasonable values
+      return Math.min(300, Math.max(200, 300 * aspectRatio));
+    } else {
+      // Desktop: use calculated height with limits
+      return Math.min(400, Math.max(150, 250 * aspectRatio));
+    }
   };
 
   // Show loading skeleton while language data is loading
@@ -859,6 +1308,9 @@ function SearchContent() {
             </div>
           </div>
 
+          {/* Anchor for scroll-to-top of results */}
+          <div id="results-top" />
+
           {/* Floating Icon 3 - Middle Right */}
           <div
             className={`hidden md:block absolute top-64 ${isRTL ? "left-32" : "right-32"} animate-float`}
@@ -883,15 +1335,6 @@ function SearchContent() {
           >
             <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
               <Star className="w-4 h-4 text-primary" />
-            </div>
-          </div>
-
-          {/* Floating Icon 6 - Middle Center */}
-          <div
-            className={`hidden md:block absolute top-1/3 ${isRTL ? "right-1/2" : "left-1/2"} transform -translate-x-1/2 animate-float-delayed`}
-          >
-            <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
-              <Camera className="w-5 h-5 text-primary" />
             </div>
           </div>
 
@@ -1249,283 +1692,551 @@ function SearchContent() {
               return null;
             })()}
 
-            {/* Results Grid - Mobile: Grid (1 item per row), SM+: Flex with varied widths */}
-            <div className="space-y-4 results-grid-3xl">
-              {/* Mobile Layout - Grid with 1 column */}
-              <div className="grid grid-cols-1 gap-4 sm:hidden">
-                {mockResults.map((result) => (
-                  <div
-                    key={result.id}
-                    className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer h-64"
-                    onMouseEnter={() => setHoveredImage(result.id)}
-                    onMouseLeave={() => setHoveredImage(null)}
-                    onClick={() => handleImageClick(result)}
-                  >
-                    {/* Image */}
-                    <div className="relative w-full h-full">
-                      <Image
-                        src={result.thumbnail}
-                        alt={result.title}
-                        fill
-                        className="object-cover"
-                      />
-
-                      {/* Provider Logo - Top Left/Right - Always visible */}
-                      <div
-                        className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-300 relative`}
-                      >
-                        <Image
-                          src={result.provider.logo}
-                          alt={result.provider.name}
-                          width={44}
-                          height={44}
-                          className={`w-11 h-11 object-cover rounded-lg ${!result.provider.isOnline ? "grayscale opacity-60" : ""}`}
-                        />
-
-                        {/* Provider Status Indicator */}
-                        <div
-                          className={`absolute -top-1 ${isRTL ? "-left-1" : "-right-1"} z-10`}
-                        >
-                          {result.provider.isOnline ? (
-                            <div
-                              className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"
-                              title={`${result.provider.name} - ${t("search.status.online")}`}
-                            />
-                          ) : (
-                            <div
-                              className="w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center"
-                              title={`${result.provider.name} - ${t("search.status.offline")}`}
-                            >
-                              <WifiOff className="w-2 h-2 text-white" />
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Hover Overlay */}
-                      <div
-                        className={`absolute inset-0 bg-black/20 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100" : "opacity-0"}`}
-                      >
-                        {/* Love Button - Top Right - Appears on hover */}
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} w-11 h-11 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
-                          aria-label={t("search.actions.favorite")}
-                        >
-                          <Heart
-                            className={`w-5 h-5 ${result.isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`}
-                          />
-                        </Button>
-
-                        {/* Share Button - Under Logo - Appears on hover */}
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          className={`absolute top-12 ${isRTL ? "right-2" : "left-2"} w-11 h-11 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
-                          aria-label={t("search.actions.share")}
-                        >
-                          <ShoppingCart className="w-5 h-5 text-muted-foreground" />
-                        </Button>
-
-                        {/* Download Button - Bottom Center - Appears on hover */}
-                        <Button
-                          size="sm"
-                          className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-primary/90 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-                        >
-                          <Download className="w-4 h-4" />
-                          {t("search.actions.download")}
-                        </Button>
-                      </div>
-                    </div>
+            {/* Loading State */}
+            {isSearchLoading && (
+              <div className="space-y-6">
+                <div className="text-center py-8">
+                  <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    Searching...
+                  </h3>
+                  <p className="text-muted-foreground">
+                    This may take up to 30 seconds. Please wait.
+                  </p>
+                </div>
+                <div className="space-y-4 results-grid-3xl">
+                  <div className="grid grid-cols-1 gap-4 sm:hidden">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <Skeleton key={i} className="w-full h-64 rounded-lg" />
+                    ))}
                   </div>
-                ))}
+                  <div className="hidden sm:flex sm:flex-col sm:w-full">
+                    {Array.from({ length: 3 }).map((_, rowIndex) => (
+                      <div
+                        key={rowIndex}
+                        className="flex gap-2 sm:gap-4 justify-center flex-wrap mb-4"
+                      >
+                        {Array.from({ length: 4 }).map((_, i) => (
+                          <Skeleton
+                            key={i}
+                            className="rounded-lg"
+                            style={{
+                              flex: `${1.2 + i * 0.2} 1 0`,
+                              height: "250px",
+                              minWidth: "150px",
+                              maxWidth: "400px",
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
+            )}
 
-              {/* Desktop Layout - Flex with varied widths (SM and up) */}
-              <div className="hidden sm:flex sm:flex-col sm:w-full">
-                {Array.from(
-                  { length: Math.ceil(mockResults.length / 4) },
-                  (_, rowIndex) => (
-                    <div
-                      key={rowIndex}
-                      className="flex gap-2 sm:gap-4 justify-center flex-wrap mb-4"
-                    >
-                      {mockResults
-                        .slice(rowIndex * 4, (rowIndex + 1) * 4)
-                        .map((result, index) => {
-                          const actualIndex = rowIndex * 4 + index;
-                          const flexValue = getImageFlex(actualIndex);
-                          return (
-                            <div
-                              key={result.id}
-                              className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer"
-                              style={{
-                                flex: `${flexValue} 1 0`,
-                                height: "250px",
-                                minWidth: "150px",
-                                maxWidth: "400px",
-                              }}
-                              onMouseEnter={() => setHoveredImage(result.id)}
-                              onMouseLeave={() => setHoveredImage(null)}
-                              onClick={() => handleImageClick(result)}
-                            >
-                              {/* Image */}
-                              <div className="relative w-full h-full">
-                                <Image
-                                  src={result.thumbnail}
+            {/* Error State */}
+            {searchError && (
+              <div className="text-center py-12">
+                <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-foreground mb-2">
+                  Search Error
+                </h3>
+                <p className="text-muted-foreground mb-4 max-w-md mx-auto">
+                  {searchError}
+                </p>
+                <div className="space-y-2">
+                  <Button
+                    onClick={() =>
+                      searchQuery && performSearch(searchQuery, currentPage)
+                    }
+                    disabled={isSearchLoading}
+                  >
+                    {isSearchLoading ? "Retrying..." : "Try Again"}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">
+                    If the problem persists, the API service may be temporarily
+                    unavailable.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* No Results State */}
+            {!isSearchLoading &&
+              !searchError &&
+              searchResults.length === 0 &&
+              searchQuery && (
+                <div className="text-center py-12">
+                  <Search className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold text-foreground mb-2">
+                    No Results Found
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Try searching with different keywords
+                  </p>
+                </div>
+              )}
+
+            {/* Results Grid - Mobile: Grid (1 item per row), SM+: Flex with varied widths */}
+            {!isSearchLoading && !searchError && searchResults.length > 0 && (
+              <div className="space-y-4 results-grid-3xl">
+                {/* Mobile Layout - Grid with 1 column */}
+                <div className="grid grid-cols-1 gap-4 sm:hidden">
+                  {searchResults.map((result) => {
+                    const responsiveHeight = getResponsiveHeight(result, true);
+                    return (
+                      <div
+                        key={result.id}
+                        className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                        style={{ height: `${responsiveHeight}px` }}
+                        onMouseEnter={() => setHoveredImage(result.id)}
+                        onMouseLeave={() => setHoveredImage(null)}
+                        onClick={() => handleImageClick(result)}
+                      >
+                        {/* Media Content */}
+                        <div className="relative w-full h-full">
+                          {result.file_type === "video" &&
+                          isValidVideoUrl(result.thumbnail) ? (
+                            <>
+                              <video
+                                src={result.thumbnail}
+                                poster={result.poster || "/placeholder.png"}
+                                className="w-full h-full object-cover"
+                                muted
+                                loop
+                                playsInline
+                                preload="metadata"
+                                onLoadedData={async (e) => {
+                                  // Generate thumbnail when video loads
+                                  const video = e.target as HTMLVideoElement;
+                                  try {
+                                    video.currentTime = 1; // Seek to 1 second
+                                    await new Promise((resolve) => {
+                                      video.onseeked = resolve;
+                                    });
+                                    const thumbnailUrl =
+                                      await generateVideoThumbnail(video);
+                                    video.poster = thumbnailUrl;
+
+                                    // Update fallback image too
+                                    const fallbackImg =
+                                      video.nextElementSibling as HTMLImageElement;
+                                    if (fallbackImg) {
+                                      fallbackImg.src = thumbnailUrl;
+                                    }
+                                  } catch (error) {
+                                    console.warn(
+                                      "Failed to generate video thumbnail:",
+                                      error
+                                    );
+                                  }
+                                }}
+                                onMouseEnter={(e) =>
+                                  handleVideoHover(
+                                    e.target as HTMLVideoElement,
+                                    true
+                                  )
+                                }
+                                onMouseLeave={(e) =>
+                                  handleVideoHover(
+                                    e.target as HTMLVideoElement,
+                                    false
+                                  )
+                                }
+                                onError={(e) => {
+                                  console.warn(
+                                    "Video load error, falling back to image"
+                                  );
+                                  const video = e.target as HTMLVideoElement;
+                                  video.style.display = "none";
+                                  const fallbackImg =
+                                    video.nextElementSibling as HTMLImageElement;
+                                  if (fallbackImg) {
+                                    fallbackImg.style.display = "block";
+                                  }
+                                }}
+                              />
+                              {/* Fallback for videos - text placeholder if no poster */}
+                              {result.poster ? (
+                                <img
+                                  src={result.poster}
                                   alt={result.title}
-                                  fill
-                                  className="object-cover"
+                                  className="w-full h-full object-cover"
+                                  style={{ display: "none" }}
+                                  loading="lazy"
+                                  onError={(e) => {
+                                    const img = e.target as HTMLImageElement;
+                                    img.style.display = "none";
+                                    const textPlaceholder =
+                                      img.nextElementSibling as HTMLDivElement;
+                                    if (textPlaceholder) {
+                                      textPlaceholder.style.display = "flex";
+                                    }
+                                  }}
                                 />
-
-                                {/* Provider Logo - Top Left/Right - Always visible */}
-                                <div
-                                  className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} w-11 h-11 rounded-lg flex items-center justify-center transition-all duration-300 relative`}
-                                >
-                                  <Image
-                                    src={result.provider.logo}
-                                    alt={result.provider.name}
-                                    width={44}
-                                    height={44}
-                                    className={`w-11 h-11 object-cover rounded-lg ${!result.provider.isOnline ? "grayscale opacity-60" : ""}`}
-                                  />
-
-                                  {/* Provider Status Indicator */}
-                                  <div
-                                    className={`absolute -top-1 ${isRTL ? "-left-1" : "-right-1"} z-10`}
-                                  >
-                                    {result.provider.isOnline ? (
-                                      <div
-                                        className="w-4 h-4 bg-green-500 rounded-full border-2 border-white shadow-sm"
-                                        title={`${result.provider.name} - ${t("search.status.online")}`}
-                                      />
-                                    ) : (
-                                      <div
-                                        className="w-4 h-4 bg-red-500 rounded-full border-2 border-white shadow-sm flex items-center justify-center"
-                                        title={`${result.provider.name} - ${t("search.status.offline")}`}
-                                      >
-                                        <WifiOff className="w-2 h-2 text-white" />
-                                      </div>
-                                    )}
+                              ) : null}
+                              {/* Text placeholder for videos without poster */}
+                              <div
+                                className="absolute inset-0 flex items-center justify-center bg-muted/80 text-muted-foreground"
+                                style={{
+                                  display: result.poster ? "none" : "none",
+                                }}
+                              >
+                                <div className="text-center">
+                                  <div className="text-2xl mb-2">🎥</div>
+                                  <div className="text-sm font-medium">
+                                    Video Preview
+                                  </div>
+                                  <div className="text-xs">
+                                    No thumbnail available
                                   </div>
                                 </div>
-
-                                {/* Hover Overlay */}
-                                <div
-                                  className={`absolute inset-0 bg-black/20 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100" : "opacity-0"}`}
-                                >
-                                  {/* Love Button - Top Right - Appears on hover */}
-                                  <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} w-11 h-11 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
-                                    aria-label={t("search.actions.favorite")}
-                                  >
-                                    <Heart
-                                      className={`w-6 h-6 ${result.isFavorite ? "fill-red-500 text-red-500" : "text-gray-600"}`}
-                                    />
-                                  </Button>
-
-                                  {/* Share Button - Under Logo - Appears on hover */}
-                                  <Button
-                                    size="sm"
-                                    variant="secondary"
-                                    className={`absolute top-14 ${isRTL ? "right-2" : "left-2"} w-11 h-11 p-0 bg-white/90 hover:bg-white transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2"}`}
-                                    aria-label={t("search.actions.share")}
-                                  >
-                                    <Share2 className="w-6 h-6 text-gray-600" />
-                                  </Button>
-
-                                  {/* Download Button - Bottom Center - Appears on hover */}
-                                  <Button
-                                    size="sm"
-                                    className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-primary/90 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
-                                  >
-                                    <Download className="w-4 h-4" />
-                                    {t("search.actions.download")}
-                                  </Button>
-                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
+                            </>
+                          ) : (
+                            <img
+                              src={result.thumbnail}
+                              alt={result.title}
+                              className="w-full h-full object-cover"
+                              loading="lazy"
+                              onError={(e) => {
+                                const img = e.target as HTMLImageElement;
+                                img.src = "/placeholder.png"; // Fallback image
+                                console.warn(
+                                  "Image load error for:",
+                                  result.thumbnail
+                                );
+                              }}
+                              style={{
+                                maxWidth: "100%",
+                                maxHeight: "100%",
+                              }}
+                            />
+                          )}
 
-            {/* Bottom Pagination with Page Numbers */}
-            <div className="flex justify-center pt-8">
-              <div
-                className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
-              >
-                {/* Previous Button */}
-                <Button
-                  variant="outline"
-                  size="lg"
-                  disabled={currentPage === 1}
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.max(1, prev - 1))
-                  }
-                  className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
-                >
-                  <ChevronLeft
-                    className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
-                  />
-                </Button>
+                          {/* Provider Badge */}
+                          <div
+                            className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} px-2 py-1 bg-black/70 text-white text-xs rounded-md`}
+                          >
+                            {result.provider}
+                          </div>
 
-                {/* Page Numbers */}
-                <div className="flex items-center gap-2">
-                  {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                    let pageNum;
-                    if (totalPages <= 5) {
-                      pageNum = i + 1;
-                    } else if (currentPage <= 3) {
-                      pageNum = i + 1;
-                    } else if (currentPage >= totalPages - 2) {
-                      pageNum = totalPages - 4 + i;
-                    } else {
-                      pageNum = currentPage - 2 + i;
-                    }
+                          {/* File Type Badge */}
+                          <div
+                            className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} px-2 py-1 ${
+                              result.file_type === "video"
+                                ? "bg-red-500/90"
+                                : "bg-primary/80"
+                            } text-white text-xs rounded-md flex items-center gap-1`}
+                          >
+                            {result.file_type === "video" && (
+                              <Camera className="w-3 h-3" />
+                            )}
+                            {result.file_type.toUpperCase()}
+                          </div>
 
-                    return (
-                      <Button
-                        key={pageNum}
-                        variant={
-                          currentPage === pageNum ? "default" : "outline"
-                        }
-                        size="lg"
-                        onClick={() => setCurrentPage(pageNum)}
-                        className={`w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2 font-semibold ${
-                          currentPage === pageNum
-                            ? "bg-primary text-primary-foreground border-primary"
-                            : "hover:bg-muted"
-                        }`}
-                      >
-                        {pageNum}
-                      </Button>
+                          {/* Hover Overlay */}
+                          <div
+                            className={`absolute inset-0 bg-black/20 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100" : "opacity-0"}`}
+                          >
+                            {/* Download Button - Bottom Center - Appears on hover */}
+                            <Button
+                              size="sm"
+                              className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-primary/90 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+                            >
+                              <Download className="w-4 h-4" />
+                              {t("search.actions.download")}
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     );
                   })}
                 </div>
 
-                {/* Next Button */}
-                <Button
-                  variant="outline"
-                  size="lg"
-                  disabled={currentPage === totalPages}
-                  onClick={() =>
-                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                  }
-                  className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
-                >
-                  <ChevronRight
-                    className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
-                  />
-                </Button>
+                {/* Desktop Layout - Flex with varied widths (SM and up) */}
+                <div className="hidden sm:flex sm:flex-col sm:w-full">
+                  {Array.from(
+                    { length: Math.ceil(searchResults.length / 4) },
+                    (_, rowIndex) => (
+                      <div
+                        key={rowIndex}
+                        className="flex gap-2 sm:gap-4 justify-center flex-wrap mb-4"
+                      >
+                        {searchResults
+                          .slice(rowIndex * 4, (rowIndex + 1) * 4)
+                          .map((result, index) => {
+                            const actualIndex = rowIndex * 4 + index;
+                            const flexValue = getImageFlex(actualIndex);
+                            return (
+                              <div
+                                key={result.id}
+                                className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                                style={{
+                                  flex: `${flexValue} 1 0`,
+                                  height: "250px",
+                                  minWidth: "150px",
+                                  maxWidth: "400px",
+                                }}
+                                onMouseEnter={() => setHoveredImage(result.id)}
+                                onMouseLeave={() => setHoveredImage(null)}
+                                onClick={() => handleImageClick(result)}
+                              >
+                                {/* Media Content */}
+                                <div className="relative w-full h-full">
+                                  {result.file_type === "video" &&
+                                  isValidVideoUrl(result.thumbnail) ? (
+                                    <>
+                                      <video
+                                        src={result.thumbnail}
+                                        poster={getVideoPoster(
+                                          result.thumbnail
+                                        )}
+                                        className="w-full h-full object-cover"
+                                        muted
+                                        loop
+                                        playsInline
+                                        preload="metadata"
+                                        onLoadedData={async (e) => {
+                                          // Generate thumbnail when video loads
+                                          const video =
+                                            e.target as HTMLVideoElement;
+                                          try {
+                                            video.currentTime = 1; // Seek to 1 second
+                                            await new Promise((resolve) => {
+                                              video.onseeked = resolve;
+                                            });
+                                            const thumbnailUrl =
+                                              await generateVideoThumbnail(
+                                                video
+                                              );
+                                            video.poster = thumbnailUrl;
+
+                                            // Update fallback image too
+                                            const fallbackImg =
+                                              video.nextElementSibling as HTMLImageElement;
+                                            if (fallbackImg) {
+                                              fallbackImg.src = thumbnailUrl;
+                                            }
+                                          } catch (error) {
+                                            console.warn(
+                                              "Failed to generate video thumbnail:",
+                                              error
+                                            );
+                                          }
+                                        }}
+                                        onMouseEnter={(e) =>
+                                          handleVideoHover(
+                                            e.target as HTMLVideoElement,
+                                            true
+                                          )
+                                        }
+                                        onMouseLeave={(e) =>
+                                          handleVideoHover(
+                                            e.target as HTMLVideoElement,
+                                            false
+                                          )
+                                        }
+                                        onError={(e) => {
+                                          console.warn(
+                                            "Video load error, falling back to image"
+                                          );
+                                          const video =
+                                            e.target as HTMLVideoElement;
+                                          video.style.display = "none";
+                                          const fallbackImg =
+                                            video.nextElementSibling as HTMLImageElement;
+                                          if (fallbackImg) {
+                                            fallbackImg.style.display = "block";
+                                          }
+                                        }}
+                                      />
+                                      {/* Fallback for videos - text placeholder if no poster */}
+                                      {result.poster ? (
+                                        <img
+                                          src={result.poster}
+                                          alt={result.title}
+                                          className="w-full h-full object-cover"
+                                          style={{ display: "none" }}
+                                          loading="lazy"
+                                          onError={(e) => {
+                                            const img =
+                                              e.target as HTMLImageElement;
+                                            img.style.display = "none";
+                                            const textPlaceholder =
+                                              img.nextElementSibling as HTMLDivElement;
+                                            if (textPlaceholder) {
+                                              textPlaceholder.style.display =
+                                                "flex";
+                                            }
+                                          }}
+                                        />
+                                      ) : null}
+                                      {/* Text placeholder for videos without poster */}
+                                      <div
+                                        className="absolute inset-0 flex items-center justify-center bg-muted/80 text-muted-foreground"
+                                        style={{
+                                          display: result.poster
+                                            ? "none"
+                                            : "none",
+                                        }}
+                                      >
+                                        <div className="text-center">
+                                          <div className="text-2xl mb-2">
+                                            🎥
+                                          </div>
+                                          <div className="text-sm font-medium">
+                                            Video Preview
+                                          </div>
+                                          <div className="text-xs">
+                                            No thumbnail available
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <img
+                                      src={result.thumbnail}
+                                      alt={result.title}
+                                      className="w-full h-full object-cover"
+                                      loading="lazy"
+                                      onError={(e) => {
+                                        const img =
+                                          e.target as HTMLImageElement;
+                                        img.src = "/placeholder.png"; // Fallback image
+                                        console.warn(
+                                          "Image load error for:",
+                                          result.thumbnail
+                                        );
+                                      }}
+                                      style={{
+                                        maxWidth: "100%",
+                                        maxHeight: "100%",
+                                      }}
+                                    />
+                                  )}
+
+                                  {/* Provider Badge */}
+                                  <div
+                                    className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} px-2 py-1 bg-black/70 text-white text-xs rounded-md`}
+                                  >
+                                    {result.provider}
+                                  </div>
+
+                                  {/* File Type Badge */}
+                                  <div
+                                    className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} px-2 py-1 ${
+                                      result.file_type === "video"
+                                        ? "bg-red-500/90"
+                                        : "bg-primary/80"
+                                    } text-white text-xs rounded-md flex items-center gap-1`}
+                                  >
+                                    {result.file_type === "video" && (
+                                      <Camera className="w-3 h-3" />
+                                    )}
+                                    {result.file_type.toUpperCase()}
+                                  </div>
+
+                                  {/* Hover Overlay */}
+                                  <div
+                                    className={`absolute inset-0 bg-black/20 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100" : "opacity-0"}`}
+                                  >
+                                    {/* Download Button - Bottom Center - Appears on hover */}
+                                    <Button
+                                      size="sm"
+                                      className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-primary/90 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+                                    >
+                                      <Download className="w-4 h-4" />
+                                      {t("search.actions.download")}
+                                    </Button>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    )
+                  )}
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Bottom Pagination with Page Numbers */}
+            {!isSearchLoading &&
+              !searchError &&
+              searchResults.length > 0 &&
+              totalPages > 1 && (
+                <div className="flex justify-center pt-8">
+                  <div
+                    className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
+                  >
+                    {/* Previous Button */}
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      disabled={currentPage === 1 || isSearchLoading}
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
+                    >
+                      <ChevronLeft
+                        className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
+                      />
+                    </Button>
+
+                    {/* Page Numbers */}
+                    <div className="flex items-center gap-2">
+                      {Array.from(
+                        { length: Math.min(5, totalPages) },
+                        (_, i) => {
+                          let pageNum;
+                          if (totalPages <= 5) {
+                            pageNum = i + 1;
+                          } else if (currentPage <= 3) {
+                            pageNum = i + 1;
+                          } else if (currentPage >= totalPages - 2) {
+                            pageNum = totalPages - 4 + i;
+                          } else {
+                            pageNum = currentPage - 2 + i;
+                          }
+
+                          return (
+                            <Button
+                              key={pageNum}
+                              variant={
+                                currentPage === pageNum ? "default" : "outline"
+                              }
+                              size="lg"
+                              disabled={isSearchLoading}
+                              onClick={() => handlePageChange(pageNum)}
+                              className={`w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2 font-semibold ${
+                                currentPage === pageNum
+                                  ? "bg-primary text-primary-foreground border-primary"
+                                  : "hover:bg-muted"
+                              }`}
+                            >
+                              {pageNum}
+                            </Button>
+                          );
+                        }
+                      )}
+                    </div>
+
+                    {/* Next Button */}
+                    <Button
+                      variant="outline"
+                      size="lg"
+                      disabled={currentPage === totalPages || isSearchLoading}
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      className="w-10 h-10 sm:w-12 sm:h-12 p-0 rounded-xl border-2"
+                    >
+                      <ChevronRight
+                        className={`w-5 h-5 ${isRTL ? "rotate-180" : ""}`}
+                      />
+                    </Button>
+                  </div>
+                </div>
+              )}
           </div>
         </main>
       </div>
@@ -1541,14 +2252,82 @@ function SearchContent() {
             <div
               className={`flex flex-col sm:flex-row h-full  ${isRTL ? "" : ""}`}
             >
-              {/* Left Side - Image */}
-              <div className="flex-1 relative bg-muted/20">
-                <Image
-                  src={selectedImage.fullImageUrl}
-                  alt={selectedImage.title}
-                  fill
-                  className="object-fill"
-                />
+              {/* Left Side - Media */}
+              <div className="flex-1 flex items-center justify-center relative bg-muted/20 min-h-[400px]">
+                {selectedImage.file_type === "video" &&
+                isValidVideoUrl(selectedImage.thumbnail) ? (
+                  <video
+                    src={selectedImage.thumbnail}
+                    poster={selectedImage.poster || "/placeholder.png"}
+                    className="w-full h-full object-contain"
+                    controls
+                    muted
+                    loop
+                    style={{
+                      width: selectedImage.width
+                        ? `${selectedImage.width}px`
+                        : "auto",
+                      height: selectedImage.height
+                        ? `${selectedImage.height}px`
+                        : "auto",
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                    }}
+                    onLoadedData={async (e) => {
+                      // Generate thumbnail when video loads
+                      const video = e.target as HTMLVideoElement;
+                      try {
+                        video.currentTime = 1; // Seek to 1 second
+                        await new Promise((resolve) => {
+                          video.onseeked = resolve;
+                        });
+                        const thumbnailUrl =
+                          await generateVideoThumbnail(video);
+                        video.poster = thumbnailUrl;
+                      } catch (error) {
+                        console.warn(
+                          "Failed to generate video thumbnail:",
+                          error
+                        );
+                      }
+                    }}
+                    onError={(e) => {
+                      console.warn("Dialog video load error, showing as image");
+                      const video = e.target as HTMLVideoElement;
+                      video.style.display = "none";
+                      const container = video.parentElement;
+                      if (container) {
+                        const fallbackImg = document.createElement("img");
+                        fallbackImg.src = getVideoPoster(
+                          selectedImage.thumbnail
+                        );
+                        fallbackImg.alt = selectedImage.title;
+                        fallbackImg.className = "w-full h-full object-contain";
+                        container.appendChild(fallbackImg);
+                      }
+                    }}
+                  />
+                ) : (
+                  <img
+                    src={selectedImage.thumbnail}
+                    alt={selectedImage.title}
+                    className="w-full h-full object-contain"
+                    style={{
+                      width: selectedImage.width
+                        ? `${selectedImage.width}px`
+                        : "auto",
+                      height: selectedImage.height
+                        ? `${selectedImage.height}px`
+                        : "auto",
+                      maxWidth: "100%",
+                      maxHeight: "100%",
+                    }}
+                    onError={(e) => {
+                      const img = e.target as HTMLImageElement;
+                      img.src = "/placeholder.png";
+                    }}
+                  />
+                )}
               </div>
 
               {/* Right Side - Details and Actions */}
@@ -1562,15 +2341,13 @@ function SearchContent() {
                   <div
                     className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
                   >
-                    <Image
-                      src={selectedImage.provider.logo}
-                      alt={selectedImage.provider.name}
-                      width={40}
-                      height={40}
-                      className="w-10 h-10 object-cover rounded"
-                    />
+                    <div className="w-10 h-10 bg-primary/10 rounded flex items-center justify-center">
+                      <span className="text-xs font-medium text-primary">
+                        {selectedImage.provider.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
                     <span className="font-medium text-foreground">
-                      {selectedImage.provider.name}
+                      {selectedImage.provider}
                     </span>
                   </div>
                   <Button
@@ -1585,12 +2362,28 @@ function SearchContent() {
 
                 {/* Content */}
                 <div className="flex-1 p-4 space-y-4">
-                  {/* Credit Required */}
-                  <div className="text-sm text-muted-foreground">
-                    {t("search.imageDialog.creditRequired")}{" "}
-                    <span className="font-medium text-foreground">
-                      {selectedImage.creditRequired}
-                    </span>
+                  {/* File Info */}
+                  <div className="space-y-2">
+                    <div className="text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        File Type:
+                      </span>{" "}
+                      {selectedImage.file_type.toUpperCase()}
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      <span className="font-medium text-foreground">
+                        Provider:
+                      </span>{" "}
+                      {selectedImage.provider}
+                    </div>
+                    {selectedImage.width && selectedImage.height && (
+                      <div className="text-sm text-muted-foreground">
+                        <span className="font-medium text-foreground">
+                          Dimensions:
+                        </span>{" "}
+                        {selectedImage.width} × {selectedImage.height}
+                      </div>
+                    )}
                   </div>
 
                   {/* Action Buttons */}
@@ -1624,24 +2417,25 @@ function SearchContent() {
 
                     {/* Like Button */}
                     <Button variant="outline" className="w-full">
-                      <Heart
-                        className={`w-4 h-4 ${selectedImage.isFavorite ? "fill-red-500 text-red-500" : ""}`}
-                      />
-                      {t("search.imageDialog.like")}
+                      <Heart className="w-4 h-4" />
+                      Like
                     </Button>
                   </div>
                 </div>
 
                 {/* Footer - Image Name and ID */}
                 <div className="p-4 border-t border-border space-y-2">
-                  <div className="font-medium text-foreground">
+                  <div className="font-medium text-foreground flex items-center gap-2">
+                    {selectedImage.file_type === "video" && (
+                      <Camera className="w-4 h-4 text-red-500" />
+                    )}
                     {selectedImage.title}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {selectedImage.imageId}
+                    {selectedImage.file_id}
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    {selectedImage.resolution}
+                    {selectedImage.image_type}
                   </div>
                 </div>
               </div>
@@ -1672,29 +2466,107 @@ function SearchContent() {
                 <X className="w-5 h-5" />
               </Button>
 
-              {/* Full Size Image */}
+              {/* Full Size Media */}
               <div className="relative w-full h-full flex items-center justify-center p-4">
-                <Image
-                  src={selectedImage.fullImageUrl}
-                  alt={selectedImage.title}
-                  fill
-                  className="object-contain"
-                  priority
-                />
+                {selectedImage.file_type === "video" &&
+                isValidVideoUrl(selectedImage.thumbnail) ? (
+                  <video
+                    src={selectedImage.thumbnail}
+                    poster={selectedImage.poster || "/placeholder.png"}
+                    className="object-cover"
+                    controls
+                    muted
+                    loop
+                    style={{
+                      width: selectedImage.width
+                        ? `${selectedImage.width}px`
+                        : "auto",
+                      height: selectedImage.height
+                        ? `${selectedImage.height}px`
+                        : "auto",
+                      maxWidth: "95vw",
+                      maxHeight: "95vh",
+                    }}
+                    onLoadedData={async (e) => {
+                      // Generate thumbnail when video loads
+                      const video = e.target as HTMLVideoElement;
+                      try {
+                        video.currentTime = 1; // Seek to 1 second
+                        await new Promise((resolve) => {
+                          video.onseeked = resolve;
+                        });
+                        const thumbnailUrl =
+                          await generateVideoThumbnail(video);
+                        video.poster = thumbnailUrl;
+                      } catch (error) {
+                        console.warn(
+                          "Failed to generate video thumbnail:",
+                          error
+                        );
+                      }
+                    }}
+                    onError={(e) => {
+                      console.warn(
+                        "Full-screen video load error, showing as image"
+                      );
+                      const video = e.target as HTMLVideoElement;
+                      video.style.display = "none";
+                      const container = video.parentElement;
+                      if (container) {
+                        const fallbackImg = document.createElement("img");
+                        fallbackImg.src = getVideoPoster(
+                          selectedImage.thumbnail
+                        );
+                        fallbackImg.alt = selectedImage.title;
+                        fallbackImg.className = "object-contain";
+                        fallbackImg.style.cssText = `
+                          width: ${selectedImage.width ? `${selectedImage.width}px` : "auto"};
+                          height: ${selectedImage.height ? `${selectedImage.height}px` : "auto"};
+                          max-width: 95vw;
+                          max-height: 95vh;
+                        `;
+                        container.appendChild(fallbackImg);
+                      }
+                    }}
+                  />
+                ) : (
+                  <img
+                    src={selectedImage.thumbnail}
+                    alt={selectedImage.title}
+                    className="object-contain"
+                    style={{
+                      width: selectedImage.width
+                        ? `${selectedImage.width}px`
+                        : "auto",
+                      height: selectedImage.height
+                        ? `${selectedImage.height}px`
+                        : "auto",
+                      maxWidth: "95vw",
+                      maxHeight: "95vh",
+                    }}
+                    onError={(e) => {
+                      const img = e.target as HTMLImageElement;
+                      img.src = "/placeholder.png";
+                    }}
+                  />
+                )}
               </div>
 
               {/* Image Info Overlay */}
               <div
                 className={`absolute bottom-4 ${isRTL ? "right-4" : "left-4"} bg-black/70 text-white p-3 rounded-lg border border-white/20 max-w-sm`}
               >
-                <div className="font-medium text-sm mb-1">
+                <div className="font-medium text-sm mb-1 flex items-center gap-2">
+                  {selectedImage.file_type === "video" && (
+                    <Camera className="w-3 h-3 text-red-400" />
+                  )}
                   {selectedImage.title}
                 </div>
                 <div className="text-xs text-white/80">
-                  {selectedImage.imageId} • {selectedImage.provider.name}
+                  {selectedImage.file_id} • {selectedImage.provider}
                 </div>
                 <div className="text-xs text-white/80">
-                  {selectedImage.resolution}
+                  {selectedImage.image_type}
                 </div>
               </div>
             </div>
