@@ -929,7 +929,7 @@ function LatestImagesGallery({
     };
 
     loadImages();
-  }, [limit, t, mockImages]);
+  }, [limit, t]);
 
   const loadMoreImages = async () => {
     if (loadingMore || !hasMore) return;
@@ -1576,7 +1576,7 @@ export default function AIImageGeneratorPage() {
 
   return (
     <div
-      className={`min-h-screen bg-gradient-to-b from-primary/10 via-muted to-primary/30 ${isRTL ? "font-tajawal" : "font-sans"}`}
+      className={`min-h-screen bg-gradient-to-b from-primary/10 to-primary/15 ${isRTL ? "font-tajawal" : "font-sans"}`}
     >
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
