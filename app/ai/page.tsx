@@ -546,7 +546,7 @@ function ImageGenerationLoading({
     }, 100);
 
     return () => clearInterval(interval);
-  }, [loadingSteps]);
+  }, []);
 
   const CurrentIcon = loadingSteps[currentStep]?.icon || Loader2;
 
