@@ -2245,12 +2245,12 @@ function SearchContent() {
       <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
         <DialogTitle className="sr-only"></DialogTitle>
         <DialogContent
-          className="sm:!max-w-5xl !max-w-[380px] w-full h-[85vh] sm:h-auto p-0 overflow-hidden border-none sm:rounded-xl"
+          className="sm:!max-w-5xl !max-w-[380px] w-full h-[95vh] sm:h-auto p-0 overflow-y-auto sm:overflow-hidden border-none sm:rounded-xl"
           showCloseButton={false}
         >
           {selectedImage && (
             <div
-              className={`flex flex-col sm:flex-row h-full  ${isRTL ? "" : ""}`}
+              className={`flex flex-col-reverse sm:flex-row h-full  ${isRTL ? "" : ""}`}
             >
               {/* Left Side - Media */}
               <div className="flex-1 flex items-center justify-center relative bg-muted/20 min-h-[400px]">

@@ -1410,6 +1410,96 @@
       }
     }
   },
+  "aiImageGenerator": {
+    "title": "AI Image Generator",
+    "description": "Create stunning images from text descriptions using advanced AI technology. Generate high-quality artwork, photos, and illustrations in seconds.",
+    "form": {
+      "title": "Create Your Image",
+      "description": "Describe what you want to create and let AI bring it to life",
+      "prompt": {
+        "label": "Image Prompt",
+        "placeholder": "Describe the image you want to create...",
+        "required": "Please enter a description for your image",
+        "examples": "Examples: \"A sunset over mountains\", \"Modern office interior\", \"Abstract colorful painting\""
+      },
+      "negativePrompt": {
+        "label": "Negative Prompt (Optional)",
+        "placeholder": "What you don't want in the image...",
+        "description": "Specify elements to avoid in the generated image"
+      },
+      "imageSize": {
+        "label": "Image Size",
+        "placeholder": "Select image dimensions",
+        "creditCostSize": "Credit Cost by Size",
+        "options": {
+          "512x512": "512×512 (Square)",
+          "768x768": "768×768 (Square HD)",
+          "1024x1024": "1024×1024 (Square Ultra)",
+          "512x768": "512×768 (Portrait)",
+          "768x512": "768×512 (Landscape)",
+          "1024x768": "1024×768 (Landscape HD)"
+        }
+      },
+      "submit": "Create Image",
+      "generating": "Generating Image...",
+      "regenerate": "Generate Again"
+    },
+    "credits": {
+      "title": "Credit Cost",
+      "willCost": "This image will cost",
+      "credit": "credit",
+      "credits": "credits",
+      "insufficient": "Insufficient credits",
+      "buyMore": "Buy More Credits",
+      "costBreakdown": {
+        "512x512": "1 credit",
+        "768x768": "2 credits",
+        "1024x1024": "3 credits",
+        "512x768": "2 credits",
+        "768x512": "2 credits",
+        "1024x768": "3 credits"
+      }
+    },
+    "result": {
+      "title": "Generated Image",
+      "downloadButton": "Download Image",
+      "downloading": "Downloading...",
+      "costConfirmation": "Used {{credits}} credits",
+      "generateAnother": "Generate Another",
+      "shareImage": "Share Image"
+    },
+    "gallery": {
+      "title": "Latest Creations",
+      "subtitle": "Discover amazing images created by our community",
+      "noImages": "No images available yet",
+      "loadMore": "Load More Images",
+      "loading": "Loading images..."
+    },
+    "modal": {
+      "title": "Image Details",
+      "originalPrompt": "Original Prompt",
+      "copyPrompt": "Copy Prompt",
+      "promptCopied": "Prompt copied to clipboard!",
+      "downloadImage": "Download Image",
+      "closeModal": "Close",
+      "imageSize": "Size",
+      "createdBy": "Created by",
+      "createdAt": "Created on"
+    },
+    "errors": {
+      "generationFailed": "Failed to generate image. Please try again.",
+      "downloadFailed": "Failed to download image. Please try again.",
+      "loadGalleryFailed": "Failed to load gallery images.",
+      "invalidPrompt": "Please enter a valid image description.",
+      "networkError": "Network error. Please check your connection.",
+      "serverError": "Server error. Please try again later."
+    },
+    "loading": {
+      "generating": "Creating your masterpiece...",
+      "almostDone": "Almost done...",
+      "finalizing": "Adding final touches..."
+    }
+  },
   "common": {
     "loading": "Loading...",
     "error": "Error",
