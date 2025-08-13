@@ -233,6 +233,16 @@ export interface CreditHistoryEntry {
   description?: string;
 }
 
+// New Credit History Entry Type for the enhanced UI
+export interface EnhancedCreditHistoryEntry {
+  type: "add" | "use" | "delete";
+  timestamp: string;
+  email: string;
+  user_name: string;
+  plan?: string | null;
+  amount?: number; // Not present for "delete" type
+}
+
 export interface CreditHistoryResponse {
   success: boolean;
   history: CreditHistoryEntry[];
@@ -1019,7 +1029,7 @@ export interface SiteInput {
   SiteName: string;
   SiteUrl: string;
   price?: string;
-  icon?: string;
+  icon: string;
 }
 
 export interface SiteResponse {
@@ -1031,7 +1041,7 @@ export interface SiteResponse {
 export interface Site {
   name: string;
   url: string;
-  icon?: string;
+  icon: string;
   total_downloads: number;
   today_downloads: number;
   price: number;

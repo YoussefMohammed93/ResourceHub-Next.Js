@@ -1337,12 +1337,12 @@ export default function HomePage() {
                   >
                     {isSearching ? (
                       <>
-                        <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2" />
+                        <div className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                         {t("hero.searching")}
                       </>
                     ) : (
                       <>
-                        <Search className="w-5 h-5 stroke-2 mr-2" />
+                        <Search className="w-5 h-5 stroke-2" />
                         {t("hero.searchButton")}
                       </>
                     )}
@@ -1457,12 +1457,12 @@ export default function HomePage() {
                   >
                     {isSearching ? (
                       <>
-                        <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin mr-2" />
+                        <div className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                         {t("hero.searching")}
                       </>
                     ) : (
                       <>
-                        <Search className="w-4 h-4 stroke-3 mr-2" />
+                        <Search className="w-4 h-4 stroke-3" />
                         {t("hero.searchButton")}
                       </>
                     )}
@@ -1635,7 +1635,7 @@ export default function HomePage() {
                 className="!px-8 py-6 sm:py-7 text-base sm:text-lg font-semibold border-2 border-primary min-h-[3.5rem] touch-manipulation w-full sm:w-auto"
                 onClick={() => handleSmoothScroll("pricing")}
               >
-                <Eye className="size-5 mr-2" />
+                <Eye className="size-5" />
                 {t("hero.viewPricing")}
               </Button>
               <Button
@@ -1644,7 +1644,7 @@ export default function HomePage() {
                 className="!px-8 py-6 sm:py-7 text-base sm:text-lg font-semibold border-2 border-border hover:border-primary/50 min-h-[3.5rem] touch-manipulation w-full sm:w-auto"
                 onClick={() => handleSmoothScroll("faq")}
               >
-                <PhoneCall className="size-5 mr-2" />
+                <PhoneCall className="size-5" />
                 {t("hero.contactUs")}
               </Button>
             </div>

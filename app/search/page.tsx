@@ -66,7 +66,12 @@ interface ApiResponse {
     page: string;
   };
   results: {
-    [provider: string]: ApiSearchResult[];
+    [provider: string]:
+      | {
+          icon?: string;
+          results: ApiSearchResult[];
+        }
+      | ApiSearchResult[];
   };
 }
 
@@ -84,6 +89,7 @@ interface SearchResult {
   file_id: string;
   image_type: string;
   poster?: string; // Poster image URL for videos
+  providerIcon?: string; // Provider icon URL from API
 }
 
 // API integration functions - using internal API route to avoid CORS issues
@@ -183,7 +189,11 @@ function transformApiResults(
 ): SearchResult[] {
   const all: SearchResult[] = [];
 
-  Object.entries(apiResponse.results).forEach(([provider, items]) => {
+  Object.entries(apiResponse.results).forEach(([provider, data]) => {
+    // Handle both old format (array) and new format (object with icon and results)
+    const items = Array.isArray(data) ? data : data.results || [];
+    const providerIcon = Array.isArray(data) ? undefined : data.icon;
+
     items.forEach((item, index) => {
       const normalizedType = normalizeFileType(item.file_type, item.image_type);
       const base: SearchResult = {
@@ -198,6 +208,7 @@ function transformApiResults(
         url: item.url,
         file_id: item.file_id,
         image_type: item.image_type,
+        providerIcon: getProviderIcon(provider, providerIcon), // Add provider icon to search result
       };
       if (normalizedType === "video" && item.url) {
         base.poster = `/api/video-thumbnail?url=${encodeURIComponent(item.url)}`;
@@ -296,6 +307,34 @@ const suggestions = [
   "Shimmering illusion",
   "Luminous depth",
 ];
+
+// Provider icon mapping for fallback when API doesn't provide icons
+const getProviderIcon = (providerName: string, apiIcon?: string): string => {
+  // Use API icon if available
+  if (apiIcon) return apiIcon;
+
+  // Fallback mapping based on provider name
+  const providerIconMap: Record<string, string> = {
+    Freepik: "https://cdn-icons-png.freepik.com/512/18/18551.png",
+    Shutterstock: "https://cdn.worldvectorlogo.com/logos/shutterstock.svg",
+    "Adobe Stock": "https://cdn.worldvectorlogo.com/logos/adobe-2.svg",
+    AdobeStock: "https://cdn.worldvectorlogo.com/logos/adobe-2.svg",
+    "Getty Images": "https://cdn.worldvectorlogo.com/logos/getty-images-1.svg",
+    Unsplash: "https://cdn.worldvectorlogo.com/logos/unsplash-1.svg",
+    Storyblocks: "https://www.storyblocks.com/favicon.ico",
+    Envato: "https://cdn.worldvectorlogo.com/logos/envato.svg",
+    Vexels: "https://www.vexels.com/favicon.ico",
+    Vectory: "https://vectory.com/favicon.ico",
+    UI8: "https://ui8.net/favicon.ico",
+    RawPixel: "https://www.rawpixel.com/favicon.ico",
+    PNGTree: "https://pngtree.com/favicon.ico",
+  };
+
+  return (
+    providerIconMap[providerName] ||
+    `https://www.google.com/s2/favicons?domain=${providerName.toLowerCase()}.com&sz=64`
+  );
+};
 
 // Search content component that uses useSearchParams
 function SearchContent() {
@@ -1915,11 +1954,25 @@ function SearchContent() {
                             />
                           )}
 
-                          {/* Provider Badge */}
+                          {/* Provider Icon */}
                           <div
-                            className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} px-2 py-1 bg-black/70 text-white text-xs rounded-md`}
+                            className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} p-1 bg-white/90 backdrop-blur-sm rounded-md shadow-sm`}
                           >
-                            {result.provider}
+                            <img
+                              src={result.providerIcon}
+                              alt={result.provider}
+                              width={40}
+                              height={40}
+                              className="w-10 h-10 object-contain rounded"
+                              onError={(e) => {
+                                // Fallback to text badge if icon fails to load
+                                const target = e.target as HTMLImageElement;
+                                const parent = target.parentElement;
+                                if (parent) {
+                                  parent.innerHTML = `<span class="px-2 py-1 bg-black/70 text-white text-xs rounded-md">${result.provider}</span>`;
+                                }
+                              }}
+                            />
                           </div>
 
                           {/* File Type Badge */}
@@ -2117,11 +2170,26 @@ function SearchContent() {
                                     />
                                   )}
 
-                                  {/* Provider Badge */}
+                                  {/* Provider Icon */}
                                   <div
-                                    className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} px-2 py-1 bg-black/70 text-white text-xs rounded-md`}
+                                    className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} p-1 bg-white/90 backdrop-blur-sm rounded-md shadow-sm`}
                                   >
-                                    {result.provider}
+                                    <img
+                                      src={result.providerIcon}
+                                      alt={result.provider}
+                                      width={40}
+                                      height={40}
+                                      className="w-10 h-10 object-contain rounded"
+                                      onError={(e) => {
+                                        // Fallback to text badge if icon fails to load
+                                        const target =
+                                          e.target as HTMLImageElement;
+                                        const parent = target.parentElement;
+                                        if (parent) {
+                                          parent.innerHTML = `<span class="px-2 py-1 bg-black/70 text-white text-xs rounded-md">${result.provider}</span>`;
+                                        }
+                                      }}
+                                    />
                                   </div>
 
                                   {/* File Type Badge */}
@@ -2245,12 +2313,12 @@ function SearchContent() {
       <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
         <DialogTitle className="sr-only"></DialogTitle>
         <DialogContent
-          className="sm:!max-w-5xl !max-w-[380px] w-full h-[95vh] sm:h-auto p-0 overflow-y-auto sm:overflow-hidden border-none sm:rounded-xl"
+          className="sm:!max-w-5xl !max-w-[380px] w-full h-[85vh] sm:h-auto p-0 overflow-hidden border-none sm:rounded-xl"
           showCloseButton={false}
         >
           {selectedImage && (
             <div
-              className={`flex flex-col-reverse sm:flex-row h-full  ${isRTL ? "" : ""}`}
+              className={`flex flex-col sm:flex-row h-full max-h-[95vh] ${isRTL ? "" : ""}`}
             >
               {/* Left Side - Media */}
               <div className="flex-1 flex items-center justify-center relative bg-muted/20 min-h-[400px]">
@@ -2341,10 +2409,21 @@ function SearchContent() {
                   <div
                     className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
                   >
-                    <div className="w-10 h-10 bg-primary/10 rounded flex items-center justify-center">
-                      <span className="text-xs font-medium text-primary">
-                        {selectedImage.provider.charAt(0).toUpperCase()}
-                      </span>
+                    <div className="w-10 h-10 rounded flex items-center justify-center">
+                      <img
+                        src={selectedImage.providerIcon}
+                        alt={selectedImage.provider}
+                        width={40}
+                        height={40}
+                        className="w-10 h-10 object-cover rounded"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          const parent = target.parentElement;
+                          if (parent) {
+                            parent.innerHTML = `<span class="px-2 py-1 bg-black/70 text-white text-xs rounded-md">${selectedImage.provider}</span>`;
+                          }
+                        }}
+                      />
                     </div>
                     <span className="font-medium text-foreground">
                       {selectedImage.provider}

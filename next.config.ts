@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   devIndicators: false,
   eslint: {
-    ignoreDuringBuilds: false
+    ignoreDuringBuilds: false,
   },
   images: {
     remotePatterns: [
@@ -42,6 +42,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "img.freepik.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn-icons-png.freepik.com",
       },
       {
         protocol: "https",
