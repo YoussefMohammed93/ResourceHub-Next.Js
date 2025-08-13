@@ -25,15 +25,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
-import { useState, Suspense, useEffect, useCallback } from "react";
-import { Input } from "@/components/ui/input";
-import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
-import { useSearchParams } from "next/navigation";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useLanguage } from "@/components/i18n-provider";
-import { HeaderControls } from "@/components/header-controls";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -41,6 +32,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { useTranslation } from "react-i18next";
+import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/components/i18n-provider";
+import { HeaderControls } from "@/components/header-controls";
+import { useState, Suspense, useEffect, useCallback } from "react";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 // Type definitions for API response
 interface ApiSearchResult {
@@ -92,6 +92,21 @@ interface SearchResult {
   providerIcon?: string; // Provider icon URL from API
 }
 
+// Provider statistics from API
+interface ProviderStats {
+  id: string;
+  name: string;
+  logo: string;
+  count: number;
+  isOnline: boolean;
+}
+
+// File type statistics from API
+interface FileTypeStats {
+  id: string;
+  count: number;
+}
+
 // API integration functions - using internal API route to avoid CORS issues
 async function searchAPI(
   query: string,
@@ -111,6 +126,36 @@ async function searchAPI(
     return data;
   } catch (error) {
     console.error("Search API error:", error);
+    throw error;
+  }
+}
+
+// API function to get provider statistics
+async function getProviderStats(): Promise<ProviderStats[]> {
+  try {
+    const response = await fetch("/api/search/providers");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.providers || [];
+  } catch (error) {
+    console.error("Provider stats API error:", error);
+    throw error;
+  }
+}
+
+// API function to get file type statistics
+async function getFileTypeStats(): Promise<FileTypeStats[]> {
+  try {
+    const response = await fetch("/api/search/file-types");
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data.fileTypes || [];
+  } catch (error) {
+    console.error("File type stats API error:", error);
     throw error;
   }
 }
@@ -223,83 +268,6 @@ function transformApiResults(
   return limitResults ? shuffled.slice(0, 60) : shuffled;
 }
 
-// Mock data for providers
-const providers = [
-  {
-    id: "shutterstock",
-    name: "Shutterstock",
-    logo: "/adobe.jpg",
-    count: 1250,
-    isOnline: true,
-  },
-  {
-    id: "vexels",
-    name: "Vexels",
-    logo: "/nexus.png",
-    count: 750,
-    isOnline: false,
-  },
-  {
-    id: "freepik",
-    name: "Freepik",
-    logo: "/shutterstock.png",
-    count: 980,
-    isOnline: true,
-  },
-  {
-    id: "vectory",
-    name: "Vectory",
-    logo: "/freepik.webp",
-    count: 620,
-    isOnline: true,
-  },
-  { id: "ui8", name: "UI8", logo: "/raw.png", count: 450, isOnline: false },
-  {
-    id: "rawpixel",
-    name: "RawPixel",
-    logo: "/shutterstock.png",
-    count: 320,
-    isOnline: true,
-  },
-  {
-    id: "pngtree1",
-    name: "PNGTree",
-    logo: "/freepik.webp",
-    count: 380,
-    isOnline: true,
-  },
-  {
-    id: "pngtree2",
-    name: "PNGTree",
-    logo: "/freepik.webp",
-    count: 380,
-    isOnline: true,
-  },
-  {
-    id: "pngtree3",
-    name: "PNGTree",
-    logo: "/freepik.webp",
-    count: 380,
-    isOnline: true,
-  },
-  {
-    id: "adobestock",
-    name: "Adobe Stock",
-    logo: "/nexus.png",
-    count: 280,
-    isOnline: false,
-  },
-];
-
-// Mock data for file types (kept for sidebar filters)
-const fileTypes = [
-  { id: "photos", count: 2450 },
-  { id: "vectors", count: 1890 },
-  { id: "illustrations", count: 1200 },
-  { id: "icons", count: 950 },
-  { id: "templates", count: 680 },
-];
-
 // Mock suggestions
 const suggestions = [
   "Radiant hologram",
@@ -362,8 +330,49 @@ function SearchContent() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [totalResults, setTotalResults] = useState(0);
 
+  // Dynamic sidebar data state
+  const [providers, setProviders] = useState<ProviderStats[]>([]);
+  const [fileTypes, setFileTypes] = useState<FileTypeStats[]>([]);
+  const [isProvidersLoading, setIsProvidersLoading] = useState(true);
+  const [isFileTypesLoading, setIsFileTypesLoading] = useState(true);
+  const [providersError, setProvidersError] = useState<string | null>(null);
+  const [fileTypesError, setFileTypesError] = useState<string | null>(null);
+
   const resultsPerPage = 60; // Updated to match requirements
   const totalPages = Math.ceil(totalResults / resultsPerPage);
+
+  // Functions to load dynamic sidebar data
+  const loadProviderStats = async () => {
+    try {
+      setIsProvidersLoading(true);
+      setProvidersError(null);
+      const providerStats = await getProviderStats();
+      setProviders(providerStats);
+    } catch (error) {
+      console.error("Failed to load provider stats:", error);
+      setProvidersError("Failed to load provider data");
+      // Set empty array as fallback
+      setProviders([]);
+    } finally {
+      setIsProvidersLoading(false);
+    }
+  };
+
+  const loadFileTypeStats = async () => {
+    try {
+      setIsFileTypesLoading(true);
+      setFileTypesError(null);
+      const fileTypeStats = await getFileTypeStats();
+      setFileTypes(fileTypeStats);
+    } catch (error) {
+      console.error("Failed to load file type stats:", error);
+      setFileTypesError("Failed to load file type data");
+      // Set empty array as fallback
+      setFileTypes([]);
+    } finally {
+      setIsFileTypesLoading(false);
+    }
+  };
 
   // Apply filter to results
   const applyCurrentFilter = (results: SearchResult[]) => {
@@ -378,27 +387,59 @@ function SearchContent() {
       fonts: "font",
     };
 
-    const filteredResults =
-      selectedFilter === "all"
-        ? results.slice(0, 60) // Limit to 60 for "all"
-        : results
-            .filter((result) => {
-              const target = filterMap[selectedFilter];
-              return target ? result.file_type === target : true;
-            })
-            .slice(0, 60); // Limit to 60 for filtered results too
+    let filteredResults = results;
 
-    setSearchResults(filteredResults);
+    // Apply provider filter if any providers are selected
+    if (selectedProviders.length > 0) {
+      filteredResults = filteredResults.filter((result) =>
+        selectedProviders.includes(
+          result.provider.toLowerCase().replace(/\s+/g, "")
+        )
+      );
+    }
+
+    // Apply file type filter
+    if (selectedFilter !== "all") {
+      const target = filterMap[selectedFilter];
+      if (target) {
+        filteredResults = filteredResults.filter(
+          (result) => result.file_type === target
+        );
+      }
+    }
+
+    // Apply selected file types filter
+    if (selectedFileTypes.length > 0) {
+      filteredResults = filteredResults.filter((result) => {
+        const resultFileType =
+          result.file_type === "image"
+            ? "photos"
+            : result.file_type === "vector"
+              ? "vectors"
+              : result.file_type === "template"
+                ? "templates"
+                : result.file_type === "icon"
+                  ? "icons"
+                  : result.file_type;
+        return selectedFileTypes.includes(resultFileType);
+      });
+    }
+
+    // Limit results
+    const limitedResults = filteredResults.slice(0, 60);
+    setSearchResults(limitedResults);
 
     // Update total results for pagination - be more generous with estimates
     const estimatedTotal =
-      selectedFilter === "all"
+      selectedFilter === "all" &&
+      selectedProviders.length === 0 &&
+      selectedFileTypes.length === 0
         ? results.length >= 60
           ? results.length * 10
           : results.length
-        : filteredResults.length >= 60
-          ? filteredResults.length * 5
-          : Math.max(filteredResults.length * 3, filteredResults.length);
+        : limitedResults.length >= 60
+          ? limitedResults.length * 5
+          : Math.max(limitedResults.length * 3, limitedResults.length);
 
     setTotalResults(estimatedTotal);
   };
@@ -521,6 +562,12 @@ function SearchContent() {
     }
   }, [initialQuery]);
 
+  // Load dynamic sidebar data on component mount
+  useEffect(() => {
+    loadProviderStats();
+    loadFileTypeStats();
+  }, []);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (allResults.length > 0) {
@@ -551,6 +598,20 @@ function SearchContent() {
       }
     }
   }, [selectedFilter]);
+
+  // Re-apply filters when provider selection changes
+  useEffect(() => {
+    if (allResults.length > 0) {
+      applyCurrentFilter(allResults);
+    }
+  }, [selectedProviders]);
+
+  // Re-apply filters when file type selection changes
+  useEffect(() => {
+    if (allResults.length > 0) {
+      applyCurrentFilter(allResults);
+    }
+  }, [selectedFileTypes]);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -1073,79 +1134,108 @@ function SearchContent() {
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {providers.map((provider) => (
-                  <div
-                    key={provider.id}
-                    onClick={() =>
-                      provider.isOnline && toggleProvider(provider.id)
-                    }
-                    className={`
-                      w-full p-3 rounded-lg border group dark:bg-muted/35 relative
-                      ${
-                        !provider.isOnline
-                          ? "opacity-60 cursor-not-allowed border-border bg-muted/30"
-                          : selectedProviders.includes(provider.id)
-                            ? "border-primary bg-primary/10 shadow-sm cursor-pointer"
-                            : "border-border hover:border-primary/50 bg-background hover:bg-muted/50 cursor-pointer"
-                      }
-                    `}
-                  >
-                    {/* Status Indicator */}
-                    <div
-                      className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} z-10`}
+                {isProvidersLoading ? (
+                  // Loading skeleton for providers
+                  Array.from({ length: 8 }).map((_, i) => (
+                    <Skeleton key={i} className="w-full h-16 rounded-lg" />
+                  ))
+                ) : providersError ? (
+                  // Error state
+                  <div className="col-span-2 text-center py-4">
+                    <AlertCircle className="w-8 h-8 text-red-500 mx-auto mb-2" />
+                    <p className="text-sm text-red-500">{providersError}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={loadProviderStats}
+                      className="mt-2"
                     >
-                      {provider.isOnline ? (
-                        <div
-                          className="w-3 h-3 bg-green-500 rounded-full border-2 border-background shadow-sm"
-                          title={t("search.status.online")}
-                        />
-                      ) : (
-                        <div
-                          className="w-3 h-3 bg-red-500 rounded-full border-2 border-background shadow-sm"
-                          title={t("search.status.offline")}
-                        />
-                      )}
-                    </div>
-
-                    <div
-                      className={`relative ${!provider.isOnline ? "grayscale" : ""}`}
-                    >
-                      <Image
-                        src={provider.logo}
-                        alt={provider.name}
-                        width={150}
-                        height={56}
-                        className={`w-full h-14 rounded object-cover transition-opacity ${
-                          provider.isOnline ? "group-hover:opacity-90" : ""
-                        }`}
-                      />
-
-                      {/* Offline Overlay */}
-                      {!provider.isOnline && (
-                        <div className="absolute inset-0 bg-black/20 rounded flex items-center justify-center">
-                          <WifiOff className="w-6 h-6 text-red-500" />
-                        </div>
-                      )}
-                    </div>
-
-                    <div
-                      className={`mt-2 text-sm text-center transition-colors ${
-                        !provider.isOnline
-                          ? "text-muted-foreground/60"
-                          : selectedProviders.includes(provider.id)
-                            ? "text-primary hover:text-primary"
-                            : "text-muted-foreground group-hover:text-primary"
-                      }`}
-                    >
-                      {provider.count} {t("search.filters.items")}
-                      {!provider.isOnline && (
-                        <div className="text-xs text-red-500 mt-1">
-                          {t("search.status.offline")}
-                        </div>
-                      )}
-                    </div>
+                      {t("common.retry")}
+                    </Button>
                   </div>
-                ))}
+                ) : providers.length === 0 ? (
+                  // Empty state
+                  <div className="col-span-2 text-center py-4">
+                    <p className="text-sm text-muted-foreground">
+                      {t("search.providers.noData")}
+                    </p>
+                  </div>
+                ) : (
+                  // Render providers
+                  providers.map((provider) => (
+                    <div
+                      key={provider.id}
+                      onClick={() =>
+                        provider.isOnline && toggleProvider(provider.id)
+                      }
+                      className={`
+                        w-full p-3 rounded-lg border group dark:bg-muted/35 relative
+                        ${
+                          !provider.isOnline
+                            ? "opacity-60 cursor-not-allowed border-border bg-muted/30"
+                            : selectedProviders.includes(provider.id)
+                              ? "border-primary bg-primary/10 shadow-sm cursor-pointer"
+                              : "border-border hover:border-primary/50 bg-background hover:bg-muted/50 cursor-pointer"
+                        }
+                      `}
+                    >
+                      {/* Status Indicator */}
+                      <div
+                        className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} z-10`}
+                      >
+                        {provider.isOnline ? (
+                          <div
+                            className="w-3 h-3 bg-green-500 rounded-full border-2 border-background shadow-sm"
+                            title={t("search.status.online")}
+                          />
+                        ) : (
+                          <div
+                            className="w-3 h-3 bg-red-500 rounded-full border-2 border-background shadow-sm"
+                            title={t("search.status.offline")}
+                          />
+                        )}
+                      </div>
+
+                      <div
+                        className={`relative ${!provider.isOnline ? "grayscale" : ""}`}
+                      >
+                        <img
+                          src={provider.logo}
+                          alt={provider.name}
+                          width={150}
+                          height={56}
+                          className={`w-full h-14 rounded object-contain transition-opacity ${
+                            provider.isOnline ? "group-hover:opacity-90" : ""
+                          }`}
+                        />
+
+                        {/* Offline Overlay */}
+                        {!provider.isOnline && (
+                          <div className="absolute inset-0 bg-black/20 rounded flex items-center justify-center">
+                            <WifiOff className="w-6 h-6 text-red-500" />
+                          </div>
+                        )}
+                      </div>
+
+                      <div
+                        className={`mt-2 text-sm text-center transition-colors ${
+                          !provider.isOnline
+                            ? "text-muted-foreground/60"
+                            : selectedProviders.includes(provider.id)
+                              ? "text-primary hover:text-primary"
+                              : "text-muted-foreground group-hover:text-primary"
+                        }`}
+                      >
+                        {provider.count} {t("search.filters.items")}
+                        {!provider.isOnline && (
+                          <div className="text-xs text-red-500 mt-1">
+                            {t("search.status.offline")}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
 
@@ -1179,24 +1269,52 @@ function SearchContent() {
                 >
                   {t("search.filters.all")}
                 </Button>
-                {fileTypes.map((type) => (
-                  <Button
-                    key={type.id}
-                    variant={
-                      selectedFileTypes.includes(type.id)
-                        ? "default"
-                        : "outline"
-                    }
-                    size="sm"
-                    onClick={() => toggleFileType(type.id)}
-                    className="text-sm sm:text-lg font-medium relative group px-5 !h-10"
-                  >
-                    {t(`search.fileTypes.${type.id}`)},
-                    <span className="pl-1 text-[11px] sm:text-base">
-                      {type.count} {t("search.filters.items")}
-                    </span>
-                  </Button>
-                ))}
+                {isFileTypesLoading ? (
+                  // Loading skeleton for file types
+                  Array.from({ length: 6 }).map((_, i) => (
+                    <Skeleton key={i} className="w-16 h-8 rounded-full" />
+                  ))
+                ) : fileTypesError ? (
+                  // Error state
+                  <div className="w-full text-center py-2">
+                    <p className="text-xs text-red-500">{fileTypesError}</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={loadFileTypeStats}
+                      className="mt-1 text-xs"
+                    >
+                      {t("common.retry")}
+                    </Button>
+                  </div>
+                ) : fileTypes.length === 0 ? (
+                  // Empty state
+                  <div className="w-full text-center py-2">
+                    <p className="text-xs text-muted-foreground">
+                      {t("search.fileTypes.noData")}
+                    </p>
+                  </div>
+                ) : (
+                  // Render file types
+                  fileTypes.map((type) => (
+                    <Button
+                      key={type.id}
+                      variant={
+                        selectedFileTypes.includes(type.id)
+                          ? "default"
+                          : "outline"
+                      }
+                      size="sm"
+                      onClick={() => toggleFileType(type.id)}
+                      className="text-sm sm:text-lg font-medium relative group px-5 !h-10"
+                    >
+                      {type.id}
+                      <span className="pl-1 text-[11px] sm:text-base">
+                        {type.count} {t("search.filters.items")}
+                      </span>
+                    </Button>
+                  ))
+                )}
               </div>
             </div>
           </div>
@@ -2313,12 +2431,12 @@ function SearchContent() {
       <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
         <DialogTitle className="sr-only"></DialogTitle>
         <DialogContent
-          className="sm:!max-w-5xl !max-w-[380px] w-full h-[85vh] sm:h-auto p-0 overflow-hidden border-none sm:rounded-xl"
+          className="sm:!max-w-5xl !max-w-[380px] w-full h-[85vh] sm:h-auto p-0 overflow-y-auto sm:overflow-hidden border-none sm:rounded-xl"
           showCloseButton={false}
         >
           {selectedImage && (
             <div
-              className={`flex flex-col sm:flex-row h-full max-h-[95vh] ${isRTL ? "" : ""}`}
+              className={`flex flex-col-reverse sm:flex-row h-full  ${isRTL ? "" : ""}`}
             >
               {/* Left Side - Media */}
               <div className="flex-1 flex items-center justify-center relative bg-muted/20 min-h-[400px]">
@@ -2409,14 +2527,15 @@ function SearchContent() {
                   <div
                     className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
                   >
-                    <div className="w-10 h-10 rounded flex items-center justify-center">
+                    <div className="w-12 h-12 rounded flex items-center justify-center">
                       <img
                         src={selectedImage.providerIcon}
                         alt={selectedImage.provider}
                         width={40}
                         height={40}
-                        className="w-10 h-10 object-cover rounded"
+                        className="w-12 h-12 object-contain rounded"
                         onError={(e) => {
+                          // Fallback to text badge if icon fails to load
                           const target = e.target as HTMLImageElement;
                           const parent = target.parentElement;
                           if (parent) {

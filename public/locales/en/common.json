@@ -1054,7 +1054,11 @@
       "vectors": "vectors",
       "illustrations": "illustrations",
       "icons": "icons",
-      "templates": "templates"
+      "templates": "templates",
+      "noData": "No file types available"
+    },
+    "providers": {
+      "noData": "No providers available"
     },
     "pagination": {
       "previous": "Previous Items",

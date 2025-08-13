@@ -1054,7 +1054,11 @@
       "vectors": "الرسوم المتجهة",
       "illustrations": "الرسوم التوضيحية",
       "icons": "الأيقونات",
-      "templates": "القوالب"
+      "templates": "القوالب",
+      "noData": "لا توجد أنواع ملفات متاحة"
+    },
+    "providers": {
+      "noData": "لا توجد مقدمي خدمة متاحين"
     },
     "pagination": {
       "previous": "العناصر السابقة",
