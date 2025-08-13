@@ -374,8 +374,11 @@ function SearchContent() {
     }
   };
 
-  // Apply filter to results
-  const applyCurrentFilter = (results: SearchResult[]) => {
+  // Apply filter to results with pagination support
+  const applyCurrentFilter = (
+    results: SearchResult[],
+    page: number = currentPage
+  ) => {
     const filterMap: Record<string, string> = {
       images: "image",
       videos: "video",
@@ -425,23 +428,15 @@ function SearchContent() {
       });
     }
 
-    // Limit results
-    const limitedResults = filteredResults.slice(0, 60);
-    setSearchResults(limitedResults);
+    // Calculate pagination
+    const startIndex = (page - 1) * resultsPerPage;
+    const endIndex = startIndex + resultsPerPage;
+    const paginatedResults = filteredResults.slice(startIndex, endIndex);
 
-    // Update total results for pagination - be more generous with estimates
-    const estimatedTotal =
-      selectedFilter === "all" &&
-      selectedProviders.length === 0 &&
-      selectedFileTypes.length === 0
-        ? results.length >= 60
-          ? results.length * 10
-          : results.length
-        : limitedResults.length >= 60
-          ? limitedResults.length * 5
-          : Math.max(limitedResults.length * 3, limitedResults.length);
+    setSearchResults(paginatedResults);
 
-    setTotalResults(estimatedTotal);
+    // Update total results for pagination
+    setTotalResults(filteredResults.length);
   };
   // Perform search API call with retry logic and timeout
   const performSearch = async (
@@ -462,11 +457,25 @@ function SearchContent() {
     }, 5000);
 
     try {
-      // Fetch multiple pages to ensure we have enough results for filtering
-      const maxPages = selectedFilter === "all" ? 1 : 5; // Fetch more pages when filtering
+      // For pagination, we need to fetch enough pages to support the requested page
+      // Calculate how many API pages we need to fetch to get enough results for the requested page
+      const estimatedResultsPerApiPage = 60; // Typical results per API page
+      const requiredResults = page * resultsPerPage; // Total results needed up to the requested page
+      const maxApiPagesToFetch =
+        Math.ceil(requiredResults / estimatedResultsPerApiPage) + 2; // Add buffer for filtering
+
+      // If we already have enough results cached, just apply filters and pagination
+      if (allResults.length >= requiredResults && page > 1) {
+        applyCurrentFilter(allResults, page);
+        setCurrentPage(page);
+        setIsSearchLoading(false);
+        return;
+      }
+
+      // Fetch API pages starting from 1 up to the required number
       const allApiResults: SearchResult[] = [];
 
-      for (let p = 1; p <= maxPages; p++) {
+      for (let p = 1; p <= maxApiPagesToFetch; p++) {
         const apiResponse = await searchAPI(query, p);
 
         if (!apiResponse.success || !apiResponse.results) {
@@ -477,34 +486,18 @@ function SearchContent() {
         const pageResults = transformApiResults(apiResponse, false); // Don't limit individual pages
         allApiResults.push(...pageResults);
 
-        // If we got less than 60 results, no more pages available
-        if (pageResults.length < 60) break;
+        // If we got less than expected results, no more pages available
+        if (pageResults.length < estimatedResultsPerApiPage) break;
 
-        // If we're filtering and have enough of the target type, we can stop early
-        if (selectedFilter !== "all") {
-          const filterMap: Record<string, string> = {
-            images: "image",
-            videos: "video",
-            vectors: "vector",
-            templates: "template",
-            icons: "icon",
-            audio: "audio",
-            "3d": "3d",
-            fonts: "font",
-          };
-          const target = filterMap[selectedFilter];
-          const filteredCount = allApiResults.filter(
-            (r) => r.file_type === target
-          ).length;
-          if (filteredCount >= 60) break; // We have enough results of the target type
-        }
+        // If we have enough results for the current request, we can stop
+        if (allApiResults.length >= requiredResults) break;
       }
 
-      // Store all results for filtering
+      // Store all results for filtering and future pagination
       setAllResults(allApiResults);
 
-      // Apply current filter to new results
-      applyCurrentFilter(allApiResults);
+      // Apply current filter to new results with pagination
+      applyCurrentFilter(allApiResults, page);
 
       setCurrentPage(page);
 
@@ -571,7 +564,9 @@ function SearchContent() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (allResults.length > 0) {
-      applyCurrentFilter(allResults);
+      // Reset to page 1 when filter changes
+      setCurrentPage(1);
+      applyCurrentFilter(allResults, 1);
 
       // If filtered results are too few, trigger a new search to get more
       const filterMap: Record<string, string> = {
@@ -602,14 +597,18 @@ function SearchContent() {
   // Re-apply filters when provider selection changes
   useEffect(() => {
     if (allResults.length > 0) {
-      applyCurrentFilter(allResults);
+      // Reset to page 1 when provider filter changes
+      setCurrentPage(1);
+      applyCurrentFilter(allResults, 1);
     }
   }, [selectedProviders]);
 
   // Re-apply filters when file type selection changes
   useEffect(() => {
     if (allResults.length > 0) {
-      applyCurrentFilter(allResults);
+      // Reset to page 1 when file type filter changes
+      setCurrentPage(1);
+      applyCurrentFilter(allResults, 1);
     }
   }, [selectedFileTypes]);
 
