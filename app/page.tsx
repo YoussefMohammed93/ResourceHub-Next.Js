@@ -1974,13 +1974,13 @@ export default function HomePage() {
                           id: matchingSite.name,
                           name: matchingSite.name,
                           icon:
-                            matchingSite.icon ||
+                            matchingSite.url ||
                             `${matchingSite.url}/favicon.ico`,
                         }
                       : {
                           id: siteName,
                           name: siteName,
-                          icon: `https://via.placeholder.com/96x96/6366f1/ffffff?text=${siteName.charAt(0)}`,
+                          icon: `https://www.google.com/s2/favicons?domain=${encodeURIComponent(siteName)}&sz=96`,
                         };
                   }) || [];
 
