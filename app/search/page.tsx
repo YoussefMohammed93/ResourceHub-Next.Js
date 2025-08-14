@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client";
 
 import {
@@ -39,8 +41,9 @@ import { useSearchParams } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
-import { useState, Suspense, useEffect, useCallback } from "react";
+import { useState, Suspense, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { searchApi } from "@/lib/api";
 
 // Type definitions for API response
 interface ApiSearchResult {
@@ -105,29 +108,6 @@ interface ProviderStats {
 interface FileTypeStats {
   id: string;
   count: number;
-}
-
-// API integration functions - using internal API route to avoid CORS issues
-async function searchAPI(
-  query: string,
-  page: number = 1
-): Promise<ApiResponse> {
-  try {
-    const response = await fetch(
-      `/api/search?query=${encodeURIComponent(query)}&page=${page}`
-    );
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(
-        errorData.error || `HTTP error! status: ${response.status}`
-      );
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Search API error:", error);
-    throw error;
-  }
 }
 
 // API function to get provider statistics
@@ -374,7 +354,7 @@ function SearchContent() {
     }
   };
 
-  // Apply filter to results with pagination support
+  // Apply filter to results - simplified for direct API pagination
   const applyCurrentFilter = (
     results: SearchResult[],
     page: number = currentPage
@@ -428,17 +408,19 @@ function SearchContent() {
       });
     }
 
-    // Calculate pagination
-    const startIndex = (page - 1) * resultsPerPage;
-    const endIndex = startIndex + resultsPerPage;
-    const paginatedResults = filteredResults.slice(startIndex, endIndex);
+    // Set filtered results directly (no client-side pagination)
+    setSearchResults(filteredResults);
 
-    setSearchResults(paginatedResults);
-
-    // Update total results for pagination
-    setTotalResults(filteredResults.length);
+    // Update total results - use a reasonable estimate for pagination
+    // Since we're now using direct API calls, we'll estimate total results
+    setTotalResults(
+      filteredResults.length + (page > 1 ? (page - 1) * resultsPerPage : 0)
+    );
   };
-  // Perform search API call with retry logic and timeout
+  // Add a ref to track ongoing search requests to prevent duplicates
+  const searchRequestRef = useRef<string | null>(null);
+
+  // Perform search API call - simplified to make only ONE direct API call
   const performSearch = async (
     query: string,
     page: number = 1,
@@ -446,66 +428,55 @@ function SearchContent() {
   ) => {
     if (!query.trim()) return;
 
+    // Create a unique request ID to prevent duplicate requests
+    const requestId = `${query}-${page}-${Date.now()}`;
+
+    // Check if there's already an ongoing request for the same query and page
+    if (searchRequestRef.current === `${query}-${page}`) {
+      console.log("Duplicate request prevented for:", query, "page:", page);
+      return;
+    }
+
+    // Set the current request
+    searchRequestRef.current = `${query}-${page}`;
+
+    console.log("Starting search request:", requestId);
     setIsSearchLoading(true);
     setSearchError(null);
 
-    // Show loading message after 5 seconds (API can take up to 30 seconds)
-    const loadingTimeout = setTimeout(() => {
-      if (isSearchLoading) {
-        console.log("Search is taking longer than expected, please wait...");
-      }
-    }, 5000);
-
     try {
-      // For pagination, we need to fetch enough pages to support the requested page
-      // Calculate how many API pages we need to fetch to get enough results for the requested page
-      const estimatedResultsPerApiPage = 60; // Typical results per API page
-      const requiredResults = page * resultsPerPage; // Total results needed up to the requested page
-      const maxApiPagesToFetch =
-        Math.ceil(requiredResults / estimatedResultsPerApiPage) + 2; // Add buffer for filtering
+      // Make a single direct API call to the requested page using the optimized search API
+      const searchResponse = await searchApi.search({ query, page });
 
-      // If we already have enough results cached, just apply filters and pagination
-      if (allResults.length >= requiredResults && page > 1) {
-        applyCurrentFilter(allResults, page);
-        setCurrentPage(page);
-        setIsSearchLoading(false);
-        return;
+      if (!searchResponse.success || !searchResponse.data) {
+        throw new Error(
+          searchResponse.error?.message || "Invalid API response format"
+        );
       }
 
-      // Fetch API pages starting from 1 up to the required number
-      const allApiResults: SearchResult[] = [];
-
-      for (let p = 1; p <= maxApiPagesToFetch; p++) {
-        const apiResponse = await searchAPI(query, p);
-
-        if (!apiResponse.success || !apiResponse.results) {
-          if (p === 1) throw new Error("Invalid API response format");
-          break; // Stop if subsequent pages fail
-        }
-
-        const pageResults = transformApiResults(apiResponse, false); // Don't limit individual pages
-        allApiResults.push(...pageResults);
-
-        // If we got less than expected results, no more pages available
-        if (pageResults.length < estimatedResultsPerApiPage) break;
-
-        // If we have enough results for the current request, we can stop
-        if (allApiResults.length >= requiredResults) break;
+      const apiResponse = searchResponse.data;
+      if (!apiResponse.results) {
+        throw new Error("No results in API response");
       }
 
-      // Store all results for filtering and future pagination
-      setAllResults(allApiResults);
+      // Transform API results
+      const pageResults = transformApiResults(apiResponse, false);
 
-      // Apply current filter to new results with pagination
-      applyCurrentFilter(allApiResults, page);
+      // For page 1, store all results for filtering. For other pages, append to existing results
+      if (page === 1) {
+        setAllResults(pageResults);
+      } else {
+        setAllResults((prev) => [...prev, ...pageResults]);
+      }
 
+      // Apply current filter to results
+      applyCurrentFilter(pageResults, page);
       setCurrentPage(page);
 
       // Clear any previous errors
       setSearchError(null);
-      clearTimeout(loadingTimeout);
+      console.log("Search request completed:", requestId);
     } catch (error) {
-      clearTimeout(loadingTimeout);
       console.error(`Search attempt ${retryCount + 1} failed:`, error);
 
       // Retry logic - retry up to 2 times with exponential backoff
@@ -527,10 +498,11 @@ function SearchContent() {
       setAllResults([]);
       setTotalResults(0);
     } finally {
-      clearTimeout(loadingTimeout);
       if (retryCount === 0) {
         // Only set loading false on the initial call
         setIsSearchLoading(false);
+        // Clear the request reference
+        searchRequestRef.current = null;
       }
     }
   };
@@ -548,7 +520,7 @@ function SearchContent() {
     }
   };
 
-  // Load initial search results
+  // Load initial search results - only once when component mounts
   useEffect(() => {
     if (initialQuery) {
       performSearch(initialQuery, 1);
@@ -561,36 +533,12 @@ function SearchContent() {
     loadFileTypeStats();
   }, []);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Apply filters when filter selection changes (without triggering new API calls)
   useEffect(() => {
     if (allResults.length > 0) {
       // Reset to page 1 when filter changes
       setCurrentPage(1);
       applyCurrentFilter(allResults, 1);
-
-      // If filtered results are too few, trigger a new search to get more
-      const filterMap: Record<string, string> = {
-        images: "image",
-        videos: "video",
-        vectors: "vector",
-        templates: "template",
-        icons: "icon",
-        audio: "audio",
-        "3d": "3d",
-        fonts: "font",
-      };
-
-      if (selectedFilter !== "all") {
-        const target = filterMap[selectedFilter];
-        const filteredCount = allResults.filter(
-          (r) => r.file_type === target
-        ).length;
-
-        // If we have less than 30 results of the selected type, search for more
-        if (filteredCount < 30 && searchQuery) {
-          performSearch(searchQuery, 1);
-        }
-      }
     }
   }, [selectedFilter]);
 
@@ -612,7 +560,6 @@ function SearchContent() {
     }
   }, [selectedFileTypes]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     return () => {
       // Cleanup all video elements when component unmounts
@@ -1856,9 +1803,6 @@ function SearchContent() {
                   <h3 className="text-lg font-semibold text-foreground mb-2">
                     Searching...
                   </h3>
-                  <p className="text-muted-foreground">
-                    This may take up to 30 seconds. Please wait.
-                  </p>
                 </div>
                 <div className="space-y-4 results-grid-3xl">
                   <div className="grid grid-cols-1 gap-4 sm:hidden">
@@ -2670,17 +2614,11 @@ function SearchContent() {
                   <video
                     src={selectedImage.thumbnail}
                     poster={selectedImage.poster || "/placeholder.png"}
-                    className="object-cover"
+                    className="sm:w-full sm:h-full"
                     controls
                     muted
                     loop
                     style={{
-                      width: selectedImage.width
-                        ? `${selectedImage.width}px`
-                        : "auto",
-                      height: selectedImage.height
-                        ? `${selectedImage.height}px`
-                        : "auto",
                       maxWidth: "95vw",
                       maxHeight: "95vh",
                     }}
@@ -2730,14 +2668,8 @@ function SearchContent() {
                   <img
                     src={selectedImage.thumbnail}
                     alt={selectedImage.title}
-                    className="object-contain"
+                    className="sm:w-full sm:h-full"
                     style={{
-                      width: selectedImage.width
-                        ? `${selectedImage.width}px`
-                        : "auto",
-                      height: selectedImage.height
-                        ? `${selectedImage.height}px`
-                        : "auto",
                       maxWidth: "95vw",
                       maxHeight: "95vh",
                     }}
@@ -2751,7 +2683,7 @@ function SearchContent() {
 
               {/* Image Info Overlay */}
               <div
-                className={`absolute bottom-4 ${isRTL ? "right-4" : "left-4"} bg-black/70 text-white p-3 rounded-lg border border-white/20 max-w-sm`}
+                className={`absolute bottom-12 ${isRTL ? "left-4 sm:right-8" : "left:4 sm:left-8"} bg-black/70 text-white p-3 rounded-lg border border-white/20 max-w-sm`}
               >
                 <div className="font-medium text-sm mb-1 flex items-center gap-2">
                   {selectedImage.file_type === "video" && (

@@ -36,7 +36,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -3368,7 +3367,7 @@ export default function DashboardPage() {
                               <div className="flex items-center space-x-3 flex-1 min-w-0">
                                 <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center overflow-hidden flex-shrink-0">
                                   {site.icon ? (
-                                    <Image
+                                    <img
                                       src={site.icon}
                                       alt={`${site.name} icon`}
                                       width={20}

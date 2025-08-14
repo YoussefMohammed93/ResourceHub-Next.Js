@@ -50,6 +50,15 @@ const apiClient = axios.create({
   },
 });
 
+// Create a separate axios instance for search with shorter timeout
+const searchApiClient = axios.create({
+  baseURL: typeof window !== "undefined" ? "" : API_BASE_URL, // Use proxy when in browser
+  timeout: 15000, // 15 seconds timeout for search requests
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
 // Add request interceptor to include authorization token
 apiClient.interceptors.request.use(
   (config) => {
@@ -1157,6 +1166,44 @@ export interface DeletePricingPlanRequest {
   PlanName: string;
 }
 
+// Search API Types
+export interface SearchResult {
+  url: string;
+  file_id: string;
+  file_type: string;
+  image_type: string;
+  metadata: {
+    title: string;
+    description: string | null;
+  };
+  preview: {
+    src: string;
+    width: number | null;
+    height: number | null;
+  };
+}
+
+export interface SearchApiResponse {
+  success: boolean;
+  data: {
+    query: string;
+    page: string;
+  };
+  results: {
+    [provider: string]:
+      | {
+          icon?: string;
+          results: SearchResult[];
+        }
+      | SearchResult[];
+  };
+}
+
+export interface SearchRequest {
+  query: string;
+  page?: number;
+}
+
 // Pricing Management API functions
 export const pricingApi = {
   // Get all pricing plans (line 708 from swagger)
@@ -1236,5 +1283,125 @@ export const pricingApi = {
     return apiRequest<PricingPlanResponse>("/v1/pricing/delete", "POST", {
       PlanName: data.PlanName,
     });
+  },
+};
+
+// Request deduplication for search API
+const ongoingSearchRequests = new Map<string, Promise<SearchApiResponse>>();
+
+// Search API functions
+export const searchApi = {
+  // Search for resources with deduplication and optimized performance
+  async search(
+    searchRequest: SearchRequest
+  ): Promise<ApiResponse<SearchApiResponse>> {
+    const { query, page = 1 } = searchRequest;
+
+    if (!query?.trim()) {
+      return {
+        success: false,
+        error: {
+          id: "invalid_query",
+          message: "Search query is required",
+        },
+      };
+    }
+
+    // Create a unique key for deduplication
+    const requestKey = `${query.trim()}::${page}`;
+
+    // Check if there's already an ongoing request for the same query+page
+    if (ongoingSearchRequests.has(requestKey)) {
+      console.log("Deduplicating search request for:", requestKey);
+      try {
+        const result = await ongoingSearchRequests.get(requestKey)!;
+        return { success: true, data: result };
+      } catch (error) {
+        console.error(error);
+        // If the ongoing request failed, we'll make a new one below
+        ongoingSearchRequests.delete(requestKey);
+      }
+    }
+
+    // Create the API request promise
+    const searchPromise = (async (): Promise<SearchApiResponse> => {
+      try {
+        console.log("Making search API request for:", requestKey);
+
+        // Use the internal API route for better performance and caching
+        const response = await searchApiClient.get("/api/search", {
+          params: {
+            query: query.trim(),
+            page: page.toString(),
+          },
+        });
+
+        console.log("Search API request completed for:", requestKey);
+        return response.data;
+      } catch (error) {
+        console.error("Search API request failed:", error);
+        throw error;
+      } finally {
+        // Clean up the ongoing request
+        ongoingSearchRequests.delete(requestKey);
+      }
+    })();
+
+    // Store the promise for deduplication
+    ongoingSearchRequests.set(requestKey, searchPromise);
+
+    try {
+      const data = await searchPromise;
+      return { success: true, data };
+    } catch (error) {
+      console.error("Search API error:", error);
+
+      // Handle axios errors
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const errorData = error.response?.data;
+
+        if (status === 429) {
+          return {
+            success: false,
+            error: {
+              id: "rate_limit",
+              message:
+                "Too many search requests. Please wait before trying again.",
+            },
+          };
+        }
+
+        if (status === 408 || error.code === "ECONNABORTED") {
+          return {
+            success: false,
+            error: {
+              id: "timeout",
+              message: "Search request timed out. Please try again.",
+            },
+          };
+        }
+
+        return {
+          success: false,
+          error: {
+            id: errorData?.error || "search_failed",
+            message:
+              errorData?.message ||
+              error.message ||
+              "Search failed. Please try again.",
+          },
+        };
+      }
+
+      return {
+        success: false,
+        error: {
+          id: "unknown_error",
+          message:
+            "An unexpected error occurred during search. Please try again.",
+        },
+      };
+    }
   },
 };
