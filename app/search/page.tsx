@@ -5,15 +5,12 @@
 import {
   X,
   Search,
-  Heart,
   Download,
   ChevronLeft,
   ChevronRight,
   Menu,
   ImageIcon,
   File,
-  Eye,
-  ShoppingCart,
   Shield,
   Sparkles,
   Crown,
@@ -42,7 +39,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { useState, Suspense, useEffect, useCallback, useRef } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { searchApi } from "@/lib/api";
 
 // Type definitions for API response
@@ -299,9 +295,6 @@ function SearchContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hoveredImage, setHoveredImage] = useState<string | null>(null);
-  const [selectedImage, setSelectedImage] = useState<SearchResult | null>(null);
-  const [isImageDialogOpen, setIsImageDialogOpen] = useState(false);
-  const [isFullImageDialogOpen, setIsFullImageDialogOpen] = useState(false);
 
   // API state
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -677,8 +670,11 @@ function SearchContent() {
   };
 
   const handleImageClick = (result: SearchResult) => {
-    setSelectedImage(result);
-    setIsImageDialogOpen(true);
+    // Store image data in localStorage for the details page
+    localStorage.setItem(`image_${result.id}`, JSON.stringify(result));
+
+    // Navigate to the image details page
+    window.location.href = `/image/${result.id}`;
   };
 
   // Smooth scroll to top of results
@@ -2369,339 +2365,6 @@ function SearchContent() {
           </div>
         </main>
       </div>
-
-      {/* Image Detail Dialog */}
-      <Dialog open={isImageDialogOpen} onOpenChange={setIsImageDialogOpen}>
-        <DialogTitle className="sr-only"></DialogTitle>
-        <DialogContent
-          className="sm:!max-w-5xl !max-w-[380px] w-full h-[85vh] sm:h-auto p-0 overflow-y-auto sm:overflow-hidden border-none sm:rounded-xl"
-          showCloseButton={false}
-        >
-          {selectedImage && (
-            <div
-              className={`flex flex-col-reverse sm:flex-row h-full  ${isRTL ? "" : ""}`}
-            >
-              {/* Left Side - Media */}
-              <div className="flex-1 flex items-center justify-center relative bg-muted/20 min-h-[400px]">
-                {selectedImage.file_type === "video" &&
-                isValidVideoUrl(selectedImage.thumbnail) ? (
-                  <video
-                    src={selectedImage.thumbnail}
-                    poster={selectedImage.poster || "/placeholder.png"}
-                    className="w-full h-full object-contain"
-                    controls
-                    muted
-                    loop
-                    style={{
-                      width: selectedImage.width
-                        ? `${selectedImage.width}px`
-                        : "auto",
-                      height: selectedImage.height
-                        ? `${selectedImage.height}px`
-                        : "auto",
-                      maxWidth: "100%",
-                      maxHeight: "100%",
-                    }}
-                    onLoadedData={async (e) => {
-                      // Generate thumbnail when video loads
-                      const video = e.target as HTMLVideoElement;
-                      try {
-                        video.currentTime = 1; // Seek to 1 second
-                        await new Promise((resolve) => {
-                          video.onseeked = resolve;
-                        });
-                        const thumbnailUrl =
-                          await generateVideoThumbnail(video);
-                        video.poster = thumbnailUrl;
-                      } catch (error) {
-                        console.warn(
-                          "Failed to generate video thumbnail:",
-                          error
-                        );
-                      }
-                    }}
-                    onError={(e) => {
-                      console.warn("Dialog video load error, showing as image");
-                      const video = e.target as HTMLVideoElement;
-                      video.style.display = "none";
-                      const container = video.parentElement;
-                      if (container) {
-                        const fallbackImg = document.createElement("img");
-                        fallbackImg.src = getVideoPoster(
-                          selectedImage.thumbnail
-                        );
-                        fallbackImg.alt = selectedImage.title;
-                        fallbackImg.className = "w-full h-full object-contain";
-                        container.appendChild(fallbackImg);
-                      }
-                    }}
-                  />
-                ) : (
-                  <img
-                    src={selectedImage.thumbnail}
-                    alt={selectedImage.title}
-                    className="w-full h-full object-contain"
-                    style={{
-                      width: selectedImage.width
-                        ? `${selectedImage.width}px`
-                        : "auto",
-                      height: selectedImage.height
-                        ? `${selectedImage.height}px`
-                        : "auto",
-                      maxWidth: "100%",
-                      maxHeight: "100%",
-                    }}
-                    onError={(e) => {
-                      const img = e.target as HTMLImageElement;
-                      img.src = "/placeholder.png";
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Right Side - Details and Actions */}
-              <div
-                className={`w-full sm:w-80 bg-background ${isRTL ? "border-r" : "border-l"} border-border flex flex-col`}
-              >
-                {/* Header with provider logo and close button */}
-                <div
-                  className={`flex items-center justify-between p-4 border-b border-border ${isRTL ? "flex-row-reverse" : ""}`}
-                >
-                  <div
-                    className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
-                  >
-                    <div className="w-12 h-12 rounded flex items-center justify-center">
-                      <img
-                        src={selectedImage.providerIcon}
-                        alt={selectedImage.provider}
-                        width={40}
-                        height={40}
-                        className="w-12 h-12 object-contain rounded"
-                        onError={(e) => {
-                          // Fallback to text badge if icon fails to load
-                          const target = e.target as HTMLImageElement;
-                          const parent = target.parentElement;
-                          if (parent) {
-                            parent.innerHTML = `<span class="px-2 py-1 bg-black/70 text-white text-xs rounded-md">${selectedImage.provider}</span>`;
-                          }
-                        }}
-                      />
-                    </div>
-                    <span className="font-medium text-foreground">
-                      {selectedImage.provider}
-                    </span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setIsImageDialogOpen(false)}
-                    className="w-8 h-8 p-0"
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </div>
-
-                {/* Content */}
-                <div className="flex-1 p-4 space-y-4">
-                  {/* File Info */}
-                  <div className="space-y-2">
-                    <div className="text-sm text-muted-foreground">
-                      <span className="font-medium text-foreground">
-                        File Type:
-                      </span>{" "}
-                      {selectedImage.file_type.toUpperCase()}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      <span className="font-medium text-foreground">
-                        Provider:
-                      </span>{" "}
-                      {selectedImage.provider}
-                    </div>
-                    {selectedImage.width && selectedImage.height && (
-                      <div className="text-sm text-muted-foreground">
-                        <span className="font-medium text-foreground">
-                          Dimensions:
-                        </span>{" "}
-                        {selectedImage.width} × {selectedImage.height}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="space-y-3">
-                    {/* Download Button */}
-                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                      <Download className={`w-4 h-4`} />
-                      {t("search.actions.download")}
-                    </Button>
-
-                    <Button className="w-full">
-                      <Eye className={`w-4 h-4`} />
-                      {t("search.actions.simillars")}
-                    </Button>
-
-                    {/* View Full Image Button */}
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => setIsFullImageDialogOpen(true)}
-                    >
-                      <Eye className={`w-4 h-4`} />
-                      {t("search.imageDialog.viewFullImage")}
-                    </Button>
-
-                    {/* Add to Queue Button */}
-                    <Button variant="outline" className="w-full">
-                      <ShoppingCart className={`w-4 h-4`} />
-                      {t("search.imageDialog.addToCart")}
-                    </Button>
-
-                    {/* Like Button */}
-                    <Button variant="outline" className="w-full">
-                      <Heart className="w-4 h-4" />
-                      Like
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Footer - Image Name and ID */}
-                <div className="p-4 border-t border-border space-y-2">
-                  <div className="font-medium text-foreground flex items-center gap-2">
-                    {selectedImage.file_type === "video" && (
-                      <Camera className="w-4 h-4 text-red-500" />
-                    )}
-                    {selectedImage.title}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {selectedImage.file_id}
-                  </div>
-                  <div className="text-sm text-muted-foreground">
-                    {selectedImage.image_type}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
-
-      {/* Full Screen Image Dialog */}
-      <Dialog
-        open={isFullImageDialogOpen}
-        onOpenChange={setIsFullImageDialogOpen}
-      >
-        <DialogTitle className="sr-only">Full Image View</DialogTitle>
-        <DialogContent
-          className="!max-w-[95vw] !max-h-[95vh] w-full h-full p-0 overflow-hidden border-none rounded-xl bg-black/95"
-          showCloseButton={false}
-        >
-          {selectedImage && (
-            <div className="relative w-full h-full flex items-center justify-center">
-              {/* Close Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsFullImageDialogOpen(false)}
-                className={`absolute top-4 ${isRTL ? "left-4" : "right-4"} z-10 w-10 h-10 p-0 bg-black/50 hover:bg-black/70 text-white hover:text-white border rounded-none border-white/40`}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-
-              {/* Full Size Media */}
-              <div className="relative w-full h-full flex items-center justify-center p-4">
-                {selectedImage.file_type === "video" &&
-                isValidVideoUrl(selectedImage.thumbnail) ? (
-                  <video
-                    src={selectedImage.thumbnail}
-                    poster={selectedImage.poster || "/placeholder.png"}
-                    className="sm:w-full sm:h-full"
-                    controls
-                    muted
-                    loop
-                    style={{
-                      maxWidth: "95vw",
-                      maxHeight: "95vh",
-                    }}
-                    onLoadedData={async (e) => {
-                      // Generate thumbnail when video loads
-                      const video = e.target as HTMLVideoElement;
-                      try {
-                        video.currentTime = 1; // Seek to 1 second
-                        await new Promise((resolve) => {
-                          video.onseeked = resolve;
-                        });
-                        const thumbnailUrl =
-                          await generateVideoThumbnail(video);
-                        video.poster = thumbnailUrl;
-                      } catch (error) {
-                        console.warn(
-                          "Failed to generate video thumbnail:",
-                          error
-                        );
-                      }
-                    }}
-                    onError={(e) => {
-                      console.warn(
-                        "Full-screen video load error, showing as image"
-                      );
-                      const video = e.target as HTMLVideoElement;
-                      video.style.display = "none";
-                      const container = video.parentElement;
-                      if (container) {
-                        const fallbackImg = document.createElement("img");
-                        fallbackImg.src = getVideoPoster(
-                          selectedImage.thumbnail
-                        );
-                        fallbackImg.alt = selectedImage.title;
-                        fallbackImg.className = "object-contain";
-                        fallbackImg.style.cssText = `
-                          width: ${selectedImage.width ? `${selectedImage.width}px` : "auto"};
-                          height: ${selectedImage.height ? `${selectedImage.height}px` : "auto"};
-                          max-width: 95vw;
-                          max-height: 95vh;
-                        `;
-                        container.appendChild(fallbackImg);
-                      }
-                    }}
-                  />
-                ) : (
-                  <img
-                    src={selectedImage.thumbnail}
-                    alt={selectedImage.title}
-                    className="sm:w-full sm:h-full"
-                    style={{
-                      maxWidth: "95vw",
-                      maxHeight: "95vh",
-                    }}
-                    onError={(e) => {
-                      const img = e.target as HTMLImageElement;
-                      img.src = "/placeholder.png";
-                    }}
-                  />
-                )}
-              </div>
-
-              {/* Image Info Overlay */}
-              <div
-                className={`absolute bottom-12 ${isRTL ? "left-4 sm:right-8" : "left:4 sm:left-8"} bg-black/70 text-white p-3 rounded-lg border border-white/20 max-w-sm`}
-              >
-                <div className="font-medium text-sm mb-1 flex items-center gap-2">
-                  {selectedImage.file_type === "video" && (
-                    <Camera className="w-3 h-3 text-red-400" />
-                  )}
-                  {selectedImage.title}
-                </div>
-                <div className="text-xs text-white/80">
-                  {selectedImage.file_id} • {selectedImage.provider}
-                </div>
-                <div className="text-xs text-white/80">
-                  {selectedImage.image_type}
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

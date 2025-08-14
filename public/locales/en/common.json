@@ -1440,6 +1440,8 @@
     "learnMore": "Learn More",
     "month": "Month",
     "download": "Download",
-    "scrollToTop": "Scroll to top"
+    "scrollToTop": "Scroll to top",
+    "type": "Type",
+    "dimensions": "Dimensions"
   }
 }
