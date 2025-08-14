@@ -171,6 +171,7 @@
       "credits": "Credits:",
       "validity": "Validity:",
       "supportedSites": "Supported Sites:",
+      "days": "Days",
       "featuresIncluded": "Features included:",
       "supportedSitesDialog": {
         "title": "Supported Sites",

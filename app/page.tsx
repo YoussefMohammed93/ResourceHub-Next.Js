@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+
 "use client";
 
 import {
@@ -26,6 +28,9 @@ import {
   Play,
   Layers,
   FileImage,
+  AlertCircle,
+  Loader2,
+  Package,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -47,7 +52,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Footer from "@/components/footer";
 import FAQSection from "@/components/faq-section";
 import {
@@ -57,7 +62,6 @@ import {
   CategoriesSkeleton,
   SupportedPlatformsSkeleton,
   FooterSkeleton,
-  PricingSkeleton,
   FAQSkeleton,
 } from "@/components/home-page-skeletons";
 import { Input } from "@/components/ui/input";
@@ -66,6 +70,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { ImageSearchDialog } from "@/components/image-search-dialog";
+import { pricingApi, siteApi, type PricingPlan, type Site } from "@/lib/api";
 
 const categoryKeys = [
   "nature",
@@ -578,66 +583,6 @@ const platformsByCategory = {
   ],
 };
 
-// Fake site data for supported sites (keeping for pricing section)
-const supportedSites = {
-  basic: [
-    {
-      id: 1,
-      name: "Freepik",
-      icon: "https://cdn.worldvectorlogo.com/logos/freepik-1.svg",
-    },
-    {
-      id: 2,
-      name: "Shutterstock",
-      icon: "https://cdn.worldvectorlogo.com/logos/shutterstock.svg",
-    },
-  ],
-  advanced: [
-    {
-      id: 1,
-      name: "Freepik",
-      icon: "https://cdn.worldvectorlogo.com/logos/freepik-1.svg",
-    },
-    {
-      id: 2,
-      name: "Shutterstock",
-      icon: "https://cdn.worldvectorlogo.com/logos/shutterstock.svg",
-    },
-    {
-      id: 3,
-      name: "Adobe Stock",
-      icon: "https://cdn.worldvectorlogo.com/logos/adobe-2.svg",
-    },
-  ],
-  premium: [
-    {
-      id: 1,
-      name: "Freepik",
-      icon: "https://cdn.worldvectorlogo.com/logos/freepik-1.svg",
-    },
-    {
-      id: 2,
-      name: "Shutterstock",
-      icon: "https://cdn.worldvectorlogo.com/logos/shutterstock.svg",
-    },
-    {
-      id: 3,
-      name: "Adobe Stock",
-      icon: "https://cdn.worldvectorlogo.com/logos/adobe-2.svg",
-    },
-    {
-      id: 4,
-      name: "Getty Images",
-      icon: "https://cdn.worldvectorlogo.com/logos/getty-images-1.svg",
-    },
-    {
-      id: 5,
-      name: "Unsplash",
-      icon: "https://cdn.worldvectorlogo.com/logos/unsplash-1.svg",
-    },
-  ],
-};
-
 // Platform interface
 interface Platform {
   id: number;
@@ -693,6 +638,16 @@ export default function HomePage() {
   const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
+
+  // Pricing plans state
+  const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
+  const [isLoadingPricing, setIsLoadingPricing] = useState(true);
+  const [pricingError, setPricingError] = useState<string | null>(null);
+
+  // Sites state for supported sites mapping
+  const [sites, setSites] = useState<Site[]>([]);
+  const [, setIsLoadingSites] = useState(true);
+  const [, setSitesError] = useState<string | null>(null);
 
   // URL validation regex patterns
   const urlRegex =
@@ -798,6 +753,169 @@ export default function HomePage() {
     setIsMobileMenuOpen(false);
   };
 
+  // Load pricing plans from API
+  const loadPricingPlans = async () => {
+    try {
+      setIsLoadingPricing(true);
+      setPricingError(null);
+
+      const response = await pricingApi.getPricingPlans();
+
+      if (response.success && response.data) {
+        // Handle different response structures
+        let apiPlans: unknown[] = [];
+
+        if (Array.isArray(response.data)) {
+          apiPlans = response.data;
+        } else if (response.data.data && Array.isArray(response.data.data)) {
+          apiPlans = response.data.data;
+        }
+
+        // Transform API pricing plans to frontend format
+        const transformedPlans: PricingPlan[] = apiPlans.map(
+          (plan: unknown, index: number) => {
+            const planObj = plan as Record<string, unknown>;
+            return {
+              id: index + 1,
+              name:
+                typeof planObj.name === "string"
+                  ? planObj.name
+                  : typeof planObj.PlanName === "string"
+                    ? planObj.PlanName
+                    : "",
+              description:
+                typeof planObj.description === "string"
+                  ? planObj.description
+                  : typeof planObj.PlanDescription === "string"
+                    ? planObj.PlanDescription
+                    : "",
+              price:
+                typeof planObj.price === "string"
+                  ? planObj.price
+                  : typeof planObj.PlanPrice === "string"
+                    ? planObj.PlanPrice
+                    : "",
+              credits:
+                parseInt(
+                  typeof planObj.credits === "string" ? planObj.credits : "0"
+                ) || 0,
+              daysValidity:
+                parseInt(
+                  typeof planObj.days === "string"
+                    ? planObj.days
+                    : typeof planObj.DaysValidity === "string"
+                      ? planObj.DaysValidity
+                      : "0"
+                ) || 0,
+              contactUsUrl:
+                typeof planObj.contact === "string"
+                  ? planObj.contact
+                  : typeof planObj.ContactUsUrl === "string"
+                    ? planObj.ContactUsUrl
+                    : "",
+              supportedSites: Array.isArray(planObj.sites)
+                ? (planObj.sites as string[])
+                : Array.isArray(planObj.Sites)
+                  ? (planObj.Sites as string[])
+                  : typeof planObj.sites === "string"
+                    ? planObj.sites
+                        .split(",")
+                        .map((site) => site.trim())
+                        .filter((site) => site.length > 0)
+                    : typeof planObj.Sites === "string"
+                      ? planObj.Sites.split(",")
+                          .map((site) => site.trim())
+                          .filter((site) => site.length > 0)
+                      : [],
+              features: [
+                t("dashboard.packageManagement.features.accessToSites"),
+                t("dashboard.packageManagement.features.support"),
+                t("dashboard.packageManagement.features.adminManagement"),
+              ],
+            };
+          }
+        );
+
+        setPricingPlans(transformedPlans);
+      } else {
+        setPricingError(
+          response.error?.message || t("pricing.errors.failedToLoad")
+        );
+      }
+    } catch (error) {
+      console.error("Failed to load pricing plans:", error);
+      setPricingError(t("pricing.errors.failedToLoad"));
+    } finally {
+      setIsLoadingPricing(false);
+    }
+  };
+
+  // Load sites from API
+  const loadSites = async () => {
+    try {
+      setIsLoadingSites(true);
+      setSitesError(null);
+
+      const response = await siteApi.getSites();
+
+      if (response.success && response.data) {
+        // Handle different response structures
+        let apiSites: unknown[] = [];
+
+        if (Array.isArray(response.data)) {
+          apiSites = response.data;
+        } else if (
+          response.data.data &&
+          response.data.data.sites &&
+          Array.isArray(response.data.data.sites)
+        ) {
+          apiSites = response.data.data.sites;
+        }
+
+        // Transform API sites to frontend format
+        const transformedSites: Site[] = apiSites.map((site: unknown) => {
+          const siteObj = site as Record<string, unknown>;
+          return {
+            name: typeof siteObj.name === "string" ? siteObj.name : "",
+            url: typeof siteObj.url === "string" ? siteObj.url : "",
+            icon:
+              typeof siteObj.icon === "string"
+                ? siteObj.icon
+                : `${typeof siteObj.url === "string" ? siteObj.url : ""}/favicon.ico`,
+            total_downloads:
+              typeof siteObj.total_downloads === "number"
+                ? siteObj.total_downloads
+                : 0,
+            today_downloads:
+              typeof siteObj.today_downloads === "number"
+                ? siteObj.today_downloads
+                : 0,
+            price: typeof siteObj.price === "number" ? siteObj.price : 0,
+            last_reset:
+              typeof siteObj.last_reset === "string" ? siteObj.last_reset : "",
+          };
+        });
+
+        setSites(transformedSites);
+      } else {
+        setSitesError(
+          response.error?.message || t("pricing.errors.failedToLoadSites")
+        );
+      }
+    } catch (error) {
+      console.error("Failed to load sites:", error);
+      setSitesError(t("pricing.errors.failedToLoadSites"));
+    } finally {
+      setIsLoadingSites(false);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    loadPricingPlans();
+    loadSites();
+  }, []);
+
   // Show loading skeletons while language data is loading
   if (isLoading) {
     return (
@@ -805,7 +923,6 @@ export default function HomePage() {
         <HeaderSkeleton />
         <HeroSkeleton />
         <SupportedPlatformsSkeleton />
-        <PricingSkeleton />
         <CategoriesSkeleton />
         <FeaturesSkeleton />
         <FAQSkeleton />
@@ -1754,664 +1871,297 @@ export default function HomePage() {
               {t("pricing.description")}
             </p>
           </div>
-          <div className="grid mx-auto max-w-[1700px] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
-            {/* Basic Plan */}
-            <div className="group relative dark:bg-card bg-background backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
-              {/* Hover effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative z-10 flex flex-col h-full space-y-6">
-                {/* Plan Header */}
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Zap className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        {t("pricing.basic.title")}
-                      </h3>
-                      <p
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.basic.subtitle")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-foreground">
-                        {t("pricing.basic.price")}
-                      </span>
-                    </div>
-                    <p
-                      className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                    >
-                      {t("pricing.basic.priceSubtitle")}
-                    </p>
-                  </div>
-                </div>
-                {/* Plan Features */}
-                <div className="space-y-4 flex-1">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.labels.credits")}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Coins className="w-4 h-4 text-primary" />
-                        <span
-                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                        >
-                          {t("pricing.basic.credits")}
-                        </span>
+          {/* Loading State */}
+          {isLoadingPricing ? (
+            <div className="grid mx-auto max-w-[1700px] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+              {[...Array(4)].map((_, index) => (
+                <div
+                  key={`pricing-skeleton-${index}`}
+                  className="group relative dark:bg-card bg-background backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 flex flex-col"
+                >
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-12 h-12 bg-muted rounded-xl animate-pulse"></div>
+                      <div className="space-y-2 flex-1">
+                        <div className="h-5 bg-muted rounded animate-pulse"></div>
+                        <div className="h-4 bg-muted rounded animate-pulse w-3/4"></div>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.labels.validity")}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Timer className="w-4 h-4 text-primary" />
-                        <span
-                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                        >
-                          {t("pricing.basic.validity")}
-                        </span>
-                      </div>
+                    <div className="space-y-2">
+                      <div className="h-8 bg-muted rounded animate-pulse w-1/2"></div>
+                      <div className="h-4 bg-muted rounded animate-pulse w-2/3"></div>
                     </div>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
-                          <span
-                            className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                          >
-                            {t("pricing.labels.supportedSites")}
-                          </span>
-                          <span
-                            className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                          >
-                            {t("pricing.basic.supportedSites")}
-                          </span>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>
-                            {t("pricing.labels.supportedSitesDialog.title")} -{" "}
-                            {t("pricing.basic.title")}
-                          </DialogTitle>
-                          <DialogDescription>
-                            {t(
-                              "pricing.labels.supportedSitesDialog.description"
-                            )}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-                          {supportedSites.basic.map((site) => (
-                            <div
-                              key={site.id}
-                              className="flex flex-col items-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-                            >
-                              <Image
-                                src={site.icon}
-                                alt={`${site.name} icon`}
-                                width={96}
-                                height={96}
-                                className="w-24 h-24 rounded-lg mb-3 object-contain"
-                                onError={(e) => {
-                                  e.currentTarget.src =
-                                    "https://via.placeholder.com/96x96/6366f1/ffffff?text=" +
-                                    site.name.charAt(0);
-                                }}
-                              />
-                              <span className="text-sm font-medium text-foreground text-center">
-                                {site.name}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
                   </div>
-                  <div className="pt-4 border-t border-border">
-                    <h4
-                      className={`text-sm font-medium text-foreground mb-3 ${isRTL && "!text-lg"}`}
-                    >
-                      {t("pricing.labels.featuresIncluded")}
-                    </h4>
-                    <ul className="space-y-2">
-                      {(
-                        t("pricing.basic.features", {
-                          returnObjects: true,
-                        }) as string[]
-                      ).map((feature: string, index: number) => (
-                        <li key={index} className="flex items-center space-x-2">
-                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                          <span
-                            className={`text-sm text-muted-foreground  ${isRTL && "!text-base"}`}
-                          >
-                            {feature}
-                          </span>
-                        </li>
+                  <div className="space-y-4 flex-1 mt-6">
+                    <div className="space-y-3">
+                      {[...Array(3)].map((_, i) => (
+                        <div
+                          key={i}
+                          className="flex items-center justify-between"
+                        >
+                          <div className="h-4 bg-muted rounded animate-pulse w-1/3"></div>
+                          <div className="h-4 bg-muted rounded animate-pulse w-1/4"></div>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
+                    <div className="pt-4 border-t border-border">
+                      <div className="h-4 bg-muted rounded animate-pulse w-1/2 mb-3"></div>
+                      <div className="space-y-2">
+                        {[...Array(3)].map((_, i) => (
+                          <div
+                            key={i}
+                            className="h-4 bg-muted rounded animate-pulse"
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="mt-6">
+                    <div className="h-12 bg-muted rounded-xl animate-pulse"></div>
                   </div>
                 </div>
-                {/* CTA Button - Now at bottom */}
-                <div className="mt-auto pt-4">
-                  <Button
-                    className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
-                    asChild
-                  >
-                    <a
-                      href="https://example.com/contact"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="w-4 h-4 stroke-3" />
-                      {t("pricing.basic.button")}
-                    </a>
-                  </Button>
+              ))}
+            </div>
+          ) : pricingError ? (
+            <div className="text-center py-12">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center">
+                  <AlertCircle className="w-8 h-8 text-destructive" />
                 </div>
               </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {t("pricing.errors.title")}
+              </h3>
+              <p className="text-muted-foreground mb-4">{pricingError}</p>
+              <Button
+                onClick={loadPricingPlans}
+                variant="outline"
+                className="gap-2"
+              >
+                <Loader2 className="w-4 h-4" />
+                {t("pricing.errors.retry")}
+              </Button>
             </div>
-            {/* Advanced Plan */}
-            <div className="group relative dark:bg-card bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
-              {/* Hover effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative z-10 flex flex-col h-full space-y-6">
-                {/* Plan Header */}
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Crown className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        {t("pricing.advanced.title")}
-                      </h3>
-                      <p
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.advanced.subtitle")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-foreground">
-                        Contact Us
-                      </span>
-                    </div>
-                    <p
-                      className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                    >
-                      {t("pricing.advanced.priceSubtitle")}
-                    </p>
-                  </div>
-                </div>
-                {/* Plan Features */}
-                <div className="space-y-4 flex-1">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.labels.credits")}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Coins className="w-4 h-4 text-primary" />
-                        <span
-                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                        >
-                          {t("pricing.advanced.credits")}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.labels.validity")}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Timer className="w-4 h-4 text-primary" />
-                        <span
-                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                        >
-                          {t("pricing.advanced.validity")}
-                        </span>
-                      </div>
-                    </div>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
-                          <span
-                            className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                          >
-                            {t("pricing.labels.supportedSites")}
-                          </span>
-                          <span
-                            className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                          >
-                            {t("pricing.advanced.supportedSites")}
-                          </span>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>
-                            {t("pricing.labels.supportedSitesDialog.title")} -{" "}
-                            {t("pricing.advanced.title")}
-                          </DialogTitle>
-                          <DialogDescription>
-                            {t(
-                              "pricing.labels.supportedSitesDialog.description"
-                            )}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-                          {supportedSites.advanced.map((site) => (
-                            <div
-                              key={site.id}
-                              className="flex flex-col items-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
-                            >
-                              <Image
-                                src={site.icon}
-                                alt={`${site.name} icon`}
-                                width={96}
-                                height={96}
-                                className="w-24 h-24 rounded-lg mb-3 object-contain"
-                                onError={(e) => {
-                                  e.currentTarget.src =
-                                    "https://via.placeholder.com/96x96/6366f1/ffffff?text=" +
-                                    site.name.charAt(0);
-                                }}
-                              />
-                              <span className="text-sm font-medium text-foreground text-center">
-                                {site.name}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                  <div className="pt-4 border-t border-border">
-                    <h4
-                      className={`text-sm font-medium text-foreground mb-3 ${isRTL && "!text-lg"}`}
-                    >
-                      {t("pricing.labels.featuresIncluded")}
-                    </h4>
-                    <ul className="space-y-2">
-                      {(
-                        t("pricing.advanced.features", {
-                          returnObjects: true,
-                        }) as string[]
-                      ).map((feature: string, index: number) => (
-                        <li key={index} className="flex items-center space-x-2">
-                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                          <span
-                            className={`text-sm text-muted-foreground  ${isRTL && "!text-base"}`}
-                          >
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                {/* CTA Button - Now at bottom */}
-                <div className="mt-auto pt-4">
-                  <Button
-                    className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
-                    asChild
-                  >
-                    <a
-                      href="https://example.com/contact"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="w-4 h-4 stroke-3" />
-                      Contact Us
-                    </a>
-                  </Button>
+          ) : pricingPlans.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="flex justify-center mb-4">
+                <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center">
+                  <Package className="w-8 h-8 text-muted-foreground" />
                 </div>
               </div>
+              <h3 className="text-lg font-semibold text-foreground mb-2">
+                {t("pricing.errors.noPlans")}
+              </h3>
+              <p className="text-muted-foreground">
+                {t("pricing.errors.noPlansDescription")}
+              </p>
             </div>
-            {/* Premium Plan */}
-            <div className="group relative dark:bg-card bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
-              {/* Hover effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative z-10 flex flex-col h-full space-y-6">
-                {/* Plan Header */}
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Globe className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        {t("pricing.premium.title")}
-                      </h3>
-                      <p
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.premium.subtitle")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-foreground">
-                        Contact Us
-                      </span>
-                    </div>
-                    <p
-                      className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                    >
-                      {t("pricing.premium.priceSubtitle")}
-                    </p>
-                  </div>
-                </div>
-                {/* Plan Features */}
-                <div className="space-y-4 flex-1">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.labels.credits")}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Coins className="w-4 h-4 text-primary" />
-                        <span
-                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                        >
-                          {t("pricing.premium.credits")}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.labels.validity")}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Timer className="w-4 h-4 text-primary" />
-                        <span
-                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                        >
-                          {t("pricing.premium.validity")}
-                        </span>
-                      </div>
-                    </div>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
-                          <span
-                            className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                          >
-                            {t("pricing.labels.supportedSites")}
-                          </span>
-                          <span
-                            className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                          >
-                            {t("pricing.premium.supportedSites")}
-                          </span>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>
-                            {t("pricing.labels.supportedSitesDialog.title")} -{" "}
-                            {t("pricing.premium.title")}
-                          </DialogTitle>
-                          <DialogDescription>
-                            {t(
-                              "pricing.labels.supportedSitesDialog.description"
-                            )}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-                          {supportedSites.premium.map((site) => (
-                            <div
-                              key={site.id}
-                              className="flex flex-col items-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+          ) : (
+            <div className="grid mx-auto max-w-[1700px] grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-5">
+              {pricingPlans.map((plan, index) => {
+                // Get supported sites for this plan
+                const planSupportedSites =
+                  plan.supportedSites?.map((siteName) => {
+                    const matchingSite = sites.find(
+                      (site) =>
+                        site.name
+                          .toLowerCase()
+                          .includes(siteName.toLowerCase()) ||
+                        site.url.includes(siteName.toLowerCase())
+                    );
+                    return matchingSite
+                      ? {
+                          id: matchingSite.name,
+                          name: matchingSite.name,
+                          icon:
+                            matchingSite.icon ||
+                            `${matchingSite.url}/favicon.ico`,
+                        }
+                      : {
+                          id: siteName,
+                          name: siteName,
+                          icon: `https://via.placeholder.com/96x96/6366f1/ffffff?text=${siteName.charAt(0)}`,
+                        };
+                  }) || [];
+
+                // Determine icon based on plan name or index
+                const PlanIcon =
+                  index === 0
+                    ? Zap
+                    : index === 1
+                      ? Crown
+                      : index === 2
+                        ? Globe
+                        : Package;
+
+                return (
+                  <div
+                    key={plan.id || index}
+                    className="group relative dark:bg-card bg-background backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col"
+                  >
+                    {/* Hover effect overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative z-10 flex flex-col h-full space-y-6">
+                      {/* Plan Header */}
+                      <div className="space-y-4">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                            <PlanIcon className="w-6 h-6 text-primary" />
+                          </div>
+                          <div>
+                            <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
+                              {plan.name}
+                            </h3>
+                            <p
+                              className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
                             >
-                              <Image
-                                src={site.icon}
-                                alt={`${site.name} icon`}
-                                width={96}
-                                height={96}
-                                className="w-24 h-24 rounded-lg mb-3 object-contain"
-                                onError={(e) => {
-                                  e.currentTarget.src =
-                                    "https://via.placeholder.com/96x96/6366f1/ffffff?text=" +
-                                    site.name.charAt(0);
-                                }}
-                              />
-                              <span className="text-sm font-medium text-foreground text-center">
-                                {site.name}
+                              {plan.description}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Plan Features */}
+                      <div className="space-y-4 flex-1">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span
+                              className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                            >
+                              {t("pricing.labels.credits")}
+                            </span>
+                            <div className="flex items-center space-x-1">
+                              <Coins className="w-4 h-4 text-primary" />
+                              <span
+                                className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                              >
+                                {plan.credits.toLocaleString()}
                               </span>
                             </div>
-                          ))}
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                  <div className="pt-4 border-t border-border">
-                    <h4
-                      className={`text-sm font-medium text-foreground mb-3 ${isRTL && "!text-lg"}`}
-                    >
-                      {t("pricing.labels.featuresIncluded")}
-                    </h4>
-                    <ul className="space-y-2">
-                      {(
-                        t("pricing.premium.features", {
-                          returnObjects: true,
-                        }) as string[]
-                      ).map((feature: string, index: number) => (
-                        <li key={index} className="flex items-center space-x-2">
-                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                          <span
-                            className={`text-sm text-muted-foreground  ${isRTL && "!text-base"}`}
-                          >
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-                {/* CTA Button - Now at bottom */}
-                <div className="mt-auto pt-4">
-                  <Button
-                    className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
-                    asChild
-                  >
-                    <a
-                      href="https://example.com/contact"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="w-4 h-4 stroke-3" />
-                      Contact Us
-                    </a>
-                  </Button>
-                </div>
-              </div>
-            </div>
-            {/* Premium Plan 2 */}
-            <div className="group relative dark:bg-card bg-background/50 backdrop-blur-sm shadow-xs border border-border/50 rounded-2xl p-6 lg:p-8 transition-all duration-300 hover:bg-background/80 hover:border-primary/30 flex flex-col">
-              {/* Hover effect overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-transparent to-primary/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative z-10 flex flex-col h-full space-y-6">
-                {/* Plan Header */}
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                      <Globe className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">
-                        {t("pricing.premium.title")}
-                      </h3>
-                      <p
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.premium.subtitle")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex items-baseline space-x-2">
-                      <span className="text-3xl font-bold text-foreground">
-                        Contact Us
-                      </span>
-                    </div>
-                    <p
-                      className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                    >
-                      {t("pricing.premium.priceSubtitle")}
-                    </p>
-                  </div>
-                </div>
-                {/* Plan Features */}
-                <div className="space-y-4 flex-1">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.labels.credits")}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Coins className="w-4 h-4 text-primary" />
-                        <span
-                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                        >
-                          {t("pricing.premium.credits")}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span
-                        className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                      >
-                        {t("pricing.labels.validity")}
-                      </span>
-                      <div className="flex items-center space-x-1">
-                        <Timer className="w-4 h-4 text-primary" />
-                        <span
-                          className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                        >
-                          {t("pricing.premium.validity")}
-                        </span>
-                      </div>
-                    </div>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
-                          <span
-                            className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
-                          >
-                            {t("pricing.labels.supportedSites")}
-                          </span>
-                          <span
-                            className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
-                          >
-                            {t("pricing.premium.supportedSites")}
-                          </span>
-                        </div>
-                      </DialogTrigger>
-                      <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle>
-                            {t("pricing.labels.supportedSitesDialog.title")} -{" "}
-                            {t("pricing.premium.title")}
-                          </DialogTitle>
-                          <DialogDescription>
-                            {t(
-                              "pricing.labels.supportedSitesDialog.description"
-                            )}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
-                          {supportedSites.premium.map((site) => (
-                            <div
-                              key={site.id}
-                              className="flex flex-col items-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span
+                              className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
                             >
-                              <Image
-                                src={site.icon}
-                                alt={`${site.name} icon`}
-                                width={96}
-                                height={96}
-                                className="w-24 h-24 rounded-lg mb-3 object-contain"
-                                onError={(e) => {
-                                  e.currentTarget.src =
-                                    "https://via.placeholder.com/96x96/6366f1/ffffff?text=" +
-                                    site.name.charAt(0);
-                                }}
-                              />
-                              <span className="text-sm font-medium text-foreground text-center">
-                                {site.name}
+                              {t("pricing.labels.validity")}
+                            </span>
+                            <div className="flex items-center space-x-1">
+                              <Timer className="w-4 h-4 text-primary" />
+                              <span
+                                className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                              >
+                                {plan.daysValidity} {t("pricing.labels.days")}
                               </span>
                             </div>
-                          ))}
+                          </div>
+                          {planSupportedSites.length > 0 && (
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <div className="flex items-center justify-between cursor-pointer hover:bg-muted rounded-lg p-2 -m-2 transition-colors">
+                                  <span
+                                    className={`text-sm text-muted-foreground ${isRTL && "!text-lg"}`}
+                                  >
+                                    {t("pricing.labels.supportedSites")}
+                                  </span>
+                                  <span
+                                    className={`text-sm font-semibold text-foreground ${isRTL && "!text-lg"}`}
+                                  >
+                                    {planSupportedSites.length}
+                                  </span>
+                                </div>
+                              </DialogTrigger>
+                              <DialogContent className="sm:max-w-2xl md:max-w-3xl lg:max-w-4xl max-h-[80vh] overflow-y-auto">
+                                <DialogHeader>
+                                  <DialogTitle>
+                                    {t(
+                                      "pricing.labels.supportedSitesDialog.title"
+                                    )}{" "}
+                                    - {plan.name}
+                                  </DialogTitle>
+                                  <DialogDescription>
+                                    {t(
+                                      "pricing.labels.supportedSitesDialog.description"
+                                    )}
+                                  </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-6">
+                                  {planSupportedSites.map((site) => (
+                                    <div
+                                      key={site.id}
+                                      className="flex flex-col items-center p-4 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+                                    >
+                                      <img
+                                        src={site.icon}
+                                        alt={`${site.name} icon`}
+                                        width={96}
+                                        height={96}
+                                        className="w-24 h-24 rounded-lg mb-3 object-contain"
+                                        onError={(e) => {
+                                          e.currentTarget.src =
+                                            "https://via.placeholder.com/96x96/6366f1/ffffff?text=" +
+                                            site.name.charAt(0);
+                                        }}
+                                      />
+                                      <span className="text-sm font-medium text-foreground text-center">
+                                        {site.name}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                          )}
                         </div>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                  <div className="pt-4 border-t border-border">
-                    <h4
-                      className={`text-sm font-medium text-foreground mb-3 ${isRTL && "!text-lg"}`}
-                    >
-                      {t("pricing.labels.featuresIncluded")}
-                    </h4>
-                    <ul className="space-y-2">
-                      {(
-                        t("pricing.premium.features", {
-                          returnObjects: true,
-                        }) as string[]
-                      ).map((feature: string, index: number) => (
-                        <li key={index} className="flex items-center space-x-2">
-                          <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
-                          <span
-                            className={`text-sm text-muted-foreground  ${isRTL && "!text-base"}`}
+                        <div className="pt-4 border-t border-border">
+                          <h4
+                            className={`text-sm font-medium text-foreground mb-3 ${isRTL && "!text-lg"}`}
                           >
-                            {feature}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
+                            {t("pricing.labels.featuresIncluded")}
+                          </h4>
+                          <ul className="space-y-2">
+                            {(plan.features || []).map(
+                              (feature: string, featureIndex: number) => (
+                                <li
+                                  key={featureIndex}
+                                  className="flex items-center space-x-2"
+                                >
+                                  <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
+                                  <span
+                                    className={`text-sm text-muted-foreground  ${isRTL && "!text-base"}`}
+                                  >
+                                    {feature}
+                                  </span>
+                                </li>
+                              )
+                            )}
+                          </ul>
+                        </div>
+                      </div>
+                      {/* CTA Button - Now at bottom */}
+                      <div className="mt-auto pt-4">
+                        <Button
+                          className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
+                          asChild
+                        >
+                          <a
+                            href={
+                              plan.contactUsUrl || "https://example.com/contact"
+                            }
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <ExternalLink className="w-4 h-4 stroke-3" />
+                            {t(
+                              "dashboard.packageManagement.planDetails.contactUsLabel"
+                            )}
+                          </a>
+                        </Button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                {/* CTA Button - Now at bottom */}
-                <div className="mt-auto pt-4">
-                  <Button
-                    className="w-full py-6 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-xl"
-                    asChild
-                  >
-                    <a
-                      href="https://example.com/contact"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="w-4 h-4 stroke-3" />
-                      Contact Us
-                    </a>
-                  </Button>
-                </div>
-              </div>
+                );
+              })}
             </div>
-          </div>
+          )}
           {/* Additional Info */}
           <div className="pt-14 text-center">
             <p

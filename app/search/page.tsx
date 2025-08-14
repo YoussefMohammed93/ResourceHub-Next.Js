@@ -674,7 +674,7 @@ function SearchContent() {
     localStorage.setItem(`image_${result.id}`, JSON.stringify(result));
 
     // Navigate to the image details page
-    window.location.href = `/image/${result.id}`;
+    window.location.href = `/media/${result.id}`;
   };
 
   // Smooth scroll to top of results
