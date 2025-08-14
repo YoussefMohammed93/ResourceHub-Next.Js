@@ -51,8 +51,21 @@ const apiClient = axios.create({
 });
 
 // Create a separate axios instance for search with shorter timeout
+const getSearchApiBaseUrl = () => {
+  // In production, use direct API URL to avoid proxy
+  if (process.env.NODE_ENV === "production") {
+    const directApiUrl =
+      process.env.NEXT_PUBLIC_PRODUCTION_API_URL ||
+      "https://stockaty.virs.tech";
+    return directApiUrl;
+  }
+
+  // In development, use proxy (empty baseURL means current domain)
+  return typeof window !== "undefined" ? "" : API_BASE_URL;
+};
+
 const searchApiClient = axios.create({
-  baseURL: typeof window !== "undefined" ? "" : API_BASE_URL, // Use proxy when in browser
+  baseURL: getSearchApiBaseUrl(),
   timeout: 15000, // 15 seconds timeout for search requests
   headers: {
     "Content-Type": "application/json",
@@ -1328,8 +1341,13 @@ export const searchApi = {
       try {
         console.log("Making search API request for:", requestKey);
 
-        // Use the internal API route for better performance and caching
-        const response = await searchApiClient.get("/api/search", {
+        // Determine the endpoint based on environment
+        const endpoint =
+          process.env.NODE_ENV === "production"
+            ? "/v1/search" // Direct API call in production
+            : "/api/search"; // Use proxy in development
+
+        const response = await searchApiClient.get(endpoint, {
           params: {
             query: query.trim(),
             page: page.toString(),
