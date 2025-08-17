@@ -70,7 +70,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { ImageSearchDialog } from "@/components/image-search-dialog";
-import { pricingApi, siteApi, type PricingPlan, type Site } from "@/lib/api";
+import { publicApi, type PricingPlan, type Site } from "@/lib/api";
 
 const categoryKeys = [
   "nature",
@@ -759,7 +759,7 @@ export default function HomePage() {
       setIsLoadingPricing(true);
       setPricingError(null);
 
-      const response = await pricingApi.getPricingPlans();
+      const response = await publicApi.getPricingPlans();
 
       if (response.success && response.data) {
         // Handle different response structures
@@ -856,7 +856,7 @@ export default function HomePage() {
       setIsLoadingSites(true);
       setSitesError(null);
 
-      const response = await siteApi.getSites();
+      const response = await publicApi.getSites();
 
       if (response.success && response.data) {
         // Handle different response structures

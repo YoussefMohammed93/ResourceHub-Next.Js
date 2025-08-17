@@ -125,8 +125,9 @@ export async function GET(request: NextRequest) {
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout (reduced from 30)
 
       try {
+        // Updated to use new providers/search endpoint
         const response = await fetch(
-          `${API_BASE_URL}/search?query=${encodeURIComponent(query)}&page=${page}`,
+          `${API_BASE_URL}/providers/search?query=${encodeURIComponent(query)}&page=${page}`,
           {
             method: "GET",
             headers: {

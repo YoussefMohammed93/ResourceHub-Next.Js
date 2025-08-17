@@ -6,7 +6,6 @@ import {
   X,
   Download,
   Eye,
-  ShoppingCart,
   Camera,
   ArrowLeft,
 } from "lucide-react";
@@ -19,6 +18,18 @@ import Footer from "@/components/footer";
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tag,
+  ExternalLink,
+  Loader2,
+  AlertCircle,
+  ImageIcon,
+  VideoIcon,
+  FileIcon,
+} from "lucide-react";
+import { searchApi, type ProviderDataRequest, type FileData } from "@/lib/api";
 
 // Type definitions for search result (matching the search page)
 interface SearchResult {
@@ -47,6 +58,130 @@ export default function ImageDetailsPage() {
   const [isFullImageOpen, setIsFullImageOpen] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
 
+  // Enhanced provider data state
+  const [fileData, setFileData] = useState<FileData | null>(null);
+  const [isProviderDataLoading, setIsProviderDataLoading] = useState(false);
+  const [providerDataError, setProviderDataError] = useState<string | null>(
+    null
+  );
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  // Map provider names to match the API specification
+  const mapProviderName = useCallback((providerName: string): string => {
+    const providerMapping: { [key: string]: string } = {
+      "Adobe Stock": "AdobeStock",
+      AdobeStock: "AdobeStock",
+      "Creative Fabrica": "CreativeFabrica",
+      CreativeFabrica: "CreativeFabrica",
+      Envato: "Envato",
+      Freepik: "Freepik",
+      "Motion Elements": "MotionElements",
+      MotionElements: "MotionElements",
+      "PNG Tree": "PngTree",
+      PngTree: "PngTree",
+      Shutterstock: "Shutterstock",
+      Storyblocks: "Storyblocks",
+      Vecteezy: "Vecteezy",
+    };
+
+    return providerMapping[providerName] || providerName;
+  }, []);
+
+  // Fetch enhanced provider data
+  const fetchProviderData = useCallback(
+    async (mediaData: SearchResult) => {
+      if (!mediaData.provider || !mediaData.url || !mediaData.file_id) {
+        console.log("Missing required data for provider API:", {
+          provider: mediaData.provider,
+          url: !!mediaData.url,
+          file_id: !!mediaData.file_id,
+        });
+        return;
+      }
+
+      setIsProviderDataLoading(true);
+      setProviderDataError(null);
+
+      try {
+        // Map the provider name to match API specification
+        const mappedPlatform = mapProviderName(mediaData.provider);
+
+        const request: ProviderDataRequest = {
+          platform: mappedPlatform,
+          file_url: mediaData.url,
+          file_id: mediaData.file_id,
+        };
+
+        console.log("Original provider:", mediaData.provider);
+        console.log("Mapped platform:", mappedPlatform);
+        console.log("Full request object:", request);
+        console.log("Request JSON:", JSON.stringify(request));
+        const response = await searchApi.getProviderData(request);
+
+        if (response.success && response.data) {
+          setFileData(response.data.data);
+          console.log("Provider data loaded successfully:", response.data.data);
+        } else {
+          const errorMessage =
+            response.error?.message || "Failed to load enhanced details";
+          setProviderDataError(errorMessage);
+          console.error("Provider data error:", errorMessage);
+        }
+      } catch (err) {
+        console.error("Error fetching provider data:", err);
+        const errorMessage =
+          err instanceof Error ? err.message : "An unexpected error occurred";
+        setProviderDataError(errorMessage);
+      } finally {
+        setIsProviderDataLoading(false);
+      }
+    },
+    [mapProviderName]
+  );
+
+  // Handle media download
+  const handleDownload = useCallback(async () => {
+    if (!imageData) return;
+
+    setIsDownloading(true);
+    try {
+      // Use the mapped provider name for consistency
+      const mappedProvider = mapProviderName(imageData.provider);
+
+      const response = await searchApi.submitMediaDownload({
+        link: imageData.url,
+        id: imageData.file_id,
+        website: mappedProvider,
+      });
+
+      if (response.success) {
+        console.log("Download request submitted successfully:", response.data);
+        // You could show a success notification here
+      } else {
+        console.error("Download failed:", response.error?.message);
+        // You could show an error notification here
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+    } finally {
+      setIsDownloading(false);
+    }
+  }, [imageData, mapProviderName]);
+
+  // Get file type icon
+  const getFileTypeIcon = useCallback((fileType: string) => {
+    if (fileType.toLowerCase().includes("video")) {
+      return <VideoIcon className="w-4 h-4" />;
+    }
+    if (
+      fileType.toLowerCase().includes("image") ||
+      fileType.toLowerCase().includes("photo")
+    ) {
+      return <ImageIcon className="w-4 h-4" />;
+    }
+    return <FileIcon className="w-4 h-4" />;
+  }, []);
+
   // Get image data from URL parameters or localStorage
   useEffect(() => {
     const imageId = params.id as string;
@@ -58,6 +193,9 @@ export default function ImageDetailsPage() {
         const parsedData = JSON.parse(storedImageData);
         setImageData(parsedData);
         setIsLoading(false);
+
+        // Fetch enhanced provider data
+        fetchProviderData(parsedData);
       } catch (error) {
         console.error("Failed to parse stored image data:", error);
         setIsLoading(false);
@@ -66,7 +204,7 @@ export default function ImageDetailsPage() {
       // If no stored data, redirect back to search
       router.push("/search");
     }
-  }, [params.id, router]);
+  }, [params.id, router, fetchProviderData]);
 
   // Check if URL is a valid video URL with enhanced detection
   const isValidVideoUrl = useCallback((url: string): boolean => {
@@ -646,17 +784,20 @@ export default function ImageDetailsPage() {
                   </div>
                 </div>
 
-                {/* Image Details */}
+                {/* Basic Details */}
                 <div className="p-4 space-y-4 border-b border-border">
-                  <h3 className="font-semibold text-foreground">Details</h3>
+                  <h3 className="font-semibold text-foreground">
+                    Basic Details
+                  </h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        {getFileTypeIcon(imageData.file_type)}
                         {t("search.filters.fileType")}
                       </span>
-                      <span className="text-sm font-medium text-foreground">
+                      <Badge variant="secondary">
                         {imageData.file_type.toUpperCase()}
-                      </span>
+                      </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-muted-foreground">
@@ -664,6 +805,12 @@ export default function ImageDetailsPage() {
                       </span>
                       <span className="text-sm font-medium text-foreground">
                         {imageData.provider}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">ID</span>
+                      <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                        {imageData.file_id}
                       </span>
                     </div>
                     {imageData.width && imageData.height && (
@@ -687,6 +834,326 @@ export default function ImageDetailsPage() {
                   </div>
                 </div>
 
+                {/* Enhanced Provider Data Loading */}
+                {isProviderDataLoading && (
+                  <div className="p-4 border-b border-border">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <h3 className="font-semibold text-foreground">
+                        Loading Enhanced Details...
+                      </h3>
+                    </div>
+                    <div className="space-y-4">
+                      {/* Keywords Loading */}
+                      <div>
+                        <Skeleton className="h-4 w-24 mb-2" />
+                        <div className="flex flex-wrap gap-1">
+                          {Array.from({ length: 6 }).map((_, i) => (
+                            <Skeleton
+                              key={i}
+                              className="h-6 w-16 rounded-full"
+                            />
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* High Resolution Loading */}
+                      <div>
+                        <Skeleton className="h-4 w-32 mb-2" />
+                        <div className="bg-muted/30 rounded-lg p-3 space-y-2">
+                          <Skeleton className="h-3 w-full" />
+                          <Skeleton className="h-3 w-2/3" />
+                          <Skeleton className="h-8 w-full" />
+                        </div>
+                      </div>
+
+                      {/* Related Files Loading */}
+                      <div>
+                        <Skeleton className="h-4 w-28 mb-2" />
+                        <div className="space-y-2">
+                          {Array.from({ length: 3 }).map((_, i) => (
+                            <div
+                              key={i}
+                              className="flex gap-3 p-3 border rounded-lg"
+                            >
+                              <Skeleton className="w-16 h-16 rounded-lg" />
+                              <div className="flex-1 space-y-2">
+                                <Skeleton className="h-3 w-full" />
+                                <Skeleton className="h-3 w-2/3" />
+                                <Skeleton className="h-6 w-20" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {providerDataError && (
+                  <div className="p-4 border-b border-border">
+                    <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
+                      <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
+                        <div className="flex-1">
+                          <h4 className="text-sm font-medium text-destructive mb-1">
+                            Failed to Load Enhanced Details
+                          </h4>
+                          <p className="text-sm text-destructive/80">
+                            {providerDataError}
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-2 h-8 text-xs border-destructive/20 hover:bg-destructive/5"
+                            onClick={() =>
+                              imageData && fetchProviderData(imageData)
+                            }
+                          >
+                            Try Again
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {fileData && (
+                  <>
+                    {/* Enhanced File Information */}
+                    <div className="p-4 border-b border-border">
+                      <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Tag className="w-4 h-4" />
+                        Enhanced Information
+                      </h3>
+                      <div className="bg-primary/5 rounded-lg p-3 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">
+                            Title:
+                          </span>
+                          <span className="text-sm font-medium text-right max-w-[60%]">
+                            {fileData.title}
+                          </span>
+                        </div>
+
+                        {fileData.keywords && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">
+                              Keywords Available:
+                            </span>
+                            <Badge variant="secondary" className="text-xs">
+                              {fileData.keywords.length} tags
+                            </Badge>
+                          </div>
+                        )}
+
+                        {fileData.high_resolution && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">
+                              High-Res Available:
+                            </span>
+                            <Badge
+                              variant="default"
+                              className="text-xs bg-green-600"
+                            >
+                              ✓ Available
+                            </Badge>
+                          </div>
+                        )}
+
+                        {fileData.related && fileData.related.length > 0 && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">
+                              Related Files:
+                            </span>
+                            <Badge variant="outline" className="text-xs">
+                              {fileData.related.length} files
+                            </Badge>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Keywords */}
+                    {fileData.keywords && fileData.keywords.length > 0 && (
+                      <div className="p-4 border-b border-border">
+                        <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                          <Tag className="w-4 h-4" />
+                          Keywords ({fileData.keywords.length})
+                        </h3>
+                        <div className="flex flex-wrap gap-1.5">
+                          {fileData.keywords.map((keyword, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="text-xs px-2 py-1 hover:bg-primary/10 transition-colors cursor-pointer"
+                            >
+                              {keyword}
+                            </Badge>
+                          ))}
+                        </div>
+                        {fileData.keywords.length > 10 && (
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Showing all {fileData.keywords.length} keywords
+                          </p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* High Resolution Info */}
+                    {fileData.high_resolution && (
+                      <div className="p-4 border-b border-border">
+                        <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                          <ImageIcon className="w-4 h-4" />
+                          High Resolution Details
+                        </h3>
+                        <div className="bg-muted/30 rounded-lg p-3 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">
+                              Dimensions:
+                            </span>
+                            <Badge variant="outline" className="font-mono">
+                              {fileData.high_resolution.width} ×{" "}
+                              {fileData.high_resolution.height}
+                            </Badge>
+                          </div>
+
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">
+                              Aspect Ratio:
+                            </span>
+                            <span className="text-sm font-medium">
+                              {(
+                                fileData.high_resolution.width /
+                                fileData.high_resolution.height
+                              ).toFixed(2)}
+                              :1
+                            </span>
+                          </div>
+
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">
+                              Total Pixels:
+                            </span>
+                            <span className="text-sm font-medium">
+                              {(
+                                (fileData.high_resolution.width *
+                                  fileData.high_resolution.height) /
+                                1000000
+                              ).toFixed(1)}
+                              MP
+                            </span>
+                          </div>
+
+                          <div className="pt-2 border-t border-border/50">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full"
+                              asChild
+                            >
+                              <a
+                                href={fileData.high_resolution.src}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center justify-center gap-2"
+                              >
+                                <ExternalLink className="w-4 h-4" />
+                                View High Resolution Image
+                              </a>
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Related Files */}
+                    {fileData.related && fileData.related.length > 0 && (
+                      <div className="p-4 border-b border-border">
+                        <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                          <FileIcon className="w-4 h-4" />
+                          Related Files ({fileData.related.length})
+                        </h3>
+                        <div className="space-y-3">
+                          {fileData.related
+                            .slice(0, 5)
+                            .map((related, index) => (
+                              <div
+                                key={index}
+                                className="group flex gap-3 p-3 border rounded-lg hover:bg-muted/30 hover:border-primary/20 transition-all duration-200"
+                              >
+                                <div className="relative w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
+                                  <img
+                                    src={related.preview.src}
+                                    alt={related.metadata.title}
+                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                                    onError={(e) => {
+                                      const target =
+                                        e.target as HTMLImageElement;
+                                      target.src = "/placeholder.png";
+                                    }}
+                                  />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium line-clamp-2 mb-1 group-hover:text-primary transition-colors">
+                                    {related.metadata.title}
+                                  </p>
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Badge
+                                      variant="outline"
+                                      className="text-xs"
+                                    >
+                                      ID: {related.file_id}
+                                    </Badge>
+                                    {related.preview.width &&
+                                      related.preview.height && (
+                                        <Badge
+                                          variant="secondary"
+                                          className="text-xs"
+                                        >
+                                          {related.preview.width} ×{" "}
+                                          {related.preview.height}
+                                        </Badge>
+                                      )}
+                                  </div>
+                                  {related.metadata.description && (
+                                    <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
+                                      {related.metadata.description}
+                                    </p>
+                                  )}
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 text-xs"
+                                    asChild
+                                  >
+                                    <a
+                                      href={related.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-1"
+                                    >
+                                      <ExternalLink className="w-3 h-3" />
+                                      View Details
+                                    </a>
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          {fileData.related.length > 5 && (
+                            <div className="text-center pt-2">
+                              <p className="text-xs text-muted-foreground">
+                                Showing 5 of {fileData.related.length} related
+                                files
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
                 {/* Action Buttons */}
                 <div className="p-4 space-y-3">
                   <h3 className="font-semibold text-foreground mb-4">
@@ -694,9 +1161,19 @@ export default function ImageDetailsPage() {
                   </h3>
 
                   {/* Download Button */}
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white">
-                    <Download className="w-4 h-4" />
-                    {t("search.actions.download")}
+                  <Button
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    onClick={handleDownload}
+                    disabled={isDownloading}
+                  >
+                    {isDownloading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
+                    {isDownloading
+                      ? "Downloading..."
+                      : t("search.actions.download")}
                   </Button>
 
                   {/* View Similar Button */}
@@ -717,10 +1194,16 @@ export default function ImageDetailsPage() {
                       : t("search.imageDialog.viewFullImage")}
                   </Button>
 
-                  {/* Add to Cart Button */}
-                  <Button variant="outline" className="w-full">
-                    <ShoppingCart className="w-4 h-4" />
-                    {t("search.imageDialog.addToCart")}
+                  {/* External Link Button */}
+                  <Button variant="outline" className="w-full" asChild>
+                    <a
+                      href={imageData.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                      View on {imageData.provider}
+                    </a>
                   </Button>
                 </div>
               </div>

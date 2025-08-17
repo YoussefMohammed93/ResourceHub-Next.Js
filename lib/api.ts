@@ -72,6 +72,26 @@ const searchApiClient = axios.create({
   },
 });
 
+// Create a separate axios instance for public API calls (no authentication required)
+const publicApiClient = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 30000, // 30 seconds timeout
+  withCredentials: false, // Don't include cookies for public requests
+  headers: {
+    "Content-Type": "application/json",
+    // Add CORS headers for production
+    ...(process.env.NODE_ENV === "production" && {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+      "Access-Control-Allow-Headers":
+        "Content-Type, Authorization, X-Access-Token",
+    }),
+  },
+});
+
+// Public API client doesn't have authentication interceptors
+// This prevents automatic redirects to login page for public endpoints
+
 // Add request interceptor to include authorization token
 apiClient.interceptors.request.use(
   (config) => {
@@ -368,6 +388,54 @@ async function apiRequest<T>(
       });
       console.error("API request failed:", error);
       console.error("Parsed API Error Response:", error.response?.data);
+
+      if (error.response?.data) {
+        return error.response.data;
+      }
+
+      return {
+        success: false,
+        error: {
+          id: error.code || "network_error",
+          message: error.message || "Network error occurred. Please try again.",
+        },
+      };
+    }
+
+    return {
+      success: false,
+      error: {
+        id: "unknown_error",
+        message: "An unexpected error occurred. Please try again.",
+      },
+    };
+  }
+}
+
+// Public API request function (no authentication, no automatic redirects)
+async function publicApiRequest<T>(
+  endpoint: string,
+  method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
+  data?: Record<string, unknown>
+): Promise<ApiResponse<T>> {
+  try {
+    const response = await publicApiClient.request({
+      url: endpoint,
+      method,
+      data,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Public API request failed:", error);
+
+    // Handle axios errors
+    if (axios.isAxiosError(error)) {
+      console.error("Public API Response Error:", {
+        status: error.response?.status,
+        data: error.response?.data,
+        url: error.config?.url,
+      });
 
       if (error.response?.data) {
         return error.response.data;
@@ -1299,8 +1367,85 @@ export const pricingApi = {
   },
 };
 
+// Public API functions (no authentication required, no automatic redirects)
+export const publicApi = {
+  // Get all pricing plans (public access)
+  async getPricingPlans(): Promise<ApiResponse<GetPricingPlansResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Public Pricing API] Using mock pricing plans data");
+      return mockApiResponses.getPricingPlans();
+    }
+
+    return publicApiRequest<GetPricingPlansResponse>("/v1/pricing/get", "GET");
+  },
+
+  // Get all sites (public access)
+  async getSites(): Promise<ApiResponse<SitesResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      console.log("[Public Site API] Using mock sites data");
+      return mockApiResponses.getSites();
+    }
+
+    return publicApiRequest<SitesResponse>("/v1/sites/get", "GET");
+  },
+};
+
 // Request deduplication for search API
 const ongoingSearchRequests = new Map<string, Promise<SearchApiResponse>>();
+
+// Provider Data API Types (from search-providers.yaml)
+export interface ProviderDataRequest {
+  platform: string;
+  file_url: string;
+  file_id: string;
+}
+
+export interface ImageDetails {
+  src: string;
+  width: number;
+  height: number;
+}
+
+export interface FileMetadata {
+  title: string;
+  description: string | null;
+}
+
+export interface RelatedFile {
+  url: string;
+  file_id: string;
+  metadata: FileMetadata;
+  preview: ImageDetails;
+}
+
+export interface FileData {
+  title: string;
+  high_resolution: ImageDetails;
+  keywords: string[];
+  related: RelatedFile[];
+}
+
+export interface ProviderDataResponse {
+  success: boolean;
+  data: FileData;
+}
+
+export interface ProviderErrorResponse {
+  success: boolean;
+  error: {
+    id: number | string;
+    message: string;
+  };
+}
+
+// Media Download Request (for POST to v1/providers/search)
+export interface MediaDownloadRequest {
+  link: string;
+  id: string;
+  website: string;
+}
 
 // Search API functions
 export const searchApi = {
@@ -1341,10 +1486,10 @@ export const searchApi = {
       try {
         console.log("Making search API request for:", requestKey);
 
-        // Determine the endpoint based on environment
+        // Determine the endpoint based on environment - Updated to use new providers/search endpoint
         const endpoint =
           process.env.NODE_ENV === "production"
-            ? "/v1/search" // Direct API call in production
+            ? "/v1/providers/search" // Direct API call in production - NEW ENDPOINT
             : "/api/search"; // Use proxy in development
 
         const response = await searchApiClient.get(endpoint, {
@@ -1418,6 +1563,210 @@ export const searchApi = {
           id: "unknown_error",
           message:
             "An unexpected error occurred during search. Please try again.",
+        },
+      };
+    }
+  },
+
+  // Get detailed provider data for a specific file
+  async getProviderData(
+    request: ProviderDataRequest
+  ): Promise<ApiResponse<ProviderDataResponse>> {
+    const { platform, file_url, file_id } = request;
+
+    // Validate required fields
+    if (!platform) {
+      return {
+        success: false,
+        error: {
+          id: 0,
+          message: "Platform is required.",
+        },
+      };
+    }
+
+    if (!file_url) {
+      return {
+        success: false,
+        error: {
+          id: 1,
+          message: "File URL is required.",
+        },
+      };
+    }
+
+    if (!file_id) {
+      return {
+        success: false,
+        error: {
+          id: 2,
+          message: "File ID is required.",
+        },
+      };
+    }
+
+    // Validate platform is supported
+    const supportedPlatforms = [
+      "AdobeStock",
+      "CreativeFabrica",
+      "Envato",
+      "Freepik",
+      "MotionElements",
+      "PngTree",
+      "Shutterstock",
+      "Storyblocks",
+      "Vecteezy",
+    ];
+
+    if (!supportedPlatforms.includes(platform)) {
+      return {
+        success: false,
+        error: {
+          id: 3,
+          message: "Platform does not exist.",
+        },
+      };
+    }
+
+    try {
+      // Determine the endpoint based on environment
+      const endpoint =
+        process.env.NODE_ENV === "production"
+          ? "/v1/providers/data" // Direct API call in production
+          : "/api/providers/data"; // Use proxy in development
+
+      const response = await searchApiClient.post(endpoint, {
+        platform,
+        file_url,
+        file_id,
+      });
+
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("Provider data API error:", error);
+
+      // Handle axios errors
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status;
+        const errorData = error.response?.data;
+
+        if (status === 400) {
+          return {
+            success: false,
+            error: {
+              id: errorData?.error?.id || "bad_request",
+              message: errorData?.error?.message || "Bad request",
+            },
+          };
+        }
+
+        if (status === 500) {
+          return {
+            success: false,
+            error: {
+              id: "except",
+              message: "Internal processing error",
+            },
+          };
+        }
+
+        return {
+          success: false,
+          error: {
+            id: errorData?.error?.id || "provider_data_failed",
+            message:
+              errorData?.error?.message ||
+              error.message ||
+              "Failed to retrieve provider data",
+          },
+        };
+      }
+
+      return {
+        success: false,
+        error: {
+          id: "unknown_error",
+          message: "An unexpected error occurred",
+        },
+      };
+    }
+  },
+
+  // Submit media download request (POST with link, id, website)
+  async submitMediaDownload(
+    request: MediaDownloadRequest
+  ): Promise<ApiResponse<unknown>> {
+    const { link, id, website } = request;
+
+    // Validate required fields
+    if (!link) {
+      return {
+        success: false,
+        error: {
+          id: "missing_link",
+          message: "File link is required",
+        },
+      };
+    }
+
+    if (!id) {
+      return {
+        success: false,
+        error: {
+          id: "missing_id",
+          message: "File ID is required",
+        },
+      };
+    }
+
+    if (!website) {
+      return {
+        success: false,
+        error: {
+          id: "missing_website",
+          message: "Website name is required",
+        },
+      };
+    }
+
+    try {
+      // Determine the endpoint based on environment
+      const endpoint =
+        process.env.NODE_ENV === "production"
+          ? "/v1/providers/search" // Direct API call in production
+          : "/api/providers/search"; // Use proxy in development
+
+      const response = await searchApiClient.post(endpoint, {
+        link,
+        id,
+        website,
+      });
+
+      return { success: true, data: response.data };
+    } catch (error) {
+      console.error("Media download API error:", error);
+
+      // Handle axios errors
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data;
+
+        return {
+          success: false,
+          error: {
+            id: errorData?.error || "download_failed",
+            message:
+              errorData?.message ||
+              error.message ||
+              "Failed to submit download request",
+          },
+        };
+      }
+
+      return {
+        success: false,
+        error: {
+          id: "unknown_error",
+          message: "An unexpected error occurred",
         },
       };
     }

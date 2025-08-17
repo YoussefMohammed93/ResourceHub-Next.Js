@@ -472,9 +472,39 @@ function SearchContent() {
     } catch (error) {
       console.error(`Search attempt ${retryCount + 1} failed:`, error);
 
+      // Enhanced error handling with specific error types
+      let errorMessage = "Search failed";
+
+      if (error instanceof Error) {
+        // Handle specific error types
+        if (
+          error.message.includes("timeout") ||
+          error.message.includes("ECONNABORTED")
+        ) {
+          errorMessage = "Search request timed out. Please try again.";
+        } else if (
+          error.message.includes("rate_limit") ||
+          error.message.includes("429")
+        ) {
+          errorMessage =
+            "Too many search requests. Please wait before trying again.";
+        } else if (
+          error.message.includes("network") ||
+          error.message.includes("fetch")
+        ) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+
       // Retry logic - retry up to 2 times with exponential backoff
       if (retryCount < 2) {
         const delay = Math.pow(2, retryCount) * 1000; // 1s, 2s, 4s
+        console.log(
+          `Retrying search in ${delay}ms (attempt ${retryCount + 2}/3)`
+        );
         setTimeout(() => {
           performSearch(query, page, retryCount + 1);
         }, delay);
@@ -482,8 +512,6 @@ function SearchContent() {
       }
 
       // Final failure after retries
-      const errorMessage =
-        error instanceof Error ? error.message : "Search failed";
       setSearchError(
         `${errorMessage}${retryCount > 0 ? ` (after ${retryCount + 1} attempts)` : ""}`
       );
@@ -673,8 +701,77 @@ function SearchContent() {
     // Store image data in localStorage for the details page
     localStorage.setItem(`image_${result.id}`, JSON.stringify(result));
 
-    // Navigate to the image details page
+    // Navigate to the media details page
     window.location.href = `/media/${result.id}`;
+  };
+
+  // Handle media download using the new API
+  const handleMediaDownload = async (
+    link: string,
+    id: string,
+    website: string
+  ) => {
+    try {
+      // Validate inputs
+      if (!link || !id || !website) {
+        console.error("Missing required download parameters:", {
+          link,
+          id,
+          website,
+        });
+        return;
+      }
+
+      console.log("Submitting download request:", { link, id, website });
+
+      const response = await searchApi.submitMediaDownload({
+        link,
+        id,
+        website,
+      });
+
+      if (response.success) {
+        // Handle successful download response
+        console.log("Download request submitted successfully:", response.data);
+        // In a real app, you might want to show a success notification
+        // or redirect to a download page
+      } else {
+        console.error("Download failed:", response.error?.message);
+        // Handle specific error cases
+        const errorId = response.error?.id;
+        let errorMessage = response.error?.message || "Download failed";
+
+        switch (errorId) {
+          case "missing_link":
+            errorMessage = "File link is required for download";
+            break;
+          case "missing_id":
+            errorMessage = "File ID is required for download";
+            break;
+          case "missing_website":
+            errorMessage = "Website name is required for download";
+            break;
+          case "rate_limit":
+            errorMessage =
+              "Too many download requests. Please wait before trying again.";
+            break;
+          case "timeout":
+            errorMessage = "Download request timed out. Please try again.";
+            break;
+          default:
+            errorMessage =
+              response.error?.message || "Download failed. Please try again.";
+        }
+
+        console.error("Download error:", errorMessage);
+      }
+    } catch (error) {
+      console.error("Download error:", error);
+      // Handle network or unexpected errors
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      console.error("Unexpected download error:", errorMessage);
+    }
   };
 
   // Smooth scroll to top of results
@@ -2054,6 +2151,14 @@ function SearchContent() {
                             <Button
                               size="sm"
                               className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-primary/90 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent opening modal
+                                handleMediaDownload(
+                                  result.url,
+                                  result.file_id,
+                                  result.provider
+                                );
+                              }}
                             >
                               <Download className="w-4 h-4" />
                               {t("search.actions.download")}
@@ -2271,6 +2376,14 @@ function SearchContent() {
                                     <Button
                                       size="sm"
                                       className={`absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-primary hover:bg-primary/90 transition-all duration-300 ${hoveredImage === result.id ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2"}`}
+                                      onClick={(e) => {
+                                        e.stopPropagation(); // Prevent opening modal
+                                        handleMediaDownload(
+                                          result.url,
+                                          result.file_id,
+                                          result.provider
+                                        );
+                                      }}
                                     >
                                       <Download className="w-4 h-4" />
                                       {t("search.actions.download")}
