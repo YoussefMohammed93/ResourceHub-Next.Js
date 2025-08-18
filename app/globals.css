@@ -50,6 +50,7 @@ section[id] {
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --breakpoint-3xl: 1600px;
 }
 
 :root {
@@ -316,4 +317,15 @@ section[id] {
 
 .dir-rtl {
   direction: rtl;
+}
+
+/* Custom 1600px+ breakpoint styles for related files grid */
+@media (min-width: 1600px) {
+  .related-files-grid {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+  .media-page,
+  .media-header {
+    max-width: 1650px !important;
+  }
 }

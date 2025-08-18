@@ -407,7 +407,7 @@ export default function ImageDetailsPage() {
         className={`min-h-screen bg-background font-sans ${isRTL ? "font-tajawal" : ""}`}
       >
         <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="container mx-auto max-w-7xl px-4 sm:px-5">
+          <div className="media-header mx-auto max-w-7xl px-4 sm:px-5">
             <div className="flex items-center justify-between h-16">
               <div
                 className={`flex items-center gap-1 sm:gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
@@ -621,15 +621,15 @@ export default function ImageDetailsPage() {
                     <Skeleton className="h-4 w-64 mx-auto" />
                   </div>
 
-                  {/* Responsive grid for related files: 1 col mobile, 2 cols tablet, 4 cols desktop */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {/* Responsive grid for related files: 1 col mobile, 2-3 cols tablet, 4 cols desktop, 6 cols ultra-wide */}
+                  <div className="related-files-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                     {Array.from({ length: 6 }).map((_, i) => (
                       <div
                         key={i}
-                        className="bg-card dark:bg-card/50 border border-primary/50 dark:border-primary/20 rounded-xl overflow-hidden shadow-sm"
+                        className="bg-card rounded-lg overflow-hidden border border-border shadow-sm"
                       >
                         <Skeleton className="w-full aspect-video" />
-                        <div className="p-4 space-y-2">
+                        <div className="p-3 space-y-2">
                           <Skeleton className="h-4 w-full" />
                           <div className="flex gap-2">
                             <Skeleton className="h-5 w-16 rounded-full" />
@@ -697,15 +697,15 @@ export default function ImageDetailsPage() {
                       <Skeleton className="h-4 w-64 mx-auto" />
                     </div>
 
-                    {/* Responsive grid for related files: 1 col mobile, 2 cols tablet, 4 cols desktop */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {/* Responsive grid for related files: 1 col mobile, 2-3 cols tablet, 4 cols desktop, 6 cols ultra-wide */}
+                    <div className="related-files-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}
-                          className="bg-card dark:bg-card/50 border border-primary/50 dark:border-primary/20 rounded-xl overflow-hidden shadow-sm"
+                          className="bg-card rounded-lg overflow-hidden border border-border shadow-sm"
                         >
                           <Skeleton className="w-full aspect-video" />
-                          <div className="p-4 space-y-2">
+                          <div className="p-3 space-y-2">
                             <Skeleton className="h-4 w-full" />
                             <div className="flex gap-2">
                               <Skeleton className="h-5 w-16 rounded-full" />
@@ -810,7 +810,7 @@ export default function ImageDetailsPage() {
         className={`min-h-screen bg-background font-sans ${isRTL ? "font-tajawal" : ""}`}
       >
         <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="container mx-auto max-w-7xl px-4 sm:px-5">
+          <div className="media-header mx-auto max-w-7xl px-4 sm:px-5">
             <div className="flex items-center justify-between h-16">
               <div
                 className={`flex items-center gap-1 sm:gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
@@ -855,7 +855,7 @@ export default function ImageDetailsPage() {
     >
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="container mx-auto max-w-7xl px-4 sm:px-5">
+        <div className="media-header mx-auto max-w-7xl px-4 sm:px-5">
           <div className="flex items-center justify-between h-16">
             <div
               className={`flex items-center gap-1 sm:gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
@@ -1073,7 +1073,7 @@ export default function ImageDetailsPage() {
           </div>
         </div>
 
-        <main className="container mx-auto max-w-7xl px-4 sm:px-5 py-6 relative z-10">
+        <main className="mx-auto max-w-7xl media-page px-4 sm:px-5 py-6 relative z-10">
           {/* Back Button */}
           <div className="mb-6">
             <Button

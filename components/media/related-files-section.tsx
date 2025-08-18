@@ -59,8 +59,8 @@ export function RelatedFilesSection({
         </p>
       </div>
 
-      {/* Responsive grid for related files: 1 col mobile, 2 cols tablet, 3 cols large, 4 cols desktop */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {/* Responsive grid for related files: 1 col mobile, 2-3 cols tablet, 4 cols desktop, 6 cols ultra-wide (>1600px) */}
+      <div className="related-files-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         {fileData.related.map((related, index) => (
           <RelatedFilesCard
             key={`${related.file_id}-${index}`}

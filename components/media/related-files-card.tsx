@@ -67,7 +67,7 @@ export function RelatedFilesCard({
   return (
     <div
       key={index}
-      className="group bg-card dark:bg-card/50 border border-primary/50 dark:border-primary/20 rounded-xl overflow-hidden hover:border-primary/70 hover:shadow-sm transition-all duration-300 cursor-pointer"
+      className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 shadow-sm transition-all duration-300 cursor-pointer"
       onClick={handleClick}
     >
       {/* Media Preview */}
@@ -141,8 +141,8 @@ export function RelatedFilesCard({
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <h4 className="font-medium text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+      <div className="p-3">
+        <h4 className="font-medium text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors text-sm">
           {related.metadata.title}
         </h4>
         <div className="flex items-center gap-2 mb-2">
