@@ -6,8 +6,18 @@ import {
   X,
   Download,
   Eye,
-  Camera,
   ArrowLeft,
+  Copy,
+  Info,
+  Palette,
+  Layers,
+  Monitor,
+  Hash,
+  Globe,
+  Shield,
+  Sparkles,
+  Star,
+  Crown,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -27,7 +37,7 @@ import {
   AlertCircle,
   ImageIcon,
   VideoIcon,
-  FileIcon,
+  Users,
 } from "lucide-react";
 import { searchApi, type ProviderDataRequest, type FileData } from "@/lib/api";
 
@@ -57,6 +67,7 @@ export default function ImageDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFullImageOpen, setIsFullImageOpen] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [showAllKeywords, setShowAllKeywords] = useState(false);
 
   // Enhanced provider data state
   const [fileData, setFileData] = useState<FileData | null>(null);
@@ -168,18 +179,44 @@ export default function ImageDetailsPage() {
     }
   }, [imageData, mapProviderName]);
 
-  // Get file type icon
-  const getFileTypeIcon = useCallback((fileType: string) => {
-    if (fileType.toLowerCase().includes("video")) {
-      return <VideoIcon className="w-4 h-4" />;
+  // Check if high resolution data is available and valid
+  const isHighResolutionAvailable = useCallback(
+    (fileData: FileData | null): boolean => {
+      if (!fileData || !fileData.high_resolution) {
+        return false;
+      }
+
+      const { src, width, height } = fileData.high_resolution;
+
+      // Convert width and height to numbers if they're strings
+      const numWidth = typeof width === "string" ? parseInt(width, 10) : width;
+      const numHeight =
+        typeof height === "string" ? parseInt(height, 10) : height;
+
+      // Check if all required properties exist and are valid
+      return !!(
+        src &&
+        typeof src === "string" &&
+        src.trim() !== "" &&
+        width &&
+        height &&
+        !isNaN(numWidth) &&
+        !isNaN(numHeight) &&
+        numWidth > 0 &&
+        numHeight > 0
+      );
+    },
+    []
+  );
+
+  // Format file type for display (first letter capitalized)
+  const formatFileType = useCallback((fileType: string): string => {
+    if (!fileType || typeof fileType !== "string") {
+      return "Unknown";
     }
-    if (
-      fileType.toLowerCase().includes("image") ||
-      fileType.toLowerCase().includes("photo")
-    ) {
-      return <ImageIcon className="w-4 h-4" />;
-    }
-    return <FileIcon className="w-4 h-4" />;
+
+    const trimmed = fileType.trim().toLowerCase();
+    return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
   }, []);
 
   // Get image data from URL parameters or localStorage
@@ -388,24 +425,380 @@ export default function ImageDetailsPage() {
             </div>
           </div>
         </header>
-        <main className="container mx-auto max-w-7xl px-4 sm:px-5 py-8">
-          <div className="animate-pulse">
-            <div className="h-8 bg-muted rounded w-1/4 mb-6"></div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="aspect-video bg-muted rounded-lg"></div>
-              <div className="space-y-4">
-                <div className="h-6 bg-muted rounded w-3/4"></div>
-                <div className="h-4 bg-muted rounded w-1/2"></div>
-                <div className="h-4 bg-muted rounded w-2/3"></div>
-                <div className="space-y-2">
-                  <div className="h-10 bg-muted rounded"></div>
-                  <div className="h-10 bg-muted rounded"></div>
-                  <div className="h-10 bg-muted rounded"></div>
+
+        {/* Main Content with Gradient Background */}
+        <div className="bg-gradient-to-br from-primary/20 via-muted/20 to-primary/20 min-h-screen relative overflow-hidden">
+          {/* Background Pattern */}
+          <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-80"></div>
+
+          {/* Floating Decorative Elements - Same as actual page */}
+          {/* Shape 1 - Grid Dots Pattern (Top Left) */}
+          <div
+            className={`absolute top-20 ${isRTL ? "right-5/12" : "left-5/12"} transform -translate-x-1/2 md:top-32`}
+          >
+            <svg
+              width="120"
+              height="120"
+              viewBox="0 0 120 120"
+              fill="none"
+              className="text-primary/30"
+            >
+              {Array.from({ length: 6 }, (_, row) =>
+                Array.from({ length: 6 }, (_, col) => (
+                  <circle
+                    key={`dot-${row}-${col}`}
+                    cx={10 + col * 18}
+                    cy={10 + row * 18}
+                    r="2"
+                    fill="currentColor"
+                    className="animate-pulse-slow"
+                    style={{
+                      animationDelay: `${(row + col) * 0.1}s`,
+                      opacity: Math.random() * 0.6 + 0.3,
+                    }}
+                  />
+                ))
+              )}
+            </svg>
+          </div>
+
+          {/* Shape 2 - Square Grid Pattern (Right Side) */}
+          <div
+            className={`hidden md:block absolute top-1/3 ${isRTL ? "left-4 md:left-8" : "right-4 md:right-8"}`}
+          >
+            <svg
+              width="100"
+              height="120"
+              viewBox="0 0 100 120"
+              fill="none"
+              className="text-primary/40"
+            >
+              {Array.from({ length: 8 }, (_, row) =>
+                Array.from({ length: 8 }, (_, col) => (
+                  <rect
+                    key={`square-${row}-${col}`}
+                    x={8 + col * 16}
+                    y={8 + row * 14}
+                    width="3"
+                    height="3"
+                    fill="currentColor"
+                    className="animate-pulse-slow"
+                    style={{
+                      animationDelay: `${(row + col) * 0.08}s`,
+                      opacity: Math.random() * 0.5 + 0.25,
+                    }}
+                  />
+                ))
+              )}
+            </svg>
+          </div>
+
+          <main className="container mx-auto max-w-7xl px-4 sm:px-5 py-6 relative z-10">
+            {/* Back Button Skeleton */}
+            <div className="mb-6">
+              <Skeleton className="h-10 w-32 rounded-lg" />
+            </div>
+
+            {/* Media Details Content Skeleton */}
+            <div className="space-y-6">
+              {/* Mobile Layout: Stack all components vertically */}
+              <div className="xl:hidden space-y-6">
+                {/* 1. Image/video card at the top */}
+                <div className="bg-card dark:bg-card/50 rounded-xl border border-primary/40 dark:border-primary/20 overflow-hidden">
+                  {/* Provider Header */}
+                  <div className="flex items-center justify-between p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 to-muted/10">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-12 h-12 rounded-lg" />
+                      <Skeleton className="h-4 w-24" />
+                    </div>
+                    <Skeleton className="h-6 w-16 rounded-full" />
+                  </div>
+
+                  {/* Media Display Area */}
+                  <div
+                    className="relative bg-gradient-to-br from-muted/20 to-muted/5 flex items-center justify-center"
+                    style={{ minHeight: "400px", maxHeight: "650px" }}
+                  >
+                    <Skeleton className="w-full h-full" />
+                  </div>
+                </div>
+
+                {/* 2. Name and download card below the media */}
+                <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                  <div className="p-6 space-y-4">
+                    <Skeleton className="h-8 w-full" />
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-4 w-24" />
+                      <Skeleton className="h-4 w-20" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <Skeleton className="h-10 w-full" />
+                      <Skeleton className="h-10 w-full" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3. Details card */}
+                <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Skeleton className="w-5 h-5" />
+                      <Skeleton className="h-6 w-20" />
+                    </div>
+                    <div className="space-y-4">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="flex justify-between items-center py-2 border-b border-border/30"
+                        >
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-6 w-16" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. High resolution view card */}
+                <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Skeleton className="w-4 h-4" />
+                      <Skeleton className="h-6 w-32" />
+                    </div>
+                    <div className="space-y-3">
+                      {Array.from({ length: 3 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="flex justify-between items-center"
+                        >
+                          <Skeleton className="h-4 w-20" />
+                          <Skeleton className="h-5 w-16" />
+                        </div>
+                      ))}
+                      <div className="pt-2 border-t border-border/50">
+                        <Skeleton className="h-8 w-full" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 5. Actions card */}
+                <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                  <div className="p-6">
+                    <Skeleton className="h-6 w-24 mb-4" />
+                    <div className="space-y-3">
+                      {Array.from({ length: 2 }).map((_, i) => (
+                        <Skeleton key={i} className="h-10 w-full" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 6. Keywords card */}
+                <div className="bg-card dark:bg-card/50 border border-border/50 rounded-xl overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Skeleton className="w-5 h-5" />
+                      <Skeleton className="h-6 w-24" />
+                      <Skeleton className="h-6 w-8 rounded-full ml-auto" />
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {Array.from({ length: 8 }).map((_, i) => (
+                        <Skeleton key={i} className="h-8 w-16 rounded-full" />
+                      ))}
+                    </div>
+                    <Skeleton className="h-8 w-24 mt-4" />
+                  </div>
+                </div>
+
+                {/* 7. Related files section at the bottom */}
+                <div className="space-y-6">
+                  {/* Section Header */}
+                  <div className="text-center">
+                    <Skeleton className="h-8 w-48 mx-auto mb-2" />
+                    <Skeleton className="h-4 w-64 mx-auto" />
+                  </div>
+
+                  {/* Two-column grid for related files */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Array.from({ length: 6 }).map((_, i) => (
+                      <div
+                        key={i}
+                        className="bg-card dark:bg-card/50 border border-border/50 rounded-xl overflow-hidden"
+                      >
+                        <Skeleton className="w-full aspect-video" />
+                        <div className="p-4 space-y-2">
+                          <Skeleton className="h-4 w-full" />
+                          <div className="flex gap-2">
+                            <Skeleton className="h-5 w-16 rounded-full" />
+                            <Skeleton className="h-5 w-20 rounded-full" />
+                          </div>
+                          <Skeleton className="h-3 w-full" />
+                          <Skeleton className="h-3 w-2/3" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Layout: Two-column grid */}
+              <div
+                className={`hidden xl:grid xl:grid-cols-5 gap-8 ${isRTL ? "xl:grid-flow-col-dense" : ""}`}
+              >
+                {/* Media Display Section */}
+                <div
+                  className={`xl:col-span-3 ${isRTL ? "xl:order-2" : ""} space-y-6`}
+                >
+                  {/* Main Media Card */}
+                  <div className="bg-card dark:bg-card/50 rounded-xl border border-border/50 overflow-hidden">
+                    {/* Provider Header */}
+                    <div className="flex items-center justify-between p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 to-muted/10">
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="w-14 h-14 rounded-lg" />
+                        <Skeleton className="h-4 w-24" />
+                      </div>
+                      <Skeleton className="h-6 w-16 rounded-full" />
+                    </div>
+
+                    {/* Media Display Area */}
+                    <div
+                      className="relative bg-gradient-to-br from-muted/20 to-muted/5 flex items-center justify-center"
+                      style={{ minHeight: "400px", maxHeight: "650px" }}
+                    >
+                      <Skeleton className="w-full h-full" />
+                    </div>
+                  </div>
+
+                  {/* Keywords Section */}
+                  <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Skeleton className="w-5 h-5" />
+                        <Skeleton className="h-6 w-24" />
+                        <Skeleton className="h-6 w-8 rounded-full ml-auto" />
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {Array.from({ length: 8 }).map((_, i) => (
+                          <Skeleton key={i} className="h-8 w-16 rounded-full" />
+                        ))}
+                      </div>
+                      <Skeleton className="h-8 w-24 mt-4" />
+                    </div>
+                  </div>
+
+                  {/* Related Files Section */}
+                  <div className="space-y-6">
+                    {/* Section Header */}
+                    <div className="text-center">
+                      <Skeleton className="h-8 w-48 mx-auto mb-2" />
+                      <Skeleton className="h-4 w-64 mx-auto" />
+                    </div>
+
+                    {/* Two-column grid for related files */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden"
+                        >
+                          <Skeleton className="w-full aspect-video" />
+                          <div className="p-4 space-y-2">
+                            <Skeleton className="h-4 w-full" />
+                            <div className="flex gap-2">
+                              <Skeleton className="h-5 w-16 rounded-full" />
+                              <Skeleton className="h-5 w-20 rounded-full" />
+                            </div>
+                            <Skeleton className="h-3 w-full" />
+                            <Skeleton className="h-3 w-2/3" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sidebar - Details and Actions */}
+                <div
+                  className={`xl:col-span-2 space-y-6 ${isRTL ? "xl:order-1" : ""}`}
+                >
+                  {/* Title and Basic Info Card */}
+                  <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                    <div className="p-6 space-y-4">
+                      <Skeleton className="h-8 w-full" />
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-4 w-20" />
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Skeleton className="h-10 w-full" />
+                        <Skeleton className="h-10 w-full" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Details Card */}
+                  <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Skeleton className="w-5 h-5" />
+                        <Skeleton className="h-6 w-20" />
+                      </div>
+                      <div className="space-y-4">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="flex justify-between items-center py-2 border-b border-border/30"
+                          >
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-6 w-16" />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* High Resolution Card */}
+                  <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Skeleton className="w-4 h-4" />
+                        <Skeleton className="h-6 w-32" />
+                      </div>
+                      <div className="space-y-3">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className="flex justify-between items-center"
+                          >
+                            <Skeleton className="h-4 w-20" />
+                            <Skeleton className="h-5 w-16" />
+                          </div>
+                        ))}
+                        <div className="pt-2 border-t border-border/50">
+                          <Skeleton className="h-8 w-full" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Additional Actions Card */}
+                  <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                    <div className="p-6">
+                      <Skeleton className="h-6 w-24 mb-4" />
+                      <div className="space-y-3">
+                        {Array.from({ length: 2 }).map((_, i) => (
+                          <Skeleton key={i} className="h-10 w-full" />
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        </main>
+          </main>
+        </div>
       </div>
     );
   }
@@ -438,15 +831,15 @@ export default function ImageDetailsPage() {
         <main className="container mx-auto max-w-7xl px-4 sm:px-5 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-foreground mb-4">
-              {`${isRTL ? "لم يتم العثور على الصورة" : "Image Not Found"}`}
+              {t("mediaDetail.notFound.title")}
             </h1>
             <p className="text-muted-foreground mb-6">
-              {`${isRTL ? "لم يتم العثور على الصورة المطلوبة." : " The requested image could not be found."}`}
+              {t("mediaDetail.notFound.description")}
             </p>
             <Link href="/search">
               <Button>
                 <ArrowLeft className="w-4 h-4" />
-                {`${isRTL ? "العودة إلى البحث" : "Back to Search"}`}
+                {t("mediaDetail.notFound.backButton")}
               </Button>
             </Link>
           </div>
@@ -481,15 +874,15 @@ export default function ImageDetailsPage() {
         </div>
       </header>
 
-      {/* Main Content with Background */}
-      <div className="relative min-h-screen bg-gradient-to-br from-primary/15 via-primary/5 to-primary/20 overflow-hidden">
+      {/* Main Content with Background Elements */}
+      <div className="bg-gradient-to-br from-primary/20 via-muted/20 to-primary/20 min-h-screen relative overflow-hidden">
         {/* Background Pattern */}
         <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-80"></div>
 
         {/* Floating Decorative Elements */}
         {/* Shape 1 - Grid Dots Pattern (Top Left) */}
         <div
-          className={`absolute top-0 ${isRTL ? "right-1/12" : "left-1/12"} transform -translate-x-1/2 md:top-32`}
+          className={`absolute top-20 ${isRTL ? "right-5/12" : "left-5/12"} transform -translate-x-1/2 md:top-32`}
         >
           <svg
             width="120"
@@ -578,90 +971,184 @@ export default function ImageDetailsPage() {
           </svg>
         </div>
 
-        <main className="relative z-10 container mx-auto max-w-7xl px-4 sm:px-5 py-6 sm:py-12 md:py-20">
+        {/* Shape 4 - Diamond Pattern (Top Right) */}
+        <div
+          className={`hidden lg:block absolute top-16 ${isRTL ? "left-1/4" : "right-1/4"}`}
+        >
+          <svg
+            width="60"
+            height="60"
+            viewBox="0 0 60 60"
+            fill="none"
+            className="text-primary/35"
+          >
+            {Array.from({ length: 4 }, (_, row) =>
+              Array.from({ length: 4 }, (_, col) => (
+                <polygon
+                  key={`diamond-${row}-${col}`}
+                  points={`${8 + col * 14},${5 + row * 14} ${11 + col * 14},${8 + row * 14} ${8 + col * 14},${11 + row * 14} ${5 + col * 14},${8 + row * 14}`}
+                  fill="currentColor"
+                  className="animate-pulse-slow"
+                  style={{
+                    animationDelay: `${(row + col) * 0.12}s`,
+                    opacity: Math.random() * 0.5 + 0.3,
+                  }}
+                />
+              ))
+            )}
+          </svg>
+        </div>
+
+        {/* Floating Icons for Visual Consistency */}
+        {/* Floating Icon 1 - Top Right */}
+        <div
+          className={`hidden md:block absolute top-8 ${isRTL ? "left-1/3 md:left-2/12" : "right-1/3 md:right-2/5"} md:top-12`}
+        >
+          <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center animate-float">
+            <Shield className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        {/* Floating Icon 2 - Top Left */}
+        <div
+          className={`hidden sm:block absolute top-32 ${isRTL ? "right-20" : "left-20"} animate-float-delayed`}
+        >
+          <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+            <Download className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        {/* Floating Icon 3 - Middle Right */}
+        <div
+          className={`hidden md:block absolute top-64 ${isRTL ? "left-32" : "right-32"} animate-float`}
+        >
+          <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Sparkles className="w-6 h-6 text-primary" />
+          </div>
+        </div>
+
+        {/* Floating Icon 4 - Bottom Left */}
+        <div
+          className={`hidden sm:block absolute bottom-40 ${isRTL ? "right-32" : "left-32"} animate-float-delayed`}
+        >
+          <div className="w-9 h-9 bg-primary/10 border border-primary/20 rounded-lg flex items-center justify-center">
+            <Eye className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        {/* Floating Icon 5 - Center Left */}
+        <div
+          className={`hidden lg:block absolute top-1/2 ${isRTL ? "right-16" : "left-16"} transform -translate-y-1/2 animate-float`}
+        >
+          <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+            <Star className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        {/* Floating Icon 6 - Top Right Corner */}
+        <div
+          className={`hidden md:block absolute top-40 ${isRTL ? "left-16" : "right-16"} animate-float-delayed`}
+        >
+          <div className="w-11 h-11 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+            <Crown className="w-5 h-5 text-primary" />
+          </div>
+        </div>
+
+        {/* Floating Icon 7 - Bottom Right */}
+        <div
+          className={`hidden sm:block absolute bottom-20 ${isRTL ? "left-1/4" : "right-1/4"} animate-float`}
+        >
+          <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+            <Users className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        {/* Floating Icon 8 - Bottom Center */}
+        <div
+          className={`hidden lg:block absolute bottom-32 ${isRTL ? "right-1/3" : "left-1/3"} animate-float-delayed`}
+        >
+          <div className="w-9 h-9 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+            <Palette className="w-4 h-4 text-primary" />
+          </div>
+        </div>
+
+        <main className="container mx-auto max-w-7xl px-4 sm:px-5 py-6 relative z-10">
           {/* Back Button */}
           <div className="mb-6">
             <Button
               variant="outline"
               onClick={() => router.back()}
-              className={`flex items-center gap-2 text-muted-foreground hover:text-foreground ${isRTL ? "flex-row-reverse" : ""}`}
+              className="flex items-center gap-2"
             >
-              <ArrowLeft className={`w-4 h-4 ${isRTL ? "rotate-180" : ""}`} />
-              {t("common.back")}
+              <ArrowLeft className="w-4 h-4" />
+              {t("mediaDetail.backToSearch")}
             </Button>
           </div>
 
-          {/* Image Details Content */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            {/* Left Side - Image Display (2 columns on desktop) */}
-            <div className="lg:col-span-2">
-              <div className="bg-card rounded-lg overflow-hidden border border-border">
+          {/* Media Details Content */}
+          <div className="space-y-6">
+            {/* Mobile Layout: Stack all components vertically */}
+            <div className="xl:hidden space-y-6">
+              {/* 1. Image/video card at the top */}
+              <div className="bg-card dark:bg-card/50 rounded-xl border border-primary/40 dark:border-primary/20 overflow-hidden">
                 {/* Provider Header */}
                 <div
-                  className={`flex items-center justify-between p-4 border-b border-border bg-card ${isRTL ? "flex-row-reverse" : ""}`}
+                  className={`flex items-center justify-between p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 to-muted/10 ${isRTL ? "flex-row-reverse" : ""}`}
                 >
                   <div
                     className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
                   >
-                    <div className="w-10 h-10 rounded flex items-center justify-center">
-                      <img
-                        src={imageData.providerIcon}
-                        alt={imageData.provider}
-                        width={32}
-                        height={32}
-                        className="w-8 h-8 object-contain rounded"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          const parent = target.parentElement;
-                          if (parent) {
-                            parent.innerHTML = `<span class="px-2 py-1 bg-primary/10 text-primary text-xs rounded-md font-medium">${imageData.provider}</span>`;
-                          }
-                        }}
-                      />
+                    <div className="relative">
+                      <div className="w-12 h-12 flex items-center justify-center">
+                        <img
+                          src={imageData.providerIcon}
+                          alt={imageData.provider}
+                          width={32}
+                          height={32}
+                          className="w-8 h-8 object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            const parent = target.parentElement;
+                            if (parent) {
+                              parent.innerHTML = `<Globe class="w-5 h-5 text-muted-foreground" />`;
+                            }
+                          }}
+                        />
+                      </div>
                     </div>
                     <div>
-                      <h2 className="font-semibold text-foreground">
+                      <h2 className="font-semibold text-foreground text-sm">
                         {imageData.provider}
                       </h2>
-                      <p className="text-sm text-muted-foreground">
-                        {imageData.file_type.toUpperCase()}
-                      </p>
                     </div>
                   </div>
-                  {isVideoItem() && (
-                    <div className="flex items-center gap-1 px-2 py-1 bg-red-500/10 text-red-600 rounded-md">
-                      <Camera className="w-3 h-3" />
-                      <span className="text-xs font-medium">Video</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="text-xs px-2 py-0.5">
+                      {formatFileType(imageData.file_type)}
+                    </Badge>
+                  </div>
                 </div>
 
                 {/* Media Display */}
-                <div className="relative bg-card min-h-[300px] sm:min-h-[400px] lg:min-h-[480px] flex items-center justify-center">
+                <div
+                  className="relative bg-gradient-to-br from-muted/20 to-muted/5 flex items-center justify-center"
+                  style={{ maxHeight: "650px", minHeight: "400px" }}
+                >
                   {/* Video Loading Indicator */}
                   {isVideoItem() && isVideoLoading && (
                     <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-10">
-                      <div className="flex items-center gap-2 bg-black/70 text-white px-4 py-2 rounded-lg">
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                        <span className="text-sm">Loading video...</span>
+                      <div className="flex items-center gap-3 bg-black/80 text-white px-6 py-3 rounded-xl shadow-lg">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm font-medium">
+                          {t("mediaDetail.videoPlayer.loadingVideo")}
+                        </span>
                       </div>
                     </div>
                   )}
 
-                  {/* Video Controls Info (only show for videos) */}
-                  {isVideoItem() && !isVideoLoading && (
-                    <div className="absolute top-4 left-4 bg-black/70 text-white px-3 py-2 rounded-lg text-xs z-10 opacity-0 hover:opacity-100 transition-opacity">
-                      <div className="space-y-1">
-                        <div>Space: Play/Pause</div>
-                        <div>←/→: Seek ±10s</div>
-                        <div>↑/↓: Volume</div>
-                        <div>M: Mute/Unmute</div>
-                      </div>
-                    </div>
-                  )}
                   {isVideoItem() && isValidVideoUrl(imageData.thumbnail) ? (
                     <video
-                      className="w-full h-full object-contain max-h-[70vh]"
+                      className="w-full h-full object-contain"
                       poster={imageData.poster || "/placeholder.png"}
                       controls
                       controlsList="nodownload"
@@ -671,14 +1158,9 @@ export default function ImageDetailsPage() {
                       preload="metadata"
                       crossOrigin="anonymous"
                       style={{
-                        width: imageData.width
-                          ? `${imageData.width}px`
-                          : "auto",
-                        height: imageData.height
-                          ? `${imageData.height}px`
-                          : "auto",
-                        maxWidth: "100%",
-                        maxHeight: "100%",
+                        maxHeight: "650px",
+                        width: "100%",
+                        height: "auto",
                       }}
                       onLoadedData={async (e) => {
                         const video = e.target as HTMLVideoElement;
@@ -709,7 +1191,7 @@ export default function ImageDetailsPage() {
                           fallbackImg.src = imageData.thumbnail;
                           fallbackImg.alt = imageData.title;
                           fallbackImg.className =
-                            "w-full h-full object-contain max-h-[70vh]";
+                            "w-full h-full object-contain max-h-[65vh]";
                           container.appendChild(fallbackImg);
                         }
                       }}
@@ -735,14 +1217,14 @@ export default function ImageDetailsPage() {
                       />
                       {/* Fallback message for browsers that don't support video */}
                       <p className="text-muted-foreground text-center p-4">
-                        Your browser does not support the video tag.
+                        {t("mediaDetail.videoPlayer.browserNotSupported")}
                         <a
                           href={imageData.thumbnail}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-primary hover:underline ml-1"
                         >
-                          Download the video
+                          {t("mediaDetail.videoPlayer.downloadVideo")}
                         </a>
                       </p>
                     </video>
@@ -750,17 +1232,13 @@ export default function ImageDetailsPage() {
                     <img
                       src={imageData.thumbnail}
                       alt={imageData.title}
-                      className="w-full h-full object-contain max-h-[70vh]"
+                      className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-300"
                       style={{
-                        width: imageData.width
-                          ? `${imageData.width}px`
-                          : "auto",
-                        height: imageData.height
-                          ? `${imageData.height}px`
-                          : "auto",
-                        maxWidth: "100%",
-                        maxHeight: "100%",
+                        maxHeight: "650px",
+                        width: "100%",
+                        height: "auto",
                       }}
+                      onClick={() => setIsFullImageOpen(true)}
                       onError={(e) => {
                         const img = e.target as HTMLImageElement;
                         img.src = "/placeholder.png";
@@ -769,67 +1247,944 @@ export default function ImageDetailsPage() {
                   )}
                 </div>
               </div>
-            </div>
 
-            {/* Right Side - Details and Actions (1 column on desktop) */}
-            <div className="lg:col-span-1">
-              <div className="bg-card border border-border rounded-lg overflow-hidden">
-                {/* Image Title */}
-                <div className="p-4 border-b border-border">
-                  <h1 className="text-xl font-bold text-foreground mb-2 line-clamp-2">
+              {/* 2. Name and download card below the media */}
+              <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                <div className="p-6">
+                  <h1 className="text-2xl font-bold text-foreground mb-3 leading-tight">
                     {imageData.title}
                   </h1>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span>ID: {imageData.file_id}</span>
+                  <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4">
+                    <div className="flex items-center gap-1">
+                      <Hash className="w-4 h-4" />
+                      <span className="font-mono">{imageData.file_id}</span>
+                    </div>
+                    {imageData.width && imageData.height && (
+                      <div className="flex items-center gap-1">
+                        <Monitor className="w-4 h-4" />
+                        <span>
+                          {imageData.width} × {imageData.height}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                      onClick={handleDownload}
+                      disabled={isDownloading}
+                    >
+                      {isDownloading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                      {isDownloading
+                        ? t("mediaDetail.actions.downloading")
+                        : t("mediaDetail.actions.download")}
+                    </Button>
+                    <Button onClick={() => setIsFullImageOpen(true)}>
+                      <Eye className="w-4 h-4" />
+                      {isVideoItem()
+                        ? t("mediaDetail.actions.viewFullVideo")
+                        : t("mediaDetail.actions.viewFullImage")}
+                    </Button>
                   </div>
                 </div>
+              </div>
 
-                {/* Basic Details */}
-                <div className="p-4 space-y-4 border-b border-border">
-                  <h3 className="font-semibold text-foreground">
-                    Basic Details
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
+              {/* 3. Details card */}
+              <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Info className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold text-foreground text-lg">
+                      {t("mediaDetail.details.title")}
+                    </h3>
+                  </div>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center py-2 border-b border-border/30">
                       <span className="text-sm text-muted-foreground flex items-center gap-2">
-                        {getFileTypeIcon(imageData.file_type)}
-                        {t("search.filters.fileType")}
+                        <Layers className="w-4 h-4" />
+                        {t("mediaDetail.details.fileType")}
                       </span>
-                      <Badge variant="secondary">
-                        {imageData.file_type.toUpperCase()}
+                      <Badge variant="secondary" className="font-medium">
+                        {formatFileType(imageData.file_type)}
                       </Badge>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {t("search.filters.providers")}
+                    <div className="flex justify-between items-center py-2 border-b border-border/30">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Globe className="w-4 h-4" />
+                        {t("mediaDetail.details.provider")}
                       </span>
                       <span className="text-sm font-medium text-foreground">
                         {imageData.provider}
                       </span>
                     </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">ID</span>
-                      <span className="text-xs font-mono bg-muted px-2 py-1 rounded">
+                    <div className="flex justify-between items-center py-2 border-b border-border/30">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Hash className="w-4 h-4" />
+                        {t("mediaDetail.details.mediaId")}
+                      </span>
+                      <span className="text-xs font-mono bg-muted px-2 py-1 rounded border">
                         {imageData.file_id}
                       </span>
                     </div>
                     {imageData.width && imageData.height && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("common.dimensions")}
+                      <div className="flex justify-between items-center py-2 border-b border-border/30">
+                        <span className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Monitor className="w-4 h-4" />
+                          {t("mediaDetail.details.dimensions")}
                         </span>
                         <span className="text-sm font-medium text-foreground">
                           {imageData.width} × {imageData.height}
                         </span>
                       </div>
                     )}
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-muted-foreground">
-                        {t("common.type")}
+                    <div className="flex justify-between items-center py-2">
+                      <span className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Palette className="w-4 h-4" />
+                        {t("mediaDetail.details.format")}
                       </span>
                       <span className="text-sm font-medium text-foreground">
                         {imageData.image_type}
                       </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4. High resolution view card */}
+              {fileData && isHighResolutionAvailable(fileData) && (
+                <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                  <div className="p-6">
+                    <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                      {isVideoItem() ? (
+                        <VideoIcon className="w-4 h-4 text-primary" />
+                      ) : (
+                        <ImageIcon className="w-4 h-4 text-primary" />
+                      )}
+                      {t("mediaDetail.highResolution.title")}
+                    </h3>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          {t("mediaDetail.highResolution.dimensions")}:
+                        </span>
+                        <Badge variant="outline" className="font-mono">
+                          {fileData?.high_resolution?.width} ×{" "}
+                          {fileData?.high_resolution?.height}
+                        </Badge>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          {t("mediaDetail.highResolution.aspectRatio")}:
+                        </span>
+                        <span className="text-sm font-medium">
+                          {fileData?.high_resolution?.width &&
+                          fileData?.high_resolution?.height
+                            ? (
+                                (typeof fileData.high_resolution.width ===
+                                "string"
+                                  ? parseInt(fileData.high_resolution.width, 10)
+                                  : fileData.high_resolution.width) /
+                                (typeof fileData.high_resolution.height ===
+                                "string"
+                                  ? parseInt(
+                                      fileData.high_resolution.height,
+                                      10
+                                    )
+                                  : fileData.high_resolution.height)
+                              ).toFixed(2)
+                            : "N/A"}
+                          :1
+                        </span>
+                      </div>
+
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">
+                          {t("mediaDetail.highResolution.totalPixels")}:
+                        </span>
+                        <span className="text-sm font-medium">
+                          {fileData?.high_resolution?.width &&
+                          fileData?.high_resolution?.height
+                            ? (
+                                ((typeof fileData.high_resolution.width ===
+                                "string"
+                                  ? parseInt(fileData.high_resolution.width, 10)
+                                  : fileData.high_resolution.width) *
+                                  (typeof fileData.high_resolution.height ===
+                                  "string"
+                                    ? parseInt(
+                                        fileData.high_resolution.height,
+                                        10
+                                      )
+                                    : fileData.high_resolution.height)) /
+                                1000000
+                              ).toFixed(1)
+                            : "N/A"}
+                          MP
+                        </span>
+                      </div>
+
+                      <div className="pt-2">
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={() => setIsFullImageOpen(true)}
+                        >
+                          <Eye className="w-4 h-4" />
+                          {isVideoItem()
+                            ? t("mediaDetail.highResolution.viewVideo")
+                            : t("mediaDetail.highResolution.viewImage")}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 5. Actions card */}
+              <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                <div className="p-6">
+                  <h3 className="font-semibold text-foreground text-lg mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                    {t("mediaDetail.actions.title")}
+                  </h3>
+                  <div className="space-y-3">
+                    {/* Copy Link Button */}
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        const pageUrl = window.location.href;
+                        navigator.clipboard.writeText(pageUrl).then(() => {
+                          import("sonner").then(({ toast }) => {
+                            toast.success(t("mediaDetail.copyLink.success"));
+                          });
+                        });
+                      }}
+                      className="w-full justify-start border-border/50 hover:bg-muted/50"
+                    >
+                      <Copy className="w-4 h-4" />
+                      {t("mediaDetail.actions.copyLink")}
+                    </Button>
+
+                    {/* External Link Button */}
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start border-border/50 hover:bg-muted/50"
+                      asChild
+                    >
+                      <a
+                        href={imageData.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                        {t("mediaDetail.actions.viewOnProvider", {
+                          provider: imageData.provider,
+                        })}
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 6. Keywords card */}
+              {fileData &&
+                fileData.keywords &&
+                fileData.keywords.length > 0 && (
+                  <div className="bg-card dark:bg-card/50 border border-border/50 rounded-xl overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-center justify-between gap-2 mb-4">
+                        <div className="flex items-center gap-2">
+                          <Tag className="w-5 h-5 text-primary" />
+                          <h3 className="font-semibold text-foreground text-lg">
+                            {t("mediaDetail.keywords.title")}
+                          </h3>
+                        </div>
+                        <Badge variant="outline">
+                          {fileData.keywords.length}
+                        </Badge>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {(showAllKeywords
+                          ? fileData.keywords
+                          : fileData.keywords.slice(0, 8)
+                        ).map((keyword, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="text-xs px-3 py-1.5 hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-border/30"
+                          >
+                            {keyword}
+                          </Badge>
+                        ))}
+                      </div>
+                      {fileData.keywords.length > 8 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAllKeywords(!showAllKeywords)}
+                          className="mt-4 text-primary hover:text-primary/80 hover:bg-primary/5"
+                        >
+                          {showAllKeywords
+                            ? t("mediaDetail.keywords.showLess")
+                            : t("mediaDetail.keywords.showMore")}
+                          <ArrowLeft
+                            className={`w-4 h-4 ml-2 transition-transform duration-200 ${showAllKeywords ? "rotate-90" : "-rotate-90"}`}
+                          />
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+              {/* 7. Related files section at the bottom */}
+              {fileData && fileData.related && fileData.related.length > 0 && (
+                <div>
+                  {/* Section Header */}
+                  <div className="text-center mb-6">
+                    <h3 className="text-2xl font-bold text-foreground mb-2">
+                      {t("mediaDetail.relatedFiles.title", "Related Files")}
+                    </h3>
+                    <p className="text-muted-foreground">
+                      {t(
+                        "mediaDetail.relatedFiles.description",
+                        "Discover similar content from the same provider"
+                      )}
+                    </p>
+                  </div>
+
+                  {/* Two-column grid for related files */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {fileData.related.slice(0, 6).map((related, index) => {
+                      // Create a mock SearchResult for navigation
+                      const relatedSearchResult = {
+                        id: related.file_id,
+                        title: related.metadata.title,
+                        thumbnail: related.preview.src,
+                        provider: imageData.provider,
+                        type: imageData.type,
+                        file_type: imageData.file_type,
+                        width: related.preview.width || null,
+                        height: related.preview.height || null,
+                        url: related.url,
+                        file_id: related.file_id,
+                        image_type: imageData.image_type,
+                        poster: related.preview.src,
+                        providerIcon: imageData.providerIcon,
+                      };
+
+                      // Check if this related item is a video
+                      const isRelatedVideo = isValidVideoUrl(
+                        related.preview.src
+                      );
+
+                      return (
+                        <div
+                          key={index}
+                          className="group bg-card dark:bg-card/50 border border-border/50 rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-300 cursor-pointer"
+                          onClick={() => {
+                            // Store the related file data and navigate
+                            localStorage.setItem(
+                              `image_${related.file_id}`,
+                              JSON.stringify(relatedSearchResult)
+                            );
+                            window.location.href = `/media/${related.file_id}`;
+                          }}
+                        >
+                          {/* Media Preview */}
+                          <div className="relative aspect-video bg-muted overflow-hidden">
+                            {isRelatedVideo ? (
+                              <>
+                                {/* Video with poster */}
+                                <video
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  poster={related.preview.src}
+                                  muted
+                                  playsInline
+                                  preload="metadata"
+                                  onError={(e) => {
+                                    // Fallback to image if video fails
+                                    const video = e.target as HTMLVideoElement;
+                                    const container = video.parentElement;
+                                    if (container) {
+                                      video.style.display = "none";
+                                      const fallbackImg =
+                                        document.createElement("img");
+                                      fallbackImg.src = related.preview.src;
+                                      fallbackImg.alt = related.metadata.title;
+                                      fallbackImg.className =
+                                        "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300";
+                                      fallbackImg.onerror = () => {
+                                        fallbackImg.src = "/placeholder.png";
+                                      };
+                                      container.appendChild(fallbackImg);
+                                    }
+                                  }}
+                                >
+                                  <source
+                                    src={related.preview.src}
+                                    type={getVideoMimeType(related.preview.src)}
+                                  />
+                                </video>
+
+                                {/* Video Play Icon Overlay */}
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors duration-300">
+                                  <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center group-hover:bg-black/80 transition-colors duration-300">
+                                    <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
+                                  </div>
+                                </div>
+
+                                {/* Video Badge */}
+                                <div className="absolute top-2 left-2">
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs bg-black/80 text-white border-none"
+                                  >
+                                    <VideoIcon className="w-3 h-3 mr-1" />
+                                    Video
+                                  </Badge>
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                {/* Regular Image */}
+                                <img
+                                  src={related.preview.src}
+                                  alt={related.metadata.title}
+                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.src = "/placeholder.png";
+                                  }}
+                                />
+                                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                              </>
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <div className="p-4">
+                            <h4 className="font-medium text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+                              {related.metadata.title}
+                            </h4>
+                            <div className="flex items-center gap-2 mb-2">
+                              {related.preview.width &&
+                                related.preview.height && (
+                                  <Badge
+                                    variant="secondary"
+                                    className="text-xs"
+                                  >
+                                    {related.preview.width} ×{" "}
+                                    {related.preview.height}
+                                  </Badge>
+                                )}
+                            </div>
+                            {related.metadata.description && (
+                              <p className="text-xs text-muted-foreground line-clamp-2">
+                                {related.metadata.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Desktop Layout: Keep the current layout exactly as it is now */}
+            <div
+              className={`hidden xl:grid xl:grid-cols-5 gap-8 ${isRTL ? "xl:grid-flow-col-dense" : ""}`}
+            >
+              {/* Media Display Section */}
+              <div className={`xl:col-span-3 ${isRTL ? "xl:order-2" : ""}`}>
+                <div className="bg-card dark:bg-card/50 rounded-xl border border-border/50 overflow-hidden">
+                  {/* Provider Header */}
+                  <div
+                    className={`flex items-center justify-between p-4 border-b border-border/50 bg-gradient-to-r from-muted/30 to-muted/10 ${isRTL ? "flex-row-reverse" : ""}`}
+                  >
+                    <div
+                      className={`flex items-center gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
+                    >
+                      <div className="relative">
+                        <div className="w-14 h-14 flex items-center justify-center">
+                          <img
+                            src={imageData.providerIcon}
+                            alt={imageData.provider}
+                            width={40}
+                            height={40}
+                            className="w-10 h-10 object-contain"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              const parent = target.parentElement;
+                              if (parent) {
+                                parent.innerHTML = `<Globe class="w-5 h-5 text-muted-foreground" />`;
+                              }
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <h2 className="font-semibold text-foreground text-sm">
+                          {imageData.provider}
+                        </h2>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="secondary"
+                        className="text-xs px-2 py-0.5"
+                      >
+                        {formatFileType(imageData.file_type)}
+                      </Badge>
+                    </div>
+                  </div>
+
+                  {/* Media Display */}
+                  <div
+                    className="relative bg-gradient-to-br from-muted/20 to-muted/5 flex items-center justify-center"
+                    style={{ maxHeight: "650px", minHeight: "400px" }}
+                  >
+                    {/* Video Loading Indicator */}
+                    {isVideoItem() && isVideoLoading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-10 rounded-lg">
+                        <div className="flex items-center gap-3 bg-black/80 text-white px-6 py-3 rounded-xl">
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          <span className="text-sm font-medium">
+                            {t("mediaDetail.loading.title")}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {isVideoItem() && isValidVideoUrl(imageData.thumbnail) ? (
+                      <video
+                        className="w-full h-full object-contain rounded-lg"
+                        poster={imageData.poster || "/placeholder.png"}
+                        controls
+                        controlsList="nodownload"
+                        muted
+                        loop
+                        playsInline
+                        preload="metadata"
+                        crossOrigin="anonymous"
+                        style={{
+                          maxHeight: "650px",
+                          width: "100%",
+                          height: "auto",
+                        }}
+                        onLoadedData={async (e) => {
+                          const video = e.target as HTMLVideoElement;
+                          setIsVideoLoading(false);
+                          try {
+                            video.currentTime = 1;
+                            await new Promise((resolve) => {
+                              video.onseeked = resolve;
+                            });
+                            const thumbnailUrl =
+                              await generateVideoThumbnail(video);
+                            video.poster = thumbnailUrl;
+                          } catch (error) {
+                            console.warn(
+                              "Failed to generate video thumbnail:",
+                              error
+                            );
+                          }
+                        }}
+                        onError={(e) => {
+                          console.warn("Video load error, showing as image");
+                          setIsVideoLoading(false);
+                          const video = e.target as HTMLVideoElement;
+                          video.style.display = "none";
+                          const container = video.parentElement;
+                          if (container) {
+                            const fallbackImg = document.createElement("img");
+                            fallbackImg.src = imageData.thumbnail;
+                            fallbackImg.alt = imageData.title;
+                            fallbackImg.className =
+                              "w-full h-full object-contain max-h-[65vh]";
+                            container.appendChild(fallbackImg);
+                          }
+                        }}
+                        onCanPlay={() => {
+                          console.log("Video can start playing");
+                          setIsVideoLoading(false);
+                        }}
+                        onLoadStart={() => {
+                          console.log("Video load started");
+                          setIsVideoLoading(true);
+                        }}
+                        onWaiting={() => {
+                          setIsVideoLoading(true);
+                        }}
+                        onPlaying={() => {
+                          setIsVideoLoading(false);
+                        }}
+                      >
+                        {/* Multiple source elements for better browser compatibility */}
+                        <source
+                          src={imageData.thumbnail}
+                          type={getVideoMimeType(imageData.thumbnail)}
+                        />
+                        {/* Fallback message for browsers that don't support video */}
+                        <p className="text-muted-foreground text-center p-4">
+                          Your browser does not support the video tag.
+                          <a
+                            href={imageData.thumbnail}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline ml-1"
+                          >
+                            Download the video
+                          </a>
+                        </p>
+                      </video>
+                    ) : (
+                      <img
+                        src={imageData.thumbnail}
+                        alt={imageData.title}
+                        className="w-full h-full object-contain cursor-pointer hover:scale-[1.02] transition-transform duration-300"
+                        style={{
+                          maxHeight: "650px",
+                          width: "100%",
+                          height: "auto",
+                        }}
+                        onClick={() => setIsFullImageOpen(true)}
+                        onError={(e) => {
+                          const img = e.target as HTMLImageElement;
+                          img.src = "/placeholder.png";
+                        }}
+                      />
+                    )}
+                  </div>
+                </div>
+
+                {/* Keywords Section - Moved below main image */}
+                {fileData &&
+                  fileData.keywords &&
+                  fileData.keywords.length > 0 && (
+                    <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden mt-6">
+                      <div className="p-6">
+                        <div className="flex items-center justify-between gap-2 mb-4">
+                          <div className="flex items-center gap-2">
+                            <Tag className="w-5 h-5 text-primary" />
+                            <h3 className="font-semibold text-foreground text-lg">
+                              {t("mediaDetail.keywords.title")}
+                            </h3>
+                          </div>
+                          <Badge variant="outline">
+                            {fileData.keywords.length}
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {(showAllKeywords
+                            ? fileData.keywords
+                            : fileData.keywords.slice(0, 8)
+                          ).map((keyword, index) => (
+                            <Badge
+                              key={index}
+                              variant="secondary"
+                              className="text-xs px-3 py-1.5 hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-border/30"
+                            >
+                              {keyword}
+                            </Badge>
+                          ))}
+                        </div>
+                        {fileData.keywords.length > 8 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setShowAllKeywords(!showAllKeywords)}
+                            className="mt-4 text-primary hover:text-primary/80 hover:bg-primary/5"
+                          >
+                            {showAllKeywords
+                              ? t("mediaDetail.keywords.showLess")
+                              : t("mediaDetail.keywords.showMore")}
+                            <ArrowLeft
+                              className={`w-4 h-4 ml-2 transition-transform duration-200 ${showAllKeywords ? "rotate-90" : "-rotate-90"}`}
+                            />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                {/* Related Files Section - Moved below keywords with new layout */}
+                {fileData &&
+                  fileData.related &&
+                  fileData.related.length > 0 && (
+                    <div className="mt-6">
+                      {/* Section Header */}
+                      <div className="text-center mb-6">
+                        <h3 className="text-2xl font-bold text-foreground mb-2">
+                          {t("mediaDetail.relatedFiles.title")}
+                        </h3>
+                        <p className="text-muted-foreground">
+                          {t("mediaDetail.relatedFiles.description")}
+                        </p>
+                      </div>
+
+                      {/* Two-column grid for related files */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {fileData.related.slice(0, 6).map((related, index) => {
+                          // Create a mock SearchResult for navigation
+                          const relatedSearchResult = {
+                            id: related.file_id,
+                            title: related.metadata.title,
+                            thumbnail: related.preview.src,
+                            provider: imageData.provider,
+                            type: imageData.type,
+                            file_type: imageData.file_type,
+                            width: related.preview.width || null,
+                            height: related.preview.height || null,
+                            url: related.url,
+                            file_id: related.file_id,
+                            image_type: imageData.image_type,
+                            poster: related.preview.src,
+                            providerIcon: imageData.providerIcon,
+                          };
+
+                          // Check if this related item is a video
+                          const isRelatedVideo = isValidVideoUrl(
+                            related.preview.src
+                          );
+
+                          return (
+                            <div
+                              key={index}
+                              className="group bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden hover:border-primary/40 transition-all duration-300 cursor-pointer"
+                              onClick={() => {
+                                // Store the related file data and navigate
+                                localStorage.setItem(
+                                  `image_${related.file_id}`,
+                                  JSON.stringify(relatedSearchResult)
+                                );
+                                window.location.href = `/media/${related.file_id}`;
+                              }}
+                            >
+                              {/* Media Preview */}
+                              <div className="relative aspect-video bg-muted overflow-hidden">
+                                {isRelatedVideo ? (
+                                  <>
+                                    {/* Video with poster */}
+                                    <video
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      poster={related.preview.src}
+                                      muted
+                                      playsInline
+                                      preload="metadata"
+                                      onError={(e) => {
+                                        // Fallback to image if video fails
+                                        const video =
+                                          e.target as HTMLVideoElement;
+                                        const container = video.parentElement;
+                                        if (container) {
+                                          video.style.display = "none";
+                                          const fallbackImg =
+                                            document.createElement("img");
+                                          fallbackImg.src = related.preview.src;
+                                          fallbackImg.alt =
+                                            related.metadata.title;
+                                          fallbackImg.className =
+                                            "w-full h-full object-cover group-hover:scale-105 transition-transform duration-300";
+                                          fallbackImg.onerror = () => {
+                                            fallbackImg.src =
+                                              "/placeholder.png";
+                                          };
+                                          container.appendChild(fallbackImg);
+                                        }
+                                      }}
+                                    >
+                                      <source
+                                        src={related.preview.src}
+                                        type={getVideoMimeType(
+                                          related.preview.src
+                                        )}
+                                      />
+                                    </video>
+
+                                    {/* Video Play Icon Overlay */}
+                                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors duration-300">
+                                      <div className="w-12 h-12 bg-black/60 rounded-full flex items-center justify-center group-hover:bg-black/80 transition-colors duration-300">
+                                        <div className="w-0 h-0 border-l-[8px] border-l-white border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent ml-1"></div>
+                                      </div>
+                                    </div>
+
+                                    {/* Video Badge */}
+                                    <div className="absolute top-2 left-2">
+                                      <Badge
+                                        variant="secondary"
+                                        className="text-xs bg-black/80 text-white border-none"
+                                      >
+                                        <VideoIcon className="w-3 h-3 mr-1" />
+                                        Video
+                                      </Badge>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <>
+                                    {/* Regular Image */}
+                                    <img
+                                      src={related.preview.src}
+                                      alt={related.metadata.title}
+                                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                                      onError={(e) => {
+                                        const target =
+                                          e.target as HTMLImageElement;
+                                        target.src = "/placeholder.png";
+                                      }}
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+                                  </>
+                                )}
+                              </div>
+
+                              {/* Content */}
+                              <div className="p-4">
+                                <h4 className="font-medium text-foreground line-clamp-2 mb-2 group-hover:text-primary transition-colors">
+                                  {related.metadata.title}
+                                </h4>
+                                <div className="flex items-center gap-2 mb-2">
+                                  {related.preview.width &&
+                                    related.preview.height && (
+                                      <Badge
+                                        variant="secondary"
+                                        className="text-xs"
+                                      >
+                                        {related.preview.width} ×{" "}
+                                        {related.preview.height}
+                                      </Badge>
+                                    )}
+                                </div>
+                                {related.metadata.description && (
+                                  <p className="text-xs text-muted-foreground line-clamp-2">
+                                    {related.metadata.description}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+              </div>
+
+              {/* Sidebar - Details and Actions */}
+              <div
+                className={`xl:col-span-2 space-y-6 ${isRTL ? "xl:order-1" : ""}`}
+              >
+                {/* Title and Basic Info Card */}
+                <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                  <div className="p-6">
+                    <h1 className="text-2xl font-bold text-foreground mb-3 leading-tight">
+                      {imageData.title}
+                    </h1>
+                    <div className="flex items-center gap-3 text-sm text-muted-foreground mb-4">
+                      <div className="flex items-center gap-1">
+                        <Hash className="w-4 h-4" />
+                        <span className="font-mono">{imageData.file_id}</span>
+                      </div>
+                      {imageData.width && imageData.height && (
+                        <div className="flex items-center gap-1">
+                          <Monitor className="w-4 h-4" />
+                          <span>
+                            {imageData.width} × {imageData.height}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Quick Actions */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <Button
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                        onClick={handleDownload}
+                        disabled={isDownloading}
+                      >
+                        {isDownloading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        {isDownloading
+                          ? t("mediaDetail.actions.downloading")
+                          : t("mediaDetail.actions.download")}
+                      </Button>
+                      <Button onClick={() => setIsFullImageOpen(true)}>
+                        <Eye className="w-4 h-4" />
+                        {isVideoItem()
+                          ? t("mediaDetail.actions.viewFullVideo")
+                          : t("mediaDetail.actions.viewFullImage")}
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Details Card */}
+                <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Info className="w-5 h-5 text-primary" />
+                      <h3 className="font-semibold text-foreground text-lg">
+                        {t("mediaDetail.details.title")}
+                      </h3>
+                    </div>
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center py-2 border-b border-border/80">
+                        <span className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Layers className="w-4 h-4" />
+                          {t("mediaDetail.details.fileType")}
+                        </span>
+                        <Badge variant="secondary" className="font-medium">
+                          {formatFileType(imageData.file_type)}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-border/80">
+                        <span className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Globe className="w-4 h-4" />
+                          {t("mediaDetail.details.provider")}
+                        </span>
+                        <span className="text-sm font-medium text-foreground">
+                          {imageData.provider}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center py-2 border-b border-border/80">
+                        <span className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Hash className="w-4 h-4" />
+                          {t("mediaDetail.details.mediaId")}
+                        </span>
+                        <span className="text-xs font-mono bg-muted px-2 py-1 rounded border">
+                          {imageData.file_id}
+                        </span>
+                      </div>
+                      {imageData.width && imageData.height && (
+                        <div className="flex justify-between items-center py-2 border-b border-border/80">
+                          <span className="text-sm text-muted-foreground flex items-center gap-2">
+                            <Monitor className="w-4 h-4" />
+                            {t("mediaDetail.details.dimensions")}
+                          </span>
+                          <span className="text-sm font-medium text-foreground">
+                            {imageData.width} × {imageData.height}
+                          </span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Palette className="w-4 h-4" />
+                          {t("mediaDetail.details.format")}
+                        </span>
+                        <span className="text-sm font-medium text-foreground">
+                          {imageData.image_type}
+                        </span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -840,7 +2195,7 @@ export default function ImageDetailsPage() {
                     <div className="flex items-center gap-2 mb-3">
                       <Loader2 className="w-4 h-4 animate-spin text-primary" />
                       <h3 className="font-semibold text-foreground">
-                        Loading Enhanced Details...
+                        {t("mediaDetail.providerData.loadingTitle")}
                       </h3>
                     </div>
                     <div className="space-y-4">
@@ -897,7 +2252,7 @@ export default function ImageDetailsPage() {
                         <AlertCircle className="w-5 h-5 text-destructive flex-shrink-0 mt-0.5" />
                         <div className="flex-1">
                           <h4 className="text-sm font-medium text-destructive mb-1">
-                            Failed to Load Enhanced Details
+                            {t("mediaDetail.providerData.errorTitle")}
                           </h4>
                           <p className="text-sm text-destructive/80">
                             {providerDataError}
@@ -910,7 +2265,7 @@ export default function ImageDetailsPage() {
                               imageData && fetchProviderData(imageData)
                             }
                           >
-                            Try Again
+                            {t("mediaDetail.providerData.retryButton")}
                           </Button>
                         </div>
                       </div>
@@ -920,457 +2275,308 @@ export default function ImageDetailsPage() {
 
                 {fileData && (
                   <>
-                    {/* Enhanced File Information */}
-                    <div className="p-4 border-b border-border">
-                      <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                        <Tag className="w-4 h-4" />
-                        Enhanced Information
-                      </h3>
-                      <div className="bg-primary/5 rounded-lg p-3 space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-muted-foreground">
-                            Title:
-                          </span>
-                          <span className="text-sm font-medium text-right max-w-[60%]">
-                            {fileData.title}
-                          </span>
-                        </div>
-
-                        {fileData.keywords && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">
-                              Keywords Available:
-                            </span>
-                            <Badge variant="secondary" className="text-xs">
-                              {fileData.keywords.length} tags
-                            </Badge>
-                          </div>
-                        )}
-
-                        {fileData.high_resolution && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">
-                              High-Res Available:
-                            </span>
-                            <Badge
-                              variant="default"
-                              className="text-xs bg-green-600"
-                            >
-                              ✓ Available
-                            </Badge>
-                          </div>
-                        )}
-
-                        {fileData.related && fileData.related.length > 0 && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">
-                              Related Files:
-                            </span>
-                            <Badge variant="outline" className="text-xs">
-                              {fileData.related.length} files
-                            </Badge>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Keywords */}
-                    {fileData.keywords && fileData.keywords.length > 0 && (
-                      <div className="p-4 border-b border-border">
-                        <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                          <Tag className="w-4 h-4" />
-                          Keywords ({fileData.keywords.length})
-                        </h3>
-                        <div className="flex flex-wrap gap-1.5">
-                          {fileData.keywords.map((keyword, index) => (
-                            <Badge
-                              key={index}
-                              variant="secondary"
-                              className="text-xs px-2 py-1 hover:bg-primary/10 transition-colors cursor-pointer"
-                            >
-                              {keyword}
-                            </Badge>
-                          ))}
-                        </div>
-                        {fileData.keywords.length > 10 && (
-                          <p className="text-xs text-muted-foreground mt-2">
-                            Showing all {fileData.keywords.length} keywords
-                          </p>
-                        )}
-                      </div>
-                    )}
-
-                    {/* High Resolution Info */}
-                    {fileData.high_resolution && (
-                      <div className="p-4 border-b border-border">
-                        <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                          <ImageIcon className="w-4 h-4" />
-                          High Resolution Details
-                        </h3>
-                        <div className="bg-muted/30 rounded-lg p-3 space-y-3">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">
-                              Dimensions:
-                            </span>
-                            <Badge variant="outline" className="font-mono">
-                              {fileData.high_resolution.width} ×{" "}
-                              {fileData.high_resolution.height}
-                            </Badge>
-                          </div>
-
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">
-                              Aspect Ratio:
-                            </span>
-                            <span className="text-sm font-medium">
-                              {(
-                                fileData.high_resolution.width /
-                                fileData.high_resolution.height
-                              ).toFixed(2)}
-                              :1
-                            </span>
-                          </div>
-
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm text-muted-foreground">
-                              Total Pixels:
-                            </span>
-                            <span className="text-sm font-medium">
-                              {(
-                                (fileData.high_resolution.width *
-                                  fileData.high_resolution.height) /
-                                1000000
-                              ).toFixed(1)}
-                              MP
-                            </span>
-                          </div>
-
-                          <div className="pt-2 border-t border-border/50">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="w-full"
-                              asChild
-                            >
-                              <a
-                                href={fileData.high_resolution.src}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center justify-center gap-2"
-                              >
-                                <ExternalLink className="w-4 h-4" />
-                                View High Resolution Image
-                              </a>
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Related Files */}
-                    {fileData.related && fileData.related.length > 0 && (
-                      <div className="p-4 border-b border-border">
-                        <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                          <FileIcon className="w-4 h-4" />
-                          Related Files ({fileData.related.length})
-                        </h3>
-                        <div className="space-y-3">
-                          {fileData.related
-                            .slice(0, 5)
-                            .map((related, index) => (
-                              <div
-                                key={index}
-                                className="group flex gap-3 p-3 border rounded-lg hover:bg-muted/30 hover:border-primary/20 transition-all duration-200"
-                              >
-                                <div className="relative w-16 h-16 bg-muted rounded-lg overflow-hidden flex-shrink-0">
-                                  <img
-                                    src={related.preview.src}
-                                    alt={related.metadata.title}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-                                    onError={(e) => {
-                                      const target =
-                                        e.target as HTMLImageElement;
-                                      target.src = "/placeholder.png";
-                                    }}
-                                  />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="text-sm font-medium line-clamp-2 mb-1 group-hover:text-primary transition-colors">
-                                    {related.metadata.title}
-                                  </p>
-                                  <div className="flex items-center gap-2 mb-2">
-                                    <Badge
-                                      variant="outline"
-                                      className="text-xs"
-                                    >
-                                      ID: {related.file_id}
-                                    </Badge>
-                                    {related.preview.width &&
-                                      related.preview.height && (
-                                        <Badge
-                                          variant="secondary"
-                                          className="text-xs"
-                                        >
-                                          {related.preview.width} ×{" "}
-                                          {related.preview.height}
-                                        </Badge>
-                                      )}
-                                  </div>
-                                  {related.metadata.description && (
-                                    <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
-                                      {related.metadata.description}
-                                    </p>
-                                  )}
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="h-7 text-xs"
-                                    asChild
-                                  >
-                                    <a
-                                      href={related.url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="flex items-center gap-1"
-                                    >
-                                      <ExternalLink className="w-3 h-3" />
-                                      View Details
-                                    </a>
-                                  </Button>
-                                </div>
-                              </div>
-                            ))}
-                          {fileData.related.length > 5 && (
-                            <div className="text-center pt-2">
-                              <p className="text-xs text-muted-foreground">
-                                Showing 5 of {fileData.related.length} related
-                                files
-                              </p>
+                    {/* High Resolution Info - Only show when data is available */}
+                    {isHighResolutionAvailable(fileData) && (
+                      <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                        <div className="p-6">
+                          <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                            {isVideoItem() ? (
+                              <VideoIcon className="w-4 h-4 text-primary" />
+                            ) : (
+                              <ImageIcon className="w-4 h-4 text-primary" />
+                            )}
+                            {t("mediaDetail.highResolution.title")}
+                          </h3>
+                          <div className="space-y-3">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-muted-foreground">
+                                {t("mediaDetail.highResolution.dimensions")}:
+                              </span>
+                              <Badge variant="outline" className="font-mono">
+                                {fileData?.high_resolution?.width} ×{" "}
+                                {fileData?.high_resolution?.height}
+                              </Badge>
                             </div>
-                          )}
+
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-muted-foreground">
+                                {t("mediaDetail.highResolution.aspectRatio")}:
+                              </span>
+                              <span className="text-sm font-medium">
+                                {fileData?.high_resolution?.width &&
+                                fileData?.high_resolution?.height
+                                  ? (
+                                      (typeof fileData.high_resolution.width ===
+                                      "string"
+                                        ? parseInt(
+                                            fileData.high_resolution.width,
+                                            10
+                                          )
+                                        : fileData.high_resolution.width) /
+                                      (typeof fileData.high_resolution
+                                        .height === "string"
+                                        ? parseInt(
+                                            fileData.high_resolution.height,
+                                            10
+                                          )
+                                        : fileData.high_resolution.height)
+                                    ).toFixed(2)
+                                  : "N/A"}
+                                :1
+                              </span>
+                            </div>
+
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-muted-foreground">
+                                {t("mediaDetail.highResolution.totalPixels")}:
+                              </span>
+                              <span className="text-sm font-medium">
+                                {fileData?.high_resolution?.width &&
+                                fileData?.high_resolution?.height
+                                  ? (
+                                      ((typeof fileData.high_resolution
+                                        .width === "string"
+                                        ? parseInt(
+                                            fileData.high_resolution.width,
+                                            10
+                                          )
+                                        : fileData.high_resolution.width) *
+                                        (typeof fileData.high_resolution
+                                          .height === "string"
+                                          ? parseInt(
+                                              fileData.high_resolution.height,
+                                              10
+                                            )
+                                          : fileData.high_resolution.height)) /
+                                      1000000
+                                    ).toFixed(1)
+                                  : "N/A"}
+                                MP
+                              </span>
+                            </div>
+
+                            <div className="pt-2">
+                              <Button
+                                size="sm"
+                                className="w-full"
+                                onClick={() => setIsFullImageOpen(true)}
+                              >
+                                <Eye className="w-4 h-4" />
+                                {isVideoItem()
+                                  ? t("mediaDetail.highResolution.viewVideo")
+                                  : t("mediaDetail.highResolution.viewImage")}
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     )}
                   </>
                 )}
 
-                {/* Action Buttons */}
-                <div className="p-4 space-y-3">
-                  <h3 className="font-semibold text-foreground mb-4">
-                    {`${isRTL ? "الإجراءات السريعة" : "Quick Actions"}`}
-                  </h3>
+                {/* Additional Actions Card */}
+                <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
+                  <div className="p-6">
+                    <h3 className="font-semibold text-foreground text-lg mb-4 flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      {t("mediaDetail.actions.title")}
+                    </h3>
+                    <div className="space-y-3">
+                      {/* Copy Link Button */}
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start"
+                        onClick={() => {
+                          const pageUrl = window.location.href;
+                          navigator.clipboard.writeText(pageUrl).then(() => {
+                            import("sonner").then(({ toast }) => {
+                              toast.success(t("mediaDetail.copyLink.success"));
+                            });
+                          });
+                        }}
+                      >
+                        <Copy className="w-4 h-4" />
+                        {t("mediaDetail.actions.copyLink")}
+                      </Button>
 
-                  {/* Download Button */}
-                  <Button
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
-                    onClick={handleDownload}
-                    disabled={isDownloading}
-                  >
-                    {isDownloading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Download className="w-4 h-4" />
-                    )}
-                    {isDownloading
-                      ? "Downloading..."
-                      : t("search.actions.download")}
-                  </Button>
-
-                  {/* View Similar Button */}
-                  <Button className="w-full">
-                    <Eye className="w-4 h-4" />
-                    {t("search.actions.simillars")}
-                  </Button>
-
-                  {/* View Full Media Button */}
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    onClick={() => setIsFullImageOpen(true)}
-                  >
-                    <Eye className="w-4 h-4" />
-                    {isVideoItem()
-                      ? `${isRTL ? "عرض الفيديو بالحجم الكامل" : "View Full Video"}`
-                      : t("search.imageDialog.viewFullImage")}
-                  </Button>
-
-                  {/* External Link Button */}
-                  <Button variant="outline" className="w-full" asChild>
-                    <a
-                      href={imageData.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <ExternalLink className="w-4 h-4" />
-                      View on {imageData.provider}
-                    </a>
-                  </Button>
+                      {/* External Link Button */}
+                      <Button
+                        className="w-full justify-start"
+                        asChild
+                        variant="outline"
+                      >
+                        <a
+                          href={imageData.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          {t("mediaDetail.actions.viewOnProvider", {
+                            provider: imageData.provider,
+                          })}
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </main>
-
-        {/* Footer */}
-        <Footer />
-
-        {/* Full Screen Media Dialog */}
-        <Dialog open={isFullImageOpen} onOpenChange={setIsFullImageOpen}>
-          <DialogTitle className="sr-only">
-            {isVideoItem() ? "Full Video View" : "Full Image View"}
-          </DialogTitle>
-          <DialogContent
-            className="!max-w-[95vw] !max-h-[95vh] w-full h-full p-0 overflow-hidden border-none rounded-xl bg-black/95"
-            showCloseButton={false}
-          >
-            <div className="relative w-full h-full flex items-center justify-center">
-              {/* Close Button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsFullImageOpen(false)}
-                className={`absolute top-4 ${isRTL ? "left-4" : "right-4"} z-20 w-10 h-10 p-0 bg-black/50 hover:bg-black/70 text-white hover:text-white border rounded-none border-white/40`}
-              >
-                <X className="w-5 h-5" />
-              </Button>
-
-              {/* Video Loading Indicator for Full Screen */}
-              {isVideoItem() && isVideoLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-15">
-                  <div className="flex items-center gap-2 bg-black/80 text-white px-6 py-3 rounded-lg">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Loading video...</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Full Screen Video Controls Info */}
-              {isVideoItem() && !isVideoLoading && (
-                <div
-                  className={`absolute top-4 ${isRTL ? "right-16" : "left-4"} bg-black/80 text-white px-4 py-3 rounded-lg text-sm z-15 opacity-0 hover:opacity-100 transition-opacity`}
-                >
-                  <div className="space-y-1">
-                    <div className="font-medium mb-2">Video Controls:</div>
-                    <div>Space: Play/Pause</div>
-                    <div>←/→: Seek ±10s</div>
-                    <div>↑/↓: Volume</div>
-                    <div>M: Mute/Unmute</div>
-                    <div>F: Fullscreen</div>
-                    <div>Esc: Close</div>
-                  </div>
-                </div>
-              )}
-
-              {/* Full Size Media */}
-              {isVideoItem() && isValidVideoUrl(imageData.thumbnail) ? (
-                <video
-                  className="max-w-full max-h-full object-contain"
-                  poster={imageData.poster || "/placeholder.png"}
-                  controls
-                  controlsList="nodownload"
-                  autoPlay
-                  muted
-                  loop
-                  playsInline
-                  preload="auto"
-                  crossOrigin="anonymous"
-                  onError={(e) => {
-                    console.warn(
-                      "Full screen video load error, showing as image"
-                    );
-                    setIsVideoLoading(false);
-                    const video = e.target as HTMLVideoElement;
-                    video.style.display = "none";
-                    const container = video.parentElement;
-                    if (container) {
-                      const fallbackImg = document.createElement("img");
-                      fallbackImg.src = imageData.thumbnail;
-                      fallbackImg.alt = imageData.title;
-                      fallbackImg.className =
-                        "max-w-full max-h-full object-contain";
-                      container.appendChild(fallbackImg);
-                    }
-                  }}
-                  onCanPlay={() => {
-                    console.log("Full screen video can start playing");
-                    setIsVideoLoading(false);
-                  }}
-                  onLoadStart={() => {
-                    console.log("Full screen video load started");
-                    setIsVideoLoading(true);
-                  }}
-                  onPlay={() => {
-                    console.log("Full screen video started playing");
-                    setIsVideoLoading(false);
-                  }}
-                  onPause={() => {
-                    console.log("Full screen video paused");
-                  }}
-                  onWaiting={() => {
-                    setIsVideoLoading(true);
-                  }}
-                  onPlaying={() => {
-                    setIsVideoLoading(false);
-                  }}
-                  onLoadedData={() => {
-                    setIsVideoLoading(false);
-                  }}
-                >
-                  {/* Multiple source elements for better browser compatibility */}
-                  <source
-                    src={imageData.thumbnail}
-                    type={getVideoMimeType(imageData.thumbnail)}
-                  />
-                  {/* Fallback message for browsers that don't support video */}
-                  <p className="text-white text-center p-4">
-                    Your browser does not support the video tag.
-                    <a
-                      href={imageData.thumbnail}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-400 hover:underline ml-1"
-                    >
-                      Download the video
-                    </a>
-                  </p>
-                </video>
-              ) : (
-                <img
-                  src={imageData.thumbnail}
-                  alt={imageData.title}
-                  className="max-w-full max-h-full object-contain"
-                  onError={(e) => {
-                    const img = e.target as HTMLImageElement;
-                    img.src = "/placeholder.png";
-                  }}
-                />
-              )}
-
-              {/* Media Info Overlay */}
-              <div
-                className={`absolute bottom-6 sm:bottom-2 ${isRTL ? "left-0 sm:right-8" : "left-0 sm:left-8"} bg-black/70 text-white p-3 rounded-lg border border-white/20 max-w-sm`}
-              >
-                <div className="font-medium text-sm mb-1 flex items-center gap-2">
-                  {isVideoItem() && <Camera className="w-3 h-3 text-red-400" />}
-                  {imageData.title}
-                </div>
-                <div className="text-xs text-white/80">
-                  {imageData.file_id} • {imageData.provider}
-                </div>
-                <div className="text-xs text-white/80">
-                  {imageData.image_type}
-                  {isVideoItem() && " • Video Content"}
-                </div>
-                {isVideoItem() && (
-                  <div className="text-xs text-white/60 mt-1">
-                    Use keyboard controls for better experience
-                  </div>
-                )}
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
+
+      {/* Footer */}
+      <Footer />
+
+      {/* Full Screen Media Dialog */}
+      <Dialog open={isFullImageOpen} onOpenChange={setIsFullImageOpen}>
+        <DialogTitle className="sr-only">
+          {isVideoItem()
+            ? t("mediaDetail.mediaViewer.fullScreenTitle")
+            : t("mediaDetail.mediaViewer.fullScreenTitle")}
+        </DialogTitle>
+        <DialogContent
+          className="!max-w-[95vw] !max-h-[95vh] w-full h-full p-0 overflow-hidden border-none rounded-xl bg-black/95"
+          showCloseButton={false}
+        >
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Close Button */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsFullImageOpen(false)}
+              className={`absolute top-4 ${isRTL ? "left-4" : "right-4"} z-20 w-10 h-10 p-0 bg-black/50 hover:bg-black/70 text-white hover:text-white border rounded-none border-white/40`}
+            >
+              <X className="w-5 h-5" />
+            </Button>
+
+            {/* Video Loading Indicator for Full Screen */}
+            {isVideoItem() && isVideoLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-15">
+                <div className="flex items-center gap-2 bg-black/80 text-white px-6 py-3 rounded-lg">
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                  <span>
+                    {t("mediaDetail.videoPlayer.fullScreenLoadingVideo")}
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Full Size Media */}
+            {isVideoItem() && isValidVideoUrl(imageData.thumbnail) ? (
+              <video
+                className="max-w-full max-h-full object-contain"
+                poster={imageData.poster || "/placeholder.png"}
+                controls
+                controlsList="nodownload"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="auto"
+                crossOrigin="anonymous"
+                onError={(e) => {
+                  console.warn(
+                    "Full screen video load error, showing as image"
+                  );
+                  setIsVideoLoading(false);
+                  const video = e.target as HTMLVideoElement;
+                  video.style.display = "none";
+                  const container = video.parentElement;
+                  if (container) {
+                    const fallbackImg = document.createElement("img");
+                    // Use high resolution image if available, otherwise fallback to thumbnail
+                    const imgSrc = isHighResolutionAvailable(fileData)
+                      ? fileData!.high_resolution!.src
+                      : imageData.thumbnail;
+                    fallbackImg.src = imgSrc;
+                    fallbackImg.alt = imageData.title;
+                    fallbackImg.className =
+                      "max-w-full max-h-full object-contain";
+                    fallbackImg.onerror = () => {
+                      fallbackImg.src = "/placeholder.png";
+                    };
+                    container.appendChild(fallbackImg);
+                  }
+                }}
+                onCanPlay={() => {
+                  console.log("Full screen video can start playing");
+                  setIsVideoLoading(false);
+                }}
+                onLoadStart={() => {
+                  console.log("Full screen video load started");
+                  setIsVideoLoading(true);
+                }}
+                onPlay={() => {
+                  console.log("Full screen video started playing");
+                  setIsVideoLoading(false);
+                }}
+                onPause={() => {
+                  console.log("Full screen video paused");
+                }}
+                onWaiting={() => {
+                  setIsVideoLoading(true);
+                }}
+                onPlaying={() => {
+                  setIsVideoLoading(false);
+                }}
+                onLoadedData={() => {
+                  setIsVideoLoading(false);
+                }}
+              >
+                {/* Multiple source elements for better browser compatibility */}
+                {/* Try high resolution video first if available */}
+                {isHighResolutionAvailable(fileData) &&
+                  isValidVideoUrl(fileData!.high_resolution!.src) && (
+                    <source
+                      src={fileData!.high_resolution!.src}
+                      type={getVideoMimeType(fileData!.high_resolution!.src)}
+                    />
+                  )}
+                <source
+                  src={imageData.thumbnail}
+                  type={getVideoMimeType(imageData.thumbnail)}
+                />
+                {/* Fallback message for browsers that don't support video */}
+                <p className="text-white text-center p-4">
+                  {t("mediaDetail.videoPlayer.fullScreenBrowserNotSupported")}
+                  <a
+                    href={
+                      isHighResolutionAvailable(fileData)
+                        ? fileData!.high_resolution!.src
+                        : imageData.thumbnail
+                    }
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-400 hover:underline ml-1"
+                  >
+                    {t("mediaDetail.videoPlayer.fullScreenDownloadVideo")}
+                  </a>
+                </p>
+              </video>
+            ) : (
+              <img
+                src={
+                  isHighResolutionAvailable(fileData)
+                    ? fileData!.high_resolution!.src
+                    : imageData.thumbnail
+                }
+                alt={imageData.title}
+                className="max-w-full max-h-full object-contain"
+                onError={(e) => {
+                  const img = e.target as HTMLImageElement;
+                  // Fallback to thumbnail if high resolution fails
+                  if (img.src !== imageData.thumbnail) {
+                    img.src = imageData.thumbnail;
+                  } else {
+                    img.src = "/placeholder.png";
+                  }
+                }}
+              />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

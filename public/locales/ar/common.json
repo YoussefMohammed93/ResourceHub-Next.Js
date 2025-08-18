@@ -1103,6 +1103,119 @@
       "navigation": "فشل في الانتقال إلى نتائج البحث"
     }
   },
+  "mediaDetail": {
+    "title": "تفاصيل الوسائط",
+    "backToSearch": "العودة إلى البحث",
+    "notFound": {
+      "title": "لم يتم العثور على الوسائط",
+      "description": "لم يتم العثور على الوسائط المطلوبة.",
+      "backButton": "العودة إلى البحث"
+    },
+    "provider": {
+      "title": "معلومات المزود",
+      "source": "المصدر",
+      "fileType": "نوع الملف",
+      "mediaId": "معرف الوسائط"
+    },
+    "details": {
+      "title": "التفاصيل",
+      "basicInfo": "المعلومات الأساسية",
+      "fileType": "نوع الملف",
+      "provider": "المزود",
+      "mediaId": "معرف الوسائط",
+      "dimensions": "الأبعاد",
+      "aspectRatio": "نسبة العرض إلى الارتفاع",
+      "fileSize": "حجم الملف",
+      "resolution": "الدقة",
+      "format": "التنسيق"
+    },
+    "keywords": {
+      "title": "الكلمات المفتاحية",
+      "showMore": "عرض المزيد",
+      "showLess": "عرض أقل",
+      "count": "{{count}} كلمة مفتاحية",
+      "searchByKeyword": "البحث بهذه الكلمة المفتاحية"
+    },
+    "relatedFiles": {
+      "title": "الملفات ذات الصلة",
+      "description": "اكتشف محتوى مشابه من نفس المزود",
+      "showingCount": "عرض {{count}} من {{total}} ملف ذي صلة",
+      "viewDetails": "عرض التفاصيل",
+      "noRelatedFiles": "لم يتم العثور على ملفات ذات صلة"
+    },
+    "actions": {
+      "title": "الإجراءات",
+      "download": "تحميل",
+      "downloading": "جاري التحميل...",
+      "viewSimilar": "عرض المشابه",
+      "viewFullMedia": "عرض الوسائط كاملة",
+      "viewFullImage": "عرض الصورة كاملة",
+      "viewFullVideo": "عرض الفيديو كاملاً",
+      "viewOnProvider": "عرض على {{provider}}",
+      "copyLink": "نسخ الرابط",
+      "share": "مشاركة",
+      "addToFavorites": "إضافة إلى المفضلة",
+      "removeFromFavorites": "إزالة من المفضلة"
+    },
+    "mediaViewer": {
+      "title": "عارض الوسائط",
+      "fullScreenTitle": "عرض ملء الشاشة",
+      "videoControls": {
+        "play": "تشغيل",
+        "pause": "إيقاف مؤقت",
+        "mute": "كتم الصوت",
+        "unmute": "إلغاء كتم الصوت",
+        "fullscreen": "ملء الشاشة",
+        "seekForward": "التقدم 10 ثوانٍ",
+        "seekBackward": "التراجع 10 ثوانٍ",
+        "volumeUp": "رفع الصوت",
+        "volumeDown": "خفض الصوت"
+      },
+      "keyboardShortcuts": {
+        "title": "اختصارات لوحة المفاتيح",
+        "space": "مسافة: تشغيل/إيقاف",
+        "leftRight": "←/→: التنقل ±10 ثوانٍ",
+        "upDown": "↑/↓: مستوى الصوت",
+        "m": "M: كتم/إلغاء كتم",
+        "f": "F: ملء الشاشة",
+        "esc": "Esc: خروج"
+      }
+    },
+    "loading": {
+      "title": "جاري تحميل تفاصيل الوسائط...",
+      "description": "يرجى الانتظار بينما نجلب معلومات الوسائط"
+    },
+    "error": {
+      "title": "خطأ في تحميل الوسائط",
+      "description": "فشل في تحميل تفاصيل الوسائط. يرجى المحاولة مرة أخرى.",
+      "retry": "إعادة المحاولة"
+    },
+    "highResolution": {
+      "title": "تفاصيل الدقة العالية",
+      "dimensions": "الأبعاد",
+      "aspectRatio": "نسبة العرض إلى الارتفاع",
+      "totalPixels": "إجمالي البكسل",
+      "viewImage": "عرض الصورة عالية الدقة",
+      "viewVideo": "عرض الفيديو عالي الدقة"
+    },
+    "providerData": {
+      "loadingTitle": "جاري تحميل التفاصيل المحسنة...",
+      "errorTitle": "فشل في تحميل التفاصيل المحسنة",
+      "retryButton": "إعادة المحاولة"
+    },
+    "videoPlayer": {
+      "loadingVideo": "جاري تحميل الفيديو...",
+      "browserNotSupported": "متصفحك لا يدعم تشغيل الفيديو.",
+      "downloadVideo": "تحميل الفيديو",
+      "fullScreenLoadingVideo": "جاري تحميل الفيديو...",
+      "fullScreenBrowserNotSupported": "متصفحك لا يدعم تشغيل الفيديو.",
+      "fullScreenDownloadVideo": "تحميل الفيديو"
+    },
+    "copyLink": {
+      "success": "تم نسخ الرابط بنجاح!",
+      "successAr": "تم نسخ الرابط بنجاح!"
+    }
+  },
   "services": {
     "title": "خدماتنا",
     "subtitle": "اكتشف مجموعتنا الشاملة من الخدمات الإبداعية المصممة لتلبية جميع احتياجاتك من المحتوى الرقمي",

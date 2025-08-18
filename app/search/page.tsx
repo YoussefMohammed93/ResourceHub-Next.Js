@@ -146,6 +146,16 @@ function hashString(input: string): number {
   }
   return hash >>> 0;
 }
+
+// Format file type for display (first letter capitalized)
+function formatFileType(fileType: string): string {
+  if (!fileType || typeof fileType !== "string") {
+    return "Unknown";
+  }
+
+  const trimmed = fileType.trim().toLowerCase();
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
 function mulberry32(a: number) {
   return function () {
     let t = (a += 0x6d2b79f5);
@@ -2140,7 +2150,7 @@ function SearchContent() {
                             {result.file_type === "video" && (
                               <Camera className="w-3 h-3" />
                             )}
-                            {result.file_type.toUpperCase()}
+                            {formatFileType(result.file_type)}
                           </div>
 
                           {/* Hover Overlay */}
@@ -2365,7 +2375,7 @@ function SearchContent() {
                                     {result.file_type === "video" && (
                                       <Camera className="w-3 h-3" />
                                     )}
-                                    {result.file_type.toUpperCase()}
+                                    {formatFileType(result.file_type)}
                                   </div>
 
                                   {/* Hover Overlay */}

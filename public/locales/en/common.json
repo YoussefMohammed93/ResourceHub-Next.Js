@@ -1103,6 +1103,119 @@
       "navigation": "Failed to navigate to search results"
     }
   },
+  "mediaDetail": {
+    "title": "Media Details",
+    "backToSearch": "Back to Search",
+    "notFound": {
+      "title": "Media Not Found",
+      "description": "The requested media could not be found.",
+      "backButton": "Back to Search"
+    },
+    "provider": {
+      "title": "Provider Information",
+      "source": "Source",
+      "fileType": "File Type",
+      "mediaId": "Media ID"
+    },
+    "details": {
+      "title": "Details",
+      "basicInfo": "Basic Information",
+      "fileType": "File Type",
+      "provider": "Provider",
+      "mediaId": "Media ID",
+      "dimensions": "Dimensions",
+      "aspectRatio": "Aspect Ratio",
+      "fileSize": "File Size",
+      "resolution": "Resolution",
+      "format": "Format"
+    },
+    "keywords": {
+      "title": "Keywords",
+      "showMore": "Show More",
+      "showLess": "Show Less",
+      "count": "{{count}} keywords",
+      "searchByKeyword": "Search by this keyword"
+    },
+    "relatedFiles": {
+      "title": "Related Files",
+      "description": "Discover similar content from the same provider",
+      "showingCount": "Showing {{count}} of {{total}} related files",
+      "viewDetails": "View Details",
+      "noRelatedFiles": "No related files found"
+    },
+    "actions": {
+      "title": "Actions",
+      "download": "Download",
+      "downloading": "Downloading...",
+      "viewSimilar": "View Similar",
+      "viewFullMedia": "View Full Media",
+      "viewFullImage": "View Full Image",
+      "viewFullVideo": "View Full Video",
+      "viewOnProvider": "View on {{provider}}",
+      "copyLink": "Copy Link",
+      "share": "Share",
+      "addToFavorites": "Add to Favorites",
+      "removeFromFavorites": "Remove from Favorites"
+    },
+    "mediaViewer": {
+      "title": "Media Viewer",
+      "fullScreenTitle": "Full Screen View",
+      "videoControls": {
+        "play": "Play",
+        "pause": "Pause",
+        "mute": "Mute",
+        "unmute": "Unmute",
+        "fullscreen": "Fullscreen",
+        "seekForward": "Seek forward 10s",
+        "seekBackward": "Seek backward 10s",
+        "volumeUp": "Volume up",
+        "volumeDown": "Volume down"
+      },
+      "keyboardShortcuts": {
+        "title": "Keyboard Shortcuts",
+        "space": "Space: Play/Pause",
+        "leftRight": "←/→: Seek ±10s",
+        "upDown": "↑/↓: Volume",
+        "m": "M: Mute/Unmute",
+        "f": "F: Fullscreen",
+        "esc": "Esc: Exit"
+      }
+    },
+    "loading": {
+      "title": "Loading Media Details...",
+      "description": "Please wait while we fetch the media information"
+    },
+    "error": {
+      "title": "Error Loading Media",
+      "description": "Failed to load media details. Please try again.",
+      "retry": "Retry"
+    },
+    "highResolution": {
+      "title": "High Resolution Details",
+      "dimensions": "Dimensions",
+      "aspectRatio": "Aspect Ratio",
+      "totalPixels": "Total Pixels",
+      "viewImage": "View High Resolution Image",
+      "viewVideo": "View High Resolution Video"
+    },
+    "providerData": {
+      "loadingTitle": "Loading Enhanced Details...",
+      "errorTitle": "Failed to Load Enhanced Details",
+      "retryButton": "Try Again"
+    },
+    "videoPlayer": {
+      "loadingVideo": "Loading video...",
+      "browserNotSupported": "Your browser does not support the video tag.",
+      "downloadVideo": "Download the video",
+      "fullScreenLoadingVideo": "Loading video...",
+      "fullScreenBrowserNotSupported": "Your browser does not support the video tag.",
+      "fullScreenDownloadVideo": "Download the video"
+    },
+    "copyLink": {
+      "success": "Link copied successfully!",
+      "successAr": "تم نسخ الرابط بنجاح!"
+    }
+  },
   "services": {
     "title": "Our Services",
     "subtitle": "Discover our comprehensive range of creative services designed to meet all your digital content needs",
