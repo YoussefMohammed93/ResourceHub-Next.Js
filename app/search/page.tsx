@@ -3,7 +3,6 @@
 "use client";
 
 import {
-  X,
   Search,
   Download,
   ChevronLeft,
@@ -106,35 +105,8 @@ interface FileTypeStats {
   count: number;
 }
 
-// API function to get provider statistics
-async function getProviderStats(): Promise<ProviderStats[]> {
-  try {
-    const response = await fetch("/api/search/providers");
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.providers || [];
-  } catch (error) {
-    console.error("Provider stats API error:", error);
-    throw error;
-  }
-}
-
-// API function to get file type statistics
-async function getFileTypeStats(): Promise<FileTypeStats[]> {
-  try {
-    const response = await fetch("/api/search/file-types");
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-    const data = await response.json();
-    return data.fileTypes || [];
-  } catch (error) {
-    console.error("File type stats API error:", error);
-    throw error;
-  }
-}
+// Note: Provider and file type statistics are now extracted directly from search results
+// No separate API calls needed
 
 // Helpers for deterministic shuffling and file type normalization
 function hashString(input: string): number {
@@ -313,48 +285,80 @@ function SearchContent() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [totalResults, setTotalResults] = useState(0);
 
-  // Dynamic sidebar data state
+  // Dynamic sidebar data state - extracted from search results
   const [providers, setProviders] = useState<ProviderStats[]>([]);
   const [fileTypes, setFileTypes] = useState<FileTypeStats[]>([]);
-  const [isProvidersLoading, setIsProvidersLoading] = useState(true);
-  const [isFileTypesLoading, setIsFileTypesLoading] = useState(true);
   const [providersError, setProvidersError] = useState<string | null>(null);
   const [fileTypesError, setFileTypesError] = useState<string | null>(null);
 
   const resultsPerPage = 60; // Updated to match requirements
   const totalPages = Math.ceil(totalResults / resultsPerPage);
 
-  // Functions to load dynamic sidebar data
-  const loadProviderStats = async () => {
-    try {
-      setIsProvidersLoading(true);
-      setProvidersError(null);
-      const providerStats = await getProviderStats();
-      setProviders(providerStats);
-    } catch (error) {
-      console.error("Failed to load provider stats:", error);
-      setProvidersError("Failed to load provider data");
-      // Set empty array as fallback
-      setProviders([]);
-    } finally {
-      setIsProvidersLoading(false);
-    }
+  // Functions to extract dynamic sidebar data from search results
+  const extractProvidersFromResults = (
+    apiResponse: ApiResponse
+  ): ProviderStats[] => {
+    const providerStats: ProviderStats[] = [];
+
+    Object.entries(apiResponse.results).forEach(([providerName, data]) => {
+      // Handle both old format (array) and new format (object with icon and results)
+      const items = Array.isArray(data) ? data : data.results || [];
+      const providerIcon = Array.isArray(data) ? undefined : data.icon;
+
+      // Create provider stats
+      const provider: ProviderStats = {
+        id: providerName.toLowerCase().replace(/\s+/g, ""), // Normalize ID for filtering
+        name: providerName,
+        logo: getProviderIcon(providerName, providerIcon),
+        count: items.length,
+        isOnline: true, // Assume online if we got results
+      };
+
+      providerStats.push(provider);
+    });
+
+    // Sort by count (descending) then by name
+    return providerStats.sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return a.name.localeCompare(b.name);
+    });
   };
 
-  const loadFileTypeStats = async () => {
-    try {
-      setIsFileTypesLoading(true);
-      setFileTypesError(null);
-      const fileTypeStats = await getFileTypeStats();
-      setFileTypes(fileTypeStats);
-    } catch (error) {
-      console.error("Failed to load file type stats:", error);
-      setFileTypesError("Failed to load file type data");
-      // Set empty array as fallback
-      setFileTypes([]);
-    } finally {
-      setIsFileTypesLoading(false);
-    }
+  const extractFileTypesFromResults = (
+    apiResponse: ApiResponse
+  ): FileTypeStats[] => {
+    const fileTypeCounts = new Map<string, number>();
+
+    Object.entries(apiResponse.results).forEach(([, data]) => {
+      // Handle both old format (array) and new format (object with icon and results)
+      const items = Array.isArray(data) ? data : data.results || [];
+
+      items.forEach((item) => {
+        const normalizedType = normalizeFileType(
+          item.file_type,
+          item.image_type
+        );
+        const displayType = formatFileType(normalizedType);
+
+        fileTypeCounts.set(
+          displayType,
+          (fileTypeCounts.get(displayType) || 0) + 1
+        );
+      });
+    });
+
+    // Convert to array and sort by count (descending)
+    const fileTypeStats: FileTypeStats[] = Array.from(
+      fileTypeCounts.entries()
+    ).map(([type, count]) => ({
+      id: type,
+      count,
+    }));
+
+    return fileTypeStats.sort((a, b) => {
+      if (b.count !== a.count) return b.count - a.count;
+      return a.id.localeCompare(b.id);
+    });
   };
 
   // Apply filter to results - simplified for direct API pagination
@@ -397,16 +401,8 @@ function SearchContent() {
     // Apply selected file types filter
     if (selectedFileTypes.length > 0) {
       filteredResults = filteredResults.filter((result) => {
-        const resultFileType =
-          result.file_type === "image"
-            ? "photos"
-            : result.file_type === "vector"
-              ? "vectors"
-              : result.file_type === "template"
-                ? "templates"
-                : result.file_type === "icon"
-                  ? "icons"
-                  : result.file_type;
+        // Format the result file type to match the display format used in sidebar
+        const resultFileType = formatFileType(result.file_type);
         return selectedFileTypes.includes(resultFileType);
       });
     }
@@ -464,6 +460,16 @@ function SearchContent() {
 
       // Transform API results
       const pageResults = transformApiResults(apiResponse, false);
+
+      // Extract providers and file types from the API response
+      const extractedProviders = extractProvidersFromResults(apiResponse);
+      const extractedFileTypes = extractFileTypesFromResults(apiResponse);
+
+      // Update sidebar data
+      setProviders(extractedProviders);
+      setFileTypes(extractedFileTypes);
+      setProvidersError(null);
+      setFileTypesError(null);
 
       // For page 1, store all results for filtering. For other pages, append to existing results
       if (page === 1) {
@@ -528,6 +534,12 @@ function SearchContent() {
       setSearchResults([]);
       setAllResults([]);
       setTotalResults(0);
+
+      // Clear sidebar data on error
+      setProviders([]);
+      setFileTypes([]);
+      setProvidersError("Failed to load provider data");
+      setFileTypesError("Failed to load file type data");
     } finally {
       if (retryCount === 0) {
         // Only set loading false on the initial call
@@ -558,11 +570,8 @@ function SearchContent() {
     }
   }, [initialQuery]);
 
-  // Load dynamic sidebar data on component mount
-  useEffect(() => {
-    loadProviderStats();
-    loadFileTypeStats();
-  }, []);
+  // Note: Sidebar data is now loaded dynamically from search results
+  // No need for separate API calls on component mount
 
   // Apply filters when filter selection changes (without triggering new API calls)
   useEffect(() => {
@@ -840,7 +849,7 @@ function SearchContent() {
         className={`min-h-screen bg-background font-sans ${isRTL ? "font-tajawal" : ""}`}
       >
         <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-          <div className="px-4 sm:px-5 mx-auto max-w-[1600px] search-container-3xl">
+          <div className="px-4 sm:px-5 w-full search-container-3xl">
             <div className="flex items-center justify-between h-16">
               <div
                 className={`flex items-center gap-1 sm:gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
@@ -995,7 +1004,7 @@ function SearchContent() {
               <Skeleton className="w-10 h-10 rounded-lg" />
             </div>
 
-            <div className="relative z-10 p-4 sm:p-6 space-y-6">
+            <div className="min-h-screen relative z-10 p-4 sm:p-6 space-y-6">
               <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center max-w-3xl mx-auto search-container-3xl search-section-3xl">
                 {/* Search Bar - Centered */}
                 <div className="flex justify-center w-full sm:w-3/4">
@@ -1103,7 +1112,7 @@ function SearchContent() {
     >
       {/* Header */}
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
-        <div className="px-4 sm:px-5 mx-auto max-w-[1600px] search-container-3xl">
+        <div className="px-4 sm:px-5 w-full search-container-3xl">
           <div className="flex items-center justify-between h-16">
             {/* Logo and Mobile Menu Button */}
             <div
@@ -1149,20 +1158,6 @@ function SearchContent() {
         `}
         >
           <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto bg-gradient-to-b from-background/80 via-background/60 to-background/80 backdrop-blur-sm">
-            {/* Mobile Close Button */}
-            <div
-              className={`lg:hidden flex justify-between items-center mb-4 p-4 bg-muted/50 rounded-lg border border-border ${isRTL ? "flex-row-reverse" : ""}`}
-            >
-              <h2 className="text-lg font-semibold text-foreground">
-                {t("search.filters.title")}
-              </h2>
-              <button
-                onClick={() => setIsSidebarOpen(false)}
-                className="p-2 hover:bg-secondary rounded-lg transition-colors text-muted-foreground hover:text-foreground"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
             {/* Providers Filter */}
             <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 border-b border-border">
               <div
@@ -1183,8 +1178,8 @@ function SearchContent() {
                 </button>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                {isProvidersLoading ? (
-                  // Loading skeleton for providers
+                {isSearchLoading ? (
+                  // Loading skeleton for providers during search
                   Array.from({ length: 8 }).map((_, i) => (
                     <Skeleton key={i} className="w-full h-16 rounded-lg" />
                   ))
@@ -1196,14 +1191,23 @@ function SearchContent() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={loadProviderStats}
+                      onClick={() =>
+                        searchQuery && performSearch(searchQuery, 1)
+                      }
                       className="mt-2"
                     >
                       {t("common.retry")}
                     </Button>
                   </div>
-                ) : providers.length === 0 ? (
-                  // Empty state
+                ) : providers.length === 0 && !searchQuery ? (
+                  // Empty state when no search performed
+                  <div className="col-span-2 text-center py-4">
+                    <p className="text-sm text-muted-foreground">
+                      {t("search.providers.searchToSeeProviders")}
+                    </p>
+                  </div>
+                ) : providers.length === 0 && searchQuery ? (
+                  // Empty state when search performed but no providers found
                   <div className="col-span-2 text-center py-4">
                     <p className="text-sm text-muted-foreground">
                       {t("search.providers.noData")}
@@ -1318,8 +1322,8 @@ function SearchContent() {
                 >
                   {t("search.filters.all")}
                 </Button>
-                {isFileTypesLoading ? (
-                  // Loading skeleton for file types
+                {isSearchLoading ? (
+                  // Loading skeleton for file types during search
                   Array.from({ length: 6 }).map((_, i) => (
                     <Skeleton key={i} className="w-16 h-8 rounded-full" />
                   ))
@@ -1330,14 +1334,23 @@ function SearchContent() {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={loadFileTypeStats}
+                      onClick={() =>
+                        searchQuery && performSearch(searchQuery, 1)
+                      }
                       className="mt-1 text-xs"
                     >
                       {t("common.retry")}
                     </Button>
                   </div>
-                ) : fileTypes.length === 0 ? (
-                  // Empty state
+                ) : fileTypes.length === 0 && !searchQuery ? (
+                  // Empty state when no search performed
+                  <div className="w-full text-center py-2">
+                    <p className="text-xs text-muted-foreground">
+                      {t("search.fileTypes.searchToSeeTypes")}
+                    </p>
+                  </div>
+                ) : fileTypes.length === 0 && searchQuery ? (
+                  // Empty state when search performed but no file types found
                   <div className="w-full text-center py-2">
                     <p className="text-xs text-muted-foreground">
                       {t("search.fileTypes.noData")}
@@ -1580,7 +1593,7 @@ function SearchContent() {
             </div>
           </div>
 
-          <div className="relative z-10 p-4 sm:p-6 space-y-6">
+          <div className="min-h-screen relative z-10 p-4 sm:p-6 space-y-6">
             <div className="w-full flex flex-col gap-5 sm:flex-row sm:items-center max-w-3xl mx-auto search-container-3xl search-section-3xl">
               {/* Search Bar - Centered */}
               <div className="flex justify-center w-full sm:w-3/4">
@@ -2564,7 +2577,7 @@ function SearchPageLoading() {
           {/* Background Pattern */}
           <div className="absolute inset-0 bg-grid-pattern opacity-35 dark:opacity-100"></div>
 
-          <div className="relative z-10 p-4 sm:p-6 space-y-6">
+          <div className="min-h-screen relative z-10 p-4 sm:p-6 space-y-6">
             {/* Search Bar */}
             <div className="flex justify-center">
               <Skeleton className="w-full max-w-2xl h-12 rounded-xl" />

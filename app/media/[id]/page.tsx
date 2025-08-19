@@ -2122,7 +2122,7 @@ export default function ImageDetailsPage() {
             imageData={imageData}
             isValidVideoUrl={isValidVideoUrl}
             getVideoMimeType={getVideoMimeType}
-            className="mt-6"
+            className="mt-6 hidden xl:grid"
           />
         </main>
       </div>

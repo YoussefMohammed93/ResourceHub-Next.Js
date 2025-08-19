@@ -1056,10 +1056,12 @@
       "illustrations": "illustrations",
       "icons": "icons",
       "templates": "templates",
-      "noData": "No file types available"
+      "noData": "No file types available",
+      "searchToSeeTypes": "Search to see available file types"
     },
     "providers": {
-      "noData": "No providers available"
+      "noData": "No providers available",
+      "searchToSeeProviders": "Search to see available providers"
     },
     "pagination": {
       "previous": "Previous Items",
