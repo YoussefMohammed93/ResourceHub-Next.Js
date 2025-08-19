@@ -436,6 +436,7 @@
       "price": "Price",
       "siteIcon": "Site Icon URL *",
       "external": "External Website",
+      "externalHelp": "External websites don't support cookie authentication",
       "adding": "Adding Site...",
       "add": "Add Site",
       "status": "Status",
@@ -733,14 +734,19 @@
       "button": "Add Cookie",
       "dialog": {
         "title": "Add New Cookie",
-        "description": "Upload a cookie file to add to your collection",
-        "dragAndDrop": {
-          "title": "Drag and drop your cookie file here",
-          "subtitle": "or click to browse files",
-          "supportedFormats": "Supported formats: .txt, .json, .cookie"
+        "description": "Add cookies for a specific website platform",
+        "website": {
+          "label": "Website Platform",
+          "placeholder": "Select a website platform",
+          "noWebsites": "No websites available"
         },
-        "uploading": "Uploading...",
-        "upload": "Upload Cookie"
+        "json": {
+          "label": "Cookies (JSON Format)",
+          "placeholder": "{\"session_id\": \"abc123\", \"auth_token\": \"xyz789\"}",
+          "help": "Enter cookies in valid JSON format. Example: {\"key\": \"value\"}"
+        },
+        "submitting": "Adding Cookie...",
+        "submit": "Add Cookie"
       }
     },
     "fields": {
