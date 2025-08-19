@@ -77,19 +77,6 @@ export function HeroSkeleton() {
             </div>
           </div>
 
-          {/* Category Cards Grid - Centered */}
-          <div className="w-full space-y-6 max-w-7xl px-4 sm:px-6">
-            <Skeleton className="h-4 sm:h-5 w-40 mx-auto bg-white dark:bg-accent/80" />
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6 justify-items-center">
-              {Array.from({ length: 5 }, (_, i) => (
-                <Skeleton
-                  key={i}
-                  className="w-full max-w-[300px] h-[80px] rounded-xl bg-white dark:bg-accent/80"
-                />
-              ))}
-            </div>
-          </div>
-
           {/* CTA Buttons - Centered */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center px-4 sm:px-0 w-full max-w-md sm:max-w-none">
             <Skeleton className="h-12 sm:h-14 w-full sm:w-40 rounded-xl bg-white dark:bg-accent/80" />

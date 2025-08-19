@@ -22,7 +22,6 @@ import {
   WifiOff,
 } from "lucide-react";
 import Link from "next/link";
-import Image from "next/image";
 import {
   Select,
   SelectContent,
@@ -225,14 +224,6 @@ function transformApiResults(
   const shuffled = seededShuffle(all, seed);
   return limitResults ? shuffled.slice(0, 60) : shuffled;
 }
-
-// Mock suggestions
-const suggestions = [
-  "Radiant hologram",
-  "Luminous dimension",
-  "Shimmering illusion",
-  "Luminous depth",
-];
 
 // Provider icon mapping for fallback when API doesn't provide icons
 const getProviderIcon = (providerName: string, apiIcon?: string): string => {
@@ -1672,182 +1663,6 @@ function SearchContent() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
-            </div>
-
-            <div className="relative z-10">
-              {/* Platforms Grid - Modern Card Design */}
-              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 2xl:grid-cols-7 platforms-grid-3xl gap-1 sm:gap-2">
-                {/* Freepik Card 1 */}
-                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="w-fit flex items-center justify-center gap-2">
-                    <Image
-                      src="/freepik-small.png"
-                      alt={t("supportedPlatforms.platforms.freepik")}
-                      width={20}
-                      height={20}
-                      className="object-contain hidden md:block"
-                    />
-                    <Image
-                      src="/freepik-big.png"
-                      alt=""
-                      width={80}
-                      height={100}
-                      className="object-cover rounded-2xl"
-                    />
-                  </div>
-                </div>
-
-                {/* Shutterstock Card 1 */}
-                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="w-fit flex items-center justify-center gap-2">
-                    <Image
-                      src="/shutterstock-small.webp"
-                      alt={t("supportedPlatforms.platforms.shutterstock")}
-                      width={20}
-                      height={20}
-                      className="object-contain hidden md:block"
-                    />
-                    <Image
-                      src="/shutterstock-big.png"
-                      alt=""
-                      width={80}
-                      height={100}
-                      className="object-cover rounded-2xl"
-                    />
-                  </div>
-                </div>
-
-                {/* Freepik Card 2 */}
-                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="w-fit flex items-center justify-center gap-2">
-                    <Image
-                      src="/freepik-small.png"
-                      alt={t("supportedPlatforms.platforms.freepik")}
-                      width={20}
-                      height={20}
-                      className="object-contain hidden md:block"
-                    />
-                    <Image
-                      src="/freepik-big.png"
-                      alt=""
-                      width={80}
-                      height={100}
-                      className="object-cover rounded-2xl"
-                    />
-                  </div>
-                </div>
-
-                {/* Shutterstock Card 2 */}
-                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="w-fit flex items-center justify-center gap-2">
-                    <Image
-                      src="/shutterstock-small.webp"
-                      alt={t("supportedPlatforms.platforms.shutterstock")}
-                      width={20}
-                      height={20}
-                      className="object-contain hidden md:block"
-                    />
-                    <Image
-                      src="/shutterstock-big.png"
-                      alt=""
-                      width={80}
-                      height={100}
-                      className="object-cover rounded-2xl"
-                    />
-                  </div>
-                </div>
-
-                {/* Freepik Card 3 */}
-                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105 platform-card">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="w-fit flex items-center justify-center gap-2">
-                    <Image
-                      src="/freepik-small.png"
-                      alt={t("supportedPlatforms.platforms.freepik")}
-                      width={20}
-                      height={20}
-                      className="object-contain hidden md:block"
-                    />
-                    <Image
-                      src="/freepik-big.png"
-                      alt=""
-                      width={80}
-                      height={100}
-                      className="object-cover rounded-2xl"
-                    />
-                  </div>
-                </div>
-
-                {/* Shutterstock Card 3 */}
-                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="w-fit flex items-center justify-center gap-2">
-                    <Image
-                      src="/shutterstock-small.webp"
-                      alt={t("supportedPlatforms.platforms.shutterstock")}
-                      width={20}
-                      height={20}
-                      className="object-contain hidden md:block"
-                    />
-                    <Image
-                      src="/shutterstock-big.png"
-                      alt=""
-                      width={80}
-                      height={100}
-                      className="object-cover rounded-2xl"
-                    />
-                  </div>
-                </div>
-
-                {/* Freepik Card 4 */}
-                <div className="flex items-center justify-center group relative bg-card shadow-xs dark:bg-muted backdrop-blur-sm border border-border/30 rounded-xl transition-all duration-300 hover:bg-card/60 hover:border-primary/30 hover:shadow-lg hover:scale-105">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="w-fit flex items-center justify-center gap-2">
-                    <Image
-                      src="/freepik-small.png"
-                      alt={t("supportedPlatforms.platforms.freepik")}
-                      width={20}
-                      height={20}
-                      className="object-contain hidden md:block"
-                    />
-                    <Image
-                      src="/freepik-big.png"
-                      alt=""
-                      width={80}
-                      height={120}
-                      className="object-cover rounded-2xl"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Suggestions */}
-            <div
-              className={`flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-center ${isRTL ? "space-x-reverse sm:space-x-3" : "space-x-3"}`}
-            >
-              <h3 className="text-sm font-medium text-muted-foreground">
-                {t("search.suggestions.title")}
-              </h3>
-              <div className="grid place-content-center grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 w-fit">
-                {suggestions.map((suggestion) => (
-                  <div
-                    key={suggestion}
-                    className="cursor-pointer flex items-center border-2 rounded-full px-3 py-2 gap-3 hover:bg-card transition-all duration-150"
-                    onClick={() => {
-                      setSearchQuery(suggestion);
-                      handleSearch();
-                    }}
-                  >
-                    <Search className="w-5 h-5" />
-                    <span className="text-sm">{suggestion}</span>
-                  </div>
-                ))}
               </div>
             </div>
 
