@@ -1120,6 +1120,7 @@ export interface SiteInput {
   SiteUrl: string;
   price?: string;
   icon: string;
+  external?: boolean;
 }
 
 export interface SiteResponse {
@@ -1132,6 +1133,7 @@ export interface Site {
   name: string;
   url: string;
   icon: string;
+  external: boolean;
   total_downloads: number;
   today_downloads: number;
   price: number;
@@ -1187,6 +1189,7 @@ export const siteApi = {
       SiteUrl: data.SiteUrl,
       price: data.price || "1",
       icon: data.icon,
+      external: data.external || false,
     });
   },
 
@@ -1197,6 +1200,7 @@ export const siteApi = {
       SiteUrl: data.SiteUrl,
       price: data.price || "1",
       icon: data.icon,
+      external: data.external || false,
     });
   },
 

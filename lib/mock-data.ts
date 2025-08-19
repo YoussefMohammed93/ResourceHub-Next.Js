@@ -176,6 +176,7 @@ export const mockSites: Site[] = [
     total_downloads: 15420,
     today_downloads: 89,
     price: 2,
+    external: false,
     last_reset: "2024-01-15",
   },
   {
@@ -185,6 +186,7 @@ export const mockSites: Site[] = [
     total_downloads: 8750,
     today_downloads: 45,
     price: 3,
+    external: true,
     last_reset: "2024-01-15",
   },
   {
@@ -194,6 +196,7 @@ export const mockSites: Site[] = [
     total_downloads: 12300,
     today_downloads: 67,
     price: 1,
+    external: false,
     last_reset: "2024-01-15",
   },
   {
@@ -203,6 +206,7 @@ export const mockSites: Site[] = [
     total_downloads: 9500,
     today_downloads: 52,
     price: 4,
+    external: true,
     last_reset: "2024-01-15",
   },
 ];

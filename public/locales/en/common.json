@@ -435,6 +435,7 @@
       "siteUrl": "Site URL",
       "price": "Price",
       "siteIcon": "Site Icon URL *",
+      "external": "External Website",
       "adding": "Adding Site...",
       "add": "Add Site",
       "status": "Status",
@@ -444,6 +445,7 @@
           "site": "Site",
           "url": "URL",
           "price": "Price",
+          "cookieSupport": "Cookie Support",
           "status": "Status",
           "actions": "Actions"
         },
@@ -452,6 +454,8 @@
         "accessPrice": "Access Price",
         "credits": "credits",
         "active": "Active",
+        "cookieSupported": "Supported",
+        "cookieNotSupported": "Not Supported",
         "delete": "Delete",
         "retry": "Retry"
       },
@@ -460,7 +464,9 @@
         "siteUrl": "https://example.com",
         "sitePrice": "Enter price in credits",
         "siteIcon": "https://example.com/icon.png",
-        "siteIconHelp": "Required - provide a URL to the site's icon image"
+        "siteIconHelp": "Required - provide a URL to the site's icon image",
+        "externalYes": "Yes",
+        "externalNo": "No"
       },
       "validation": {
         "nameRequired": "Site name is required",

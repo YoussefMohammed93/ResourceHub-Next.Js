@@ -33,6 +33,7 @@ import {
   Clock,
   Mail,
   X,
+  Cookie,
 } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -166,6 +167,7 @@ export default function DashboardPage() {
   const [siteUrl, setSiteUrl] = useState<string>("");
   const [sitePrice, setSitePrice] = useState<string>("");
   const [siteIcon, setSiteIcon] = useState<string>("");
+  const [siteExternal, setSiteExternal] = useState<boolean>(false);
   const [siteNameError, setSiteNameError] = useState<string>("");
   const [siteUrlError, setSiteUrlError] = useState<string>("");
   const [sitePriceError, setSitePriceError] = useState<string>("");
@@ -607,6 +609,10 @@ export default function DashboardPage() {
                 typeof siteObj.icon === "string"
                   ? siteObj.icon
                   : `${siteUrl}/favicon.ico`,
+              external:
+                typeof siteObj.external === "boolean"
+                  ? siteObj.external
+                  : false,
               total_downloads:
                 typeof siteObj.total_downloads === "number"
                   ? siteObj.total_downloads
@@ -846,6 +852,7 @@ export default function DashboardPage() {
         SiteUrl: siteUrl,
         price: sitePrice,
         icon: siteIcon,
+        external: siteExternal,
       };
 
       const response = await siteApi.addSite(siteData);
@@ -860,6 +867,7 @@ export default function DashboardPage() {
           url: siteData?.url || siteUrl,
           price: siteData?.price ? Number(siteData.price) : Number(sitePrice),
           icon: siteIcon,
+          external: siteExternal,
           total_downloads: 0, // Default value since not returned by API
           today_downloads: 0, // Default value since not returned by API
           last_reset: new Date().toISOString().split("T")[0], // Default to today
@@ -877,6 +885,7 @@ export default function DashboardPage() {
         setSiteUrl("");
         setSitePrice("");
         setSiteIcon("");
+        setSiteExternal(false);
 
         // Show success toast
         toast.success(t("dashboard.siteManagement.toast.addSuccess"));
@@ -3142,6 +3151,54 @@ export default function DashboardPage() {
                             )}
                           </p>
                         </div>
+                        {/* External Website */}
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="site-external"
+                            className="text-sm font-medium text-foreground flex items-center"
+                          >
+                            <Cookie className="w-4 h-4" />
+                            {t("dashboard.siteManagement.external")}
+                          </Label>
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="external-no"
+                                name="external"
+                                checked={!siteExternal}
+                                onChange={() => setSiteExternal(false)}
+                                className="w-4 h-4 text-primary border-gray-300 focus:ring-primary focus:ring-2"
+                              />
+                              <Label
+                                htmlFor="external-no"
+                                className="text-sm text-foreground cursor-pointer"
+                              >
+                                {t(
+                                  "dashboard.siteManagement.placeholders.externalNo"
+                                )}
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="external-yes"
+                                name="external"
+                                checked={siteExternal}
+                                onChange={() => setSiteExternal(true)}
+                                className="w-4 h-4 text-primary border-gray-300 focus:ring-primary focus:ring-2"
+                              />
+                              <Label
+                                htmlFor="external-yes"
+                                className="text-sm text-foreground cursor-pointer"
+                              >
+                                {t(
+                                  "dashboard.siteManagement.placeholders.externalYes"
+                                )}
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                       <DialogFooter>
                         <Button
@@ -3250,6 +3307,13 @@ export default function DashboardPage() {
                                 className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
                               >
                                 {t(
+                                  "dashboard.siteManagement.table.headers.cookieSupport"
+                                )}
+                              </th>
+                              <th
+                                className={`${isRTL ? "text-right" : "text-left"} py-4 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider`}
+                              >
+                                {t(
                                   "dashboard.siteManagement.table.headers.status"
                                 )}
                               </th>
@@ -3321,6 +3385,28 @@ export default function DashboardPage() {
                                     {t(
                                       "dashboard.siteManagement.table.credits"
                                     )}
+                                  </div>
+                                </td>
+                                <td className="py-4 px-4">
+                                  <div
+                                    className={`inline-flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium rounded-full ${
+                                      !site.external
+                                        ? "bg-green-100 text-green-800 border border-green-200"
+                                        : "bg-orange-100 text-orange-800 border border-orange-200"
+                                    }`}
+                                  >
+                                    {!site.external ? (
+                                      <CheckCircle className="w-3 h-3" />
+                                    ) : (
+                                      <XCircle className="w-3 h-3" />
+                                    )}
+                                    <span>
+                                      {t(
+                                        !site.external
+                                          ? "dashboard.siteManagement.table.cookieSupported"
+                                          : "dashboard.siteManagement.table.cookieNotSupported"
+                                      )}
+                                    </span>
                                   </div>
                                 </td>
                                 <td className="py-4 px-4">
@@ -3439,6 +3525,72 @@ export default function DashboardPage() {
                                     {site.price}{" "}
                                     {t(
                                       "dashboard.siteManagement.table.credits"
+                                    )}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                  {t(
+                                    "dashboard.siteManagement.table.headers.cookieSupport"
+                                  )}
+                                </div>
+                                <div
+                                  className={`flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"} p-2 rounded-lg ${
+                                    !site.external
+                                      ? "bg-green-50 border border-green-200"
+                                      : "bg-orange-50 border border-orange-200"
+                                  }`}
+                                >
+                                  {!site.external ? (
+                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                  ) : (
+                                    <XCircle className="w-4 h-4 text-orange-600" />
+                                  )}
+                                  <span
+                                    className={`text-sm font-semibold ${
+                                      !site.external
+                                        ? "text-green-700"
+                                        : "text-orange-700"
+                                    }`}
+                                  >
+                                    {t(
+                                      !site.external
+                                        ? "dashboard.siteManagement.table.cookieSupported"
+                                        : "dashboard.siteManagement.table.cookieNotSupported"
+                                    )}
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="space-y-1">
+                                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                  {t(
+                                    "dashboard.siteManagement.table.headers.cookieSupport"
+                                  )}
+                                </div>
+                                <div
+                                  className={`flex items-center ${isRTL ? "space-x-reverse space-x-2" : "space-x-2"} p-2 rounded-lg ${
+                                    !site.external
+                                      ? "bg-green-50 border border-green-200"
+                                      : "bg-orange-50 border border-orange-200"
+                                  }`}
+                                >
+                                  {!site.external ? (
+                                    <CheckCircle className="w-4 h-4 text-green-600" />
+                                  ) : (
+                                    <XCircle className="w-4 h-4 text-orange-600" />
+                                  )}
+                                  <span
+                                    className={`text-sm font-semibold ${
+                                      !site.external
+                                        ? "text-green-700"
+                                        : "text-orange-700"
+                                    }`}
+                                  >
+                                    {t(
+                                      !site.external
+                                        ? "dashboard.siteManagement.table.cookieSupported"
+                                        : "dashboard.siteManagement.table.cookieNotSupported"
                                     )}
                                   </span>
                                 </div>

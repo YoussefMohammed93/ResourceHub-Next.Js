@@ -883,6 +883,8 @@ export default function HomePage() {
               typeof siteObj.total_downloads === "number"
                 ? siteObj.total_downloads
                 : 0,
+            external:
+              typeof siteObj.external === "boolean" ? siteObj.external : false,
             today_downloads:
               typeof siteObj.today_downloads === "number"
                 ? siteObj.today_downloads
@@ -2183,7 +2185,7 @@ export default function HomePage() {
               return (
                 <Link
                   key={index}
-                  href={`/search?q=${(categoryName)}`}
+                  href={`/search?q=${categoryName}`}
                   className="group relative dark:bg-card bg-background/50 shadow-sm backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 hover:shadow-md hover:scale-105 flex flex-col items-center text-center"
                 >
                   {/* Category icon */}

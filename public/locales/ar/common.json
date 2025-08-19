@@ -435,6 +435,7 @@
       "siteUrl": "رابط الموقع",
       "price": "السعر",
       "siteIcon": "رابط أيقونة الموقع *",
+      "external": "موقع خارجي",
       "adding": "جاري إضافة الموقع...",
       "add": "إضافة موقع",
       "status": "الحالة",
@@ -444,6 +445,7 @@
           "site": "الموقع",
           "url": "الرابط",
           "price": "السعر",
+          "cookieSupport": "دعم ملفات تعريف الارتباط",
           "status": "الحالة",
           "actions": "الإجراءات"
         },
@@ -452,6 +454,8 @@
         "accessPrice": "سعر الوصول",
         "credits": "نقطة",
         "active": "نشط",
+        "cookieSupported": "مدعوم",
+        "cookieNotSupported": "غير مدعوم",
         "delete": "حذف",
         "retry": "إعادة المحاولة"
       },
@@ -460,7 +464,9 @@
         "siteUrl": "https://example.com",
         "sitePrice": "أدخل السعر بالنقاط",
         "siteIcon": "https://example.com/icon.png",
-        "siteIconHelp": "مطلوب - يرجى توفير رابط لصورة أيقونة الموقع"
+        "siteIconHelp": "مطلوب - يرجى توفير رابط لصورة أيقونة الموقع",
+        "externalYes": "نعم",
+        "externalNo": "لا"
       },
       "validation": {
         "nameRequired": "اسم الموقع مطلوب",
