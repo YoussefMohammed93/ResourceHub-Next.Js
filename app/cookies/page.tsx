@@ -10,6 +10,7 @@ import {
   Upload,
   FileText,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -35,73 +36,50 @@ import { Card } from "@/components/ui/card";
 import { Sidebar } from "@/components/sidebar";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
+import { AdminRouteGuard } from "@/components/admin-route-guard";
+import { cookieApi, type CookieData } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
+import { toast } from "sonner";
 
-// Fake data for cookies
-const mockCookies = [
-  {
-    id: 1,
-    domain: "example.com",
-    username: "user1",
-    credit: 100,
-    lastUpdate: "2025-05-01",
-    status: true,
-    icon: "B",
-    iconColor: "bg-gray-800",
-  },
-  {
-    id: 2,
-    domain: "example.net",
-    username: "user2",
-    credit: 200,
-    lastUpdate: "2025-05-02",
-    status: false,
-    icon: "F",
-    iconColor: "bg-blue-500",
-  },
-  {
-    id: 3,
-    domain: "example.org",
-    username: "user3",
-    credit: 300,
-    lastUpdate: "2025-05-03",
-    status: true,
-    icon: "G",
-    iconColor: "bg-gray-600",
-  },
-  {
-    id: 4,
-    domain: "example.org",
-    username: "user4",
-    credit: 400,
-    lastUpdate: "2025-05-04",
-    status: false,
-    icon: "G",
-    iconColor: "bg-gray-600",
-  },
-  {
-    id: 5,
-    domain: "example.com",
-    username: "user5",
-    credit: 500,
-    lastUpdate: "2025-05-05",
-    status: true,
-    icon: "B",
-    iconColor: "bg-gray-800",
-  },
-  {
-    id: 6,
-    domain: "example.net",
-    username: "user6",
-    credit: 600,
-    lastUpdate: "2025-05-06",
-    status: false,
-    icon: "F",
-    iconColor: "bg-blue-500",
-  },
-];
+// Helper function to generate icon and color for platform
+function getPlatformIcon(platformName: string): {
+  icon: string;
+  iconColor: string;
+} {
+  const platformIcons: Record<string, { icon: string; iconColor: string }> = {
+    twitter: { icon: "T", iconColor: "bg-blue-500" },
+    facebook: { icon: "F", iconColor: "bg-blue-600" },
+    instagram: { icon: "I", iconColor: "bg-pink-500" },
+    youtube: { icon: "Y", iconColor: "bg-red-500" },
+    tiktok: { icon: "T", iconColor: "bg-black" },
+    linkedin: { icon: "L", iconColor: "bg-blue-700" },
+    pinterest: { icon: "P", iconColor: "bg-red-600" },
+    reddit: { icon: "R", iconColor: "bg-orange-500" },
+    snapchat: { icon: "S", iconColor: "bg-yellow-400" },
+    discord: { icon: "D", iconColor: "bg-indigo-500" },
+    telegram: { icon: "T", iconColor: "bg-blue-400" },
+    whatsapp: { icon: "W", iconColor: "bg-green-500" },
+    freepik: { icon: "F", iconColor: "bg-blue-500" },
+    shutterstock: { icon: "S", iconColor: "bg-red-500" },
+    adobe: { icon: "A", iconColor: "bg-red-600" },
+    unsplash: { icon: "U", iconColor: "bg-gray-800" },
+    pexels: { icon: "P", iconColor: "bg-green-600" },
+    pixabay: { icon: "P", iconColor: "bg-green-500" },
+  };
+
+  const platform = platformName.toLowerCase();
+  return (
+    platformIcons[platform] || {
+      icon: platformName.charAt(0).toUpperCase(),
+      iconColor: "bg-primary",
+    }
+  );
+}
 
 // Cookies Page Skeleton Component
 function CookiesPageSkeleton({ isRTL }: { isRTL: boolean }) {
@@ -142,7 +120,7 @@ function CookiesPageSkeleton({ isRTL }: { isRTL: boolean }) {
 
       {/* Main Content Skeleton */}
       <main
-        className={`flex-1 ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
+        className={`flex-1 min-h-screen ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
       >
         {/* Page Header Skeleton */}
         <div
@@ -196,26 +174,48 @@ function CookiesPageSkeleton({ isRTL }: { isRTL: boolean }) {
   );
 }
 
-export default function CookiesPage() {
+function CookiesPageContent() {
   const { t } = useTranslation("common");
   const { isRTL, isLoading } = useLanguage();
+  const { isAuthenticated, isAdmin } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [cookies, setCookies] = useState(mockCookies);
+  const [cookies, setCookies] = useState<CookieData[]>([]);
   const [deletingCookieId, setDeletingCookieId] = useState<number | null>(null);
   const [isCookiesLoading, setIsCookiesLoading] = useState(true);
   const [isAddCookieDialogOpen, setIsAddCookieDialogOpen] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [platformName, setPlatformName] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Simulate cookies data loading
+  // Load cookies data (in a real implementation, this would fetch from an API)
   useEffect(() => {
-    const timer = setTimeout(() => {
+    const loadCookies = async () => {
+      try {
+        setIsCookiesLoading(true);
+
+        // For now, we'll use empty array since we don't have a GET endpoint
+        // In a real implementation, you would fetch existing cookies from the backend
+        setCookies([]);
+
+        // Simulate loading time
+        await new Promise((resolve) => setTimeout(resolve, 800));
+      } catch (error) {
+        console.error("Failed to load cookies:", error);
+        toast.error("Failed to load cookies. Please try again.");
+      } finally {
+        setIsCookiesLoading(false);
+      }
+    };
+
+    if (isAuthenticated && isAdmin) {
+      loadCookies();
+    } else {
       setIsCookiesLoading(false);
-    }, 1200); // Simulate 1.2 second loading time
-    return () => clearTimeout(timer);
-  }, []);
+    }
+  }, [isAuthenticated, isAdmin]);
 
   const handleDeleteCookie = (cookieId: number) => {
     setDeletingCookieId(cookieId);
@@ -235,8 +235,13 @@ export default function CookiesPage() {
     );
   };
 
-  const handleFileSelect = (file: File) => {
+  const handleFileSelect = async (file: File) => {
     setSelectedFile(file);
+    setUploadError(null);
+
+    // Extract platform name from filename
+    const extractedPlatform = cookieApi.extractPlatformName(file.name, "");
+    setPlatformName(extractedPlatform);
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -265,30 +270,71 @@ export default function CookiesPage() {
     }
   };
 
-  const handleUploadCookie = () => {
-    if (!selectedFile) return;
+  const resetDialog = () => {
+    setSelectedFile(null);
+    setPlatformName("");
+    setUploadError(null);
+    setIsDragOver(false);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
+
+  const handleUploadCookie = async () => {
+    if (!selectedFile || !platformName) return;
 
     setIsUploading(true);
+    setUploadError(null);
 
-    // Simulate upload
-    setTimeout(() => {
-      // Add new cookie to the list
-      const newCookie = {
-        id: cookies.length + 1,
-        domain: selectedFile.name.replace(/\.[^/.]+$/, "") + ".com",
-        username: "newuser",
-        credit: 0,
-        lastUpdate: new Date().toISOString().split("T")[0],
-        status: true,
-        icon: selectedFile.name.charAt(0).toUpperCase(),
-        iconColor: "bg-primary",
-      };
+    try {
+      // Process the cookie file
+      const fileResult = await cookieApi.processCookieFile(selectedFile);
 
-      setCookies([...cookies, newCookie]);
+      if (!fileResult.success) {
+        setUploadError(fileResult.error || "Failed to process cookie file");
+        setIsUploading(false);
+        return;
+      }
+
+      // Add cookie via API
+      const response = await cookieApi.addCookie({
+        cookies: fileResult.cookies!,
+        platform_name: platformName,
+      });
+
+      if (response.success && response.data) {
+        // Add new cookie to the local state
+        const { icon, iconColor } = getPlatformIcon(platformName);
+        const newCookie: CookieData = {
+          id: Date.now(), // Use timestamp as temporary ID
+          platform_name: platformName,
+          username: response.data.data?.email?.split("@")[0] || "user",
+          credit: 0,
+          lastUpdate: new Date().toISOString().split("T")[0],
+          status: true,
+          icon,
+          iconColor,
+        };
+
+        setCookies([...cookies, newCookie]);
+        toast.success(`Cookie for ${platformName} added successfully!`);
+
+        // Reset form
+        setIsAddCookieDialogOpen(false);
+        resetDialog();
+      } else {
+        const errorMessage = response.error?.message || "Failed to add cookie";
+        setUploadError(errorMessage);
+        toast.error(errorMessage);
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      const errorMessage = "Network error occurred. Please try again.";
+      setUploadError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
       setIsUploading(false);
-      setSelectedFile(null);
-      setIsAddCookieDialogOpen(false);
-    }, 2000);
+    }
   };
 
   // Show loading skeleton while language data or cookies data is loading
@@ -334,7 +380,7 @@ export default function CookiesPage() {
 
       {/* Main Content */}
       <main
-        className={`flex-1 ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
+        className={`flex-1 min-h-screen ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
       >
         {/* Page Header */}
         <div
@@ -356,7 +402,12 @@ export default function CookiesPage() {
           {/* Add Cookie Button */}
           <Dialog
             open={isAddCookieDialogOpen}
-            onOpenChange={setIsAddCookieDialogOpen}
+            onOpenChange={(open) => {
+              setIsAddCookieDialogOpen(open);
+              if (!open) {
+                resetDialog();
+              }
+            }}
           >
             <DialogTrigger asChild>
               <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0">
@@ -428,20 +479,58 @@ export default function CookiesPage() {
 
                 {/* Selected File Display */}
                 {selectedFile && (
-                  <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-                    <FileText className="w-5 h-5 text-primary" />
-                    <div className="flex-1">
-                      <p
-                        className={`text-sm font-medium text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+                      <FileText className="w-5 h-5 text-primary" />
+                      <div className="flex-1">
+                        <p
+                          className={`text-sm font-medium text-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                        >
+                          {selectedFile.name}
+                        </p>
+                        <p
+                          className={`text-xs text-muted-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
+                        >
+                          {(selectedFile.size / 1024).toFixed(1)} KB
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Platform Name Input */}
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="platform-name"
+                        className={isRTL ? "font-tajawal" : "font-sans"}
                       >
-                        {selectedFile.name}
-                      </p>
+                        Platform Name
+                      </Label>
+                      <Input
+                        id="platform-name"
+                        value={platformName}
+                        onChange={(e) => setPlatformName(e.target.value)}
+                        placeholder="e.g., twitter, facebook, freepik"
+                        className={
+                          isRTL ? "font-tajawal text-right" : "font-sans"
+                        }
+                      />
                       <p
                         className={`text-xs text-muted-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
                       >
-                        {(selectedFile.size / 1024).toFixed(1)} KB
+                        Auto-detected from filename. You can modify if needed.
                       </p>
                     </div>
+                  </div>
+                )}
+
+                {/* Error Display */}
+                {uploadError && (
+                  <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <p
+                      className={`text-sm text-destructive ${isRTL ? "font-tajawal" : "font-sans"}`}
+                    >
+                      {uploadError}
+                    </p>
                   </div>
                 )}
               </div>
@@ -450,7 +539,10 @@ export default function CookiesPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setIsAddCookieDialogOpen(false)}
+                  onClick={() => {
+                    setIsAddCookieDialogOpen(false);
+                    resetDialog();
+                  }}
                   disabled={isUploading}
                   className={isRTL ? "font-tajawal" : "font-sans"}
                 >
@@ -459,7 +551,9 @@ export default function CookiesPage() {
                 <Button
                   type="button"
                   onClick={handleUploadCookie}
-                  disabled={!selectedFile || isUploading}
+                  disabled={
+                    !selectedFile || !platformName.trim() || isUploading
+                  }
                   className={`bg-primary hover:bg-primary/90 text-primary-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
                 >
                   {isUploading ? (
@@ -519,7 +613,7 @@ export default function CookiesPage() {
                         className={isRTL ? "font-tajawal" : "font-sans"}
                       >
                         {t("cookies.deleteDialog.description", {
-                          domain: cookie.domain,
+                          domain: cookie.platform_name,
                         })}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
@@ -574,7 +668,7 @@ export default function CookiesPage() {
                   <h3
                     className={`text-lg font-semibold text-foreground group-hover:text-primary transition-colors ${isRTL ? "font-tajawal" : "font-sans"}`}
                   >
-                    {cookie.domain}
+                    {cookie.platform_name}
                   </h3>
                 </div>
 
@@ -676,5 +770,13 @@ export default function CookiesPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function CookiesPage() {
+  return (
+    <AdminRouteGuard fallbackPath="/dashboard">
+      <CookiesPageContent />
+    </AdminRouteGuard>
   );
 }

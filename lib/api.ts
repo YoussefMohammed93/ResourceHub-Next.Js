@@ -1776,3 +1776,194 @@ export const searchApi = {
     }
   },
 };
+
+// Cookie Management Types
+export interface CookieAddRequest {
+  cookies: string; // JSON stringified cookies
+  platform_name: string; // Target platform name
+}
+
+export interface CookieAddResponse {
+  success: boolean;
+  data?: {
+    email: string;
+    user_id: string;
+    is_premium: boolean;
+  };
+  error?: {
+    id: number | string;
+    message: string;
+  };
+}
+
+export interface CookieData {
+  id: number;
+  platform_name: string;
+  username?: string;
+  credit?: number;
+  lastUpdate: string;
+  status: boolean;
+  icon?: string;
+  iconColor?: string;
+}
+
+// Cookie Management API functions
+export const cookieApi = {
+  // Add cookies for a platform
+  async addCookie(
+    data: CookieAddRequest
+  ): Promise<ApiResponse<CookieAddResponse>> {
+    console.log("[Cookie API] Adding cookie for platform:", data.platform_name);
+
+    try {
+      // Validate that cookies is valid JSON
+      JSON.parse(data.cookies);
+    } catch (error) {
+      console.error("[Cookie API] Invalid JSON in cookies field:", error);
+      return {
+        success: false,
+        error: {
+          id: 2,
+          message: "cookie must be json.",
+        },
+      };
+    }
+
+    return apiRequest<CookieAddResponse>("/v1/cookies/add", "POST", {
+      cookies: data.cookies,
+      platform_name: data.platform_name,
+    });
+  },
+
+  // Process cookie file and extract JSON data
+  async processCookieFile(
+    file: File
+  ): Promise<{ success: boolean; cookies?: string; error?: string }> {
+    try {
+      const text = await file.text();
+
+      // Try to parse as JSON first
+      try {
+        JSON.parse(text);
+        return { success: true, cookies: text };
+      } catch {
+        // If not JSON, try to extract cookies from common formats
+
+        // Netscape cookie format
+        if (
+          text.includes("# Netscape HTTP Cookie File") ||
+          text.includes("\t")
+        ) {
+          const cookieObj: Record<string, string> = {};
+          const lines = text.split("\n");
+
+          for (const line of lines) {
+            if (line.startsWith("#") || !line.trim()) continue;
+
+            const parts = line.split("\t");
+            if (parts.length >= 7) {
+              const name = parts[5];
+              const value = parts[6];
+              if (name && value) {
+                cookieObj[name] = value;
+              }
+            }
+          }
+
+          if (Object.keys(cookieObj).length > 0) {
+            return { success: true, cookies: JSON.stringify(cookieObj) };
+          }
+        }
+
+        // Try to parse as key=value format
+        const cookieObj: Record<string, string> = {};
+        const lines = text.split("\n");
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed || trimmed.startsWith("#")) continue;
+
+          const equalIndex = trimmed.indexOf("=");
+          if (equalIndex > 0) {
+            const key = trimmed.substring(0, equalIndex).trim();
+            const value = trimmed.substring(equalIndex + 1).trim();
+            cookieObj[key] = value;
+          }
+        }
+
+        if (Object.keys(cookieObj).length > 0) {
+          return { success: true, cookies: JSON.stringify(cookieObj) };
+        }
+
+        return {
+          success: false,
+          error:
+            "Unable to parse cookie file. Please ensure it's in JSON format or a supported cookie format.",
+        };
+      }
+    } catch (error) {
+      console.error("[Cookie API] Error processing file:", error);
+      return {
+        success: false,
+        error: "Error reading file. Please try again.",
+      };
+    }
+  },
+
+  // Extract platform name from file name or content
+  extractPlatformName(fileName: string, cookies: string): string {
+    // Remove file extension and clean up the name
+    const platformName = fileName.replace(/\.[^/.]+$/, "").toLowerCase();
+
+    // Common platform mappings
+    const platformMappings: Record<string, string> = {
+      twitter: "twitter",
+      x: "twitter",
+      facebook: "facebook",
+      fb: "facebook",
+      instagram: "instagram",
+      ig: "instagram",
+      youtube: "youtube",
+      yt: "youtube",
+      tiktok: "tiktok",
+      linkedin: "linkedin",
+      pinterest: "pinterest",
+      reddit: "reddit",
+      snapchat: "snapchat",
+      discord: "discord",
+      telegram: "telegram",
+      whatsapp: "whatsapp",
+      freepik: "freepik",
+      shutterstock: "shutterstock",
+      adobe: "adobe",
+      stock: "adobe",
+      unsplash: "unsplash",
+      pexels: "pexels",
+      pixabay: "pixabay",
+    };
+
+    // Check if filename contains a known platform
+    for (const [key, value] of Object.entries(platformMappings)) {
+      if (platformName.includes(key)) {
+        return value;
+      }
+    }
+
+    // Try to extract from cookie content
+    try {
+      const cookieObj = JSON.parse(cookies);
+      const cookieKeys = Object.keys(cookieObj).join(" ").toLowerCase();
+
+      for (const [key, value] of Object.entries(platformMappings)) {
+        if (cookieKeys.includes(key)) {
+          return value;
+        }
+      }
+    } catch {
+      // Ignore JSON parse errors
+    }
+
+    // Return cleaned filename if no platform detected
+    return platformName || "unknown";
+  },
+};
