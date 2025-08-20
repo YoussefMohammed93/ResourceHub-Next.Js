@@ -1796,13 +1796,48 @@ export interface CookieAddResponse {
   };
 }
 
+// GET /v1/cookies/get response shape (wrapped by ApiResponse)
+export interface CookieGetResponse {
+  success: boolean;
+  data: Record<
+    string,
+    Array<{
+      email: string;
+      user_id: number;
+      is_premium: boolean;
+      credits?: number;
+    }>
+  >;
+}
+
+// POST /v1/cookies/delete request and response
+export interface CookieDeleteRequest {
+  platform_name: string;
+  email: string;
+}
+
+export interface CookieDeleteResponse {
+  success: boolean;
+  data?: {
+    message: string;
+    platform_name: string;
+    email: string;
+  };
+  error?: {
+    id: number | string;
+    message: string;
+  };
+}
+
 export interface CookieData {
   id: number;
   platform_name: string;
+  email?: string;
+  user_id?: number;
   username?: string;
   credit?: number;
   lastUpdate: string;
-  status: boolean;
+  is_premium?: boolean;
   icon?: string;
   iconColor?: string;
 }
@@ -1832,6 +1867,21 @@ export const cookieApi = {
     return apiRequest<CookieAddResponse>("/v1/cookies/add", "POST", {
       cookies: data.cookies,
       platform_name: data.platform_name,
+    });
+  },
+
+  // Get stored cookies grouped by platform
+  async getCookies(): Promise<ApiResponse<CookieGetResponse>> {
+    return apiRequest<CookieGetResponse>("/v1/cookies/get", "GET");
+  },
+
+  // Delete cookies for a specific platform/email
+  async deleteCookie(
+    data: CookieDeleteRequest
+  ): Promise<ApiResponse<CookieDeleteResponse>> {
+    return apiRequest<CookieDeleteResponse>("/v1/cookies/delete", "POST", {
+      platform_name: data.platform_name,
+      email: data.email,
     });
   },
 

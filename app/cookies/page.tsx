@@ -1,9 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Trash2,
   Menu,
@@ -221,6 +222,7 @@ function CookiesPageContent() {
   const [websites, setWebsites] = useState<WebsiteOption[]>([]);
   const [isLoadingWebsites, setIsLoadingWebsites] = useState<boolean>(false);
   const [websitesError, setWebsitesError] = useState<string | null>(null);
+  const loadingRef = useRef<boolean>(false);
 
   // Load websites from API
   const loadWebsites = async () => {
@@ -300,50 +302,154 @@ function CookiesPageContent() {
     }
   };
 
-  // Load cookies data (in a real implementation, this would fetch from an API)
+  // Load cookies data from backend and websites list
   useEffect(() => {
     const loadCookies = async () => {
+      if (loadingRef.current) return; // Prevent duplicate calls
+      loadingRef.current = true;
+
       try {
         setIsCookiesLoading(true);
 
-        // For now, we'll use empty array since we don't have a GET endpoint
-        // In a real implementation, you would fetch existing cookies from the backend
-        setCookies([]);
+        const response = await cookieApi.getCookies();
+        if (response.success) {
+          let rawData: Record<string, Array<Record<string, unknown>>> = {};
 
-        // Simulate loading time
-        await new Promise((resolve) => setTimeout(resolve, 800));
+          if (
+            response.data &&
+            typeof response.data === "object" &&
+            !Array.isArray(response.data)
+          ) {
+            const d = response.data as unknown as {
+              data?: Record<string, Array<Record<string, unknown>>>;
+            };
+            if (d.data && typeof d.data === "object") {
+              rawData = d.data;
+            } else {
+              rawData = d as unknown as Record<
+                string,
+                Array<Record<string, unknown>>
+              >;
+            }
+          }
+
+          const items: CookieData[] = [];
+          const nowDate = new Date().toISOString().split("T")[0];
+          Object.entries(rawData).forEach(([platform, accounts]) => {
+            accounts?.forEach((acc, idx) => {
+              const email =
+                typeof (acc as any).email === "string"
+                  ? (acc as any).email
+                  : undefined;
+              const user_id =
+                typeof (acc as any).user_id === "number"
+                  ? (acc as any).user_id
+                  : undefined;
+              const credits =
+                typeof (acc as any).credits === "number"
+                  ? (acc as any).credits
+                  : undefined;
+              const isPremium =
+                typeof (acc as any).is_premium === "boolean"
+                  ? (acc as any).is_premium
+                  : undefined;
+              const { icon, iconColor } = getPlatformIcon(
+                platform.toLowerCase(),
+                websites
+              );
+              items.push({
+                id: Date.now() + items.length + idx,
+                platform_name: platform,
+                email,
+                user_id,
+                username: email ? email.split("@")[0] : "user",
+                credit: credits,
+                lastUpdate: nowDate,
+                is_premium: isPremium,
+                icon,
+                iconColor,
+              });
+            });
+          });
+
+          setCookies(items);
+        } else {
+          const errorMessage =
+            response.error?.message || "Failed to load cookies.";
+          toast.error(errorMessage);
+          setCookies([]);
+        }
       } catch (error) {
         console.error("Failed to load cookies:", error);
         toast.error("Failed to load cookies. Please try again.");
       } finally {
         setIsCookiesLoading(false);
+        loadingRef.current = false; // Reset loading flag
       }
     };
 
     if (isAuthenticated && isAdmin) {
+      // Load websites and cookies in parallel
+      loadWebsites();
       loadCookies();
-      loadWebsites(); // Load websites when component mounts
     } else {
       setIsCookiesLoading(false);
     }
   }, [isAuthenticated, isAdmin]);
+  // Update cookie icons when websites are loaded
+  useEffect(() => {
+    if (websites.length > 0 && cookies.length > 0) {
+      setCookies((prevCookies) =>
+        prevCookies.map((cookie) => {
+          const { icon, iconColor } = getPlatformIcon(
+            cookie.platform_name.toLowerCase(),
+            websites
+          );
+          return { ...cookie, icon, iconColor };
+        })
+      );
+    }
+  }, [websites]); // Only run when websites change
 
-  const handleDeleteCookie = (cookieId: number) => {
-    setDeletingCookieId(cookieId);
+  const handleDeleteCookie = async (cookie: CookieData) => {
+    setDeletingCookieId(cookie.id);
+    try {
+      if (!cookie.email) {
+        toast.error("Missing email for this cookie entry.");
+        setDeletingCookieId(null);
+        return;
+      }
 
-    // Simulate API call
-    setTimeout(() => {
-      setCookies(cookies.filter((cookie) => cookie.id !== cookieId));
+      const resp = await cookieApi.deleteCookie({
+        platform_name: cookie.platform_name,
+        email: cookie.email,
+      });
+
+      if (resp.success) {
+        setCookies((prev) => prev.filter((c) => c.id !== cookie.id));
+        toast.success(
+          t("cookies.deleteDialog.success", {
+            defaultValue: "Cookie deleted successfully",
+          })
+        );
+      } else {
+        toast.error(
+          resp.error?.message ||
+            t("cookies.deleteDialog.error", {
+              defaultValue: "Failed to delete cookie",
+            })
+        );
+      }
+    } catch (e) {
+      console.error("Delete cookie error:", e);
+      toast.error(
+        t("cookies.deleteDialog.error", {
+          defaultValue: "Failed to delete cookie",
+        })
+      );
+    } finally {
       setDeletingCookieId(null);
-    }, 1500);
-  };
-
-  const handleStatusToggle = (cookieId: number) => {
-    setCookies(
-      cookies.map((cookie) =>
-        cookie.id === cookieId ? { ...cookie, status: !cookie.status } : cookie
-      )
-    );
+    }
   };
 
   // Validate JSON input
@@ -408,13 +514,25 @@ function CookiesPageContent() {
       if (response.success && response.data) {
         // Add new cookie to the local state
         const { icon, iconColor } = getPlatformIcon(selectedWebsite, websites);
+        const email = (response.data.data?.email as string) || "";
+        const user_id =
+          typeof (response.data.data as any)?.user_id === "number"
+            ? (response.data.data as any).user_id
+            : undefined;
+        const credits =
+          typeof (response.data.data as any)?.credits === "number"
+            ? (response.data.data as any).credits
+            : undefined;
+
         const newCookie: CookieData = {
           id: Date.now(), // Use timestamp as ID
           platform_name: originalWebsiteName,
-          username: response.data.data?.email?.split("@")[0] || "user",
-          credit: 0,
+          email,
+          user_id,
+          username: email ? email.split("@")[0] : "user",
+          credit: credits,
           lastUpdate: new Date().toISOString().split("T")[0],
-          status: true,
+          is_premium: !!(response.data.data as any)?.is_premium,
           icon,
           iconColor,
         };
@@ -771,7 +889,7 @@ function CookiesPageContent() {
                         {t("common.cancel")}
                       </AlertDialogCancel>
                       <AlertDialogAction
-                        onClick={() => handleDeleteCookie(cookie.id)}
+                        onClick={() => handleDeleteCookie(cookie)}
                         disabled={deletingCookieId === cookie.id}
                         className={`bg-destructive hover:bg-destructive/70 text-white ${isRTL ? "font-tajawal" : "font-sans"}`}
                       >
@@ -824,6 +942,26 @@ function CookiesPageContent() {
 
                 {/* Cookie Details */}
                 <div className="space-y-4">
+                  {/* User ID - only show if it exists */}
+                  {cookie.user_id && (
+                    <div
+                      className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
+                    >
+                      <span
+                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                      >
+                        {t("cookies.fields.userId", {
+                          defaultValue: "User ID",
+                        })}
+                        :
+                      </span>
+                      <span
+                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
+                      >
+                        {cookie.user_id}
+                      </span>
+                    </div>
+                  )}
                   <div
                     className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
                   >
@@ -838,6 +976,26 @@ function CookiesPageContent() {
                       {cookie.username}
                     </span>
                   </div>
+
+                  {/* Email field */}
+                  <div
+                    className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
+                  >
+                    <span
+                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                    >
+                      {t("cookies.fields.email", { defaultValue: "Email" })}:
+                    </span>
+                    <span
+                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
+                    >
+                      {cookie.email ||
+                        t("cookies.fields.noEmail", {
+                          defaultValue: "No email",
+                        })}
+                    </span>
+                  </div>
+
                   <div
                     className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
                   >
@@ -849,7 +1007,11 @@ function CookiesPageContent() {
                     <span
                       className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
                     >
-                      {cookie.credit}$
+                      {cookie.credit !== undefined && cookie.credit !== null
+                        ? `${cookie.credit} ${t("cookies.fields.credits", { defaultValue: "credits" })}`
+                        : t("cookies.fields.noCredit", {
+                            defaultValue: "No credit",
+                          })}
                     </span>
                   </div>
                   <div
@@ -866,47 +1028,29 @@ function CookiesPageContent() {
                       {cookie.lastUpdate}
                     </span>
                   </div>
-                  <div
-                    className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
-                  >
-                    <span
-                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+
+                  {/* Premium status - only show if true */}
+                  {cookie.is_premium && (
+                    <div
+                      className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
                     >
-                      {t("cookies.fields.status")}:
-                    </span>
-                    <div className="flex items-center gap-2">
                       <span
-                        className={`text-xs ${isRTL ? "font-tajawal" : "font-sans"} ${
-                          cookie.status ? "text-green-600" : "text-red-600"
-                        }`}
+                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
                       >
-                        {cookie.status
-                          ? t("cookies.status.active")
-                          : t("cookies.status.inactive")}
+                        {t("cookies.fields.premium", {
+                          defaultValue: "Premium",
+                        })}
+                        :
                       </span>
-                      {/* Native Switch Button */}
-                      <button
-                        onClick={() => handleStatusToggle(cookie.id)}
-                        className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
-                          cookie.status ? "bg-green-500" : "bg-red-500"
-                        }`}
-                        role="switch"
-                        aria-checked={cookie.status}
+                      <span
+                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-green-600`}
                       >
-                        <span
-                          className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                            isRTL
-                              ? cookie.status
-                                ? "-translate-x-1"
-                                : "-translate-x-5"
-                              : cookie.status
-                                ? "translate-x-5"
-                                : "translate-x-1"
-                          }`}
-                        />
-                      </button>
+                        {t("cookies.status.premium", {
+                          defaultValue: "Premium User",
+                        })}
+                      </span>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </Card>
