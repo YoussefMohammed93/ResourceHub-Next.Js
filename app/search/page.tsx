@@ -76,7 +76,7 @@ interface ApiResponse {
 interface SearchResult {
   id: string;
   title: string;
-  thumbnail: string; // For images: image URL; for videos: preview .mp4
+  thumbnail: string; // For images: image URL; for videos: preview poster or same as video
   provider: string;
   type: string;
   file_type: string; // 'video' | 'image' | etc
@@ -86,6 +86,7 @@ interface SearchResult {
   file_id: string;
   image_type: string;
   poster?: string; // Poster image URL for videos
+  videoSrc?: string; // Actual video URL for previews (e.g., .mp4)
   providerIcon?: string; // Provider icon URL from API
 }
 
@@ -198,6 +199,11 @@ function transformApiResults(
 
     items.forEach((item, index) => {
       const normalizedType = normalizeFileType(item.file_type, item.image_type);
+
+      // Determine video src and poster safely
+      const previewSrc = item?.preview?.src || "";
+      const isVideo = normalizedType === "video";
+
       const base: SearchResult = {
         id: `${provider}-${item.file_id}-${index}-${apiResponse.data?.page || "1"}`, // Include page in ID to avoid duplicates
         title: item.metadata.title || "Untitled",
@@ -211,10 +217,16 @@ function transformApiResults(
         file_id: item.file_id,
         image_type: item.image_type,
         providerIcon: getProviderIcon(provider, providerIcon), // Add provider icon to search result
+        videoSrc: isVideo ? previewSrc : undefined,
       };
-      if (normalizedType === "video" && item.url) {
-        base.poster = `/api/video-thumbnail?url=${encodeURIComponent(item.url)}`;
+
+      if (isVideo) {
+        // Prefer existing poster if provided via API; else derive a thumbnail endpoint if available
+        base.poster =
+          base.poster ||
+          `/api/video-thumbnail?url=${encodeURIComponent(item.url || previewSrc)}`;
       }
+
       all.push(base);
     });
   });
@@ -593,7 +605,7 @@ function SearchContent() {
 
   useEffect(() => {
     return () => {
-      // Cleanup all video elements when component unmounts
+      // Cleanup all video elements and timeouts when component unmounts
       const videos = document.querySelectorAll("video");
       videos.forEach((video) => {
         video.pause();
@@ -601,25 +613,129 @@ function SearchContent() {
         video.src = "";
         video.load();
       });
+
+      // Clear all video timeouts
+      Object.values(videoTimeoutsRef.current).forEach((timeout) => {
+        clearTimeout(timeout);
+      });
+      videoTimeoutsRef.current = {};
+
+      // Reset video states
+      setVideoLoadingStates({});
+      setVideoPlayingStates({});
     };
   }, [currentPage, searchResults]);
 
-  // Handle video play/pause with proper error handling
+  // Enhanced video preview functionality with 3-second limit and loading states
+  const [videoLoadingStates, setVideoLoadingStates] = useState<
+    Record<string, boolean>
+  >({});
+  const [videoPlayingStates, setVideoPlayingStates] = useState<
+    Record<string, boolean>
+  >({});
+  const videoTimeoutsRef = useRef<Record<string, NodeJS.Timeout>>({});
+
+  // Handle video play/pause with enhanced functionality
   const handleVideoHover = useCallback(
-    (video: HTMLVideoElement, play: boolean) => {
+    (video: HTMLVideoElement, play: boolean, resultId: string) => {
+      if (!video) {
+        console.warn("No video element found for", resultId);
+        return;
+      }
+
+      console.log(`Video hover: ${play ? "ENTER" : "LEAVE"} for ${resultId}`);
+
+      // Clear any existing timeout for this video
+      if (videoTimeoutsRef.current[resultId]) {
+        clearTimeout(videoTimeoutsRef.current[resultId]);
+        delete videoTimeoutsRef.current[resultId];
+      }
+
       if (play) {
-        video.play().catch((error) => {
-          console.warn("Video play failed:", error);
-          // Fallback: show poster image by hiding video
-          video.style.display = "none";
-          const poster = video.nextElementSibling as HTMLImageElement;
-          if (poster && poster.tagName === "IMG") {
-            poster.style.display = "block";
-          }
-        });
-      } else {
-        video.pause();
+        // Ensure src is set from data attribute if missing
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const dataSrc = (video as any).dataset?.videoSrc as string | undefined;
+        if (!video.getAttribute("src") && dataSrc) {
+          console.log("Assigning video src from data-video-src:", dataSrc);
+          video.src = dataSrc;
+        }
+
+        // Validate src before attempting to play
+        const candidateSrc = (
+          video.getAttribute("src") ||
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (video as any).dataset?.videoSrc ||
+          video.src ||
+          ""
+        ).trim();
+        if (!candidateSrc || !isValidVideoUrl(candidateSrc)) {
+          console.warn(
+            "Invalid or missing video src for",
+            resultId,
+            "src:",
+            candidateSrc
+          );
+          setVideoLoadingStates((prev) => ({ ...prev, [resultId]: false }));
+          setVideoPlayingStates((prev) => ({ ...prev, [resultId]: false }));
+          return;
+        }
+
+        // Set loading state
+        setVideoLoadingStates((prev) => ({ ...prev, [resultId]: true }));
+
+        // Reset video to beginning and ensure it's ready
         video.currentTime = 0;
+        video.muted = true; // Ensure muted for autoplay
+
+        console.log("Attempting to play video:", candidateSrc);
+
+        // Attempt to play video
+        const playPromise = video.play();
+
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              console.log("Video started playing successfully");
+              // Successfully started playing
+              setVideoLoadingStates((prev) => ({ ...prev, [resultId]: false }));
+              setVideoPlayingStates((prev) => ({ ...prev, [resultId]: true }));
+
+              // Set 3-second timeout to pause video
+              videoTimeoutsRef.current[resultId] = setTimeout(() => {
+                console.log("3 seconds elapsed, pausing video");
+                if (video && !video.paused) {
+                  video.pause();
+                  video.currentTime = 0;
+                }
+                setVideoPlayingStates((prev) => ({
+                  ...prev,
+                  [resultId]: false,
+                }));
+                delete videoTimeoutsRef.current[resultId];
+              }, 3000); // 3 seconds
+            })
+            .catch((error) => {
+              console.warn("Video play failed:", error);
+              setVideoLoadingStates((prev) => ({ ...prev, [resultId]: false }));
+              setVideoPlayingStates((prev) => ({ ...prev, [resultId]: false }));
+
+              // Fallback: show poster image by hiding video
+              video.style.display = "none";
+              const poster = video.nextElementSibling as HTMLImageElement;
+              if (poster && poster.tagName === "IMG") {
+                poster.style.display = "block";
+              }
+            });
+        }
+      } else {
+        console.log("Stopping video playback");
+        // Stop video and reset
+        if (video && !video.paused) {
+          video.pause();
+          video.currentTime = 0;
+        }
+        setVideoLoadingStates((prev) => ({ ...prev, [resultId]: false }));
+        setVideoPlayingStates((prev) => ({ ...prev, [resultId]: false }));
       }
     },
     []
@@ -629,24 +745,40 @@ function SearchContent() {
   const isValidVideoUrl = useCallback((url: string): boolean => {
     if (!url) return false;
 
-    // Check for common video file extensions
-    const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
-    const hasVideoExtension = videoExtensions.some((ext) =>
-      url.toLowerCase().includes(ext)
-    );
+    try {
+      const parsed = new URL(
+        url,
+        typeof window !== "undefined" ? window.location.origin : undefined
+      );
+      // Do not allow current page URL
+      const currentPath =
+        typeof window !== "undefined" ? window.location.pathname : "";
+      if (!parsed || parsed.pathname === currentPath) return false;
 
-    // Check for video streaming domains
-    const videoStreamingDomains = [
-      "cloudfront.net",
-      "amazonaws.com",
-      "vimeo.com",
-      "youtube.com",
-    ];
-    const hasVideoStreamingDomain = videoStreamingDomains.some((domain) =>
-      url.includes(domain)
-    );
+      const lower = parsed.href.toLowerCase();
 
-    return hasVideoExtension || hasVideoStreamingDomain;
+      // Check for common video file extensions
+      const videoExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
+      const hasVideoExtension = videoExtensions.some((ext) =>
+        lower.includes(ext)
+      );
+
+      // Check for known video domains (Storyblocks uses cloudfront)
+      const videoStreamingDomains = [
+        "cloudfront.net",
+        "amazonaws.com",
+        "storyblocks.com",
+        "vimeo.com",
+        "youtube.com",
+      ];
+      const hasVideoStreamingDomain = videoStreamingDomains.some((domain) =>
+        lower.includes(domain)
+      );
+
+      return hasVideoExtension || hasVideoStreamingDomain;
+    } catch {
+      return false;
+    }
   }, []);
 
   // Generate video thumbnail using canvas (client-side)
@@ -1821,8 +1953,38 @@ function SearchContent() {
                         key={result.id}
                         className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer"
                         style={{ height: `${responsiveHeight}px` }}
-                        onMouseEnter={() => setHoveredImage(result.id)}
-                        onMouseLeave={() => setHoveredImage(null)}
+                        onMouseEnter={() => {
+                          console.log(
+                            "Card hover ENTER for:",
+                            result.id,
+                            "Type:",
+                            result.file_type
+                          );
+                          setHoveredImage(result.id);
+                          // Handle video hover for mobile
+                          if (result.file_type === "video") {
+                            const video = document.querySelector(
+                              `video[data-video-id="${result.id}"]`
+                            ) as HTMLVideoElement;
+                            console.log("Found video element:", !!video);
+                            if (video) {
+                              handleVideoHover(video, true, result.id);
+                            }
+                          }
+                        }}
+                        onMouseLeave={() => {
+                          console.log("Card hover LEAVE for:", result.id);
+                          setHoveredImage(null);
+                          // Handle video hover for mobile
+                          if (result.file_type === "video") {
+                            const video = document.querySelector(
+                              `video[data-video-id="${result.id}"]`
+                            ) as HTMLVideoElement;
+                            if (video) {
+                              handleVideoHover(video, false, result.id);
+                            }
+                          }
+                        }}
                         onClick={() => handleImageClick(result)}
                       >
                         {/* Media Content */}
@@ -1830,12 +1992,24 @@ function SearchContent() {
                           {result.file_type === "video" &&
                           isValidVideoUrl(result.thumbnail) ? (
                             <>
+                              {/* Video Loading Overlay */}
+                              {videoLoadingStates[result.id] && (
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                                  <div className="text-white text-center">
+                                    <div className="text-sm">
+                                      Loading video...
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+
                               <video
-                                src={result.thumbnail}
+                                data-video-id={result.id}
+                                data-video-src={result.videoSrc || ""}
+                                src={result.videoSrc || undefined}
                                 poster={result.poster || "/placeholder.png"}
                                 className="w-full h-full object-cover"
                                 muted
-                                loop
                                 playsInline
                                 preload="metadata"
                                 onLoadedData={async (e) => {
@@ -1863,24 +2037,18 @@ function SearchContent() {
                                     );
                                   }
                                 }}
-                                onMouseEnter={(e) =>
-                                  handleVideoHover(
-                                    e.target as HTMLVideoElement,
-                                    true
-                                  )
-                                }
-                                onMouseLeave={(e) =>
-                                  handleVideoHover(
-                                    e.target as HTMLVideoElement,
-                                    false
-                                  )
-                                }
                                 onError={(e) => {
-                                  console.warn(
-                                    "Video load error, falling back to image"
-                                  );
                                   const video = e.target as HTMLVideoElement;
+                                  console.warn(
+                                    "Video load error for:",
+                                    video?.src || result.videoSrc,
+                                    "— falling back to image"
+                                  );
                                   video.style.display = "none";
+                                  setVideoLoadingStates((prev) => ({
+                                    ...prev,
+                                    [result.id]: false,
+                                  }));
                                   const fallbackImg =
                                     video.nextElementSibling as HTMLImageElement;
                                   if (fallbackImg) {
@@ -1888,39 +2056,38 @@ function SearchContent() {
                                   }
                                 }}
                               />
-                              {/* Fallback for videos - text placeholder if no poster */}
-                              {result.poster ? (
-                                <img
-                                  src={result.poster}
-                                  alt={result.title}
-                                  className="w-full h-full object-cover"
-                                  style={{ display: "none" }}
-                                  loading="lazy"
-                                  onError={(e) => {
-                                    const img = e.target as HTMLImageElement;
-                                    img.style.display = "none";
-                                    const textPlaceholder =
-                                      img.nextElementSibling as HTMLDivElement;
-                                    if (textPlaceholder) {
-                                      textPlaceholder.style.display = "flex";
-                                    }
-                                  }}
-                                />
-                              ) : null}
-                              {/* Text placeholder for videos without poster */}
-                              <div
-                                className="absolute inset-0 flex items-center justify-center bg-muted/80 text-muted-foreground"
-                                style={{
-                                  display: result.poster ? "none" : "none",
+                              {/* Enhanced Fallback for videos */}
+                              <img
+                                src={result.poster || "/placeholder.png"}
+                                alt={result.title}
+                                className="w-full h-full object-cover"
+                                style={{ display: "none" }}
+                                loading="lazy"
+                                onError={(e) => {
+                                  const img = e.target as HTMLImageElement;
+                                  img.style.display = "none";
+                                  const textPlaceholder =
+                                    img.nextElementSibling as HTMLDivElement;
+                                  if (textPlaceholder) {
+                                    textPlaceholder.style.display = "flex";
+                                  }
                                 }}
+                              />
+
+                              {/* Enhanced text placeholder for videos */}
+                              <div
+                                className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted/90 to-muted/70 text-muted-foreground"
+                                style={{ display: "none" }}
                               >
-                                <div className="text-center">
-                                  <div className="text-2xl mb-2">🎥</div>
-                                  <div className="text-sm font-medium">
+                                <div className="text-center p-4">
+                                  <div className="w-16 h-16 mx-auto mb-3 bg-primary/20 rounded-full flex items-center justify-center">
+                                    <Camera className="w-8 h-8 text-primary" />
+                                  </div>
+                                  <div className="text-sm font-medium mb-1">
                                     Video Preview
                                   </div>
-                                  <div className="text-xs">
-                                    No thumbnail available
+                                  <div className="text-xs opacity-75">
+                                    Hover to play preview
                                   </div>
                                 </div>
                               </div>
@@ -2032,8 +2199,44 @@ function SearchContent() {
                                   minWidth: "150px",
                                   maxWidth: "400px",
                                 }}
-                                onMouseEnter={() => setHoveredImage(result.id)}
-                                onMouseLeave={() => setHoveredImage(null)}
+                                onMouseEnter={() => {
+                                  console.log(
+                                    "Desktop card hover ENTER for:",
+                                    result.id,
+                                    "Type:",
+                                    result.file_type
+                                  );
+                                  setHoveredImage(result.id);
+                                  // Handle video hover for desktop
+                                  if (result.file_type === "video") {
+                                    const video = document.querySelector(
+                                      `video[data-video-id="${result.id}"]`
+                                    ) as HTMLVideoElement;
+                                    console.log(
+                                      "Found desktop video element:",
+                                      !!video
+                                    );
+                                    if (video) {
+                                      handleVideoHover(video, true, result.id);
+                                    }
+                                  }
+                                }}
+                                onMouseLeave={() => {
+                                  console.log(
+                                    "Desktop card hover LEAVE for:",
+                                    result.id
+                                  );
+                                  setHoveredImage(null);
+                                  // Handle video hover for desktop
+                                  if (result.file_type === "video") {
+                                    const video = document.querySelector(
+                                      `video[data-video-id="${result.id}"]`
+                                    ) as HTMLVideoElement;
+                                    if (video) {
+                                      handleVideoHover(video, false, result.id);
+                                    }
+                                  }
+                                }}
                                 onClick={() => handleImageClick(result)}
                               >
                                 {/* Media Content */}
@@ -2041,14 +2244,35 @@ function SearchContent() {
                                   {result.file_type === "video" &&
                                   isValidVideoUrl(result.thumbnail) ? (
                                     <>
+                                      {/* Video Loading Overlay */}
+                                      {videoLoadingStates[result.id] && (
+                                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10">
+                                          <div className="text-white text-center">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white mx-auto mb-2"></div>
+                                            <div className="text-sm">
+                                              Loading video...
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Video Playing Indicator */}
+                                      {videoPlayingStates[result.id] && (
+                                        <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-red-500/90 text-white px-3 py-1 rounded-full text-xs font-medium z-10 flex items-center gap-1">
+                                          <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                                          LIVE PREVIEW
+                                        </div>
+                                      )}
+
                                       <video
-                                        src={result.thumbnail}
+                                        data-video-id={result.id}
+                                        data-video-src={result.videoSrc || ""}
+                                        src={result.videoSrc || undefined}
                                         poster={getVideoPoster(
-                                          result.thumbnail
+                                          result.videoSrc || result.thumbnail
                                         )}
                                         className="w-full h-full object-cover"
                                         muted
-                                        loop
                                         playsInline
                                         preload="metadata"
                                         onLoadedData={async (e) => {
@@ -2079,25 +2303,19 @@ function SearchContent() {
                                             );
                                           }
                                         }}
-                                        onMouseEnter={(e) =>
-                                          handleVideoHover(
-                                            e.target as HTMLVideoElement,
-                                            true
-                                          )
-                                        }
-                                        onMouseLeave={(e) =>
-                                          handleVideoHover(
-                                            e.target as HTMLVideoElement,
-                                            false
-                                          )
-                                        }
                                         onError={(e) => {
-                                          console.warn(
-                                            "Video load error, falling back to image"
-                                          );
                                           const video =
                                             e.target as HTMLVideoElement;
+                                          console.warn(
+                                            "Video load error for:",
+                                            video?.src || result.videoSrc,
+                                            "— falling back to image"
+                                          );
                                           video.style.display = "none";
+                                          setVideoLoadingStates((prev) => ({
+                                            ...prev,
+                                            [result.id]: false,
+                                          }));
                                           const fallbackImg =
                                             video.nextElementSibling as HTMLImageElement;
                                           if (fallbackImg) {
@@ -2105,45 +2323,42 @@ function SearchContent() {
                                           }
                                         }}
                                       />
-                                      {/* Fallback for videos - text placeholder if no poster */}
-                                      {result.poster ? (
-                                        <img
-                                          src={result.poster}
-                                          alt={result.title}
-                                          className="w-full h-full object-cover"
-                                          style={{ display: "none" }}
-                                          loading="lazy"
-                                          onError={(e) => {
-                                            const img =
-                                              e.target as HTMLImageElement;
-                                            img.style.display = "none";
-                                            const textPlaceholder =
-                                              img.nextElementSibling as HTMLDivElement;
-                                            if (textPlaceholder) {
-                                              textPlaceholder.style.display =
-                                                "flex";
-                                            }
-                                          }}
-                                        />
-                                      ) : null}
-                                      {/* Text placeholder for videos without poster */}
-                                      <div
-                                        className="absolute inset-0 flex items-center justify-center bg-muted/80 text-muted-foreground"
-                                        style={{
-                                          display: result.poster
-                                            ? "none"
-                                            : "none",
+                                      {/* Enhanced Fallback for videos */}
+                                      <img
+                                        src={
+                                          result.poster || "/placeholder.png"
+                                        }
+                                        alt={result.title}
+                                        className="w-full h-full object-cover"
+                                        style={{ display: "none" }}
+                                        loading="lazy"
+                                        onError={(e) => {
+                                          const img =
+                                            e.target as HTMLImageElement;
+                                          img.style.display = "none";
+                                          const textPlaceholder =
+                                            img.nextElementSibling as HTMLDivElement;
+                                          if (textPlaceholder) {
+                                            textPlaceholder.style.display =
+                                              "flex";
+                                          }
                                         }}
+                                      />
+
+                                      {/* Enhanced text placeholder for videos */}
+                                      <div
+                                        className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-muted/90 to-muted/70 text-muted-foreground"
+                                        style={{ display: "none" }}
                                       >
-                                        <div className="text-center">
-                                          <div className="text-2xl mb-2">
-                                            🎥
+                                        <div className="text-center p-3">
+                                          <div className="w-12 h-12 mx-auto mb-2 bg-primary/20 rounded-full flex items-center justify-center">
+                                            <Camera className="w-6 h-6 text-primary" />
                                           </div>
-                                          <div className="text-sm font-medium">
+                                          <div className="text-xs font-medium mb-1">
                                             Video Preview
                                           </div>
-                                          <div className="text-xs">
-                                            No thumbnail available
+                                          <div className="text-xs opacity-75">
+                                            Hover to play
                                           </div>
                                         </div>
                                       </div>
