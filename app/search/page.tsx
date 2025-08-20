@@ -2172,7 +2172,7 @@ function SearchContent() {
 
                                   {/* Provider Icon */}
                                   <div
-                                    className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} p-1 bg-white/90 backdrop-blur-sm rounded-md shadow-sm`}
+                                    className={`absolute top-2 ${isRTL ? "right-2" : "left-2"} p-1 bg-black/90 backdrop-blur-sm rounded-md shadow-sm`}
                                   >
                                     <img
                                       src={result.providerIcon}
