@@ -439,6 +439,9 @@
       "externalHelp": "External websites don't support cookie authentication",
       "adding": "Adding Site...",
       "add": "Add Site",
+      "editSite": "Edit Site",
+      "editing": "Updating Site...",
+      "edit": "Update Site",
       "status": "Status",
       "addedDate": "Added Date",
       "table": {
@@ -457,6 +460,7 @@
         "active": "Active",
         "cookieSupported": "Supported",
         "cookieNotSupported": "Not Supported",
+        "edit": "Edit",
         "delete": "Delete",
         "retry": "Retry"
       },
@@ -481,6 +485,8 @@
       "toast": {
         "addSuccess": "Website added successfully",
         "addError": "Failed to add website",
+        "editSuccess": "Website updated successfully",
+        "editError": "Failed to update website",
         "deleteSuccess": "Website deleted successfully",
         "deleteError": "Failed to delete website"
       }

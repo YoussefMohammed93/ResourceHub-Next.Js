@@ -393,18 +393,24 @@ function CookiesPageContent() {
     setFormError(null);
 
     try {
+      // Find the original website name (not lowercase) from the websites array
+      const selectedWebsiteData = websites.find(
+        (w) => w.value === selectedWebsite
+      );
+      const originalWebsiteName = selectedWebsiteData?.label || selectedWebsite;
+
       // Add cookie via API
       const response = await cookieApi.addCookie({
         cookies: cookiesJson.trim(),
-        platform_name: selectedWebsite,
+        platform_name: originalWebsiteName,
       });
 
       if (response.success && response.data) {
         // Add new cookie to the local state
         const { icon, iconColor } = getPlatformIcon(selectedWebsite, websites);
         const newCookie: CookieData = {
-          id: Date.now(), // Use timestamp as temporary ID
-          platform_name: selectedWebsite,
+          id: Date.now(), // Use timestamp as ID
+          platform_name: originalWebsiteName,
           username: response.data.data?.email?.split("@")[0] || "user",
           credit: 0,
           lastUpdate: new Date().toISOString().split("T")[0],
@@ -414,7 +420,7 @@ function CookiesPageContent() {
         };
 
         setCookies([...cookies, newCookie]);
-        toast.success(`Cookie for ${selectedWebsite} added successfully!`);
+        toast.success(`Cookie for ${originalWebsiteName} added successfully!`);
 
         // Reset form
         setIsAddCookieDialogOpen(false);

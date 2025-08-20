@@ -8,6 +8,7 @@ import {
   TrendingUp,
   Calendar,
   Trash2,
+  Edit,
   Users,
   Globe,
   Activity,
@@ -173,6 +174,22 @@ export default function DashboardPage() {
   const [sitePriceError, setSitePriceError] = useState<string>("");
   const [siteIconError, setSiteIconError] = useState<string>("");
   const [isAddingSite, setIsAddingSite] = useState<boolean>(false);
+
+  // Edit site dialog states
+  const [isEditSiteDialogOpen, setIsEditSiteDialogOpen] =
+    useState<boolean>(false);
+  const [editSiteName, setEditSiteName] = useState<string>("");
+  const [editSiteUrl, setEditSiteUrl] = useState<string>("");
+  const [editSitePrice, setEditSitePrice] = useState<string>("");
+  const [editSiteIcon, setEditSiteIcon] = useState<string>("");
+  const [editSiteExternal, setEditSiteExternal] = useState<boolean>(false);
+  const [editSiteNameError, setEditSiteNameError] = useState<string>("");
+  const [editSiteUrlError, setEditSiteUrlError] = useState<string>("");
+  const [editSitePriceError, setEditSitePriceError] = useState<string>("");
+  const [editSiteIconError, setEditSiteIconError] = useState<string>("");
+  const [isEditingSite, setIsEditingSite] = useState<boolean>(false);
+  const [currentEditingSite, setCurrentEditingSite] =
+    useState<FrontendSite | null>(null);
 
   // Package management states
   const [isAddPackageDialogOpen, setIsAddPackageDialogOpen] =
@@ -905,6 +922,120 @@ export default function DashboardPage() {
     } finally {
       setIsAddingSite(false);
     }
+  };
+
+  // Handle edit site
+  const handleEditSite = async () => {
+    if (!currentEditingSite) return;
+
+    // Reset errors
+    setEditSiteNameError("");
+    setEditSiteUrlError("");
+    setEditSitePriceError("");
+    setEditSiteIconError("");
+
+    // Validate price
+    if (!editSitePrice.trim()) {
+      setEditSitePriceError(
+        t("dashboard.siteManagement.validation.priceRequired")
+      );
+      return;
+    }
+    if (isNaN(Number(editSitePrice)) || Number(editSitePrice) <= 0) {
+      setEditSitePriceError(
+        t("dashboard.siteManagement.validation.invalidPrice")
+      );
+      return;
+    }
+
+    // Validate site icon
+    if (!editSiteIcon.trim()) {
+      setEditSiteIconError(
+        t("dashboard.siteManagement.validation.iconRequired")
+      );
+      return;
+    }
+    if (!validateUrl(editSiteIcon)) {
+      setEditSiteIconError(
+        t("dashboard.siteManagement.validation.invalidIconUrl")
+      );
+      return;
+    }
+
+    setIsEditingSite(true);
+
+    try {
+      const siteData: SiteInput = {
+        SiteName: editSiteName,
+        SiteUrl: editSiteUrl,
+        price: editSitePrice,
+        icon: editSiteIcon,
+        external: editSiteExternal,
+      };
+
+      const response = await siteApi.editSite(siteData);
+
+      if (response.success && response.data) {
+        // Update the site in the local state
+        const updatedSites = sites.map((site) =>
+          site.url === currentEditingSite.url
+            ? {
+                ...site,
+                price: Number(editSitePrice),
+                icon: editSiteIcon,
+                external: editSiteExternal,
+              }
+            : site
+        );
+        setSites(updatedSites);
+
+        setIsEditingSite(false);
+        setIsEditSiteDialogOpen(false);
+
+        // Reset form
+        setEditSiteName("");
+        setEditSiteUrl("");
+        setEditSitePrice("");
+        setEditSiteIcon("");
+        setEditSiteExternal(false);
+        setCurrentEditingSite(null);
+
+        // Show success toast
+        toast.success(t("dashboard.siteManagement.toast.editSuccess"));
+
+        // Refresh sites list to get updated data
+        await loadSites();
+      } else {
+        // Handle API error
+        const errorMessage =
+          response.error?.message ||
+          t("dashboard.siteManagement.toast.editError");
+        toast.error(errorMessage);
+      }
+    } catch {
+      // Error handling
+      toast.error(t("dashboard.siteManagement.toast.editError"));
+    } finally {
+      setIsEditingSite(false);
+    }
+  };
+
+  // Open edit site dialog
+  const openEditSiteDialog = (site: FrontendSite) => {
+    setCurrentEditingSite(site);
+    setEditSiteName(site.name);
+    setEditSiteUrl(site.url);
+    setEditSitePrice(site.price.toString());
+    setEditSiteIcon(site.icon);
+    setEditSiteExternal(site.external);
+
+    // Reset errors
+    setEditSiteNameError("");
+    setEditSiteUrlError("");
+    setEditSitePriceError("");
+    setEditSiteIconError("");
+
+    setIsEditSiteDialogOpen(true);
   };
 
   // Handle delete site
@@ -3232,6 +3363,229 @@ export default function DashboardPage() {
                       </DialogFooter>
                     </DialogContent>
                   </Dialog>
+
+                  {/* Edit Site Dialog */}
+                  <Dialog
+                    open={isEditSiteDialogOpen}
+                    onOpenChange={setIsEditSiteDialogOpen}
+                  >
+                    <DialogContent
+                      className={`sm:max-w-[425px] ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
+                    >
+                      <DialogHeader>
+                        <DialogTitle className="text-lg font-semibold text-foreground">
+                          {t("dashboard.siteManagement.editSite")}
+                        </DialogTitle>
+                        <DialogDescription className="text-sm text-muted-foreground">
+                          {t("dashboard.siteManagement.description")}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 py-4">
+                        {/* Site Name */}
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="edit-site-name"
+                            className="text-sm font-medium text-foreground flex items-center"
+                          >
+                            <Globe className="w-4 h-4" />
+                            {t("dashboard.siteManagement.siteName")}
+                          </Label>
+                          <Input
+                            id="edit-site-name"
+                            value={editSiteName}
+                            disabled={true}
+                            className="bg-muted/50 cursor-not-allowed transition-all"
+                            placeholder={t(
+                              "dashboard.siteManagement.placeholders.siteName"
+                            )}
+                          />
+                          {editSiteNameError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{editSiteNameError}</span>
+                            </p>
+                          )}
+                        </div>
+                        {/* Site URL */}
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="edit-site-url"
+                            className="text-sm font-medium text-foreground flex items-center"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            {t("dashboard.siteManagement.siteUrl")}
+                          </Label>
+                          <Input
+                            id="edit-site-url"
+                            value={editSiteUrl}
+                            disabled={true}
+                            className="bg-muted/50 cursor-not-allowed transition-all"
+                            placeholder={t(
+                              "dashboard.siteManagement.placeholders.siteUrl"
+                            )}
+                          />
+                          {editSiteUrlError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{editSiteUrlError}</span>
+                            </p>
+                          )}
+                        </div>
+                        {/* Site Price */}
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="edit-site-price"
+                            className="text-sm font-medium text-foreground flex items-center"
+                          >
+                            <DollarSign className="w-4 h-4" />
+                            {t("dashboard.siteManagement.price")}
+                          </Label>
+                          <Input
+                            id="edit-site-price"
+                            type="number"
+                            value={editSitePrice}
+                            onChange={(e) => {
+                              setEditSitePrice(e.target.value);
+                              if (editSitePriceError) setEditSitePriceError("");
+                            }}
+                            placeholder={t(
+                              "dashboard.siteManagement.placeholders.sitePrice"
+                            )}
+                            className={`transition-all ${
+                              editSitePriceError
+                                ? "border-destructive focus-visible:ring-destructive/20"
+                                : "focus-visible:ring-primary/20"
+                            }`}
+                          />
+                          {editSitePriceError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{editSitePriceError}</span>
+                            </p>
+                          )}
+                        </div>
+                        {/* Site Icon */}
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="edit-site-icon"
+                            className="text-sm font-medium text-foreground flex items-center"
+                          >
+                            <LinkIcon className="w-4 h-4" />
+                            {t("dashboard.siteManagement.siteIcon")}
+                          </Label>
+                          <Input
+                            id="edit-site-icon"
+                            type="url"
+                            value={editSiteIcon}
+                            onChange={(e) => {
+                              setEditSiteIcon(e.target.value);
+                              if (editSiteIconError) setEditSiteIconError("");
+                            }}
+                            placeholder={t(
+                              "dashboard.siteManagement.placeholders.siteIcon"
+                            )}
+                            className={`transition-all ${
+                              editSiteIconError
+                                ? "border-destructive focus-visible:ring-destructive/20"
+                                : "focus-visible:ring-primary/20"
+                            }`}
+                          />
+                          {editSiteIconError && (
+                            <p className="text-sm text-destructive flex items-center space-x-1">
+                              <span className="w-1 h-1 bg-destructive rounded-full"></span>
+                              <span>{editSiteIconError}</span>
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground flex items-center space-x-1">
+                            <span className="w-1 h-1 bg-muted-foreground rounded-full"></span>
+                            <span>
+                              {t(
+                                "dashboard.siteManagement.placeholders.siteIconHelp"
+                              )}
+                            </span>
+                          </p>
+                        </div>
+                        {/* External Website */}
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="edit-external"
+                            className="text-sm font-medium text-foreground flex items-center"
+                          >
+                            <Settings className="w-4 h-4" />
+                            {t("dashboard.siteManagement.external")}
+                          </Label>
+                          <div className="flex items-center space-x-3">
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="edit-external-yes"
+                                name="edit-external"
+                                checked={editSiteExternal}
+                                onChange={() => setEditSiteExternal(true)}
+                                className="w-4 h-4 text-primary bg-background border-border focus:ring-primary focus:ring-2"
+                              />
+                              <Label
+                                htmlFor="edit-external-yes"
+                                className="text-sm text-foreground cursor-pointer"
+                              >
+                                {t(
+                                  "dashboard.siteManagement.placeholders.externalYes"
+                                )}
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                type="radio"
+                                id="edit-external-no"
+                                name="edit-external"
+                                checked={!editSiteExternal}
+                                onChange={() => setEditSiteExternal(false)}
+                                className="w-4 h-4 text-primary bg-background border-border focus:ring-primary focus:ring-2"
+                              />
+                              <Label
+                                htmlFor="edit-external-no"
+                                className="text-sm text-foreground cursor-pointer"
+                              >
+                                {t(
+                                  "dashboard.siteManagement.placeholders.externalNo"
+                                )}
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setIsEditSiteDialogOpen(false)}
+                          disabled={isEditingSite}
+                        >
+                          {t("common.cancel")}
+                        </Button>
+                        <Button
+                          type="button"
+                          onClick={handleEditSite}
+                          disabled={isEditingSite}
+                          className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                        >
+                          {isEditingSite ? (
+                            <div className="flex items-center space-x-2">
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              <span>
+                                {t("dashboard.siteManagement.editing")}
+                              </span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center space-x-2">
+                              <Edit className="w-4 h-4" />
+                              <span>{t("dashboard.siteManagement.edit")}</span>
+                            </div>
+                          )}
+                        </Button>
+                      </DialogFooter>
+                    </DialogContent>
+                  </Dialog>
                 </CardHeader>
                 <CardContent>
                   {isLoadingSites ? (
@@ -3421,8 +3775,17 @@ export default function DashboardPage() {
                                 </td>
                                 <td className="py-4 px-4">
                                   <div
-                                    className={`flex items-center ${isRTL ? "justify-end" : "justify-end"} space-x-2`}
+                                    className={`flex items-center gap-2 ${isRTL ? "justify-end space-x-reverse" : "justify-end"} space-x-2`}
                                   >
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-8 px-3"
+                                      onClick={() => openEditSiteDialog(site)}
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                      {t("dashboard.siteManagement.table.edit")}
+                                    </Button>
                                     <Button
                                       size="sm"
                                       variant="destructive"
@@ -3598,15 +3961,26 @@ export default function DashboardPage() {
                             </div>
                             {/* Action Buttons */}
                             <div className="w-full pt-4 border-t border-border">
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                className="w-full h-10 flex-1 text-sm font-medium"
-                                onClick={() => handleDeleteSite(site.url)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                                Delete
-                              </Button>
+                              <div className="flex space-x-2">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-10 flex-1 text-sm font-medium"
+                                  onClick={() => openEditSiteDialog(site)}
+                                >
+                                  <Edit className="w-4 h-4" />
+                                  {t("dashboard.siteManagement.table.edit")}
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className="h-10 flex-1 text-sm font-medium"
+                                  onClick={() => handleDeleteSite(site.url)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                  {t("dashboard.siteManagement.table.delete")}
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         ))}
