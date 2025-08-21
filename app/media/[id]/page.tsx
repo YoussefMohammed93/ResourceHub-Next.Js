@@ -37,6 +37,7 @@ import {
   AlertCircle,
   ImageIcon,
   VideoIcon,
+  AudioLines,
   Users,
 } from "lucide-react";
 import { searchApi, type ProviderDataRequest, type FileData } from "@/lib/api";
@@ -68,6 +69,7 @@ export default function ImageDetailsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isFullImageOpen, setIsFullImageOpen] = useState(false);
   const [isVideoLoading, setIsVideoLoading] = useState(false);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [showAllKeywords, setShowAllKeywords] = useState(false);
 
   // Enhanced provider data state
@@ -321,6 +323,93 @@ export default function ImageDetailsPage() {
       isValidVideoUrl(imageData.thumbnail)
     );
   }, [imageData, isValidVideoUrl]);
+
+  // Check if URL is a valid audio URL
+  const isValidAudioUrl = useCallback((url: string): boolean => {
+    if (!url) return false;
+
+    // Audio extensions for cross-browser support
+    const audioExtensions = [
+      ".mp3",
+      ".wav",
+      ".ogg",
+      ".oga",
+      ".aac",
+      ".m4a",
+      ".flac",
+      ".wma",
+      ".opus",
+      ".webm", // WebM can contain audio
+    ];
+    const hasAudioExtension = audioExtensions.some((ext) =>
+      url.toLowerCase().includes(ext)
+    );
+
+    // Audio streaming domains
+    const audioStreamingDomains = [
+      "audio-previews.elements.envatousercontent.com",
+      "soundcloud.com",
+      "spotify.com",
+      "bandcamp.com",
+    ];
+    const hasAudioStreamingDomain = audioStreamingDomains.some((domain) =>
+      url.includes(domain)
+    );
+
+    return hasAudioExtension || hasAudioStreamingDomain;
+  }, []);
+
+  // Get audio MIME type for better browser compatibility
+  const getAudioMimeType = useCallback((url: string): string => {
+    if (!url) return "audio/mpeg";
+
+    const extension = url.toLowerCase().split(".").pop();
+    const mimeTypes: { [key: string]: string } = {
+      mp3: "audio/mpeg",
+      wav: "audio/wav",
+      ogg: "audio/ogg",
+      oga: "audio/ogg",
+      aac: "audio/aac",
+      m4a: "audio/mp4",
+      flac: "audio/flac",
+      wma: "audio/x-ms-wma",
+      opus: "audio/opus",
+      webm: "audio/webm",
+    };
+
+    return mimeTypes[extension || ""] || "audio/mpeg";
+  }, []);
+
+  // Determine if current item is an audio file
+  const isAudioItem = useCallback((): boolean => {
+    if (!imageData) return false;
+
+    return (
+      imageData.file_type === "audio" ||
+      imageData.type === "audio" ||
+      (imageData.image_type?.toLowerCase().includes("audio") ?? false) ||
+      isValidAudioUrl(imageData.thumbnail) ||
+      (fileData?.high_resolution?.src
+        ? isValidAudioUrl(fileData.high_resolution.src)
+        : false)
+    );
+  }, [imageData, fileData, isValidAudioUrl]);
+
+  // Generate proxy URL for audio to bypass CORS
+  const getProxyAudioUrl = useCallback((audioUrl: string): string => {
+    if (!audioUrl) return "";
+
+    // Check if it's an external URL that needs proxying
+    if (
+      audioUrl.includes("audio-previews.elements.envatousercontent.com") ||
+      audioUrl.includes("elements.envatousercontent.com")
+    ) {
+      return `/api/proxy/audio?url=${encodeURIComponent(audioUrl)}`;
+    }
+
+    // Return original URL if it doesn't need proxying
+    return audioUrl;
+  }, []);
 
   // Generate video thumbnail using canvas
   const generateVideoThumbnail = useCallback(
@@ -1147,7 +1236,77 @@ export default function ImageDetailsPage() {
                     </div>
                   )}
 
-                  {isVideoItem() && isValidVideoUrl(imageData.thumbnail) ? (
+                  {/* Audio Loading Indicator */}
+                  {isAudioItem() && isAudioLoading && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/20 z-10">
+                      <div className="flex items-center gap-3 bg-black/80 text-white px-6 py-3 rounded-xl shadow-lg">
+                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        <span className="text-sm font-medium">
+                          {t("mediaDetail.audioPlayer.loadingAudio")}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                  {isAudioItem() ? (
+                    <div className="w-full h-full flex flex-col items-center justify-center p-8 space-y-6">
+                      {/* Audio Icon */}
+                      <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
+                        <AudioLines className="w-12 h-12 text-primary" />
+                      </div>
+
+                      {/* Audio Title */}
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold text-foreground mb-2">
+                          {imageData.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground">
+                          {t("mediaDetail.audioPlayer.clickToPlay")}
+                        </p>
+                      </div>
+
+                      {/* Audio Player */}
+                      <audio
+                        className="w-full max-w-md"
+                        controls
+                        controlsList="nodownload"
+                        preload="auto"
+                        style={{ height: "40px" }}
+                        onLoadStart={() => setIsAudioLoading(true)}
+                        onCanPlay={() => setIsAudioLoading(false)}
+                        onLoadedData={() => setIsAudioLoading(false)}
+                        onError={() => setIsAudioLoading(false)}
+                        onWaiting={() => setIsAudioLoading(true)}
+                        onPlaying={() => setIsAudioLoading(false)}
+                      >
+                        <source
+                          src={getProxyAudioUrl(
+                            fileData?.high_resolution?.src ||
+                              imageData.thumbnail
+                          )}
+                          type={getAudioMimeType(
+                            fileData?.high_resolution?.src ||
+                              imageData.thumbnail
+                          )}
+                        />
+                        {/* Fallback message for browsers that don't support audio */}
+                        <p className="text-muted-foreground text-center p-4">
+                          {t("mediaDetail.audioPlayer.browserNotSupported")}
+                          <a
+                            href={getProxyAudioUrl(
+                              fileData?.high_resolution?.src ||
+                                imageData.thumbnail
+                            )}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary hover:underline ml-1"
+                          >
+                            {t("mediaDetail.audioPlayer.downloadAudio")}
+                          </a>
+                        </p>
+                      </audio>
+                    </div>
+                  ) : isVideoItem() && isValidVideoUrl(imageData.thumbnail) ? (
                     <video
                       className="w-full h-full object-contain"
                       poster={imageData.poster || "/placeholder.png"}
@@ -1271,7 +1430,7 @@ export default function ImageDetailsPage() {
                   </div>
 
                   {/* Quick Actions */}
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className={`grid ${isAudioItem() ? "grid-cols-1" : "grid-cols-2"} gap-3`}>
                     <Button
                       className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
                       onClick={handleDownload}
@@ -1286,12 +1445,14 @@ export default function ImageDetailsPage() {
                         ? t("mediaDetail.actions.downloading")
                         : t("mediaDetail.actions.download")}
                     </Button>
-                    <Button onClick={() => setIsFullImageOpen(true)}>
+                    {!isAudioItem() && (
+                      <Button onClick={() => setIsFullImageOpen(true)}>
                       <Eye className="w-4 h-4" />
                       {isVideoItem()
                         ? t("mediaDetail.actions.viewFullVideo")
                         : t("mediaDetail.actions.viewFullImage")}
-                    </Button>
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1362,74 +1523,92 @@ export default function ImageDetailsPage() {
                 <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
                   <div className="p-6">
                     <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                      {isVideoItem() ? (
+                      {isAudioItem() ? (
+                        <AudioLines className="w-4 h-4 text-primary" />
+                      ) : isVideoItem() ? (
                         <VideoIcon className="w-4 h-4 text-primary" />
                       ) : (
                         <ImageIcon className="w-4 h-4 text-primary" />
                       )}
-                      {t("mediaDetail.highResolution.title")}
+                      {isAudioItem()
+                        ? t("mediaDetail.highResolution.titleAudio")
+                        : t("mediaDetail.highResolution.title")}
                     </h3>
                     <div className="space-y-3">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("mediaDetail.highResolution.dimensions")}:
-                        </span>
-                        <Badge variant="outline" className="font-mono">
-                          {fileData?.high_resolution?.width} ×{" "}
-                          {fileData?.high_resolution?.height}
-                        </Badge>
-                      </div>
+                      {/* Only show dimensions and aspect ratio for images and videos, not audio */}
+                      {!isAudioItem() && (
+                        <>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">
+                              {t("mediaDetail.highResolution.dimensions")}:
+                            </span>
+                            <Badge variant="outline" className="font-mono">
+                              {fileData?.high_resolution?.width} ×{" "}
+                              {fileData?.high_resolution?.height}
+                            </Badge>
+                          </div>
 
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("mediaDetail.highResolution.aspectRatio")}:
-                        </span>
-                        <span className="text-sm font-medium">
-                          {fileData?.high_resolution?.width &&
-                          fileData?.high_resolution?.height
-                            ? (
-                                (typeof fileData.high_resolution.width ===
-                                "string"
-                                  ? parseInt(fileData.high_resolution.width, 10)
-                                  : fileData.high_resolution.width) /
-                                (typeof fileData.high_resolution.height ===
-                                "string"
-                                  ? parseInt(
-                                      fileData.high_resolution.height,
-                                      10
-                                    )
-                                  : fileData.high_resolution.height)
-                              ).toFixed(2)
-                            : "N/A"}
-                          :1
-                        </span>
-                      </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-sm text-muted-foreground">
+                              {t("mediaDetail.highResolution.aspectRatio")}:
+                            </span>
+                            <span className="text-sm font-medium">
+                              {fileData?.high_resolution?.width &&
+                              fileData?.high_resolution?.height
+                                ? (
+                                    (typeof fileData.high_resolution.width ===
+                                    "string"
+                                      ? parseInt(
+                                          fileData.high_resolution.width,
+                                          10
+                                        )
+                                      : fileData.high_resolution.width) /
+                                    (typeof fileData.high_resolution.height ===
+                                    "string"
+                                      ? parseInt(
+                                          fileData.high_resolution.height,
+                                          10
+                                        )
+                                      : fileData.high_resolution.height)
+                                  ).toFixed(2)
+                                : "N/A"}
+                              :1
+                            </span>
+                          </div>
+                        </>
+                      )}
 
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-muted-foreground">
-                          {t("mediaDetail.highResolution.totalPixels")}:
-                        </span>
-                        <span className="text-sm font-medium">
-                          {fileData?.high_resolution?.width &&
-                          fileData?.high_resolution?.height
-                            ? (
-                                ((typeof fileData.high_resolution.width ===
-                                "string"
-                                  ? parseInt(fileData.high_resolution.width, 10)
-                                  : fileData.high_resolution.width) *
-                                  (typeof fileData.high_resolution.height ===
+                      {/* Only show total pixels for images and videos, not audio */}
+                      {!isAudioItem() && (
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm text-muted-foreground">
+                            {t("mediaDetail.highResolution.totalPixels")}:
+                          </span>
+                          <span className="text-sm font-medium">
+                            {fileData?.high_resolution?.width &&
+                            fileData?.high_resolution?.height
+                              ? (
+                                  ((typeof fileData.high_resolution.width ===
                                   "string"
                                     ? parseInt(
-                                        fileData.high_resolution.height,
+                                        fileData.high_resolution.width,
                                         10
                                       )
-                                    : fileData.high_resolution.height)) /
-                                1000000
-                              ).toFixed(1)
-                            : "N/A"}
-                          MP
-                        </span>
-                      </div>
+                                    : fileData.high_resolution.width) *
+                                    (typeof fileData.high_resolution.height ===
+                                    "string"
+                                      ? parseInt(
+                                          fileData.high_resolution.height,
+                                          10
+                                        )
+                                      : fileData.high_resolution.height)) /
+                                  1000000
+                                ).toFixed(1)
+                              : "N/A"}
+                            MP
+                          </span>
+                        </div>
+                      )}
 
                       <div className="pt-2">
                         <Button
@@ -1438,9 +1617,11 @@ export default function ImageDetailsPage() {
                           onClick={() => setIsFullImageOpen(true)}
                         >
                           <Eye className="w-4 h-4" />
-                          {isVideoItem()
-                            ? t("mediaDetail.highResolution.viewVideo")
-                            : t("mediaDetail.highResolution.viewImage")}
+                          {isAudioItem()
+                            ? t("mediaDetail.highResolution.viewAudio")
+                            : isVideoItem()
+                              ? t("mediaDetail.highResolution.viewVideo")
+                              : t("mediaDetail.highResolution.viewImage")}
                         </Button>
                       </div>
                     </div>
@@ -1618,7 +1799,71 @@ export default function ImageDetailsPage() {
                       </div>
                     )}
 
-                    {isVideoItem() && isValidVideoUrl(imageData.thumbnail) ? (
+                    {isAudioItem() ? (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-8 space-y-6">
+                        {/* Audio Icon */}
+                        <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
+                          <AudioLines className="w-12 h-12 text-primary" />
+                        </div>
+
+                        {/* Audio Title */}
+                        <div className="text-center">
+                          <h3 className="text-lg font-semibold text-foreground mb-2">
+                            {imageData.title}
+                          </h3>
+                          <p className="text-sm text-muted-foreground">
+                            {t("mediaDetail.audioPlayer.clickToPlay")}
+                          </p>
+                        </div>
+
+                        {/* Audio Player */}
+                        <audio
+                          key={
+                            fileData?.high_resolution?.src ||
+                            imageData.thumbnail
+                          }
+                          className="w-full max-w-md"
+                          controls
+                          controlsList="nodownload"
+                          preload="auto"
+                          style={{ height: "40px" }}
+                          onLoadStart={() => setIsAudioLoading(true)}
+                          onCanPlay={() => setIsAudioLoading(false)}
+                          onLoadedData={() => setIsAudioLoading(false)}
+                          onLoadedMetadata={() => setIsAudioLoading(false)}
+                          onError={() => setIsAudioLoading(false)}
+                          onWaiting={() => setIsAudioLoading(true)}
+                          onPlaying={() => setIsAudioLoading(false)}
+                        >
+                          <source
+                            src={getProxyAudioUrl(
+                              fileData?.high_resolution?.src ||
+                                imageData.thumbnail
+                            )}
+                            type={getAudioMimeType(
+                              fileData?.high_resolution?.src ||
+                                imageData.thumbnail
+                            )}
+                          />
+                          {/* Fallback message for browsers that don't support audio */}
+                          <p className="text-muted-foreground text-center p-4">
+                            {t("mediaDetail.audioPlayer.browserNotSupported")}
+                            <a
+                              href={getProxyAudioUrl(
+                                fileData?.high_resolution?.src ||
+                                  imageData.thumbnail
+                              )}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary hover:underline ml-1"
+                            >
+                              {t("mediaDetail.audioPlayer.downloadAudio")}
+                            </a>
+                          </p>
+                        </audio>
+                      </div>
+                    ) : isVideoItem() &&
+                      isValidVideoUrl(imageData.thumbnail) ? (
                       <video
                         className="w-full h-full object-contain rounded-lg"
                         poster={imageData.poster || "/placeholder.png"}
@@ -1797,27 +2042,29 @@ export default function ImageDetailsPage() {
                     </div>
 
                     {/* Quick Actions */}
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className={`grid ${isAudioItem() ? "grid-cols-1" : "grid-cols-2"} gap-3`}>
                       <Button
-                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
-                        onClick={handleDownload}
-                        disabled={isDownloading}
+                      className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                      onClick={handleDownload}
+                      disabled={isDownloading}
                       >
-                        {isDownloading ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Download className="w-4 h-4" />
-                        )}
-                        {isDownloading
-                          ? t("mediaDetail.actions.downloading")
-                          : t("mediaDetail.actions.download")}
+                      {isDownloading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Download className="w-4 h-4" />
+                      )}
+                      {isDownloading
+                        ? t("mediaDetail.actions.downloading")
+                        : t("mediaDetail.actions.download")}
                       </Button>
+                      {!isAudioItem() && (
                       <Button onClick={() => setIsFullImageOpen(true)}>
                         <Eye className="w-4 h-4" />
                         {isVideoItem()
-                          ? t("mediaDetail.actions.viewFullVideo")
-                          : t("mediaDetail.actions.viewFullImage")}
+                        ? t("mediaDetail.actions.viewFullVideo")
+                        : t("mediaDetail.actions.viewFullImage")}
                       </Button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -1974,80 +2221,100 @@ export default function ImageDetailsPage() {
                       <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
                         <div className="p-6">
                           <h3 className="font-semibold text-foreground mb-3 flex items-center gap-2">
-                            {isVideoItem() ? (
+                            {isAudioItem() ? (
+                              <AudioLines className="w-4 h-4 text-primary" />
+                            ) : isVideoItem() ? (
                               <VideoIcon className="w-4 h-4 text-primary" />
                             ) : (
                               <ImageIcon className="w-4 h-4 text-primary" />
                             )}
-                            {t("mediaDetail.highResolution.title")}
+                            {isAudioItem()
+                              ? t("mediaDetail.highResolution.titleAudio")
+                              : t("mediaDetail.highResolution.title")}
                           </h3>
                           <div className="space-y-3">
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm text-muted-foreground">
-                                {t("mediaDetail.highResolution.dimensions")}:
-                              </span>
-                              <Badge variant="outline" className="font-mono">
-                                {fileData?.high_resolution?.width} ×{" "}
-                                {fileData?.high_resolution?.height}
-                              </Badge>
-                            </div>
+                            {/* Only show dimensions and aspect ratio for images and videos, not audio */}
+                            {!isAudioItem() && (
+                              <>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-muted-foreground">
+                                    {t("mediaDetail.highResolution.dimensions")}
+                                    :
+                                  </span>
+                                  <Badge
+                                    variant="outline"
+                                    className="font-mono"
+                                  >
+                                    {fileData?.high_resolution?.width} ×{" "}
+                                    {fileData?.high_resolution?.height}
+                                  </Badge>
+                                </div>
 
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm text-muted-foreground">
-                                {t("mediaDetail.highResolution.aspectRatio")}:
-                              </span>
-                              <span className="text-sm font-medium">
-                                {fileData?.high_resolution?.width &&
-                                fileData?.high_resolution?.height
-                                  ? (
-                                      (typeof fileData.high_resolution.width ===
-                                      "string"
-                                        ? parseInt(
-                                            fileData.high_resolution.width,
-                                            10
-                                          )
-                                        : fileData.high_resolution.width) /
-                                      (typeof fileData.high_resolution
-                                        .height === "string"
-                                        ? parseInt(
-                                            fileData.high_resolution.height,
-                                            10
-                                          )
-                                        : fileData.high_resolution.height)
-                                    ).toFixed(2)
-                                  : "N/A"}
-                                :1
-                              </span>
-                            </div>
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm text-muted-foreground">
+                                    {t(
+                                      "mediaDetail.highResolution.aspectRatio"
+                                    )}
+                                    :
+                                  </span>
+                                  <span className="text-sm font-medium">
+                                    {fileData?.high_resolution?.width &&
+                                    fileData?.high_resolution?.height
+                                      ? (
+                                          (typeof fileData.high_resolution
+                                            .width === "string"
+                                            ? parseInt(
+                                                fileData.high_resolution.width,
+                                                10
+                                              )
+                                            : fileData.high_resolution.width) /
+                                          (typeof fileData.high_resolution
+                                            .height === "string"
+                                            ? parseInt(
+                                                fileData.high_resolution.height,
+                                                10
+                                              )
+                                            : fileData.high_resolution.height)
+                                        ).toFixed(2)
+                                      : "N/A"}
+                                    :1
+                                  </span>
+                                </div>
+                              </>
+                            )}
 
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm text-muted-foreground">
-                                {t("mediaDetail.highResolution.totalPixels")}:
-                              </span>
-                              <span className="text-sm font-medium">
-                                {fileData?.high_resolution?.width &&
-                                fileData?.high_resolution?.height
-                                  ? (
-                                      ((typeof fileData.high_resolution
-                                        .width === "string"
-                                        ? parseInt(
-                                            fileData.high_resolution.width,
-                                            10
-                                          )
-                                        : fileData.high_resolution.width) *
-                                        (typeof fileData.high_resolution
-                                          .height === "string"
+                            {/* Only show total pixels for images and videos, not audio */}
+                            {!isAudioItem() && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-sm text-muted-foreground">
+                                  {t("mediaDetail.highResolution.totalPixels")}:
+                                </span>
+                                <span className="text-sm font-medium">
+                                  {fileData?.high_resolution?.width &&
+                                  fileData?.high_resolution?.height
+                                    ? (
+                                        ((typeof fileData.high_resolution
+                                          .width === "string"
                                           ? parseInt(
-                                              fileData.high_resolution.height,
+                                              fileData.high_resolution.width,
                                               10
                                             )
-                                          : fileData.high_resolution.height)) /
-                                      1000000
-                                    ).toFixed(1)
-                                  : "N/A"}
-                                MP
-                              </span>
-                            </div>
+                                          : fileData.high_resolution.width) *
+                                          (typeof fileData.high_resolution
+                                            .height === "string"
+                                            ? parseInt(
+                                                fileData.high_resolution.height,
+                                                10
+                                              )
+                                            : fileData.high_resolution
+                                                .height)) /
+                                        1000000
+                                      ).toFixed(1)
+                                    : "N/A"}
+                                  MP
+                                </span>
+                              </div>
+                            )}
 
                             <div className="pt-2">
                               <Button
@@ -2056,9 +2323,11 @@ export default function ImageDetailsPage() {
                                 onClick={() => setIsFullImageOpen(true)}
                               >
                                 <Eye className="w-4 h-4" />
-                                {isVideoItem()
-                                  ? t("mediaDetail.highResolution.viewVideo")
-                                  : t("mediaDetail.highResolution.viewImage")}
+                                {isAudioItem()
+                                  ? t("mediaDetail.highResolution.viewAudio")
+                                  : isVideoItem()
+                                    ? t("mediaDetail.highResolution.viewVideo")
+                                    : t("mediaDetail.highResolution.viewImage")}
                               </Button>
                             </div>
                           </div>
@@ -2165,7 +2434,70 @@ export default function ImageDetailsPage() {
             )}
 
             {/* Full Size Media */}
-            {isVideoItem() && isValidVideoUrl(imageData.thumbnail) ? (
+            {isAudioItem() ? (
+              <div className="w-full h-full flex flex-col items-center justify-center p-8 space-y-8 bg-gradient-to-br from-background/95 to-muted/50">
+                {/* Audio Icon */}
+                <div className="w-32 h-32 bg-primary/10 rounded-full flex items-center justify-center">
+                  <AudioLines className="w-16 h-16 text-primary" />
+                </div>
+
+                {/* Audio Title */}
+                <div className="text-center">
+                  <h2 className="text-2xl font-bold text-foreground mb-3">
+                    {imageData.title}
+                  </h2>
+                  <p className="text-muted-foreground">
+                    {t("mediaDetail.audioPlayer.clickToPlay")}
+                  </p>
+                </div>
+
+                {/* Audio Player */}
+                <audio
+                  key={fileData?.high_resolution?.src || imageData.thumbnail}
+                  className="w-full max-w-lg"
+                  controls
+                  controlsList="nodownload"
+                  preload="auto"
+                  style={{ height: "54px" }}
+                  onLoadStart={() => setIsAudioLoading(true)}
+                  onCanPlay={() => setIsAudioLoading(false)}
+                  onLoadedData={() => setIsAudioLoading(false)}
+                  onLoadedMetadata={() => setIsAudioLoading(false)}
+                  onError={() => setIsAudioLoading(false)}
+                  onWaiting={() => setIsAudioLoading(true)}
+                  onPlaying={() => setIsAudioLoading(false)}
+                >
+                  {/* Try high resolution audio first if available */}
+                  {isHighResolutionAvailable(fileData) &&
+                    isValidAudioUrl(fileData!.high_resolution!.src) && (
+                      <source
+                        src={getProxyAudioUrl(fileData!.high_resolution!.src)}
+                        type={getAudioMimeType(fileData!.high_resolution!.src)}
+                      />
+                    )}
+                  <source
+                    src={getProxyAudioUrl(imageData.thumbnail)}
+                    type={getAudioMimeType(imageData.thumbnail)}
+                  />
+                  {/* Fallback message for browsers that don't support audio */}
+                  <p className="text-foreground text-center p-4">
+                    {t("mediaDetail.audioPlayer.browserNotSupported")}
+                    <a
+                      href={getProxyAudioUrl(
+                        isHighResolutionAvailable(fileData)
+                          ? fileData!.high_resolution!.src
+                          : imageData.thumbnail
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline ml-1"
+                    >
+                      {t("mediaDetail.audioPlayer.downloadAudio")}
+                    </a>
+                  </p>
+                </audio>
+              </div>
+            ) : isVideoItem() && isValidVideoUrl(imageData.thumbnail) ? (
               <video
                 className="max-w-full max-h-full object-contain"
                 poster={imageData.poster || "/placeholder.png"}

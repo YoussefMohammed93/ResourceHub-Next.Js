@@ -1171,6 +1171,7 @@
       "viewFullMedia": "عرض الوسائط كاملة",
       "viewFullImage": "عرض الصورة كاملة",
       "viewFullVideo": "عرض الفيديو كاملاً",
+      "viewFullAudio": "عرض الصوت كاملاً",
       "viewOnProvider": "عرض على {{provider}}",
       "copyLink": "نسخ الرابط",
       "share": "مشاركة",
@@ -1212,11 +1213,13 @@
     },
     "highResolution": {
       "title": "تفاصيل الدقة العالية",
+      "titleAudio": "تفاصيل الصوت عالي الجودة",
       "dimensions": "الأبعاد",
       "aspectRatio": "نسبة العرض إلى الارتفاع",
       "totalPixels": "إجمالي البكسل",
       "viewImage": "عرض الصورة عالية الدقة",
-      "viewVideo": "عرض الفيديو عالي الدقة"
+      "viewVideo": "عرض الفيديو عالي الدقة",
+      "viewAudio": "عرض الصوت عالي الجودة"
     },
     "providerData": {
       "loadingTitle": "جاري تحميل التفاصيل المحسنة...",
@@ -1230,6 +1233,12 @@
       "fullScreenLoadingVideo": "جاري تحميل الفيديو...",
       "fullScreenBrowserNotSupported": "متصفحك لا يدعم تشغيل الفيديو.",
       "fullScreenDownloadVideo": "تحميل الفيديو"
+    },
+    "audioPlayer": {
+      "loadingAudio": "جاري تحميل الصوت...",
+      "clickToPlay": "انقر على تشغيل للاستماع إلى هذا الصوت",
+      "browserNotSupported": "متصفحك لا يدعم تشغيل الصوت.",
+      "downloadAudio": "تحميل الصوت"
     },
     "copyLink": {
       "success": "تم نسخ الرابط بنجاح!",

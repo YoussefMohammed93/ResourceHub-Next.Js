@@ -1171,6 +1171,7 @@
       "viewFullMedia": "View Full Media",
       "viewFullImage": "View Full Image",
       "viewFullVideo": "View Full Video",
+      "viewFullAudio": "View Full Audio",
       "viewOnProvider": "View on {{provider}}",
       "copyLink": "Copy Link",
       "share": "Share",
@@ -1212,11 +1213,13 @@
     },
     "highResolution": {
       "title": "High Resolution Details",
+      "titleAudio": "High Quality Audio Details",
       "dimensions": "Dimensions",
       "aspectRatio": "Aspect Ratio",
       "totalPixels": "Total Pixels",
       "viewImage": "View High Resolution Image",
-      "viewVideo": "View High Resolution Video"
+      "viewVideo": "View High Resolution Video",
+      "viewAudio": "View High Quality Audio"
     },
     "providerData": {
       "loadingTitle": "Loading Enhanced Details...",
@@ -1230,6 +1233,12 @@
       "fullScreenLoadingVideo": "Loading video...",
       "fullScreenBrowserNotSupported": "Your browser does not support the video tag.",
       "fullScreenDownloadVideo": "Download the video"
+    },
+    "audioPlayer": {
+      "loadingAudio": "Loading audio...",
+      "clickToPlay": "Click play to listen to this audio",
+      "browserNotSupported": "Your browser does not support the audio tag.",
+      "downloadAudio": "Download the audio"
     },
     "copyLink": {
       "success": "Link copied successfully!",
