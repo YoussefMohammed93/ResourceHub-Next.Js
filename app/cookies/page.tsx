@@ -440,14 +440,6 @@ function CookiesPageContent() {
     }
   };
 
-  const handleStatusToggle = (cookieId: number) => {
-    setCookies(
-      cookies.map((cookie) =>
-        cookie.id === cookieId ? { ...cookie, status: !cookie.status } : cookie
-      )
-    );
-  };
-
   // Load cookies data from backend and websites list
   useEffect(() => {
     const loadCookies = async () => {
@@ -513,7 +505,6 @@ function CookiesPageContent() {
                 lastUpdate: nowDate,
                 is_premium: isPremium,
                 icon,
-                status: true,
                 iconColor,
               });
             });
@@ -681,7 +672,6 @@ function CookiesPageContent() {
           lastUpdate: new Date().toISOString().split("T")[0],
           is_premium: !!(response.data.data as any)?.is_premium,
           icon,
-          status: true,
           iconColor,
         };
 
@@ -1429,48 +1419,6 @@ function CookiesPageContent() {
                         </span>
                       </div>
                     )}
-
-                    <div
-                      className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
-                    >
-                      <span
-                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
-                      >
-                        {t("cookies.fields.status")}:
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`text-xs ${isRTL ? "font-tajawal" : "font-sans"} ${
-                            cookie.status ? "text-green-600" : "text-red-600"
-                          }`}
-                        >
-                          {cookie.status
-                            ? t("cookies.status.active")
-                            : t("cookies.status.inactive")}
-                        </span>
-                        {/* Native Switch Button */}
-                        <button
-                          onClick={() => handleStatusToggle(cookie.id)}
-                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
-                            cookie.status ? "bg-green-500" : "bg-red-500"
-                          }`}
-                          role="switch"
-                          aria-checked={cookie.status}
-                        >
-                          <span
-                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
-                              isRTL
-                                ? cookie.status
-                                  ? "-translate-x-1"
-                                  : "-translate-x-5"
-                                : cookie.status
-                                  ? "translate-x-5"
-                                  : "translate-x-1"
-                            }`}
-                          />
-                        </button>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </Card>
