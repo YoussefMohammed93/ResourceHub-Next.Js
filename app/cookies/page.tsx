@@ -13,6 +13,14 @@ import {
   Loader2,
   AlertCircle,
   CheckCircle,
+  Mail,
+  User,
+  CreditCard,
+  Calendar,
+  Crown,
+  Hash,
+  Filter,
+  X,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -134,7 +142,7 @@ function CookiesPageSkeleton({ isRTL }: { isRTL: boolean }) {
 
       {/* Header Skeleton */}
       <header
-        className={`${isRTL ? "lg:mr-72" : "lg:ml-72"} border-b border-border bg-background/95 backdrop-blur sticky top-0 z-40`}
+        className={`${isRTL ? "lg:mr-72" : "lg:ml-72"} border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-40`}
       >
         <div className="flex items-center justify-between px-4 sm:px-5 h-16">
           <div
@@ -151,17 +159,124 @@ function CookiesPageSkeleton({ isRTL }: { isRTL: boolean }) {
 
       {/* Main Content Skeleton */}
       <main
-        className={`flex-1 min-h-screen ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
+        className={`relative flex-1 min-h-screen ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50 overflow-hidden`}
       >
+        {/* Floating Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Top Left Dots Grid */}
+          <svg
+            className={`absolute top-20 ${isRTL ? "right-10" : "left-10"} w-32 h-24 opacity-20`}
+            viewBox="0 0 140 100"
+            fill="none"
+          >
+            {Array.from({ length: 5 }, (_, row) =>
+              Array.from({ length: 7 }, (_, col) => (
+                <circle
+                  key={`${row}-${col}`}
+                  cx={10 + col * 18}
+                  cy={10 + row * 16}
+                  r="2"
+                  fill="currentColor"
+                  className="text-primary animate-pulse"
+                  style={{
+                    animationDelay: `${(row + col) * 0.3}s`,
+                    animationDuration: "4s",
+                  }}
+                />
+              ))
+            )}
+          </svg>
+
+          <svg
+            className={`absolute bottom-20 ${isRTL ? "left-10" : "right-10"} w-32 h-24 opacity-20`}
+            viewBox="0 0 140 100"
+            fill="none"
+          >
+            {Array.from({ length: 5 }, (_, row) =>
+              Array.from({ length: 7 }, (_, col) => (
+                <circle
+                  key={`${row}-${col}`}
+                  cx={10 + col * 18}
+                  cy={10 + row * 16}
+                  r="2"
+                  fill="currentColor"
+                  className="text-primary animate-pulse"
+                  style={{
+                    animationDelay: `${(row + col) * 0.3}s`,
+                    animationDuration: "4s",
+                  }}
+                />
+              ))
+            )}
+          </svg>
+
+          {/* Top Right Cookie Icon */}
+          <div
+            className={`absolute top-32 ${isRTL ? "left-20" : "right-20"} animate-float`}
+          >
+            <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center">
+              <Cookie className="w-6 h-6 text-primary" />
+            </div>
+          </div>
+
+          {/* Bottom Left Filter Icon */}
+          <div
+            className={`absolute bottom-40 ${isRTL ? "right-16" : "left-16"} animate-float`}
+            style={{ animationDelay: "1s" }}
+          >
+            <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+              <Filter className="w-5 h-5 text-primary/80" />
+            </div>
+          </div>
+
+          {/* Bottom Right Dots Grid */}
+          <svg
+            className={`absolute bottom-20 ${isRTL ? "left-16" : "right-16"} w-28 h-20 opacity-15`}
+            viewBox="0 0 120 80"
+            fill="none"
+          >
+            {Array.from({ length: 4 }, (_, row) =>
+              Array.from({ length: 6 }, (_, col) => (
+                <circle
+                  key={`bottom-${row}-${col}`}
+                  cx={8 + col * 18}
+                  cy={8 + row * 16}
+                  r="1.5"
+                  fill="currentColor"
+                  className="text-primary animate-pulse"
+                  style={{
+                    animationDelay: `${(row + col) * 0.4}s`,
+                    animationDuration: "5s",
+                  }}
+                />
+              ))
+            )}
+          </svg>
+        </div>
+
         {/* Page Header Skeleton */}
         <div
           className={`flex ${isRTL ? "sm:flex-row" : "sm:flex-row"} flex-col sm:items-center justify-between gap-4`}
         >
           <div className={`space-y-2 ${isRTL ? "text-right" : "text-left"}`}>
-            <Skeleton className="h-8 w-64" />
-            <Skeleton className="h-5 w-96" />
+            <Skeleton className="h-8 sm:h-9 w-48 sm:w-64" />
+            <Skeleton className="h-5 w-72 sm:w-96" />
           </div>
-          <Skeleton className="h-10 w-32 shrink-0" />
+
+          {/* Filter and Add Button Container Skeleton */}
+          <div
+            className={`w-full sm:w-auto flex ${isRTL ? "flex-row-reverse" : "flex-row"} items-center gap-3`}
+          >
+            {/* Website Filter Skeleton */}
+            <div className="w-full sm:w-auto flex items-center gap-2">
+              <Skeleton className="h-10 w-full sm:w-48" />
+            </div>
+          </div>
+        </div>
+
+        {/* Add Cookie Button Skeleton */}
+        <div className={`flex ${isRTL ? "justify-start" : "justify-end"} mb-4`}>
+          <Skeleton className="h-10 w-full sm:w-48" />
         </div>
 
         {/* Cookies Grid Skeleton */}
@@ -169,30 +284,52 @@ function CookiesPageSkeleton({ isRTL }: { isRTL: boolean }) {
           {Array.from({ length: 6 }, (_, i) => (
             <Card
               key={i}
-              className="relative bg-card border border-border rounded-2xl p-6 overflow-hidden"
+              className="group relative bg-primary/5 dark:bg-muted/75 border border-border rounded-2xl p-6 overflow-hidden"
             >
-              {/* Icon and Delete Button Skeletons */}
-              <div className={`absolute ${isRTL ? "right-4" : "left-4"} top-4`}>
+              {/* Website Icon Skeleton */}
+              <div
+                className={`absolute ${isRTL ? "right-4" : "left-4"} top-4 z-10`}
+              >
                 <Skeleton className="w-10 h-10 rounded-lg" />
               </div>
-              <div className={`absolute ${isRTL ? "left-4" : "right-4"} top-4`}>
+
+              {/* Delete Button Skeleton */}
+              <div
+                className={`absolute ${isRTL ? "left-4" : "right-4"} top-4 z-20`}
+              >
                 <Skeleton className="h-8 w-8 rounded" />
               </div>
 
+              {/* Background Cookie Icon Skeleton */}
+              <div
+                className={`absolute -top-24 opacity-10 ${isRTL ? "-left-8" : "-right-8"}`}
+              >
+                <Cookie className="w-28 h-28 text-orange-500 transform rotate-12" />
+              </div>
+
               {/* Content Skeleton */}
-              <div className="space-y-4 mt-16">
+              <div
+                className={`relative z-10 space-y-4 mt-16 ${isRTL ? "text-right" : "text-left"}`}
+              >
                 {/* Domain Title */}
-                <Skeleton className="h-6 w-32" />
+                <div className="space-y-2">
+                  <Skeleton className="h-6 w-32" />
+                </div>
 
                 {/* Details */}
                 <div className="space-y-4">
-                  {Array.from({ length: 4 }, (_, j) => (
+                  {Array.from({ length: 5 }, (_, j) => (
                     <div
                       key={j}
-                      className={`flex ${isRTL ? "flex-row-reverse" : ""} justify-between items-center`}
+                      className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
                     >
-                      <Skeleton className="h-4 w-20" />
-                      <Skeleton className="h-4 w-16" />
+                      <div
+                        className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                      >
+                        <Skeleton className="w-4 h-4 rounded" />
+                        <Skeleton className="h-4 w-16 sm:w-20" />
+                      </div>
+                      <Skeleton className="h-4 w-12 sm:w-16" />
                     </div>
                   ))}
                 </div>
@@ -222,6 +359,7 @@ function CookiesPageContent() {
   const [websites, setWebsites] = useState<WebsiteOption[]>([]);
   const [isLoadingWebsites, setIsLoadingWebsites] = useState<boolean>(false);
   const [websitesError, setWebsitesError] = useState<string | null>(null);
+  const [filterWebsite, setFilterWebsite] = useState<string>("all");
   const loadingRef = useRef<boolean>(false);
 
   // Load websites from API
@@ -302,6 +440,14 @@ function CookiesPageContent() {
     }
   };
 
+  const handleStatusToggle = (cookieId: number) => {
+    setCookies(
+      cookies.map((cookie) =>
+        cookie.id === cookieId ? { ...cookie, status: !cookie.status } : cookie
+      )
+    );
+  };
+
   // Load cookies data from backend and websites list
   useEffect(() => {
     const loadCookies = async () => {
@@ -367,6 +513,7 @@ function CookiesPageContent() {
                 lastUpdate: nowDate,
                 is_premium: isPremium,
                 icon,
+                status: true,
                 iconColor,
               });
             });
@@ -534,6 +681,7 @@ function CookiesPageContent() {
           lastUpdate: new Date().toISOString().split("T")[0],
           is_premium: !!(response.data.data as any)?.is_premium,
           icon,
+          status: true,
           iconColor,
         };
 
@@ -557,6 +705,14 @@ function CookiesPageContent() {
       setIsSubmitting(false);
     }
   };
+
+  // Filter cookies based on selected website
+  const filteredCookies =
+    filterWebsite === "all"
+      ? cookies
+      : cookies.filter(
+          (cookie) => cookie.platform_name.toLowerCase() === filterWebsite
+        );
 
   // Show loading skeleton while language data or cookies data is loading
   if (isLoading || isCookiesLoading) {
@@ -601,8 +757,100 @@ function CookiesPageContent() {
 
       {/* Main Content */}
       <main
-        className={`flex-1 min-h-screen ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50`}
+        className={`relative flex-1 min-h-screen ${isRTL ? "lg:mr-72" : "lg:ml-72"} p-4 sm:p-5 space-y-4 sm:space-y-5 bg-secondary/50 overflow-hidden`}
       >
+        {/* Floating Background Elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {/* Top Left Dots Grid */}
+          <svg
+            className={`absolute top-20 ${isRTL ? "right-10" : "left-10"} w-32 h-24 opacity-20`}
+            viewBox="0 0 140 100"
+            fill="none"
+          >
+            {Array.from({ length: 5 }, (_, row) =>
+              Array.from({ length: 7 }, (_, col) => (
+                <circle
+                  key={`${row}-${col}`}
+                  cx={10 + col * 18}
+                  cy={10 + row * 16}
+                  r="2"
+                  fill="currentColor"
+                  className="text-primary animate-pulse"
+                  style={{
+                    animationDelay: `${(row + col) * 0.3}s`,
+                    animationDuration: "4s",
+                  }}
+                />
+              ))
+            )}
+          </svg>
+
+          <svg
+            className={`absolute bottom-20 ${isRTL ? "left-10" : "right-10"} w-32 h-24 opacity-20`}
+            viewBox="0 0 140 100"
+            fill="none"
+          >
+            {Array.from({ length: 5 }, (_, row) =>
+              Array.from({ length: 7 }, (_, col) => (
+                <circle
+                  key={`${row}-${col}`}
+                  cx={10 + col * 18}
+                  cy={10 + row * 16}
+                  r="2"
+                  fill="currentColor"
+                  className="text-primary animate-pulse"
+                  style={{
+                    animationDelay: `${(row + col) * 0.3}s`,
+                    animationDuration: "4s",
+                  }}
+                />
+              ))
+            )}
+          </svg>
+
+          {/* Top Right Cookie Icon */}
+          <div
+            className={`absolute top-32 ${isRTL ? "left-20" : "right-20"} animate-float`}
+          >
+            <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-xl flex items-center justify-center">
+              <Cookie className="w-6 h-6 text-primary" />
+            </div>
+          </div>
+
+          {/* Bottom Left Filter Icon */}
+          <div
+            className={`absolute bottom-40 ${isRTL ? "right-16" : "left-16"} animate-float`}
+            style={{ animationDelay: "1s" }}
+          >
+            <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+              <Filter className="w-5 h-5 text-primary/80" />
+            </div>
+          </div>
+
+          {/* Bottom Right Dots Grid */}
+          <svg
+            className={`absolute bottom-20 ${isRTL ? "left-16" : "right-16"} w-28 h-20 opacity-15`}
+            viewBox="0 0 120 80"
+            fill="none"
+          >
+            {Array.from({ length: 4 }, (_, row) =>
+              Array.from({ length: 6 }, (_, col) => (
+                <circle
+                  key={`bottom-${row}-${col}`}
+                  cx={8 + col * 18}
+                  cy={8 + row * 16}
+                  r="1.5"
+                  fill="currentColor"
+                  className="text-primary animate-pulse"
+                  style={{
+                    animationDelay: `${(row + col) * 0.4}s`,
+                    animationDuration: "5s",
+                  }}
+                />
+              ))
+            )}
+          </svg>
+        </div>
         {/* Page Header */}
         <div
           className={`flex ${isRTL ? "sm:flex-row" : "sm:flex-row"} flex-col sm:items-center justify-between gap-4`}
@@ -620,6 +868,77 @@ function CookiesPageContent() {
             </p>
           </div>
 
+          {/* Filter and Add Button Container */}
+          <div
+            className={`w-full sm:w-auto flex ${isRTL ? "flex-row-reverse" : "flex-row"} items-center gap-3`}
+          >
+            {/* Website Filter */}
+            <div className="w-full sm:w-auto flex items-center gap-2">
+              <Select value={filterWebsite} onValueChange={setFilterWebsite}>
+                <SelectTrigger
+                  className={`w-full sm:w-48 ${isRTL ? "font-tajawal" : "font-sans"}`}
+                >
+                  <SelectValue
+                    placeholder={t("cookies.filter.placeholder", {
+                      defaultValue: "Filter by website",
+                    })}
+                    className={isRTL ? "font-tajawal" : "font-sans"}
+                  />
+                </SelectTrigger>
+                <SelectContent className="w-full sm:w-48">
+                  <SelectItem
+                    value="all"
+                    className={isRTL ? "font-tajawal" : "font-sans"}
+                  >
+                    <div
+                      className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                    >
+                      <div className="w-5 h-5 bg-primary rounded text-white text-xs flex items-center justify-center font-bold">
+                        *
+                      </div>
+                      <span>
+                        {t("cookies.filter.all", {
+                          defaultValue: "All Websites",
+                        })}
+                      </span>
+                    </div>
+                  </SelectItem>
+                  {websites.map((website) => (
+                    <SelectItem
+                      key={website.value}
+                      value={website.value}
+                      className={isRTL ? "font-tajawal" : "font-sans"}
+                    >
+                      <div
+                        className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                      >
+                        <div
+                          className={`w-5 h-5 ${website.iconColor} rounded text-white text-xs flex items-center justify-center font-bold`}
+                        >
+                          {website.icon}
+                        </div>
+                        <span>{website.label}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {filterWebsite !== "all" && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFilterWebsite("all")}
+                  className="h-9 w-9 p-0"
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Add Cookie Dialog */}
+        <div className={`flex ${isRTL ? "justify-start" : "justify-end"} mb-4`}>
           {/* Add Cookie Button */}
           <Dialog
             open={isAddCookieDialogOpen}
@@ -630,14 +949,14 @@ function CookiesPageContent() {
               }
             }}
           >
-            <DialogTrigger asChild>
+            <DialogTrigger asChild className="w-full sm:w-48">
               <Button className="bg-primary hover:bg-primary/90 text-primary-foreground shrink-0">
                 <Plus className="w-4 h-4 stroke-3" />
                 {t("cookies.addCookie.button")}
               </Button>
             </DialogTrigger>
             <DialogContent
-              className={`sm:max-w-[500px] ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
+              className={`sm:max-w-[1000px] ${isRTL ? "[&>[data-slot=dialog-close]]:left-4 [&>[data-slot=dialog-close]]:right-auto" : ""}`}
             >
               <DialogHeader className={`${isRTL && "sm:text-right"}`}>
                 <DialogTitle className={isRTL ? "font-tajawal" : "font-sans"}>
@@ -837,224 +1156,326 @@ function CookiesPageContent() {
 
         {/* Cookies Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {cookies.map((cookie) => (
-            <Card
-              key={cookie.id}
-              className="group relative bg-primary/5 dark:bg-muted/75 border border-border rounded-2xl p-6 transition-all duration-500 hover:border-primary/30 overflow-hidden"
-            >
-              {/* Hover effect overlay - diagonal sweep */}
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
-
-              {/* Delete Button - Positioned absolutely in top right */}
-              <div
-                className={`absolute ${isRTL ? "left-4" : "right-4"} top-4 z-20`}
+          {filteredCookies.length === 0 ? (
+            <div className="col-span-full flex flex-col items-center justify-center py-12 text-center">
+              <Cookie className="w-16 h-16 text-muted-foreground/50 mb-4" />
+              <h3
+                className={`text-lg font-semibold text-muted-foreground mb-2 ${isRTL ? "font-tajawal" : "font-sans"}`}
               >
-                <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
-                      disabled={deletingCookieId === cookie.id}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent
-                    className={isRTL ? "font-tajawal" : "font-sans"}
-                  >
-                    <AlertDialogHeader
-                      className={isRTL ? "text-right" : "text-left"}
-                    >
-                      <AlertDialogTitle
-                        className={isRTL ? "font-tajawal" : "font-sans"}
-                      >
-                        {t("cookies.deleteDialog.title")}
-                      </AlertDialogTitle>
-                      <AlertDialogDescription
-                        className={isRTL ? "font-tajawal" : "font-sans"}
-                      >
-                        {t("cookies.deleteDialog.description", {
-                          domain: cookie.platform_name,
-                        })}
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter
-                      className={isRTL ? "flex-row-reverse" : ""}
-                    >
-                      <AlertDialogCancel
-                        disabled={deletingCookieId === cookie.id}
-                        className={isRTL ? "font-tajawal" : "font-sans"}
-                      >
-                        {t("common.cancel")}
-                      </AlertDialogCancel>
-                      <AlertDialogAction
-                        onClick={() => handleDeleteCookie(cookie)}
-                        disabled={deletingCookieId === cookie.id}
-                        className={`bg-destructive hover:bg-destructive/70 text-white ${isRTL ? "font-tajawal" : "font-sans"}`}
-                      >
-                        {deletingCookieId === cookie.id ? (
-                          <>
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                            {t("cookies.deleting")}
-                          </>
-                        ) : (
-                          <>
-                            <Trash2 className="w-4 h-4" />
-                            {t("common.delete")}
-                          </>
-                        )}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-              </div>
-
-              {/* Website Icon - Positioned absolutely in top left under delete button */}
-              <div
-                className={`absolute ${isRTL ? "right-4" : "left-4"} top-4 z-10`}
+                {filterWebsite === "all"
+                  ? t("cookies.empty.title", {
+                      defaultValue: "No cookies found",
+                    })
+                  : t("cookies.empty.filtered", {
+                      defaultValue: "No cookies for this website",
+                    })}
+              </h3>
+              <p
+                className={`text-sm text-muted-foreground ${isRTL ? "font-tajawal" : "font-sans"}`}
               >
+                {filterWebsite === "all"
+                  ? t("cookies.empty.description", {
+                      defaultValue: "Add your first cookie to get started",
+                    })
+                  : t("cookies.empty.filteredDescription", {
+                      defaultValue:
+                        "Try selecting a different website or add a new cookie",
+                    })}
+              </p>
+            </div>
+          ) : (
+            filteredCookies.map((cookie) => (
+              <Card
+                key={cookie.id}
+                className="group relative bg-primary/5 dark:bg-muted/75 border border-border rounded-2xl p-6 transition-all duration-500 hover:border-primary/30 overflow-hidden"
+              >
+                {/* Hover effect overlay - diagonal sweep */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform translate-x-[-100%] translate-y-[-100%] group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700 ease-out"></div>
+
+                {/* Delete Button - Positioned absolutely in top right */}
                 <div
-                  className={`w-10 h-10 ${cookie.iconColor} rounded-lg flex items-center justify-center text-white font-bold text-lg group-hover:scale-110 transition-transform duration-200`}
+                  className={`absolute ${isRTL ? "left-4" : "right-4"} top-4 z-20`}
                 >
-                  {cookie.icon}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                        disabled={deletingCookieId === cookie.id}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent
+                      className={isRTL ? "font-tajawal" : "font-sans"}
+                    >
+                      <AlertDialogHeader
+                        className={isRTL ? "text-right" : "text-left"}
+                      >
+                        <AlertDialogTitle
+                          className={isRTL ? "font-tajawal" : "font-sans"}
+                        >
+                          {t("cookies.deleteDialog.title")}
+                        </AlertDialogTitle>
+                        <AlertDialogDescription
+                          className={isRTL ? "font-tajawal" : "font-sans"}
+                        >
+                          {t("cookies.deleteDialog.description", {
+                            domain: cookie.platform_name,
+                          })}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter
+                        className={isRTL ? "flex-row-reverse" : ""}
+                      >
+                        <AlertDialogCancel
+                          disabled={deletingCookieId === cookie.id}
+                          className={isRTL ? "font-tajawal" : "font-sans"}
+                        >
+                          {t("common.cancel")}
+                        </AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDeleteCookie(cookie)}
+                          disabled={deletingCookieId === cookie.id}
+                          className={`bg-destructive hover:bg-destructive/70 text-white ${isRTL ? "font-tajawal" : "font-sans"}`}
+                        >
+                          {deletingCookieId === cookie.id ? (
+                            <>
+                              <Loader2 className="w-5 h-5 animate-spin" />
+                              {t("cookies.deleting")}
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="w-4 h-4" />
+                              {t("common.delete")}
+                            </>
+                          )}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
-              </div>
 
-              {/* Card Content - Relative positioned */}
-              <div
-                className={`relative z-10 space-y-4 mt-16 ${isRTL ? "text-right" : "text-left"}`}
-              >
-                {/* Domain Title */}
-                <div className="space-y-2">
-                  <h3
-                    className={`text-lg font-semibold text-foreground group-hover:text-primary transition-colors ${isRTL ? "font-tajawal" : "font-sans"}`}
-                  >
-                    {cookie.platform_name}
-                  </h3>
-                </div>
-
+                {/* Website Icon - Positioned absolutely in top left under delete button */}
                 <div
-                  className={`absolute -top-24 opacity-10 group-hover:opacity-20 transition-opacity duration-300 ${isRTL ? "-left-8" : "-right-8"}`}
+                  className={`absolute ${isRTL ? "right-4" : "left-4"} top-4 z-10`}
                 >
-                  <Cookie className="w-28 h-28 text-orange-500 transform rotate-12" />
+                  <div
+                    className={`w-10 h-10 ${cookie.iconColor} rounded-lg flex items-center justify-center text-white font-bold text-lg`}
+                  >
+                    {cookie.icon}
+                  </div>
                 </div>
 
-                {/* Cookie Details */}
-                <div className="space-y-4">
-                  {/* User ID - only show if it exists */}
-                  {cookie.user_id && (
+                {/* Card Content - Relative positioned */}
+                <div
+                  className={`relative z-10 space-y-4 mt-16 ${isRTL ? "text-right" : "text-left"}`}
+                >
+                  {/* Domain Title */}
+                  <div className="space-y-2">
+                    <h3
+                      className={`text-lg font-semibold text-foreground group-hover:text-primary transition-colors ${isRTL ? "font-tajawal" : "font-sans"}`}
+                    >
+                      {cookie.platform_name}
+                    </h3>
+                  </div>
+
+                  <div
+                    className={`absolute -top-24 opacity-10 group-hover:opacity-20 transition-opacity duration-300 ${isRTL ? "-left-8" : "-right-8"}`}
+                  >
+                    <Cookie className="w-28 h-28 text-orange-500 transform rotate-12" />
+                  </div>
+
+                  {/* Cookie Details */}
+                  <div className="space-y-4">
+                    {/* User ID - only show if it exists */}
+                    {cookie.user_id && (
+                      <div
+                        className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
+                      >
+                        <div
+                          className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                        >
+                          <Hash className="w-4 h-4 text-muted-foreground" />
+                          <span
+                            className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                          >
+                            {t("cookies.fields.userId", {
+                              defaultValue: "User ID",
+                            })}
+                            :
+                          </span>
+                        </div>
+                        <span
+                          className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
+                        >
+                          {cookie.user_id}
+                        </span>
+                      </div>
+                    )}
                     <div
                       className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
                     >
-                      <span
-                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                      <div
+                        className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
                       >
-                        {t("cookies.fields.userId", {
-                          defaultValue: "User ID",
-                        })}
-                        :
-                      </span>
+                        <User className="w-4 h-4 text-muted-foreground" />
+                        <span
+                          className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                        >
+                          {t("cookies.fields.username")}:
+                        </span>
+                      </div>
                       <span
                         className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
                       >
-                        {cookie.user_id}
+                        {cookie.username}
                       </span>
                     </div>
-                  )}
-                  <div
-                    className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
-                  >
-                    <span
-                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
-                    >
-                      {t("cookies.fields.username")}:
-                    </span>
-                    <span
-                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
-                    >
-                      {cookie.username}
-                    </span>
-                  </div>
 
-                  {/* Email field */}
-                  <div
-                    className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
-                  >
-                    <span
-                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                    {/* Email field */}
+                    <div
+                      className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
                     >
-                      {t("cookies.fields.email", { defaultValue: "Email" })}:
-                    </span>
-                    <span
-                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
-                    >
-                      {cookie.email ||
-                        t("cookies.fields.noEmail", {
-                          defaultValue: "No email",
-                        })}
-                    </span>
-                  </div>
-
-                  <div
-                    className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
-                  >
-                    <span
-                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
-                    >
-                      {t("cookies.fields.credit")}:
-                    </span>
-                    <span
-                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
-                    >
-                      {cookie.credit !== undefined && cookie.credit !== null
-                        ? `${cookie.credit} ${t("cookies.fields.credits", { defaultValue: "credits" })}`
-                        : t("cookies.fields.noCredit", {
-                            defaultValue: "No credit",
+                      <div
+                        className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                      >
+                        <Mail className="w-4 h-4 text-muted-foreground" />
+                        <span
+                          className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                        >
+                          {t("cookies.fields.email", { defaultValue: "Email" })}
+                          :
+                        </span>
+                      </div>
+                      <span
+                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
+                      >
+                        {cookie.email ||
+                          t("cookies.fields.noEmail", {
+                            defaultValue: "No email",
                           })}
-                    </span>
-                  </div>
-                  <div
-                    className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
-                  >
-                    <span
-                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
-                    >
-                      {t("cookies.fields.lastUpdate")}:
-                    </span>
-                    <span
-                      className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
-                    >
-                      {cookie.lastUpdate}
-                    </span>
-                  </div>
+                      </span>
+                    </div>
 
-                  {/* Premium status - only show if true */}
-                  {cookie.is_premium && (
+                    <div
+                      className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
+                    >
+                      <div
+                        className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                      >
+                        <CreditCard className="w-4 h-4 text-muted-foreground" />
+                        <span
+                          className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                        >
+                          {t("cookies.fields.credit")}:
+                        </span>
+                      </div>
+                      <span
+                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
+                      >
+                        {cookie.credit !== undefined && cookie.credit !== null
+                          ? `${cookie.credit} ${t("cookies.fields.credits", { defaultValue: "credits" })}`
+                          : t("cookies.fields.noCredit", {
+                              defaultValue: "No credit",
+                            })}
+                      </span>
+                    </div>
+                    <div
+                      className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
+                    >
+                      <div
+                        className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                      >
+                        <Calendar className="w-4 h-4 text-muted-foreground" />
+                        <span
+                          className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                        >
+                          {t("cookies.fields.lastUpdate")}:
+                        </span>
+                      </div>
+                      <span
+                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-foreground`}
+                      >
+                        {cookie.lastUpdate}
+                      </span>
+                    </div>
+
+                    {/* Premium status - only show if true */}
+                    {cookie.is_premium && (
+                      <div
+                        className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
+                      >
+                        <div
+                          className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                        >
+                          <Crown className="w-4 h-4 text-yellow-500" />
+                          <span
+                            className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
+                          >
+                            {t("cookies.fields.premium", {
+                              defaultValue: "Premium",
+                            })}
+                            :
+                          </span>
+                        </div>
+                        <span
+                          className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-green-600`}
+                        >
+                          {t("cookies.status.premium", {
+                            defaultValue: "Premium User",
+                          })}
+                        </span>
+                      </div>
+                    )}
+
                     <div
                       className={`flex ${isRTL ? "flex-row" : ""} justify-between items-center`}
                     >
                       <span
                         className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} text-muted-foreground`}
                       >
-                        {t("cookies.fields.premium", {
-                          defaultValue: "Premium",
-                        })}
-                        :
+                        {t("cookies.fields.status")}:
                       </span>
-                      <span
-                        className={`${isRTL ? "text-base font-tajawal" : "text-sm font-sans"} font-medium text-green-600`}
-                      >
-                        {t("cookies.status.premium", {
-                          defaultValue: "Premium User",
-                        })}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-xs ${isRTL ? "font-tajawal" : "font-sans"} ${
+                            cookie.status ? "text-green-600" : "text-red-600"
+                          }`}
+                        >
+                          {cookie.status
+                            ? t("cookies.status.active")
+                            : t("cookies.status.inactive")}
+                        </span>
+                        {/* Native Switch Button */}
+                        <button
+                          onClick={() => handleStatusToggle(cookie.id)}
+                          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
+                            cookie.status ? "bg-green-500" : "bg-red-500"
+                          }`}
+                          role="switch"
+                          aria-checked={cookie.status}
+                        >
+                          <span
+                            className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${
+                              isRTL
+                                ? cookie.status
+                                  ? "-translate-x-1"
+                                  : "-translate-x-5"
+                                : cookie.status
+                                  ? "translate-x-5"
+                                  : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      </div>
                     </div>
-                  )}
+                  </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+              </Card>
+            ))
+          )}
         </div>
       </main>
     </div>

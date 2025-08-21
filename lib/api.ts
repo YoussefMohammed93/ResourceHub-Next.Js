@@ -1839,6 +1839,7 @@ export interface CookieData {
   lastUpdate: string;
   is_premium?: boolean;
   icon?: string;
+  status: boolean;
   iconColor?: string;
 }
 

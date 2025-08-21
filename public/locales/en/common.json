@@ -734,6 +734,22 @@
   "cookies": {
     "title": "Cookies Control",
     "description": "Manage your website cookies and user sessions.",
+    "filter": {
+      "placeholder": "Filter by website",
+      "all": "All Websites"
+    },
+    "empty": {
+      "title": "No cookies found",
+      "description": "Add your first cookie to get started",
+      "filtered": "No cookies for this website",
+      "filteredDescription": "Try selecting a different website or add a new cookie"
+    },
+    "stats": {
+      "total": "Total Cookies",
+      "filtered": "Filtered Results",
+      "premium": "Premium Accounts",
+      "websites": "Unique Websites"
+    },
     "addCookie": {
       "title": "Add Cookie",
       "description": "Upload a new cookie file to manage website sessions",
@@ -756,12 +772,19 @@
       }
     },
     "fields": {
+      "userId": "User ID",
       "username": "Username",
+      "email": "Email",
+      "noEmail": "No email",
       "credit": "Credit",
+      "credits": "credits",
+      "noCredit": "No credit",
       "lastUpdate": "Last Update",
+      "premium": "Premium",
       "status": "Status"
     },
     "status": {
+      "premium": "Premium User",
       "active": "Yes",
       "inactive": "No"
     },
