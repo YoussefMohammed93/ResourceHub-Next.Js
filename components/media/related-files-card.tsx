@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { VideoIcon } from "lucide-react";
+import { VideoIcon, AudioLines, Headphones, Volume2 } from "lucide-react";
 import { RelatedFile } from "@/lib/api";
 
 interface SearchResult {
@@ -26,6 +26,8 @@ interface RelatedFilesCardProps {
   imageData: SearchResult;
   isValidVideoUrl: (url: string) => boolean;
   getVideoMimeType: (url: string) => string;
+  isValidAudioUrl?: (url: string) => boolean;
+  getAudioMimeType?: (url: string) => string;
 }
 
 export function RelatedFilesCard({
@@ -34,7 +36,50 @@ export function RelatedFilesCard({
   imageData,
   isValidVideoUrl,
   getVideoMimeType,
+  isValidAudioUrl,
 }: RelatedFilesCardProps) {
+  // Use passed audio detection function or fallback to local implementation
+  const checkIsValidAudioUrl =
+    isValidAudioUrl ||
+    ((url: string): boolean => {
+      if (!url) return false;
+      const audioExtensions = [
+        ".mp3",
+        ".wav",
+        ".ogg",
+        ".oga",
+        ".aac",
+        ".m4a",
+        ".flac",
+        ".wma",
+        ".opus",
+        ".webm",
+      ];
+      const hasAudioExtension = audioExtensions.some((ext) =>
+        url.toLowerCase().includes(ext)
+      );
+      const audioStreamingDomains = [
+        "audio-previews.elements.envatousercontent.com",
+        "soundcloud.com",
+        "spotify.com",
+        "bandcamp.com",
+      ];
+      const hasAudioStreamingDomain = audioStreamingDomains.some((domain) =>
+        url.includes(domain)
+      );
+      return hasAudioExtension || hasAudioStreamingDomain;
+    });
+
+  // Determine file type based on URL patterns
+  const determineFileType = (): string => {
+    const url = related.preview.src || related.url || "";
+    if (checkIsValidAudioUrl(url)) return "audio";
+    if (isValidVideoUrl(url)) return "video";
+    return "image";
+  };
+
+  const detectedFileType = determineFileType();
+
   // Create a mock SearchResult for navigation
   const relatedSearchResult: SearchResult = {
     id: related.file_id,
@@ -42,7 +87,7 @@ export function RelatedFilesCard({
     thumbnail: related.preview.src,
     provider: imageData.provider,
     type: imageData.type,
-    file_type: imageData.file_type,
+    file_type: detectedFileType, // Use detected file type
     width: related.preview.width || null,
     height: related.preview.height || null,
     url: related.url,
@@ -52,8 +97,9 @@ export function RelatedFilesCard({
     providerIcon: imageData.providerIcon,
   };
 
-  // Check if this related item is a video
-  const isRelatedVideo = isValidVideoUrl(related.preview.src);
+  // Check if this related item is a video or audio
+  const isRelatedVideo = detectedFileType === "video";
+  const isRelatedAudio = detectedFileType === "audio";
 
   const handleClick = () => {
     // Store the related file data and navigate
@@ -67,12 +113,70 @@ export function RelatedFilesCard({
   return (
     <div
       key={index}
-      className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 shadow-sm transition-all duration-300 cursor-pointer"
+      className={`group relative bg-card rounded-lg overflow-hidden transition-all duration-300 cursor-pointer ${
+        isRelatedAudio
+          ? "border border-primary/50 shadow-sm hover:border-primary hover:shadow-md"
+          : "border border-border hover:border-primary/50 shadow-sm"
+      }`}
       onClick={handleClick}
     >
       {/* Media Preview */}
       <div className="relative aspect-video bg-muted overflow-hidden">
-        {isRelatedVideo ? (
+        {isRelatedAudio ? (
+          /* Audio Card Design - Same as search page */
+          <div className="w-full h-full bg-gradient-to-br from-primary/5 via-accent/10 to-primary/10 dark:from-primary/10 dark:via-accent/20 dark:to-primary/15 flex flex-col items-center justify-center p-4 space-y-2">
+            {/* Audio Icon with Animation */}
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-sm">
+                <AudioLines className="w-5 h-5 text-primary-foreground" />
+              </div>
+              {/* Animated Sound Waves */}
+              <div className="absolute -inset-1 opacity-30">
+                <div className="w-12 h-12 border-2 border-primary/40 rounded-full animate-ping"></div>
+              </div>
+              <div className="absolute -inset-2 opacity-20">
+                <div
+                  className="w-14 h-14 border-2 border-primary/30 rounded-full animate-ping"
+                  style={{ animationDelay: "0.5s" }}
+                ></div>
+              </div>
+            </div>
+
+            {/* Audio Label */}
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                <Headphones className="w-3 h-3" />
+                Audio
+              </p>
+            </div>
+
+            {/* Audio Waveform Visual */}
+            <div className="flex items-center justify-center gap-0.5 opacity-60">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="w-0.5 bg-gradient-to-t from-primary/60 to-primary rounded-full animate-pulse"
+                  style={{
+                    height: `${Math.random() * 10 + 4}px`,
+                    animationDelay: `${i * 0.1}s`,
+                    animationDuration: "1.5s",
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Audio Badge */}
+            <div className="absolute top-2 left-2">
+              <Badge
+                variant="secondary"
+                className="text-xs bg-primary/90 text-white border-none shadow-sm"
+              >
+                <Volume2 className="w-3 h-3 mr-1" />
+                Audio
+              </Badge>
+            </div>
+          </div>
+        ) : isRelatedVideo ? (
           <>
             {/* Video with poster */}
             <video
@@ -116,7 +220,7 @@ export function RelatedFilesCard({
             <div className="absolute top-2 left-2">
               <Badge
                 variant="secondary"
-                className="text-xs bg-black/80 text-white border-none"
+                className="text-xs bg-destructive/90 text-white border-none shadow-sm"
               >
                 <VideoIcon className="w-3 h-3 mr-1" />
                 Video

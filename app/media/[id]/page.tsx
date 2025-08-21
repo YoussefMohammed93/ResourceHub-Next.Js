@@ -1430,7 +1430,9 @@ export default function ImageDetailsPage() {
                   </div>
 
                   {/* Quick Actions */}
-                  <div className={`grid ${isAudioItem() ? "grid-cols-1" : "grid-cols-2"} gap-3`}>
+                  <div
+                    className={`grid ${isAudioItem() ? "grid-cols-1" : "grid-cols-2"} gap-3`}
+                  >
                     <Button
                       className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
                       onClick={handleDownload}
@@ -1447,10 +1449,10 @@ export default function ImageDetailsPage() {
                     </Button>
                     {!isAudioItem() && (
                       <Button onClick={() => setIsFullImageOpen(true)}>
-                      <Eye className="w-4 h-4" />
-                      {isVideoItem()
-                        ? t("mediaDetail.actions.viewFullVideo")
-                        : t("mediaDetail.actions.viewFullImage")}
+                        <Eye className="w-4 h-4" />
+                        {isVideoItem()
+                          ? t("mediaDetail.actions.viewFullVideo")
+                          : t("mediaDetail.actions.viewFullImage")}
                       </Button>
                     )}
                   </div>
@@ -1731,6 +1733,8 @@ export default function ImageDetailsPage() {
                 imageData={imageData}
                 isValidVideoUrl={isValidVideoUrl}
                 getVideoMimeType={getVideoMimeType}
+                isValidAudioUrl={isValidAudioUrl}
+                getAudioMimeType={getAudioMimeType}
               />
             </div>
 
@@ -2042,28 +2046,30 @@ export default function ImageDetailsPage() {
                     </div>
 
                     {/* Quick Actions */}
-                    <div className={`grid ${isAudioItem() ? "grid-cols-1" : "grid-cols-2"} gap-3`}>
+                    <div
+                      className={`grid ${isAudioItem() ? "grid-cols-1" : "grid-cols-2"} gap-3`}
+                    >
                       <Button
-                      className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
-                      onClick={handleDownload}
-                      disabled={isDownloading}
+                        className="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
+                        onClick={handleDownload}
+                        disabled={isDownloading}
                       >
-                      {isDownloading ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Download className="w-4 h-4" />
-                      )}
-                      {isDownloading
-                        ? t("mediaDetail.actions.downloading")
-                        : t("mediaDetail.actions.download")}
+                        {isDownloading ? (
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4" />
+                        )}
+                        {isDownloading
+                          ? t("mediaDetail.actions.downloading")
+                          : t("mediaDetail.actions.download")}
                       </Button>
                       {!isAudioItem() && (
-                      <Button onClick={() => setIsFullImageOpen(true)}>
-                        <Eye className="w-4 h-4" />
-                        {isVideoItem()
-                        ? t("mediaDetail.actions.viewFullVideo")
-                        : t("mediaDetail.actions.viewFullImage")}
-                      </Button>
+                        <Button onClick={() => setIsFullImageOpen(true)}>
+                          <Eye className="w-4 h-4" />
+                          {isVideoItem()
+                            ? t("mediaDetail.actions.viewFullVideo")
+                            : t("mediaDetail.actions.viewFullImage")}
+                        </Button>
                       )}
                     </div>
                   </div>
@@ -2391,6 +2397,8 @@ export default function ImageDetailsPage() {
             imageData={imageData}
             isValidVideoUrl={isValidVideoUrl}
             getVideoMimeType={getVideoMimeType}
+            isValidAudioUrl={isValidAudioUrl}
+            getAudioMimeType={getAudioMimeType}
             className="mt-6 hidden xl:grid"
           />
         </main>

@@ -26,6 +26,8 @@ interface RelatedFilesSectionProps {
   imageData: SearchResult;
   isValidVideoUrl: (url: string) => boolean;
   getVideoMimeType: (url: string) => string;
+  isValidAudioUrl?: (url: string) => boolean;
+  getAudioMimeType?: (url: string) => string;
   className?: string;
 }
 
@@ -34,6 +36,8 @@ export function RelatedFilesSection({
   imageData,
   isValidVideoUrl,
   getVideoMimeType,
+  isValidAudioUrl,
+  getAudioMimeType,
   className = "",
 }: RelatedFilesSectionProps) {
   const { t } = useTranslation("common");
@@ -69,6 +73,8 @@ export function RelatedFilesSection({
             imageData={imageData}
             isValidVideoUrl={isValidVideoUrl}
             getVideoMimeType={getVideoMimeType}
+            isValidAudioUrl={isValidAudioUrl}
+            getAudioMimeType={getAudioMimeType}
           />
         ))}
       </div>

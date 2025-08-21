@@ -20,6 +20,9 @@ import {
   Camera,
   AlertCircle,
   WifiOff,
+  AudioLines,
+  Headphones,
+  Volume2,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -1819,7 +1822,11 @@ function SearchContent() {
                     return (
                       <div
                         key={result.id}
-                        className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                        className={`group relative bg-card rounded-lg overflow-hidden transition-all duration-300 cursor-pointer ${
+                          result.file_type === "audio"
+                            ? "border border-primary/50 shadow-sm hover:border-primary hover:shadow-md"
+                            : "border border-border hover:border-primary/50"
+                        }`}
                         style={{ height: `${responsiveHeight}px` }}
                         onMouseEnter={() => setHoveredImage(result.id)}
                         onMouseLeave={() => setHoveredImage(null)}
@@ -1827,8 +1834,54 @@ function SearchContent() {
                       >
                         {/* Media Content */}
                         <div className="relative w-full h-full">
-                          {result.file_type === "video" &&
-                          isValidVideoUrl(result.thumbnail) ? (
+                          {result.file_type === "audio" ? (
+                            /* Audio Card Design - Mobile */
+                            <div className="w-full h-full bg-gradient-to-br from-primary/5 via-accent/10 to-primary/10 dark:from-primary/10 dark:via-accent/20 dark:to-primary/15 flex flex-col items-center justify-center p-6 space-y-4">
+                              {/* Audio Icon with Animation */}
+                              <div className="relative">
+                                <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-sm">
+                                  <AudioLines className="w-8 h-8 text-primary-foreground" />
+                                </div>
+                                {/* Animated Sound Waves */}
+                                <div className="absolute -inset-2 opacity-30">
+                                  <div className="w-20 h-20 border-2 border-primary/40 rounded-full animate-ping"></div>
+                                </div>
+                                <div className="absolute -inset-4 opacity-20">
+                                  <div
+                                    className="w-24 h-24 border-2 border-primary/30 rounded-full animate-ping"
+                                    style={{ animationDelay: "0.5s" }}
+                                  ></div>
+                                </div>
+                              </div>
+
+                              {/* Audio Title */}
+                              <div className="text-center space-y-1">
+                                <h3 className="text-sm font-semibold text-foreground line-clamp-2 leading-tight">
+                                  {result.title}
+                                </h3>
+                                <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                                  <Headphones className="w-3 h-3" />
+                                  Audio File
+                                </p>
+                              </div>
+
+                              {/* Audio Waveform Visual */}
+                              <div className="flex items-center justify-center gap-1 opacity-60">
+                                {Array.from({ length: 12 }).map((_, i) => (
+                                  <div
+                                    key={i}
+                                    className="w-1 bg-gradient-to-t from-primary/60 to-primary rounded-full animate-pulse"
+                                    style={{
+                                      height: `${Math.random() * 16 + 8}px`,
+                                      animationDelay: `${i * 0.1}s`,
+                                      animationDuration: "1.5s",
+                                    }}
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          ) : result.file_type === "video" &&
+                            isValidVideoUrl(result.thumbnail) ? (
                             <>
                               <video
                                 src={result.thumbnail}
@@ -1971,12 +2024,17 @@ function SearchContent() {
                           <div
                             className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} px-2 py-1 ${
                               result.file_type === "video"
-                                ? "bg-red-500/90"
-                                : "bg-primary/80"
-                            } text-white text-xs rounded-md flex items-center gap-1`}
+                                ? "bg-destructive/90"
+                                : result.file_type === "audio"
+                                  ? "bg-primary/90"
+                                  : "bg-primary/80"
+                            } text-white text-xs rounded-md flex items-center gap-1 shadow-sm`}
                           >
                             {result.file_type === "video" && (
                               <Camera className="w-3 h-3" />
+                            )}
+                            {result.file_type === "audio" && (
+                              <Volume2 className="w-3 h-3" />
                             )}
                             {formatFileType(result.file_type)}
                           </div>
@@ -2025,7 +2083,11 @@ function SearchContent() {
                             return (
                               <div
                                 key={result.id}
-                                className="group relative bg-card rounded-lg overflow-hidden border border-border hover:border-primary/50 transition-all duration-300 cursor-pointer"
+                                className={`group relative bg-card rounded-lg overflow-hidden transition-all duration-300 cursor-pointer ${
+                                  result.file_type === "audio"
+                                    ? "border border-primary/50 shadow-sm hover:border-primary hover:shadow-md"
+                                    : "border border-border hover:border-primary/50"
+                                }`}
                                 style={{
                                   flex: `${flexValue} 1 0`,
                                   height: "250px",
@@ -2038,8 +2100,56 @@ function SearchContent() {
                               >
                                 {/* Media Content */}
                                 <div className="relative w-full h-full">
-                                  {result.file_type === "video" &&
-                                  isValidVideoUrl(result.thumbnail) ? (
+                                  {result.file_type === "audio" ? (
+                                    /* Audio Card Design - Desktop */
+                                    <div className="w-full h-full bg-gradient-to-br from-primary/5 via-accent/10 to-primary/10 dark:from-primary/10 dark:via-accent/20 dark:to-primary/15 flex flex-col items-center justify-center p-4 space-y-3">
+                                      {/* Audio Icon with Animation */}
+                                      <div className="relative">
+                                        <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center shadow-sm">
+                                          <AudioLines className="w-6 h-6 text-primary-foreground" />
+                                        </div>
+                                        {/* Animated Sound Waves */}
+                                        <div className="absolute -inset-1 opacity-30">
+                                          <div className="w-14 h-14 border-2 border-primary/40 rounded-full animate-ping"></div>
+                                        </div>
+                                        <div className="absolute -inset-2 opacity-20">
+                                          <div
+                                            className="w-16 h-16 border-2 border-primary/30 rounded-full animate-ping"
+                                            style={{ animationDelay: "0.5s" }}
+                                          ></div>
+                                        </div>
+                                      </div>
+
+                                      {/* Audio Title */}
+                                      <div className="text-center space-y-1">
+                                        <h3 className="text-xs font-semibold text-foreground line-clamp-2 leading-tight">
+                                          {result.title}
+                                        </h3>
+                                        <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                                          <Headphones className="w-3 h-3" />
+                                          Audio
+                                        </p>
+                                      </div>
+
+                                      {/* Audio Waveform Visual - Smaller for desktop */}
+                                      <div className="flex items-center justify-center gap-0.5 opacity-60">
+                                        {Array.from({ length: 10 }).map(
+                                          (_, i) => (
+                                            <div
+                                              key={i}
+                                              className="w-0.5 bg-gradient-to-t from-primary/60 to-primary rounded-full animate-pulse"
+                                              style={{
+                                                height: `${Math.random() * 12 + 6}px`,
+                                                animationDelay: `${i * 0.1}s`,
+                                                animationDuration: "1.5s",
+                                              }}
+                                            />
+                                          )
+                                        )}
+                                      </div>
+                                    </div>
+                                  ) : result.file_type === "video" &&
+                                    isValidVideoUrl(result.thumbnail) ? (
                                     <>
                                       <video
                                         src={result.thumbnail}
@@ -2196,12 +2306,17 @@ function SearchContent() {
                                   <div
                                     className={`absolute top-2 ${isRTL ? "left-2" : "right-2"} px-2 py-1 ${
                                       result.file_type === "video"
-                                        ? "bg-red-500/90"
-                                        : "bg-primary/80"
-                                    } text-white text-xs rounded-md flex items-center gap-1`}
+                                        ? "bg-destructive/90"
+                                        : result.file_type === "audio"
+                                          ? "bg-primary/90"
+                                          : "bg-primary/80"
+                                    } text-white text-xs rounded-md flex items-center gap-1 shadow-sm`}
                                   >
                                     {result.file_type === "video" && (
                                       <Camera className="w-3 h-3" />
+                                    )}
+                                    {result.file_type === "audio" && (
+                                      <Volume2 className="w-3 h-3" />
                                     )}
                                     {formatFileType(result.file_type)}
                                   </div>
