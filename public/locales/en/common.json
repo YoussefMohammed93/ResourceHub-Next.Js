@@ -248,6 +248,63 @@
       }
     }
   },
+  "testimonials": {
+    "title": "What Our",
+    "titleHighlight": "Customers Say",
+    "description": "Join thousands of satisfied creators who trust ResourceHub for their creative projects.",
+    "stats": {
+      "totalDownloads": {
+        "value": "2500000",
+        "label": "Total Downloads",
+        "suffix": "+"
+      },
+      "customerSatisfaction": {
+        "value": "99",
+        "label": "Customer Satisfaction",
+        "suffix": "%"
+      },
+      "supportedPlatforms": {
+        "value": "25",
+        "label": "Supported Platforms",
+        "suffix": "+"
+      },
+      "totalResources": {
+        "value": "50000000",
+        "label": "Total Resources",
+        "suffix": "+"
+      }
+    },
+    "reviews": [
+      {
+        "name": "Sarah Ahmed",
+        "role": "Graphic Designer",
+        "content": "ResourceHub has completely transformed my workflow. The quality of resources and ease of accessing multiple platforms in one place is incredible. I've saved countless hours and my clients love the results.",
+        "rating": 5,
+        "avatar": "/avatars/sarah.jpg"
+      },
+      {
+        "name": "Michael Johnson",
+        "role": "Marketing Director",
+        "content": "The credit system is brilliant and the variety of platforms available is unmatched. We've been able to maintain consistent visual branding across all our campaigns with high-quality assets from ResourceHub.",
+        "rating": 5,
+        "avatar": "/avatars/michael.jpg"
+      },
+      {
+        "name": "Emma Wilson",
+        "role": "Content Creator",
+        "content": "I love how ResourceHub gives me access to premium content from all my favorite platforms. The download speeds are incredibly fast and the quality is always excellent. Highly recommend!",
+        "rating": 5,
+        "avatar": "/avatars/emma.jpg"
+      },
+      {
+        "name": "David Chen",
+        "role": "Web Designer",
+        "content": "As a freelancer, ResourceHub has been a game-changer. The affordable pricing and access to multiple premium platforms has helped me deliver better results to my clients while staying within budget.",
+        "rating": 5,
+        "avatar": "/avatars/david.jpg"
+      }
+    ]
+  },
   "footer": {
     "description": "Your ultimate destination for premium creative resources. Access millions of high-quality images, vectors, and videos from top platforms worldwide.",
     "quickLinks": "Quick Links",

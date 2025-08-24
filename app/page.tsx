@@ -1,4 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 "use client";
 
@@ -28,6 +29,8 @@ import {
   AlertCircle,
   Loader2,
   Package,
+  Heart,
+  User,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -60,6 +63,8 @@ import {
   SupportedPlatformsSkeleton,
   FooterSkeleton,
   FAQSkeleton,
+  TestimonialsSkeleton,
+  StatisticsSkeleton,
 } from "@/components/home-page-skeletons";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
@@ -68,15 +73,63 @@ import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { ImageSearchDialog } from "@/components/image-search-dialog";
 import { publicApi, type PricingPlan, type Site } from "@/lib/api";
+import { useAnimatedCounter } from "@/hooks/use-animated-counter";
 
-const categoryKeys = [
-  "nature",
-  "business",
-  "technology",
-  "travel",
-  "sports",
-  "art",
-];
+// StatisticCard component for animated counters
+interface StatisticCardProps {
+  value: number;
+  label: string;
+  suffix: string;
+  delay?: number;
+}
+
+function StatisticCard({
+  value,
+  label,
+  suffix,
+  delay = 0,
+}: StatisticCardProps) {
+  const { count, elementRef } = useAnimatedCounter({
+    end: value,
+    duration: 2000 + delay,
+    decimals: 0,
+  });
+  const { isRTL } = useLanguage();
+
+  // Format the number with commas for better readability
+  const formatNumber = (num: number) => {
+    return Math.floor(num).toLocaleString();
+  };
+
+  return (
+    <div
+      ref={elementRef}
+      className="group bg-card border border-border rounded-2xl p-6 lg:p-8 text-center transition-all duration-500 hover:border-primary/30 hover:shadow-lg relative overflow-hidden"
+    >
+      {/* Hover effect overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform scale-0 group-hover:scale-100 transition-transform duration-500 ease-out"></div>
+
+      <div className="relative z-10">
+        {/* Animated Number */}
+        <div className="mb-3">
+          <span className="text-3xl font-bold text-primary">
+            {formatNumber(count)}
+          </span>
+          <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
+            {suffix}
+          </span>
+        </div>
+
+        {/* Label */}
+        <p
+          className={`text-base lg:text-lg font-medium text-muted-foreground ${isRTL && "font-medium"}`}
+        >
+          {label}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 // Platform data organized by categories for tabbed interface
 const platformsByCategory = {
@@ -923,6 +976,8 @@ export default function HomePage() {
         <HeroSkeleton />
         <SupportedPlatformsSkeleton />
         <CategoriesSkeleton />
+        <TestimonialsSkeleton />
+        <StatisticsSkeleton />
         <FeaturesSkeleton />
         <FAQSkeleton />
         <FooterSkeleton />
@@ -2057,160 +2112,183 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-      {/* Categories Section */}
-      <section
-        id="categories"
-        className="py-12 pb-16 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden"
-      >
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center mb-10">
-            <h2 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
-              {t("categories.title")}{" "}
-              <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                {t("categories.titleHighlight")}
-              </span>
-            </h2>
-            <p
-              className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+
+      {/* Testimonials Section */}
+      {isLoading ? (
+        <TestimonialsSkeleton />
+      ) : (
+        <section className="py-16 lg:py-20 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+          {/* Floating Background Elements */}
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            {/* Top Left Dots Grid */}
+            <svg
+              className={`absolute top-20 ${isRTL ? "right-10" : "left-10"} w-32 h-24 opacity-20`}
+              viewBox="0 0 140 100"
+              fill="none"
             >
-              {t("categories.description")}
-            </p>
+              {Array.from({ length: 5 }, (_, row) =>
+                Array.from({ length: 7 }, (_, col) => (
+                  <circle
+                    key={`testimonial-${row}-${col}`}
+                    cx={10 + col * 18}
+                    cy={10 + row * 16}
+                    r="2"
+                    fill="currentColor"
+                    className="text-primary animate-pulse"
+                    style={{
+                      animationDelay: `${(row + col) * 0.3}s`,
+                      animationDuration: "4s",
+                    }}
+                  />
+                ))
+              )}
+            </svg>
+
+            {/* Top Right Star Icon */}
+            <div
+              className={`hidden lg:block absolute top-32 ${isRTL ? "left-20" : "right-20"} animate-float`}
+            >
+              <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
+                <Star className="w-6 h-6 text-primary" />
+              </div>
+            </div>
+
+            {/* Bottom Left Heart Icon */}
+            <div
+              className={`hidden md:block absolute bottom-32 ${isRTL ? "right-16" : "left-16"} animate-bounce-slow`}
+            >
+              <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                <Heart className="w-5 h-5 text-primary" />
+              </div>
+            </div>
+
+            {/* Bottom Right Dots Grid */}
+            <svg
+              className={`absolute bottom-20 ${isRTL ? "left-16" : "right-16"} w-28 h-20 opacity-15`}
+              viewBox="0 0 120 80"
+              fill="none"
+            >
+              {Array.from({ length: 4 }, (_, row) =>
+                Array.from({ length: 6 }, (_, col) => (
+                  <circle
+                    key={`testimonial-bottom-${row}-${col}`}
+                    cx={8 + col * 18}
+                    cy={8 + row * 16}
+                    r="1.5"
+                    fill="currentColor"
+                    className="text-primary animate-pulse"
+                    style={{
+                      animationDelay: `${(row + col) * 0.4}s`,
+                      animationDuration: "5s",
+                    }}
+                  />
+                ))
+              )}
+            </svg>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-w-5xl mx-auto">
-            {categoryKeys.map((categoryKey, index) => {
-              const categoryName = t(`categories.items.${categoryKey}`);
-              // Function to render appropriate icon for each category
-              const renderCategoryIcon = () => {
-                switch (categoryKey) {
-                  case "art":
-                    return <Cat className="w-8 h-8 text-primary" />;
-                  case "nature":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"
-                        />
-                      </svg>
-                    );
-                  case "business":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-                        />
-                      </svg>
-                    );
-                  case "technology":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"
-                        />
-                      </svg>
-                    );
-                  case "travel":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                        />
-                      </svg>
-                    );
-                  case "sports":
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M13 10V3L4 14h7v7l9-11h-7z"
-                        />
-                      </svg>
-                    );
-                  default:
-                    return (
-                      <svg
-                        className="w-8 h-8 text-primary"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"
-                        />
-                      </svg>
-                    );
-                }
-              };
-              return (
-                <Link
+
+          <div className="container mx-auto max-w-[1600px] px-5 relative z-10">
+            {/* Section Header */}
+            <div className="text-center mb-12 lg:mb-16">
+              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
+                {t("testimonials.title")}{" "}
+                <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                  {t("testimonials.titleHighlight")}
+                </span>
+              </h2>
+              <p
+                className={`text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed ${isRTL && "font-medium"}`}
+              >
+                {t("testimonials.description")}
+              </p>
+            </div>
+
+            {/* Testimonials Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+              {(
+                t("testimonials.reviews", { returnObjects: true }) as any[]
+              ).map((testimonial: any, index: number) => (
+                <div
                   key={index}
-                  href={`/search?q=${categoryName}`}
-                  className="group relative dark:bg-card bg-background/50 shadow-sm backdrop-blur-sm border border-border/50 rounded-2xl p-6 cursor-pointer transition-all duration-300 hover:bg-background/80 hover:border-primary/30 hover:shadow-md hover:scale-105 flex flex-col items-center text-center"
+                  className="bg-card border border-border rounded-2xl p-4 lg:p-6 transition-all duration-300 hover:shadow-sm hover:border-primary/50"
                 >
-                  {/* Category icon */}
-                  <div className="w-14 h-14 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                    {renderCategoryIcon()}
+                  {/* Author Info at Top */}
+                  <div
+                    className={`flex items-center mb-4 ${isRTL ? "space-x-reverse space-x-3" : "space-x-3"}`}
+                  >
+                    <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center">
+                      <User className="w-6 h-6 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-foreground text-sm">
+                        {testimonial.name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">
+                        {testimonial.role}
+                      </p>
+                    </div>
+                    {/* Rating Stars */}
+                    <div className="flex items-center">
+                      {Array.from({ length: testimonial.rating }, (_, i) => (
+                        <Star
+                          key={i}
+                          className="w-4 h-4 text-yellow-500 fill-current"
+                        />
+                      ))}
+                    </div>
                   </div>
 
-                  <h3 className="font-semibold text-foreground text-sm sm:text-base group-hover:text-primary transition-colors">
-                    {categoryName}
-                  </h3>
-                  {/* Hover effect overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                </Link>
-              );
-            })}
+                  {/* Testimonial Content */}
+                  <p
+                    className={`text-muted-foreground leading-relaxed text-sm ${isRTL && "font-medium"}`}
+                  >
+                    <q>
+                      {testimonial.content}
+                    </q>
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
+        </section>
+      )}
+
+      {/* Statistics Section */}
+      {isLoading ? (
+        <StatisticsSkeleton />
+      ) : (
+        <div className="bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10">
+          <section className="py-16 lg:py-20 relative overflow-hidden">
+            <div className="container mx-auto max-w-[1600px] px-5 relative z-10">
+              {/* Statistics Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+                {Object.entries(
+                  t("testimonials.stats", { returnObjects: true }) as Record<
+                    string,
+                    any
+                  >
+                ).map(([key, stat], index) => (
+                  <StatisticCard
+                    key={key}
+                    value={parseInt(stat.value)}
+                    label={stat.label}
+                    suffix={stat.suffix}
+                    delay={index * 200}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
         </div>
-      </section>
+      )}
+
       {/* Features Section */}
       {isLoading ? (
         <FeaturesSkeleton />
       ) : (
         <section
           id="features"
-          className="py-16 lg:py-20 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden"
+          className="py-16 lg:py-20 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden"
         >
           <div className="container mx-auto max-w-7xl px-5 relative z-10">
             {/* Section Header */}

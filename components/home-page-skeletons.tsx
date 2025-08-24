@@ -274,3 +274,73 @@ export function FAQSkeleton() {
     </section>
   );
 }
+
+// Testimonials Section Skeleton
+export function TestimonialsSkeleton() {
+  return (
+    <section className="py-16 lg:py-20 bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10 relative overflow-hidden">
+      <div className="container mx-auto max-w-[1600px] px-5 relative z-10">
+        {/* Section Header */}
+        <div className="text-center mb-12 lg:mb-16">
+          <div className="space-y-4">
+            <Skeleton className="h-12 w-96 mx-auto" />
+            <Skeleton className="h-6 w-full max-w-2xl mx-auto" />
+          </div>
+        </div>
+        {/* Testimonials Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div
+              key={i}
+              className="bg-card border border-border rounded-2xl p-4 lg:p-6"
+            >
+              {/* Author Info */}
+              <div className="flex items-center mb-4 space-x-3">
+                <Skeleton className="w-12 h-12 rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-3 w-32" />
+                </div>
+                <div className="flex space-x-1">
+                  {Array.from({ length: 5 }, (_, j) => (
+                    <Skeleton key={j} className="w-4 h-4" />
+                  ))}
+                </div>
+              </div>
+              {/* Content */}
+              <div className="space-y-2">
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-3 w-3/4" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// Statistics Section Skeleton
+export function StatisticsSkeleton() {
+  return (
+    <section className="py-16 lg:py-20 bg-gradient-to-br from-primary/5 via-primary/10 to-primary/5 relative overflow-hidden">
+      <div className="container mx-auto max-w-[1600px] px-5 relative z-10">
+        {/* Statistics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+          {Array.from({ length: 4 }, (_, i) => (
+            <div
+              key={i}
+              className="bg-card border border-border rounded-2xl p-6 lg:p-8 text-center"
+            >
+              <div className="space-y-4">
+                <Skeleton className="h-12 w-32 mx-auto" />
+                <Skeleton className="h-5 w-24 mx-auto" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
