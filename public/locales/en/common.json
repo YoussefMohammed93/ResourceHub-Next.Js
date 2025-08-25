@@ -62,6 +62,11 @@
       "supportedFormats": "Supported formats: JPG, PNG (max 5MB)"
     }
   },
+  "statistics": {
+    "title": "Trusted by",
+    "titleHighlight": "Millions Worldwide",
+    "description": "Our platform serves creators globally with impressive numbers that speak to our commitment to quality and reliability."
+  },
   "features": {
     "title": "Why Choose",
     "titleHighlight": "Resource Hub",

@@ -31,6 +31,8 @@ import {
   Package,
   Heart,
   User,
+  TrendingUp,
+  Target,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -2210,7 +2212,7 @@ export default function HomePage() {
               ).map((testimonial: any, index: number) => (
                 <div
                   key={index}
-                  className="bg-card border border-border rounded-2xl p-4 lg:p-6 transition-all duration-300 hover:shadow-sm hover:border-primary/50"
+                  className="bg-card dark:bg-secondary border border-border rounded-2xl p-4 lg:p-6 transition-all duration-300 hover:shadow-sm hover:border-primary/50"
                 >
                   {/* Author Info at Top */}
                   <div
@@ -2242,9 +2244,7 @@ export default function HomePage() {
                   <p
                     className={`text-muted-foreground leading-relaxed text-sm ${isRTL && "font-medium"}`}
                   >
-                    <q>
-                      {testimonial.content}
-                    </q>
+                    <q>{testimonial.content}</q>
                   </p>
                 </div>
               ))}
@@ -2259,7 +2259,89 @@ export default function HomePage() {
       ) : (
         <div className="bg-gradient-to-br from-secondary/10 via-secondary/20 to-secondary/10">
           <section className="py-16 lg:py-20 relative overflow-hidden">
+            {/* Floating Background Elements */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {/* Top Left Dots Grid */}
+              <svg
+                className={`absolute top-16 ${isRTL ? "right-8" : "left-8"} w-28 h-20 opacity-50`}
+                viewBox="0 0 120 80"
+                fill="none"
+              >
+                {Array.from({ length: 4 }, (_, row) =>
+                  Array.from({ length: 6 }, (_, col) => (
+                    <circle
+                      key={`stats-${row}-${col}`}
+                      cx={8 + col * 18}
+                      cy={8 + row * 16}
+                      r="1.5"
+                      fill="currentColor"
+                      className="text-primary animate-pulse"
+                      style={{
+                        animationDelay: `${(row + col) * 0.2}s`,
+                        animationDuration: "3s",
+                      }}
+                    />
+                  ))
+                )}
+              </svg>
+
+              {/* Top Right Chart Icon */}
+              <div
+                className={`hidden lg:block absolute top-24 ${isRTL ? "left-16" : "right-16"} animate-float`}
+              >
+                <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-xl flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-primary" />
+                </div>
+              </div>
+
+              {/* Bottom Left Target Icon */}
+              <div
+                className={`hidden md:block absolute bottom-4 ${isRTL ? "right-12" : "left-12"} animate-bounce-slow`}
+              >
+                <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                  <Target className="w-5 h-5 text-primary" />
+                </div>
+              </div>
+
+              {/* Bottom Right Dots Grid */}
+              <svg
+                className={`absolute bottom-16 ${isRTL ? "left-20" : "right-20"} w-32 h-24 opacity-40`}
+                viewBox="0 0 140 100"
+                fill="none"
+              >
+                {Array.from({ length: 5 }, (_, row) =>
+                  Array.from({ length: 7 }, (_, col) => (
+                    <circle
+                      key={`stats-bottom-${row}-${col}`}
+                      cx={10 + col * 18}
+                      cy={10 + row * 16}
+                      r="2"
+                      fill="currentColor"
+                      className="text-primary animate-pulse"
+                      style={{
+                        animationDelay: `${(row + col) * 0.3}s`,
+                        animationDuration: "4s",
+                      }}
+                    />
+                  ))
+                )}
+              </svg>
+            </div>
+
             <div className="container mx-auto max-w-[1600px] px-5 relative z-10">
+              {/* Section Header */}
+              <div className="text-center mb-12 lg:mb-16">
+                <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
+                  {t("statistics.title")}{" "}
+                  <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                    {t("statistics.titleHighlight")}
+                  </span>
+                </h2>
+                <p className="text-base md:text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-3xl mx-auto px-2 sm:px-0">
+                  {t("statistics.description")}
+                </p>
+              </div>
+
               {/* Statistics Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
                 {Object.entries(
