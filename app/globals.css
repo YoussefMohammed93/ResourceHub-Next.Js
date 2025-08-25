@@ -313,6 +313,9 @@ section[id] {
   .platforms-grid-3xl-home {
     grid-template-columns: repeat(14, minmax(0, 1fr));
   }
+  .user-name-dashboard {
+    max-width: 180px;
+  }
 }
 
 .dir-rtl {

@@ -1800,26 +1800,47 @@ export default function DashboardPage() {
             ? userObj.last_name
             : "User";
 
+      // Extract subscription data
+      const subscription = userObj.subscription as
+        | Record<string, unknown>
+        | undefined;
+      const subscriptionCredits = subscription?.credits as
+        | Record<string, unknown>
+        | undefined;
+
       return {
         id: index + 1,
         name: `${firstName} ${lastName}`,
         email: typeof userObj.email === "string" ? userObj.email : "No email",
         phone:
-          typeof userObj.phone === "string" ? userObj.phone : "+1-555-0123", // Default phone since API might not provide it
-        credits: typeof userObj.credits === "number" ? userObj.credits : 0, // Default credits since API might not provide it in user list
+          typeof userObj.phoneNum === "string"
+            ? userObj.phoneNum
+            : typeof userObj.phone === "string"
+              ? userObj.phone
+              : "No Number", // Default phone since API might not provide it
+        credits:
+          typeof subscriptionCredits?.remaining === "number"
+            ? subscriptionCredits.remaining
+            : typeof userObj.credits === "number"
+              ? userObj.credits
+              : 0, // Get credits from subscription.credits.remaining
         status: typeof userObj.status === "string" ? userObj.status : "Active", // Default status since API might not provide it
         expiry:
-          typeof userObj.expiry === "string"
-            ? userObj.expiry
-            : typeof userObj.subscription_expiry === "string"
-              ? userObj.subscription_expiry
-              : "2024-12-31", // Default expiry since API might not provide it
+          typeof subscription?.until === "string"
+            ? subscription.until
+            : typeof userObj.expiry === "string"
+              ? userObj.expiry
+              : typeof userObj.subscription_expiry === "string"
+                ? userObj.subscription_expiry
+                : "2024-12-31", // Default expiry since API might not provide it
         plan:
-          typeof userObj.plan === "string"
-            ? userObj.plan
-            : typeof userObj.subscription_plan === "string"
-              ? userObj.subscription_plan
-              : "Basic Plan", // Default plan since API might not provide it
+          typeof subscription?.plan === "string"
+            ? subscription.plan
+            : typeof userObj.plan === "string"
+              ? userObj.plan
+              : typeof userObj.subscription_plan === "string"
+                ? userObj.subscription_plan
+                : "Basic Plan", // Default plan since API might not provide it
         avatar: `${firstName.charAt(0)}${lastName.charAt(0)}`,
         joinDate:
           typeof userObj.joinDate === "string"
@@ -2614,7 +2635,7 @@ export default function DashboardPage() {
                               return (
                                 <div
                                   key={`${entry.email}-${entry.timestamp}-${index}`}
-                                  className={`flex items-center justify-between p-4 bg-card border rounded-lg hover:bg-muted/50 transition-colors ${config.borderColor}`}
+                                  className={`relative flex items-center justify-between p-4 bg-card border rounded-lg hover:bg-muted/50 transition-colors ${config.borderColor}`}
                                 >
                                   <div className="flex items-center space-x-3 flex-1 min-w-0">
                                     {/* Transaction Type Icon */}
@@ -2629,12 +2650,12 @@ export default function DashboardPage() {
                                     {/* Transaction Details */}
                                     <div className="flex-1 min-w-0">
                                       <div className="flex items-center justify-between space-x-2 mb-1">
-                                        <span className="text-sm font-medium text-foreground truncate">
+                                        <span className="user-name-dashboard text-sm font-medium text-foreground truncate max-w-[120px]">
                                           {entry.user_name}
                                         </span>
                                         <Badge
                                           variant="secondary"
-                                          className="text-xs"
+                                          className={`text-xs absolute ${isRTL ? "left-3" : "right-3"}`}
                                         >
                                           {t(
                                             `dashboard.creditHistory.transactions.types.${entry.type}`
@@ -2773,7 +2794,7 @@ export default function DashboardPage() {
                             <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                               {t("dashboard.creditAnalytics.remaining")}
                             </p>
-                            <p className="text-lg font-bold text-primary">
+                            <p className="text-lg font-bold text-forground">
                               {creditAnalytics.total_remaining_credits.toLocaleString()}
                             </p>
                           </div>
@@ -2786,6 +2807,37 @@ export default function DashboardPage() {
                             </p>
                           </div>
                         </div>
+
+                        {/* Credits by Plan Section */}
+                        {creditAnalytics.credits_by_plan &&
+                          Object.keys(creditAnalytics.credits_by_plan).length >
+                            0 && (
+                            <div className="space-y-3">
+                              <h4 className="text-sm font-semibold text-foreground">
+                                {t("dashboard.creditAnalytics.creditsByPlan")}
+                              </h4>
+                              <div className="space-y-2">
+                                {Object.entries(
+                                  creditAnalytics.credits_by_plan
+                                ).map(([planName, credits]) => (
+                                  <div
+                                    key={planName}
+                                    className="flex items-center justify-between p-3 bg-muted/50 border border-border/50 rounded-lg"
+                                  >
+                                    <div className="flex items-center space-x-2">
+                                      <div className="w-3 h-3 bg-primary rounded-full"></div>
+                                      <span className="text-sm font-medium text-foreground">
+                                        {planName}
+                                      </span>
+                                    </div>
+                                    <span className={`flex items-center gap-2 text-sm font-bold text-primary ${isRTL ? "flex-row-reverse" : "flex-row"}`}>
+                                      {credits.toLocaleString()} <span className={`text-muted-foreground ${isRTL && "text-xs"}`}>{`${isRTL ? "نقطة" : "Credits"}`}</span>
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                       </div>
                     ) : (
                       <div className="text-center py-8">
