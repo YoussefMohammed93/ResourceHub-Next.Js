@@ -274,7 +274,7 @@
         "suffix": "+"
       },
       "totalResources": {
-        "value": "50000000",
+        "value": "5000000",
         "label": "Total Resources",
         "suffix": "+"
       }
@@ -307,6 +307,20 @@
         "content": "As a freelancer, ResourceHub has been a game-changer. The affordable pricing and access to multiple premium platforms has helped me deliver better results to my clients while staying within budget.",
         "rating": 5,
         "avatar": "/avatars/david.jpg"
+      },
+      {
+        "name": "David Chen",
+        "role": "Web Designer",
+        "content": "As a freelancer, ResourceHub has been a game-changer. The affordable pricing and access to multiple premium platforms has helped me deliver better results to my clients while staying within budget.",
+        "rating": 5,
+        "avatar": "/avatars/david.jpg"
+      },
+      {
+        "name": "Emma Wilson",
+        "role": "Content Creator",
+        "content": "I love how ResourceHub gives me access to premium content from all my favorite platforms. The download speeds are incredibly fast and the quality is always excellent. Highly recommend!",
+        "rating": 5,
+        "avatar": "/avatars/emma.jpg"
       }
     ]
   },

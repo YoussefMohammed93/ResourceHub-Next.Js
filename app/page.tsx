@@ -76,6 +76,14 @@ import { HeaderControls } from "@/components/header-controls";
 import { ImageSearchDialog } from "@/components/image-search-dialog";
 import { publicApi, type PricingPlan, type Site } from "@/lib/api";
 import { useAnimatedCounter } from "@/hooks/use-animated-counter";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+  type CarouselApi,
+} from "@/components/ui/carousel";
 
 // StatisticCard component for animated counters
 interface StatisticCardProps {
@@ -83,6 +91,7 @@ interface StatisticCardProps {
   label: string;
   suffix: string;
   delay?: number;
+  icon?: React.ReactNode;
 }
 
 function StatisticCard({
@@ -90,10 +99,11 @@ function StatisticCard({
   label,
   suffix,
   delay = 0,
+  icon,
 }: StatisticCardProps) {
   const { count, elementRef } = useAnimatedCounter({
     end: value,
-    duration: 2000 + delay,
+    duration: 3000 + delay,
     decimals: 0,
   });
   const { isRTL } = useLanguage();
@@ -106,25 +116,34 @@ function StatisticCard({
   return (
     <div
       ref={elementRef}
-      className="group bg-card border border-border rounded-2xl p-6 lg:p-8 text-center transition-all duration-500 hover:border-primary/30 hover:shadow-lg relative overflow-hidden"
+      className="group bg-card border border-border rounded-2xl p-6 lg:p-8 transition-all duration-500 hover:border-primary/30 hover:shadow-lg relative overflow-hidden flex flex-col items-center justify-center min-h-[200px]"
     >
       {/* Hover effect overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent rounded-2xl transform scale-0 group-hover:scale-100 transition-transform duration-500 ease-out"></div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col items-center justify-center text-center space-y-4">
+        {/* Icon */}
+        {icon && (
+          <div className="w-12 h-12 bg-primary/10 border border-primary/10 rounded-2xl flex items-center justify-center">
+            {icon}
+          </div>
+        )}
+
         {/* Animated Number */}
-        <div className="mb-3">
-          <span className="text-3xl font-bold text-primary">
-            {formatNumber(count)}
-          </span>
-          <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary">
-            {suffix}
-          </span>
+        <div className="space-y-1">
+          <div className="flex items-baseline justify-center">
+            <span className="text-3xl sm:text-4xl font-bold text-primary">
+              {formatNumber(count)}
+            </span>
+            <span className="text-2xl sm:text-3xl lg:text-4xl font-bold text-primary ml-1">
+              {suffix}
+            </span>
+          </div>
         </div>
 
         {/* Label */}
         <p
-          className={`text-base lg:text-lg font-medium text-muted-foreground ${isRTL && "font-medium"}`}
+          className={`text-base lg:text-lg font-medium text-muted-foreground leading-relaxed ${isRTL && "font-medium"}`}
         >
           {label}
         </p>
@@ -701,6 +720,11 @@ export default function HomePage() {
   const [, setIsLoadingSites] = useState(true);
   const [, setSitesError] = useState<string | null>(null);
 
+  // Carousel state for testimonials
+  const [carouselApi, setCarouselApi] = useState<CarouselApi>();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
   // URL validation regex patterns
   const urlRegex =
     /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
@@ -969,6 +993,45 @@ export default function HomePage() {
     loadPricingPlans();
     loadSites();
   }, []);
+
+  // Handle responsive behavior for mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640); // sm breakpoint
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  // Handle carousel API and slide tracking
+  useEffect(() => {
+    if (!carouselApi) return;
+
+    const onSelect = () => {
+      setCurrentSlide(carouselApi.selectedScrollSnap());
+    };
+
+    carouselApi.on("select", onSelect);
+    onSelect(); // Set initial slide
+
+    return () => {
+      carouselApi.off("select", onSelect);
+    };
+  }, [carouselApi]);
+
+  // Auto-play functionality for mobile only
+  useEffect(() => {
+    if (!carouselApi || !isMobile) return;
+
+    const autoPlay = setInterval(() => {
+      carouselApi.scrollNext();
+    }, 4000); // Auto-advance every 4 seconds
+
+    return () => clearInterval(autoPlay);
+  }, [carouselApi, isMobile]);
 
   // Show loading skeletons while language data is loading
   if (isLoading) {
@@ -2119,7 +2182,7 @@ export default function HomePage() {
       {isLoading ? (
         <TestimonialsSkeleton />
       ) : (
-        <section className="py-16 lg:py-20 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
+        <section className="py-16 bg-gradient-to-br from-secondary via-secondary/50 to-secondary relative overflow-hidden">
           {/* Floating Background Elements */}
           <div className="absolute inset-0 overflow-hidden pointer-events-none">
             {/* Top Left Dots Grid */}
@@ -2191,7 +2254,7 @@ export default function HomePage() {
 
           <div className="container mx-auto max-w-[1600px] px-5 relative z-10">
             {/* Section Header */}
-            <div className="text-center mb-12 lg:mb-16">
+            <div className="text-center mb-8">
               <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
                 {t("testimonials.title")}{" "}
                 <span className="bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
@@ -2205,49 +2268,94 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* Testimonials Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
-              {(
-                t("testimonials.reviews", { returnObjects: true }) as any[]
-              ).map((testimonial: any, index: number) => (
-                <div
-                  key={index}
-                  className="bg-card dark:bg-secondary border border-border rounded-2xl p-4 lg:p-6 transition-all duration-300 hover:shadow-sm hover:border-primary/50"
-                >
-                  {/* Author Info at Top */}
-                  <div
-                    className={`flex items-center mb-4 ${isRTL ? "space-x-reverse space-x-3" : "space-x-3"}`}
-                  >
-                    <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center">
-                      <User className="w-6 h-6 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-foreground text-sm">
-                        {testimonial.name}
-                      </h4>
-                      <p className="text-xs text-muted-foreground">
-                        {testimonial.role}
-                      </p>
-                    </div>
-                    {/* Rating Stars */}
-                    <div className="flex items-center">
-                      {Array.from({ length: testimonial.rating }, (_, i) => (
-                        <Star
-                          key={i}
-                          className="w-4 h-4 text-yellow-500 fill-current"
-                        />
-                      ))}
-                    </div>
-                  </div>
+            {/* Testimonials Carousel */}
+            <div className="relative max-w-[1400px] mx-auto py-2">
+              <Carousel
+                setApi={setCarouselApi}
+                opts={{
+                  align: "start",
+                  loop: true,
+                  direction: isRTL ? "rtl" : "ltr",
+                }}
+                className="w-full py-2"
+              >
+                <CarouselContent className="-ml-2 md:-ml-4">
+                  {(
+                    t("testimonials.reviews", { returnObjects: true }) as any[]
+                  ).map((testimonial: any, index: number) => (
+                    <CarouselItem
+                      key={index}
+                      className="pl-2 md:pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                    >
+                      <div className="bg-card dark:bg-secondary border border-border rounded-2xl p-4 lg:p-6 transition-all duration-300 hover:shadow-sm hover:border-primary/50 h-full">
+                        {/* Author Info at Top */}
+                        <div
+                          className={`flex items-center justify-between mb-4`}
+                        >
+                          <div className="flex items-center gap-2">
+                                                      <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center">
+                            <User className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-foreground text-sm">
+                              {testimonial.name}
+                            </h4>
+                            <p className="text-xs text-muted-foreground">
+                              {testimonial.role}
+                            </p>
+                          </div>
+                          </div>
+                          {/* Rating Stars */}
+                          <div className="flex items-center">
+                            {Array.from(
+                              { length: testimonial.rating },
+                              (_, i) => (
+                                <Star
+                                  key={i}
+                                  className="w-4 h-4 text-yellow-500 fill-current"
+                                />
+                              )
+                            )}
+                          </div>
+                        </div>
 
-                  {/* Testimonial Content */}
-                  <p
-                    className={`text-muted-foreground leading-relaxed text-sm ${isRTL && "font-medium"}`}
-                  >
-                    <q>{testimonial.content}</q>
-                  </p>
-                </div>
-              ))}
+                        {/* Testimonial Content */}
+                        <p
+                          className={`text-muted-foreground leading-relaxed text-sm sm:text-base ${isRTL && "font-medium"}`}
+                        >
+                          <q> {testimonial.content} </q>
+                        </p>
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+
+                {/* Navigation Buttons - Hidden on mobile, visible on sm+ */}
+                <CarouselPrevious
+                  className={`hidden sm:flex ${isRTL ? "!-right-14 !left-auto" : "!-left-14 !right-auto"} bg-background border-border hover:bg-muted hover:border-primary/50 transition-colors`}
+                />
+                <CarouselNext
+                  className={`hidden sm:flex ${isRTL ? "!-left-14 !right-auto" : "!-right-14 !left-auto"} bg-background border-border hover:bg-muted hover:border-primary/50 transition-colors`}
+                />
+              </Carousel>
+
+              {/* Dot Pagination - Visible only on mobile */}
+              <div className="flex sm:hidden justify-center mt-6 space-x-2">
+                {(
+                  t("testimonials.reviews", { returnObjects: true }) as any[]
+                ).map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => carouselApi?.scrollTo(index)}
+                    className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      currentSlide === index
+                        ? "bg-primary scale-125"
+                        : "bg-primary/30 hover:bg-primary/50"
+                    }`}
+                    aria-label={`Go to testimonial ${index + 1}`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </section>
@@ -2263,7 +2371,7 @@ export default function HomePage() {
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               {/* Top Left Dots Grid */}
               <svg
-                className={`absolute top-16 ${isRTL ? "right-8" : "left-8"} w-28 h-20 opacity-50`}
+                className={`hidden md:block absolute top-16 ${isRTL ? "right-8" : "left-8"} w-28 h-20 opacity-50`}
                 viewBox="0 0 120 80"
                 fill="none"
               >
@@ -2294,18 +2402,54 @@ export default function HomePage() {
                 </div>
               </div>
 
+              {/* Top Center Download Icon */}
+              <div
+                className={`hidden xl:block absolute top-4 left-1/2 transform -translate-x-1/2 animate-bounce-slow`}
+              >
+                <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                  <Download className="w-5 h-5 text-primary" />
+                </div>
+              </div>
+
+              {/* Middle Left Heart Icon */}
+              <div
+                className={`hidden lg:block absolute top-1/2 ${isRTL ? "right-4" : "left-4"} transform -translate-y-1/2 animate-pulse-slow`}
+              >
+                <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-full flex items-center justify-center">
+                  <Heart className="w-4 h-4 text-primary" />
+                </div>
+              </div>
+
+              {/* Middle Right Globe Icon */}
+              <div
+                className={`hidden lg:block absolute top-1/2 ${isRTL ? "left-4" : "right-4"} transform -translate-y-1/2 animate-float`}
+              >
+                <div className="w-8 h-8 bg-primary/10 border border-primary/10 rounded-full flex items-center justify-center">
+                  <Globe className="w-4 h-4 text-primary" />
+                </div>
+              </div>
+
               {/* Bottom Left Target Icon */}
               <div
-                className={`hidden md:block absolute bottom-4 ${isRTL ? "right-12" : "left-12"} animate-bounce-slow`}
+                className={`hidden md:block absolute bottom-24 ${isRTL ? "right-12" : "left-12"} animate-bounce-slow`}
               >
                 <div className="w-10 h-10 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
                   <Target className="w-5 h-5 text-primary" />
                 </div>
               </div>
 
+              {/* Bottom Center Package Icon */}
+              <div
+                className={`hidden xl:block absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-pulse-slow`}
+              >
+                <div className="w-9 h-9 bg-primary/10 border border-primary/10 rounded-lg flex items-center justify-center">
+                  <Package className="w-4 h-4 text-primary" />
+                </div>
+              </div>
+
               {/* Bottom Right Dots Grid */}
               <svg
-                className={`absolute bottom-16 ${isRTL ? "left-20" : "right-20"} w-32 h-24 opacity-40`}
+                className={`hidden md:block absolute bottom-16 ${isRTL ? "left-20" : "right-20"} w-32 h-24 opacity-50`}
                 viewBox="0 0 140 100"
                 fill="none"
               >
@@ -2326,9 +2470,57 @@ export default function HomePage() {
                   ))
                 )}
               </svg>
+
+              {/* Additional Decorative Dots - Top Right Corner */}
+              <svg
+                className={`hidden md:block absolute top-8 ${isRTL ? "left-32" : "right-32"} w-20 h-16 opacity-50`}
+                viewBox="0 0 80 64"
+                fill="none"
+              >
+                {Array.from({ length: 3 }, (_, row) =>
+                  Array.from({ length: 4 }, (_, col) => (
+                    <circle
+                      key={`stats-corner-${row}-${col}`}
+                      cx={8 + col * 18}
+                      cy={8 + row * 16}
+                      r="1"
+                      fill="currentColor"
+                      className="text-primary animate-pulse"
+                      style={{
+                        animationDelay: `${(row + col) * 0.4}s`,
+                        animationDuration: "5s",
+                      }}
+                    />
+                  ))
+                )}
+              </svg>
+
+              {/* Additional Decorative Dots - Bottom Left Corner */}
+              <svg
+                className={`hidden md:block absolute bottom-8 ${isRTL ? "right-32" : "left-32"} w-24 h-18 opacity-50`}
+                viewBox="0 0 96 72"
+                fill="none"
+              >
+                {Array.from({ length: 3 }, (_, row) =>
+                  Array.from({ length: 4 }, (_, col) => (
+                    <circle
+                      key={`stats-corner-bottom-${row}-${col}`}
+                      cx={8 + col * 20}
+                      cy={8 + row * 18}
+                      r="1.5"
+                      fill="currentColor"
+                      className="text-primary animate-pulse"
+                      style={{
+                        animationDelay: `${(row + col) * 0.5}s`,
+                        animationDuration: "6s",
+                      }}
+                    />
+                  ))
+                )}
+              </svg>
             </div>
 
-            <div className="container mx-auto max-w-[1600px] px-5 relative z-10">
+            <div className="container mx-auto max-w-[1400px] px-5 relative z-10">
               {/* Section Header */}
               <div className="text-center mb-12 lg:mb-16">
                 <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground mb-4 leading-tight font-sans">
@@ -2349,15 +2541,34 @@ export default function HomePage() {
                     string,
                     any
                   >
-                ).map(([key, stat], index) => (
-                  <StatisticCard
-                    key={key}
-                    value={parseInt(stat.value)}
-                    label={stat.label}
-                    suffix={stat.suffix}
-                    delay={index * 200}
-                  />
-                ))}
+                ).map(([key, stat], index) => {
+                  // Define icons for each statistic
+                  const getStatIcon = (statKey: string) => {
+                    switch (statKey) {
+                      case "totalDownloads":
+                        return <Download className="w-6 h-6 text-primary" />;
+                      case "customerSatisfaction":
+                        return <Heart className="w-6 h-6 text-primary" />;
+                      case "supportedPlatforms":
+                        return <Globe className="w-6 h-6 text-primary" />;
+                      case "totalResources":
+                        return <Package className="w-6 h-6 text-primary" />;
+                      default:
+                        return <Star className="w-6 h-6 text-primary" />;
+                    }
+                  };
+
+                  return (
+                    <StatisticCard
+                      key={key}
+                      value={parseInt(stat.value)}
+                      label={stat.label}
+                      suffix={stat.suffix}
+                      delay={index * 1500}
+                      icon={getStatIcon(key)}
+                    />
+                  );
+                })}
               </div>
             </div>
           </section>
