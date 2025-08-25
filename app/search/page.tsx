@@ -23,6 +23,10 @@ import {
   AudioLines,
   Headphones,
   Volume2,
+  User,
+  Mail,
+  CreditCard,
+  Coins,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -41,6 +45,7 @@ import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { useState, Suspense, useEffect, useCallback, useRef } from "react";
 import { searchApi } from "@/lib/api";
+import { useAuth } from "@/components/auth-provider";
 
 // Type definitions for API response
 interface ApiSearchResult {
@@ -260,6 +265,7 @@ const getProviderIcon = (providerName: string, apiIcon?: string): string => {
 function SearchContent() {
   const { t } = useTranslation("common");
   const { isRTL, isLoading } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") || "";
   const initialType = searchParams.get("type") || "all";
@@ -871,6 +877,59 @@ function SearchContent() {
           `}
           >
             <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto bg-gradient-to-b from-background/80 via-background/60 to-background/80 backdrop-blur-sm">
+              {/* User Profile Skeleton */}
+              <div className="space-y-3 sm:space-y-4 p-3 sm:p-4 bg-muted/40 dark:bg-card/30 border-b border-border">
+                <div
+                  className={`flex items-center gap-2 sm:gap-3 ${isRTL ? "flex-row" : ""}`}
+                >
+                  <Skeleton className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg" />
+                  <Skeleton className="w-16 sm:w-20 h-4 sm:h-5" />
+                  <Skeleton className="w-3 h-3 sm:w-4 sm:h-4 ml-auto" />
+                </div>
+
+                <div className="bg-muted/40 dark:bg-card/30 border border-primary/50 dark:border-primary/20 rounded-lg p-3 sm:p-4 shadow-sm space-y-3">
+                  {/* User Avatar and Name Skeleton */}
+                  <div
+                    className={`flex items-center gap-2 sm:gap-3 ${isRTL ? "flex-row-reverse" : ""}`}
+                  >
+                    <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-full" />
+                    <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
+                      <Skeleton className="h-3 sm:h-4 w-20 sm:w-24" />
+                      <Skeleton className="h-2 sm:h-3 w-24 sm:w-32" />
+                    </div>
+                  </div>
+
+                  {/* Subscription Plan Skeleton */}
+                  <div
+                    className={`flex items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}
+                  >
+                    <div
+                      className={`flex items-center gap-1 sm:gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                    >
+                      <Skeleton className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <Skeleton className="h-3 sm:h-4 w-16 sm:w-20" />
+                    </div>
+                    <Skeleton className="h-5 sm:h-6 w-10 sm:w-12 rounded-md" />
+                  </div>
+
+                  {/* Credit Balance Skeleton */}
+                  <div
+                    className={`flex items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}
+                  >
+                    <div
+                      className={`flex items-center gap-1 sm:gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                    >
+                      <Skeleton className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <Skeleton className="h-3 sm:h-4 w-20 sm:w-24" />
+                    </div>
+                    <div className="text-right space-y-0.5 sm:space-y-1">
+                      <Skeleton className="h-3 sm:h-4 w-6 sm:w-8" />
+                      <Skeleton className="h-2 sm:h-3 w-8 sm:w-12" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Providers Filter Skeleton */}
               <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 border-b border-border">
                 <div
@@ -1147,11 +1206,107 @@ function SearchContent() {
         {/* Sidebar - Filters - Fixed position always */}
         <aside
           className={`
-          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-72 sidebar-3xl h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto shadow-lg lg:shadow-none lg:border-r lg:border-l-0
+          fixed ${isRTL ? "right-0 !border-l" : "left-0 !border-r"} top-16 w-72 sidebar-3xl h-[calc(100vh-4rem)] bg-gradient-to-br from-primary/50 via-primary/20 to-primary/65 backdrop-blur-sm border-border z-50 transition-transform duration-300 ease-in-out overflow-y-auto lg:border-r lg:border-l-0
           ${isSidebarOpen ? "translate-x-0" : `${isRTL ? "translate-x-full" : "-translate-x-full"} lg:translate-x-0`}
         `}
         >
           <div className="p-0 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto bg-gradient-to-b from-background/80 via-background/60 to-background/80 backdrop-blur-sm">
+            {/* User Profile Section */}
+            {isAuthenticated && user && (
+              <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 border-b border-border">
+                <div
+                  className={`flex items-center gap-3 ${isRTL ? "flex-row" : ""}`}
+                >
+                  <div className="p-2 bg-primary/10 rounded-lg border border-primary/10">
+                    <User className="size-5 text-primary" />
+                  </div>
+                  <h3 className="font-medium text-foreground">
+                    {t("profile.title")}
+                  </h3>
+                  <button
+                    className={`${isRTL ? "mr-auto" : "ml-auto"} p-1 hover:bg-secondary rounded transition-colors`}
+                  >
+                    <ChevronRight
+                      className={`w-4 h-4 text-muted-foreground hover:text-foreground ${isRTL ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                </div>
+
+                <div className="bg-background dark:bg-muted/35 border border-border dark:border-primary/20 rounded-lg p-4 space-y-3">
+                  {/* User Avatar and Name */}
+                  <div
+                    className={`flex items-center gap-3`}
+                  >
+                    <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center border-2 border-primary/30">
+                      {user.account?.picture ? (
+                        <img
+                          src={user.account.picture}
+                          alt={`${user.account?.firstName || ""} ${user.account?.lastName || ""}`}
+                          className="w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        <User className="w-6 h-6 text-primary" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-semibold text-foreground text-sm truncate">
+                        {user.account?.firstName && user.account?.lastName
+                          ? `${user.account.firstName} ${user.account.lastName}`
+                          : user.account?.email || "User"}
+                      </h4>
+                      <div
+                        className={`flex items-center gap-1 text-xs text-muted-foreground ${isRTL ? "flex-row-reverse" : ""}`}
+                      >
+                        <Mail className="w-3 h-3" />
+                        <span className="truncate text-sm">{user.account?.email}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Subscription Plan */}
+                  <div
+                    className={`flex items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}
+                  >
+                    <div
+                      className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                    >
+                      <CreditCard className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">
+                        {t("profile.subscription.currentPlan")}
+                      </span>
+                    </div>
+                    <div className="px-2 py-1 bg-primary/10 border border-primary/20 rounded-md">
+                      <span className="text-xs font-semibold text-primary">
+                        {user.subscription?.plan || "Free"}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Credit Balance */}
+                  <div
+                    className={`flex items-center justify-between ${isRTL ? "flex-row-reverse" : ""}`}
+                  >
+                    <div
+                      className={`flex items-center gap-2 ${isRTL ? "flex-row-reverse" : ""}`}
+                    >
+                      <Coins className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-foreground">
+                        {t("profile.stats.creditsRemaining.title")}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 text-right">
+                      <div className="text-sm font-bold text-muted-foreground">
+                        {user.subscription?.credits?.remaining || 0}
+                      </div>
+                      <div className="text-sm font-bold text-primary">
+                        / {user.subscription?.credits?.plan || 0}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Providers Filter */}
             <div className="space-y-4 p-4 bg-muted/40 dark:bg-card/30 border-b border-border">
               <div

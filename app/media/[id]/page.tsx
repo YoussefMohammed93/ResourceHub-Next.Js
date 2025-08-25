@@ -18,6 +18,10 @@ import {
   Sparkles,
   Star,
   Crown,
+  User,
+  Mail,
+  CreditCard,
+  Coins,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -42,6 +46,7 @@ import {
 } from "lucide-react";
 import { searchApi, type ProviderDataRequest, type FileData } from "@/lib/api";
 import { RelatedFilesSection } from "@/components/media/related-files-section";
+import { useAuth } from "@/components/auth-provider";
 
 // Type definitions for search result (matching the search page)
 interface SearchResult {
@@ -63,6 +68,7 @@ interface SearchResult {
 export default function ImageDetailsPage() {
   const { t } = useTranslation("common");
   const { isRTL } = useLanguage();
+  const { user, isAuthenticated } = useAuth();
   const params = useParams();
   const router = useRouter();
   const [imageData, setImageData] = useState<SearchResult | null>(null);
@@ -628,7 +634,49 @@ export default function ImageDetailsPage() {
                   </div>
                 </div>
 
-                {/* 3. Details card */}
+                {/* 3. User Profile Card Skeleton */}
+                <div className="bg-card dark:bg-card/50 border border-primary/30 dark:border-primary/20 rounded-xl overflow-hidden shadow-sm">
+                  <div className="p-4 sm:p-6">
+                    <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                      <Skeleton className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <Skeleton className="h-5 sm:h-6 w-14 sm:w-16" />
+                    </div>
+
+                    <div className="space-y-3 sm:space-y-4">
+                      {/* User Avatar and Name Skeleton */}
+                      <div className="flex items-center gap-2 sm:gap-3">
+                        <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-full" />
+                        <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
+                          <Skeleton className="h-3 sm:h-4 w-20 sm:w-24" />
+                          <Skeleton className="h-2 sm:h-3 w-24 sm:w-32" />
+                        </div>
+                      </div>
+
+                      {/* Subscription Plan Skeleton */}
+                      <div className="flex justify-between items-center py-1 sm:py-2 border-b border-border/30">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          <Skeleton className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <Skeleton className="h-3 sm:h-4 w-16 sm:w-20" />
+                        </div>
+                        <Skeleton className="h-5 sm:h-6 w-10 sm:w-12 rounded-md" />
+                      </div>
+
+                      {/* Credit Balance Skeleton */}
+                      <div className="flex justify-between items-center py-1 sm:py-2">
+                        <div className="flex items-center gap-1 sm:gap-2">
+                          <Skeleton className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <Skeleton className="h-3 sm:h-4 w-20 sm:w-24" />
+                        </div>
+                        <div className="text-right space-y-0.5 sm:space-y-1">
+                          <Skeleton className="h-3 sm:h-4 w-6 sm:w-8" />
+                          <Skeleton className="h-2 sm:h-3 w-8 sm:w-12" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 4. Details card */}
                 <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-4">
@@ -649,7 +697,7 @@ export default function ImageDetailsPage() {
                   </div>
                 </div>
 
-                {/* 4. High resolution view card */}
+                {/* 5. High resolution view card */}
                 <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-3">
@@ -673,7 +721,7 @@ export default function ImageDetailsPage() {
                   </div>
                 </div>
 
-                {/* 5. Actions card */}
+                {/* 6. Actions card */}
                 <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
                   <div className="p-6">
                     <Skeleton className="h-6 w-24 mb-4" />
@@ -685,7 +733,7 @@ export default function ImageDetailsPage() {
                   </div>
                 </div>
 
-                {/* 6. Keywords card */}
+                {/* 7. Keywords card */}
                 <div className="bg-card dark:bg-card/50 border border-border/50 rounded-xl overflow-hidden">
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-4">
@@ -702,7 +750,7 @@ export default function ImageDetailsPage() {
                   </div>
                 </div>
 
-                {/* 7. Related files section at the bottom */}
+                {/* 8. Related files section at the bottom */}
                 <div className="space-y-6">
                   {/* Section Header */}
                   <div className="text-center">
@@ -824,6 +872,48 @@ export default function ImageDetailsPage() {
                       <div className="grid grid-cols-2 gap-3">
                         <Skeleton className="h-10 w-full" />
                         <Skeleton className="h-10 w-full" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* User Profile Card Skeleton */}
+                  <div className="bg-card dark:bg-card/50 border border-primary/30 dark:border-primary/20 rounded-xl overflow-hidden shadow-sm">
+                    <div className="p-4 sm:p-6">
+                      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+                        <Skeleton className="w-4 h-4 sm:w-5 sm:h-5" />
+                        <Skeleton className="h-5 sm:h-6 w-14 sm:w-16" />
+                      </div>
+
+                      <div className="space-y-3 sm:space-y-4">
+                        {/* User Avatar and Name Skeleton */}
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-full" />
+                          <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
+                            <Skeleton className="h-3 sm:h-4 w-20 sm:w-24" />
+                            <Skeleton className="h-2 sm:h-3 w-24 sm:w-32" />
+                          </div>
+                        </div>
+
+                        {/* Subscription Plan Skeleton */}
+                        <div className="flex justify-between items-center py-1 sm:py-2 border-b border-border/80">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <Skeleton className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <Skeleton className="h-3 sm:h-4 w-16 sm:w-20" />
+                          </div>
+                          <Skeleton className="h-5 sm:h-6 w-10 sm:w-12 rounded-md" />
+                        </div>
+
+                        {/* Credit Balance Skeleton */}
+                        <div className="flex justify-between items-center py-1 sm:py-2">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <Skeleton className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <Skeleton className="h-3 sm:h-4 w-20 sm:w-24" />
+                          </div>
+                          <div className="text-right space-y-0.5 sm:space-y-1">
+                            <Skeleton className="h-3 sm:h-4 w-6 sm:w-8" />
+                            <Skeleton className="h-2 sm:h-3 w-8 sm:w-12" />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1459,7 +1549,84 @@ export default function ImageDetailsPage() {
                 </div>
               </div>
 
-              {/* 3. Details card */}
+              {/* 3. User Profile Card */}
+              {isAuthenticated && user && (
+                <div className="bg-card dark:bg-card/50 border border-primary/30 dark:border-primary/20 rounded-xl overflow-hidden shadow-sm">
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                      <User className="w-5 h-5 text-primary" />
+                      <h3 className="font-semibold text-foreground text-lg">
+                        {t("profile.title")}
+                      </h3>
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* User Avatar and Name */}
+                      <div
+                        className={`flex items-center gap-3`}
+                      >
+                        <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center border-2 border-primary/30">
+                          {user.account?.picture ? (
+                            <img
+                              src={user.account.picture}
+                              alt={`${user.account?.firstName || ""} ${user.account?.lastName || ""}`}
+                              className="w-full h-full rounded-full object-cover"
+                            />
+                          ) : (
+                            <User className="w-6 h-6 text-primary" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-foreground text-sm truncate">
+                            {user.account?.firstName && user.account?.lastName
+                              ? `${user.account.firstName} ${user.account.lastName}`
+                              : user.account?.email || "User"}
+                          </h4>
+                          <div
+                            className={`flex items-center gap-1 text-sm text-muted-foreground`}
+                          >
+                            <Mail className="w-3 h-3" />
+                            <span className="truncate">
+                              {user.account?.email}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Subscription Plan */}
+                      <div className="flex justify-between items-center py-2 border-b border-border/30">
+                        <span className="text-sm text-muted-foreground flex items-center gap-2">
+                          <CreditCard className="w-4 h-4" />
+                          {t("profile.subscription.currentPlan")}
+                        </span>
+                        <div className="px-2 py-1 bg-primary/10 border border-primary/20 rounded-md">
+                          <span className="text-xs font-semibold text-primary">
+                            {user.subscription?.plan || "Free"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Credit Balance */}
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Coins className="w-4 h-4" />
+                          {t("profile.stats.creditsRemaining.title")}
+                        </span>
+                        <div className="text-right">
+                          <div className="text-sm font-bold text-primary">
+                            {user.subscription?.credits?.remaining || 0}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            / {user.subscription?.credits?.plan || 0}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 4. Details card */}
               <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-4">
@@ -1520,7 +1687,7 @@ export default function ImageDetailsPage() {
                 </div>
               </div>
 
-              {/* 4. High resolution view card */}
+              {/* 5. High resolution view card */}
               {fileData && isHighResolutionAvailable(fileData) && (
                 <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
                   <div className="p-6">
@@ -1631,7 +1798,7 @@ export default function ImageDetailsPage() {
                 </div>
               )}
 
-              {/* 5. Actions card */}
+              {/* 6. Actions card */}
               <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
                 <div className="p-6">
                   <h3 className="font-semibold text-foreground text-lg mb-4 flex items-center gap-2">
@@ -1677,7 +1844,7 @@ export default function ImageDetailsPage() {
                 </div>
               </div>
 
-              {/* 6. Keywords card */}
+              {/* 7. Keywords card */}
               {fileData &&
                 fileData.keywords &&
                 fileData.keywords.length > 0 && (
@@ -1727,7 +1894,7 @@ export default function ImageDetailsPage() {
                   </div>
                 )}
 
-              {/* 7. Related files section at the bottom */}
+              {/* 8. Related files section at the bottom */}
               <RelatedFilesSection
                 fileData={fileData}
                 imageData={imageData}
@@ -2074,6 +2241,83 @@ export default function ImageDetailsPage() {
                     </div>
                   </div>
                 </div>
+
+                {/* User Profile Card */}
+                {isAuthenticated && user && (
+                  <div className="bg-card dark:bg-card/50 border border-primary/50 dark:border-primary/20 rounded-xl overflow-hidden">
+                    <div className="p-6">
+                      <div className="flex items-center gap-2 mb-4">
+                        <User className="w-5 h-5 text-primary" />
+                        <h3 className="font-semibold text-foreground text-lg">
+                          {t("profile.title")}
+                        </h3>
+                      </div>
+
+                      <div className="space-y-4">
+                        {/* User Avatar and Name */}
+                        <div
+                          className={`flex items-center gap-3`}
+                        >
+                          <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center border-2 border-primary/30">
+                            {user.account?.picture ? (
+                              <img
+                                src={user.account.picture}
+                                alt={`${user.account?.firstName || ""} ${user.account?.lastName || ""}`}
+                                className="w-full h-full rounded-full object-cover"
+                              />
+                            ) : (
+                              <User className="w-6 h-6 text-primary" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-foreground text-sm truncate">
+                              {user.account?.firstName && user.account?.lastName
+                                ? `${user.account.firstName} ${user.account.lastName}`
+                                : user.account?.email || "User"}
+                            </h4>
+                            <div
+                              className={`flex items-center gap-1 text-sm text-muted-foreground`}
+                            >
+                              <Mail className="w-3 h-3" />
+                              <span className="truncate">
+                                {user.account?.email}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Subscription Plan */}
+                        <div className="flex justify-between items-center py-2 border-b border-border/80">
+                          <span className="text-sm text-muted-foreground flex items-center gap-2">
+                            <CreditCard className="w-4 h-4" />
+                            {t("profile.subscription.currentPlan")}
+                          </span>
+                          <div className="px-2 py-1 bg-primary/10 border border-primary/20 rounded-md">
+                            <span className="text-xs font-semibold text-primary">
+                              {user.subscription?.plan || "Free"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Credit Balance */}
+                        <div className="flex justify-between items-center py-2">
+                          <span className="text-sm text-muted-foreground flex items-center gap-2">
+                            <Coins className="w-4 h-4" />
+                            {t("profile.stats.creditsRemaining.title")}
+                          </span>
+                          <div className="flex items-center gap-2 text-right">
+                            <div className="text-sm font-bold text-muted-foreground">
+                              {user.subscription?.credits?.remaining || 0}
+                            </div>
+                            <div className="text-sm font-bold text-primary">
+                              / {user.subscription?.credits?.plan || 0}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Details Card */}
                 <div className="bg-card dark:bg-card/50 border border-primary/40 dark:border-primary/20 rounded-xl overflow-hidden">
