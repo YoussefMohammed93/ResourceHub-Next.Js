@@ -678,6 +678,13 @@
           "use": "اليوزر استخدم كريدت",
           "delete": "الاشتراك اتحذف"
         },
+        "reasons": {
+          "top-up": "شحن رصيد",
+          "download": "تحميل",
+          "subscription": "اشتراك",
+          "refund": "استرداد",
+          "bonus": "مكافأة"
+        },
         "timeAgo": {
           "now": "الآن",
           "minutesAgo": "منذ {{count}}د",

@@ -283,6 +283,7 @@ export interface EnhancedCreditHistoryEntry {
   user_name: string;
   plan?: string | null;
   amount?: number; // Not present for "delete" type
+  reason?: string; // Reason for the transaction (e.g., "top-up", "download", etc.)
 }
 
 export interface CreditHistoryResponse {

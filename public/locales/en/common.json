@@ -678,6 +678,13 @@
           "use": "User Used Credit",
           "delete": "Subscription Deleted"
         },
+        "reasons": {
+          "top-up": "Top-up",
+          "download": "Download",
+          "subscription": "Subscription",
+          "refund": "Refund",
+          "bonus": "Bonus"
+        },
         "timeAgo": {
           "now": "now",
           "minutesAgo": "{{count}}m ago",

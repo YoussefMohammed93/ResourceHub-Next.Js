@@ -468,6 +468,8 @@ export default function DashboardPage() {
                     typeof entryObj.amount === "number"
                       ? entryObj.amount
                       : undefined,
+                  reason:
+                    typeof entryObj.reason === "string" ? entryObj.reason : undefined,
                 };
               });
             setEnhancedCreditHistory(enhancedEntries);
@@ -2623,7 +2625,7 @@ export default function DashboardPage() {
                       </div>
                     ) : enhancedCreditHistory.length > 0 ? (
                       <div className="space-y-3">
-                        <div className="space-y-3 max-h-80 overflow-y-auto">
+                        <div className="space-y-3 max-h-60 overflow-y-auto">
                           {enhancedCreditHistory
                             .slice(0, 5)
                             .map((entry, index) => {
@@ -2674,6 +2676,18 @@ export default function DashboardPage() {
                                         <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
                                           <CreditCard className="w-3 h-3" />
                                           <span>{entry.plan}</span>
+                                        </div>
+                                      )}
+
+                                      {entry.reason && (
+                                        <div className="flex items-center space-x-2 text-xs text-muted-foreground mt-1">
+                                          <Activity className="w-3 h-3" />
+                                          <span className="capitalize">
+                                            {t(
+                                              `dashboard.creditHistory.reasons.${entry.reason}`,
+                                              { defaultValue: entry.reason }
+                                            )}
+                                          </span>
                                         </div>
                                       )}
 
@@ -5001,6 +5015,18 @@ export default function DashboardPage() {
                                 <div className="flex items-center space-x-2 sm:col-span-2">
                                   <CreditCard className="w-4 h-4" />
                                   <span>{entry.plan}</span>
+                                </div>
+                              )}
+
+                              {entry.reason && (
+                                <div className="flex items-center space-x-2 sm:col-span-2">
+                                  <Activity className="w-4 h-4" />
+                                  <span className="capitalize">
+                                    {t(
+                                      `dashboard.creditHistory.reasons.${entry.reason}`,
+                                      { defaultValue: entry.reason }
+                                    )}
+                                  </span>
                                 </div>
                               )}
                             </div>
