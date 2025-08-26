@@ -2074,7 +2074,7 @@ export default function DashboardPage() {
                       )}
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-9 w-full md:w-64"
+                      className="pl-9 w-full md:w-80"
                     />
                   </div>
                   <Select value={statusFilter} onValueChange={setStatusFilter}>

@@ -71,49 +71,49 @@ export const mockAdminUser: UserData = {
 // Mock download history
 export const mockDownloadHistory: DownloadHistoryEntry[] = [
   {
-    from: "freepik",
-    type: "photo",
-    price: 2,
-    date: "2024-01-15",
-    file: "/image-1.jpg", // Use local image that exists in public folder
-    downloadUrl:
-      "https://www.freepik.com/free-photo/side-view-hand-wearing-bracelet_31842933.htm",
+    type: "download",
+    data: {
+      id: "b71fb71fb0f44dd0a0a5191858392b00",
+      downloadUrl: "https://www.freepik.com/free-photo/tree-with-white-background_977959.htm",
+      from: "Freepik",
+      price: 1,
+    },
   },
   {
-    from: "freepik",
-    type: "video",
-    price: 5,
-    date: "2024-01-14",
-    file: "/image-2.webp", // Use local image for video preview
-    downloadUrl:
-      "https://www.freepik.com/free-video/close-up-cat-s-face-eyes_171159",
+    type: "download",
+    data: {
+      id: "473bedc3571c43a2971423049ce18820",
+      downloadUrl: "https://www.freepik.com/free-photo/woman-blowing-kiss-instagram-icon_3469717.htm#fromView=search&page=1&position=1&uuid=2541cfcb-b9e2-4c50-bfeb-ac6b87fbbb9c&query=Instagram+logo",
+      from: "Freepik",
+      price: 1,
+    },
   },
   {
-    from: "freepik",
-    type: "vector",
-    price: 3,
-    date: "2024-01-13",
-    file: "/freepik-1.jpg", // Keep this one as it exists
-    downloadUrl:
-      "https://www.freepik.com/free-vector/flat-design-spring-landscape-concept_6718313.htm",
+    type: "download",
+    data: {
+      id: "a8c9f2e1d5b7a3c4e6f8d9b2c5e7f1a3",
+      downloadUrl: "https://www.freepik.com/free-video/close-up-cat-s-face-eyes_171159",
+      from: "Freepik",
+      price: 5,
+    },
   },
   {
-    from: "freepik",
-    type: "photo",
-    price: 1,
-    date: "2024-01-12",
-    file: "/office.webp", // Add another local image
-    downloadUrl:
-      "https://www.freepik.com/free-photo/modern-office-space_12345678.htm",
+    type: "download",
+    data: {
+      id: "f3e7d9c1b5a8f2e4c6d8b9a2c5e7f1d3",
+      downloadUrl: "https://www.freepik.com/free-vector/flat-design-spring-landscape-concept_6718313.htm",
+      from: "Freepik",
+      price: 3,
+    },
   },
   {
-    from: "freepik",
-    type: "vector",
-    price: 2,
-    date: "2024-01-11",
-    file: "/placeholder.png", // Add placeholder image
-    downloadUrl:
-      "https://www.freepik.com/free-vector/business-illustration_87654321.htm",
+    type: "download",
+    data: {
+      id: "d2c5e8f1a4b7d9c2e5f8a1b4c7e9f2d5",
+      downloadUrl: "https://www.freepik.com/free-photo/modern-office-space_12345678.htm",
+      from: "Freepik",
+      price: 2,
+    },
   },
 ];
 
@@ -346,7 +346,7 @@ export const mockApiResponses = {
           success: true,
           data: {
             success: true,
-            downloads: mockDownloadHistory,
+            history: mockDownloadHistory,
           },
         });
       }, 800);

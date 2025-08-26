@@ -53,33 +53,35 @@ import { userApi, type DownloadHistoryEntry } from "@/lib/api";
 // Utility function to get the correct media URL based on environment and type
 const getMediaUrl = (item: DownloadHistoryEntry): string => {
   console.log("[Profile] Processing media URL for item:", {
-    from: item.from,
-    type: item.type,
-    file: item.file,
-    downloadUrl: item.downloadUrl,
+    from: item.data.from,
+    downloadUrl: item.data.downloadUrl,
   });
 
   // For local files (mock data), use them directly - they work on both localhost and Vercel
-  if (item.file.startsWith("/")) {
-    console.log("[Profile] Using local file:", item.file);
-    return item.file; // This will be "/freepik-1.jpg" from mock data
+  if (item.data.downloadUrl.startsWith("/")) {
+    console.log("[Profile] Using local file:", item.data.downloadUrl);
+    return item.data.downloadUrl; // This will be "/freepik-1.jpg" from mock data
   }
 
   // For external URLs (Freepik, etc.), use the media proxy
-  if (item.file.startsWith("http")) {
-    const proxyUrl = `/api/media-proxy?url=${encodeURIComponent(item.file)}`;
+  if (item.data.downloadUrl.startsWith("http")) {
+    const proxyUrl = `/api/media-proxy?url=${encodeURIComponent(item.data.downloadUrl)}`;
     console.log("[Profile] Using media proxy:", proxyUrl);
     return proxyUrl;
   }
 
   // Fallback to the original file URL
-  console.log("[Profile] Using fallback URL:", item.file);
-  return item.file;
+  console.log("[Profile] Using fallback URL:", item.data.downloadUrl);
+  return item.data.downloadUrl;
 };
 
 // Utility function to check if the item is a video
 const isVideoItem = (item: DownloadHistoryEntry): boolean => {
-  return item.type === "video" || item.file.includes("video");
+  return (
+    item.data.downloadUrl.includes("video") ||
+    item.data.downloadUrl.includes(".mp4") ||
+    item.data.downloadUrl.includes(".mov")
+  );
 };
 
 export default function ProfilePage() {
@@ -173,14 +175,11 @@ export default function ProfilePage() {
       const response = await userApi.getDownloadHistory();
 
       if (response.success) {
-        // Handle both response structures: response.data.downloads and direct response.downloads
-        if (response.data && response.data.downloads) {
-          setDownloadHistory(response.data.downloads);
-        } else if (
-          "downloads" in response &&
-          Array.isArray(response.downloads)
-        ) {
-          setDownloadHistory(response.downloads as DownloadHistoryEntry[]);
+        // Handle new response structure: response.data.history or direct response.history
+        if (response.data && response.data.history) {
+          setDownloadHistory(response.data.history);
+        } else if ("history" in response && Array.isArray(response.history)) {
+          setDownloadHistory(response.history as DownloadHistoryEntry[]);
         } else {
           setDownloadHistory([]);
         }
@@ -242,22 +241,23 @@ export default function ProfilePage() {
 
     const query = searchQuery.toLowerCase();
     return (
-      item.from.toLowerCase().includes(query) ||
-      item.type.toLowerCase().includes(query) ||
-      item.file.toLowerCase().includes(query)
+      item.data.from.toLowerCase().includes(query) ||
+      item.data.id.toLowerCase().includes(query) ||
+      item.data.downloadUrl.toLowerCase().includes(query)
     );
   });
 
   const sortedDownloads = [...filteredDownloads].sort((a, b) => {
     switch (sortFilter) {
       case "newest":
-        return new Date(b.date).getTime() - new Date(a.date).getTime();
+        // Since we don't have date in new format, sort by ID (newer IDs are typically later)
+        return b.data.id.localeCompare(a.data.id);
       case "oldest":
-        return new Date(a.date).getTime() - new Date(b.date).getTime();
+        return a.data.id.localeCompare(b.data.id);
       case "credits-high":
-        return b.price - a.price;
+        return b.data.price - a.data.price;
       case "credits-low":
-        return a.price - b.price;
+        return a.data.price - b.data.price;
       default:
         return 0;
     }
@@ -911,85 +911,75 @@ export default function ProfilePage() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[450px] overflow-y-auto">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-h-[500px] overflow-y-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent">
                 {sortedDownloads.map((item, index) => (
                   <div
                     key={index}
-                    className="bg-secondary/50 dark:bg-muted border rounded-lg p-4 space-y-4 hover:bg-muted/50 transition-all duration-200"
+                    className="group bg-secondary/50 dark:bg-muted/50 border border-border/50 rounded-xl p-4 space-y-4 hover:bg-card hover:border-border transition-all duration-300"
                   >
-                    {/* Header with source and debug ID */}
+                    {/* Header with source and ID */}
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">
-                          {item.type === "photo"
-                            ? "📷"
-                            : item.type === "video"
-                              ? "🎥"
-                              : "🎨"}
-                        </span>
-                        <span className="font-medium text-foreground">
-                          {item.from}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">
-                          {formatDate(item.date)}
-                        </span>
-                      </div>
-                    </div>
-                    {/* File ID and format info */}
-                    <div className="flex-col sm:flex-row flex items-center gap-5 justify-between">
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto text-blue-600 hover:text-blue-800 truncate max-w-full w-full sm:w-auto sm:max-w-[200px] md:max-w-[250px] text-left justify-start"
-                        onClick={() => window.open(item.file, "_blank")}
-                      >
-                        <span className="truncate block">{item.file}</span>
-                      </Button>
                       <div className="flex items-center gap-3">
-                        <Badge variant="outline" className="text-xs">
-                          {item.type}
+                        <div>
+                          <span className="font-semibold text-foreground text-sm">
+                            {item.data.from}
+                          </span>
+                          <p className="text-xs text-muted-foreground">
+                            ID: {item.data.id.substring(0, 30)}...
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="text-xs font-medium">
+                        {item.data.price} credits
+                      </Badge>
+                    </div>
+                    {/* Download URL preview */}
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs px-2 py-1">
+                          {item.data.downloadUrl.includes("video")
+                            ? "Video"
+                            : "Image"}
                         </Badge>
-                        <span className="text-sm text-muted-foreground">
-                          {item.price} credits
+                        <span className="text-xs text-muted-foreground truncate flex-1">
+                          {new URL(item.data.downloadUrl).hostname}
                         </span>
                       </div>
                     </div>
                     {/* Main Media Display */}
                     <div
-                      className="relative aspect-video bg-muted rounded-lg overflow-hidden cursor-pointer group"
+                      className="relative aspect-video bg-muted/30 rounded-xl overflow-hidden cursor-pointer group/media border border-border/30 hover:border-border/60 transition-all duration-300"
                       onClick={() =>
-                        window.open(item.downloadUrl || item.file, "_blank")
+                        window.open(item.data.downloadUrl, "_blank")
                       }
                     >
                       {imageErrors.has(index) ? (
                         // Fallback display when media fails to load
-                        <div className="w-full h-full flex items-center justify-center bg-muted/50">
-                          <div className="text-center space-y-2">
-                            <div className="text-4xl">
-                              {item.type === "photo"
-                                ? "📷"
-                                : item.type === "video"
-                                  ? "🎥"
-                                  : "🎨"}
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted/30 to-muted/60">
+                          <div className="text-center space-y-3 p-4">
+                            <div>
+                              <p className="text-sm text-foreground font-medium capitalize">
+                                {item.data.downloadUrl.includes("video")
+                                  ? "Video"
+                                  : "Image"}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Click to view on {item.data.from}
+                              </p>
                             </div>
-                            <p className="text-sm text-muted-foreground capitalize font-medium">
-                              {item.type}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              Click to view on {item.from}
-                            </p>
-                            <p className="text-xs text-muted-foreground/70">
-                              Image failed to load
-                            </p>
                           </div>
                         </div>
                       ) : (
                         <>
                           {/* Loading skeleton */}
                           {imageLoading.has(index) && (
-                            <div className="absolute inset-0 bg-muted animate-pulse flex items-center justify-center">
-                              <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-muted/50 to-muted/80 animate-pulse flex items-center justify-center">
+                              <div className="flex flex-col items-center gap-2">
+                                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                                <p className="text-xs text-muted-foreground">
+                                  Loading...
+                                </p>
+                              </div>
                             </div>
                           )}
                           {isVideoItem(item) ? (
@@ -997,9 +987,9 @@ export default function ProfilePage() {
                             <div className="relative w-full h-full">
                               <Image
                                 src={getMediaUrl(item)}
-                                alt={`${item.type} from ${item.from}`}
+                                alt={`Media from ${item.data.from}`}
                                 fill
-                                className="object-contain group-hover:scale-105 transition-transform duration-300"
+                                className="object-cover transition-transform duration-500"
                                 onLoadingComplete={() => {
                                   setImageLoading((prev) => {
                                     const newSet = new Set(prev);
@@ -1007,7 +997,8 @@ export default function ProfilePage() {
                                     return newSet;
                                   });
                                 }}
-                                onError={(e) => {
+                                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                                onError={(e: any) => {
                                   console.log(
                                     "[Profile] Image load error for item:",
                                     {
@@ -1028,9 +1019,9 @@ export default function ProfilePage() {
                                 }}
                               />
                               {/* Video play button overlay */}
-                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/30 transition-colors">
-                                <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
-                                  <div className="w-0 h-0 border-l-[12px] border-l-black border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1"></div>
+                              <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover/media:bg-black/40 transition-all duration-300">
+                                <div className="w-16 h-16 bg-white/95 backdrop-blur-sm rounded-full flex items-center justify-center transition-transform duration-300">
+                                  <div className="w-0 h-0 border-l-[14px] border-l-black border-t-[10px] border-t-transparent border-b-[10px] border-b-transparent ml-1"></div>
                                 </div>
                               </div>
                             </div>
@@ -1038,9 +1029,9 @@ export default function ProfilePage() {
                             // Regular image display
                             <Image
                               src={getMediaUrl(item)}
-                              alt={`${item.type} from ${item.from}`}
+                              alt={`Media from ${item.data.from}`}
                               fill
-                              className="object-contain group-hover:scale-105 transition-transform duration-300"
+                              className="object-cover transition-transform duration-500"
                               onLoadingComplete={() => {
                                 setImageLoading((prev) => {
                                   const newSet = new Set(prev);
@@ -1048,7 +1039,8 @@ export default function ProfilePage() {
                                   return newSet;
                                 });
                               }}
-                              onError={(e) => {
+                              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                              onError={(e: any) => {
                                 console.log(
                                   "[Profile] Image load error for item:",
                                   {
@@ -1072,41 +1064,28 @@ export default function ProfilePage() {
                         </>
                       )}
                       {/* Type Badge Overlay */}
-                      <div className="absolute top-2 right-2 z-10">
+                      <div className="absolute top-3 right-3 z-10">
                         <Badge
                           variant="secondary"
-                          className="text-xs bg-black/70 text-white border-none"
+                          className="text-xs bg-black/80 backdrop-blur-sm text-white border-none px-2 py-1 font-medium"
                         >
-                          {item.type}
+                          {item.data.downloadUrl.includes("video")
+                            ? "Video"
+                            : "Image"}
                         </Badge>
                       </div>
-                      {/* Video duration badge for videos */}
-                      {isVideoItem(item) && !imageErrors.has(index) && (
-                        <div className="absolute bottom-2 right-2 z-10">
-                          <Badge
-                            variant="secondary"
-                            className="text-xs bg-black/70 text-white border-none"
-                          >
-                            🎥 Video
-                          </Badge>
-                        </div>
-                      )}
                     </div>
-                    {/* Footer with source and download button */}
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">
-                        {item.from}
-                      </span>
+                    {/* Footer with download button */}
+                    <div className="pt-2">
                       <Button
                         size="sm"
-                        variant="outline"
+                        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium transition-all duration-200"
                         onClick={() =>
-                          window.open(item.downloadUrl || item.file, "_blank")
+                          window.open(item.data.downloadUrl, "_blank")
                         }
-                        className="flex items-center gap-2"
                       >
-                        <Download className="h-4 w-4" />
-                        {t("common.download")}
+                        <Download className="h-4 w-4 mr-2" />
+                        Open in {item.data.from}
                       </Button>
                     </div>
                   </div>

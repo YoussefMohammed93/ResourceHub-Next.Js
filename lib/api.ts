@@ -333,17 +333,18 @@ export interface UsersStatisticsResponse {
 }
 
 export interface DownloadHistoryEntry {
-  from: string;
-  type: "photo" | "video" | "vector";
-  price: number;
-  date: string;
-  file: string;
-  downloadUrl?: string; // Optional field for the actual download link
+  type: "download";
+  data: {
+    id: string;
+    downloadUrl: string;
+    from: string;
+    price: number;
+  };
 }
 
 export interface DownloadHistoryResponse {
   success: boolean;
-  downloads: DownloadHistoryEntry[];
+  history: DownloadHistoryEntry[];
 }
 
 // Login request data
@@ -1494,7 +1495,7 @@ export const searchApi = {
         // Determine the endpoint based on environment - Updated to use new providers/search endpoint
         const endpoint =
           process.env.NODE_ENV === "production"
-            ? "/v1/providers/search" // Direct API call in production - NEW ENDPOINT
+            ? "/v1/download/tasks" // Direct API call in production - NEW ENDPOINT
             : "/api/search"; // Use proxy in development
 
         const response = await searchApiClient.get(endpoint, {
@@ -1637,7 +1638,7 @@ export const searchApi = {
       // Determine the endpoint based on environment
       const endpoint =
         process.env.NODE_ENV === "production"
-          ? "/v1/providers/data" // Direct API call in production
+          ? "/v1/download/create" // Direct API call in production
           : "/api/providers/data"; // Use proxy in development
 
       const response = await searchApiClient.post(endpoint, {
@@ -1738,7 +1739,7 @@ export const searchApi = {
       // Determine the endpoint based on environment
       const endpoint =
         process.env.NODE_ENV === "production"
-          ? "/v1/providers/search" // Direct API call in production
+          ? "/v1/download/tasks" // Direct API call in production
           : "/api/providers/search"; // Use proxy in development
 
       const response = await searchApiClient.post(endpoint, {
