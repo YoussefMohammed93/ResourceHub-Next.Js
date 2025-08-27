@@ -1453,35 +1453,6 @@ export interface MediaDownloadRequest {
   website: string;
 }
 
-// Download Verification Types
-export interface DownloadVerificationRequest {
-  downloadUrl: string;
-}
-
-export interface DownloadVerificationResponse {
-  success: boolean;
-  data: {
-    is_supported: boolean;
-    is_allowed: boolean;
-    can_afford: boolean;
-    site: {
-      name: string;
-      icon: string;
-      pricing: string;
-      is_external: boolean;
-    };
-    subscription: {
-      active: boolean;
-      plan_name: string;
-      credits_remaining: number;
-      credits_total: number;
-      validity_date: string;
-      allowed_sites: string[];
-    };
-    warnings: string[];
-  };
-}
-
 // Search API functions
 export const searchApi = {
   // Search for resources with deduplication and optimized performance
@@ -1793,64 +1764,6 @@ export const searchApi = {
               errorData?.message ||
               error.message ||
               "Failed to submit download request",
-          },
-        };
-      }
-
-      return {
-        success: false,
-        error: {
-          id: "unknown_error",
-          message: "An unexpected error occurred",
-        },
-      };
-    }
-  },
-
-  // Verify download eligibility
-  async verifyDownload(
-    request: DownloadVerificationRequest
-  ): Promise<ApiResponse<DownloadVerificationResponse>> {
-    const { downloadUrl } = request;
-
-    // Validate required fields
-    if (!downloadUrl) {
-      return {
-        success: false,
-        error: {
-          id: "missing_url",
-          message: "Download URL is required",
-        },
-      };
-    }
-
-    try {
-      // Determine the endpoint based on environment
-      const endpoint =
-        process.env.NODE_ENV === "production"
-          ? "/v1/download/verify" // Direct API call in production
-          : "/api/download/verify"; // Use proxy in development
-
-      const response = await searchApiClient.post(endpoint, {
-        downloadUrl,
-      });
-
-      return { success: true, data: response.data };
-    } catch (error) {
-      console.error("Download verification API error:", error);
-
-      // Handle axios errors
-      if (axios.isAxiosError(error)) {
-        const errorData = error.response?.data;
-
-        return {
-          success: false,
-          error: {
-            id: errorData?.error?.id || "verification_failed",
-            message:
-              errorData?.error?.message ||
-              error.message ||
-              "Failed to verify download eligibility",
           },
         };
       }

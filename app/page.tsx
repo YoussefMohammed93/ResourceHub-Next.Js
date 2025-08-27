@@ -70,10 +70,11 @@ import {
 } from "@/components/home-page-skeletons";
 import { Input } from "@/components/ui/input";
 import { useTranslation } from "react-i18next";
-import { PricingPlan, publicApi, Site } from "@/lib/api";
-import { DownloadVerificationSheet } from "@/components/download-verification-sheet";
+import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { ImageSearchDialog } from "@/components/image-search-dialog";
+import { publicApi, type PricingPlan, type Site } from "@/lib/api";
 import { useAnimatedCounter } from "@/hooks/use-animated-counter";
 import {
   Carousel,
@@ -83,8 +84,6 @@ import {
   CarouselPrevious,
   type CarouselApi,
 } from "@/components/ui/carousel";
-import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/components/i18n-provider";
 
 // StatisticCard component for animated counters
 interface StatisticCardProps {
@@ -710,8 +709,6 @@ export default function HomePage() {
   const [isImageSearchOpen, setIsImageSearchOpen] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-  const [isDownloadVerificationOpen, setIsDownloadVerificationOpen] = useState(false);
-  const [downloadUrl, setDownloadUrl] = useState<string>("");
 
   // Pricing plans state
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
@@ -728,9 +725,9 @@ export default function HomePage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
-  // URL validation regex patterns - updated to handle localhost and media URLs
+  // URL validation regex patterns
   const urlRegex =
-    /^(https?:\/\/)?(localhost(:\d+)?|[\da-z\.-]+\.[a-z\.]{2,6})(\/[^\s]*)?$/i;
+    /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
   const domainRegex =
     /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
 
@@ -764,13 +761,12 @@ export default function HomePage() {
       };
     }
 
-    // Check if it's a URL - now we handle URLs differently
+    // Check if it's a URL
     if (urlRegex.test(trimmedQuery) || domainRegex.test(trimmedQuery)) {
-      // For URLs, we'll trigger download verification instead of search
       return {
         isValid: false,
-        cleanedQuery: trimmedQuery,
-        error: "URL_DETECTED", // Special flag for URL detection
+        cleanedQuery: "",
+        error: t("search.errors.urlNotAllowed"),
       };
     }
 
@@ -793,13 +789,6 @@ export default function HomePage() {
     const validation = validateAndCleanQuery(searchQuery);
 
     if (!validation.isValid) {
-      // Check if it's a URL detection case
-      if (validation.error === "URL_DETECTED") {
-        // Handle URL - open download verification sheet
-        setDownloadUrl(validation.cleanedQuery);
-        setIsDownloadVerificationOpen(true);
-        return;
-      }
       setSearchError(validation.error || t("search.errors.invalid"));
       return;
     }
@@ -1773,18 +1762,6 @@ export default function HomePage() {
             // Handle image upload logic here
           }}
         />
-
-        {/* Download Verification Sheet */}
-        <DownloadVerificationSheet
-          isOpen={isDownloadVerificationOpen}
-          onClose={() => setIsDownloadVerificationOpen(false)}
-          downloadUrl={downloadUrl}
-          onDownload={() => {
-            // Handle successful download
-            console.log("Download initiated for:", downloadUrl);
-            setIsDownloadVerificationOpen(false);
-          }}
-        />
       </section>
       {/* Supported Platforms Section */}
       {isLoading ? (
@@ -2316,17 +2293,17 @@ export default function HomePage() {
                           className={`flex items-center justify-between mb-4`}
                         >
                           <div className="flex items-center gap-2">
-                                                      <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center">
-                            <User className="w-6 h-6 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-foreground text-sm">
-                              {testimonial.name}
-                            </h4>
-                            <p className="text-xs text-muted-foreground">
-                              {testimonial.role}
-                            </p>
-                          </div>
+                            <div className="w-12 h-12 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center">
+                              <User className="w-6 h-6 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-semibold text-foreground text-sm">
+                                {testimonial.name}
+                              </h4>
+                              <p className="text-xs text-muted-foreground">
+                                {testimonial.role}
+                              </p>
+                            </div>
                           </div>
                           {/* Rating Stars */}
                           <div className="flex items-center">

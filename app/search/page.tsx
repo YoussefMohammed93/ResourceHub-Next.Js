@@ -46,7 +46,6 @@ import { HeaderControls } from "@/components/header-controls";
 import { useState, Suspense, useEffect, useCallback, useRef } from "react";
 import { searchApi } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
-import { DownloadVerificationSheet } from "@/components/download-verification-sheet";
 
 // Type definitions for API response
 interface ApiSearchResult {
@@ -285,8 +284,6 @@ function SearchContent() {
   const [isSearchLoading, setIsSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [totalResults, setTotalResults] = useState(0);
-  const [isDownloadVerificationOpen, setIsDownloadVerificationOpen] = useState(false);
-  const [downloadUrl, setDownloadUrl] = useState<string>("");
 
   // Dynamic sidebar data state - extracted from search results
   const [providers, setProviders] = useState<ProviderStats[]>([]);
@@ -296,20 +293,6 @@ function SearchContent() {
 
   const resultsPerPage = 60; // Updated to match requirements
   const totalPages = Math.ceil(totalResults / resultsPerPage);
-
-  // URL validation regex patterns - updated to handle localhost and media URLs
-  const urlRegex =
-    /^(https?:\/\/)?(localhost(:\d+)?|[\da-z\.-]+\.[a-z\.]{2,6})(\/[^\s]*)?$/i;
-  const domainRegex =
-    /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
-
-  // Function to check if input is a URL
-  const isUrl = (input: string): boolean => {
-    const trimmed = input.trim();
-    // Check for localhost URLs or standard URLs
-    return urlRegex.test(trimmed) || domainRegex.test(trimmed) || 
-           trimmed.includes('localhost') || trimmed.startsWith('http');
-  };
 
   // Functions to extract dynamic sidebar data from search results
   const extractProvidersFromResults = (
@@ -570,14 +553,6 @@ function SearchContent() {
   // Handle search button click
   const handleSearch = () => {
     if (searchQuery.trim()) {
-      // Check if input is a URL
-      if (isUrl(searchQuery.trim())) {
-        // Handle URL - open download verification sheet
-        setDownloadUrl(searchQuery.trim());
-        setIsDownloadVerificationOpen(true);
-        return;
-      }
-
       // Update URL without page reload
       const url = new URL(window.location.href);
       url.searchParams.set("q", searchQuery);
@@ -1259,9 +1234,7 @@ function SearchContent() {
 
                 <div className="bg-background dark:bg-muted/35 border border-border dark:border-primary/20 rounded-lg p-4 space-y-3">
                   {/* User Avatar and Name */}
-                  <div
-                    className={`flex items-center gap-3`}
-                  >
+                  <div className={`flex items-center gap-3`}>
                     <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center border-2 border-primary/30">
                       {user.account?.picture ? (
                         <img
@@ -1283,7 +1256,9 @@ function SearchContent() {
                         className={`flex items-center gap-1 text-xs text-muted-foreground ${isRTL ? "flex-row-reverse" : ""}`}
                       >
                         <Mail className="w-3 h-3" />
-                        <span className="truncate text-sm">{user.account?.email}</span>
+                        <span className="truncate text-sm">
+                          {user.account?.email}
+                        </span>
                       </div>
                     </div>
                   </div>
@@ -2611,18 +2586,6 @@ function SearchContent() {
           </div>
         </main>
       </div>
-
-      {/* Download Verification Sheet */}
-      <DownloadVerificationSheet
-        isOpen={isDownloadVerificationOpen}
-        onClose={() => setIsDownloadVerificationOpen(false)}
-        downloadUrl={downloadUrl}
-        onDownload={() => {
-          // Handle successful download
-          console.log("Download initiated for:", downloadUrl);
-          setIsDownloadVerificationOpen(false);
-        }}
-      />
     </div>
   );
 }
