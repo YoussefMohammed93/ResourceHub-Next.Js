@@ -47,6 +47,7 @@ import {
 import { searchApi, type ProviderDataRequest, type FileData } from "@/lib/api";
 import { RelatedFilesSection } from "@/components/media/related-files-section";
 import { useAuth } from "@/components/auth-provider";
+import { DownloadVerificationSheet } from "@/components/download-verification-sheet";
 
 // Type definitions for search result (matching the search page)
 interface SearchResult {
@@ -85,6 +86,8 @@ export default function ImageDetailsPage() {
     null
   );
   const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloadVerificationOpen, setIsDownloadVerificationOpen] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState<string>("");
 
   // Map provider names to match the API specification
   const mapProviderName = useCallback((providerName: string): string => {
@@ -159,8 +162,17 @@ export default function ImageDetailsPage() {
     [mapProviderName]
   );
 
-  // Handle media download
+  // Handle media download - now triggers verification sheet
   const handleDownload = useCallback(async () => {
+    if (!imageData) return;
+
+    // Set the download URL and open verification sheet
+    setDownloadUrl(imageData.url);
+    setIsDownloadVerificationOpen(true);
+  }, [imageData]);
+
+  // Handle actual download after verification
+  const handleVerifiedDownload = useCallback(async () => {
     if (!imageData) return;
 
     setIsDownloading(true);
@@ -2863,6 +2875,18 @@ export default function ImageDetailsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Download Verification Sheet */}
+      <DownloadVerificationSheet
+        isOpen={isDownloadVerificationOpen}
+        onClose={() => setIsDownloadVerificationOpen(false)}
+        downloadUrl={downloadUrl}
+        onDownload={() => {
+          // Handle successful download verification
+          setIsDownloadVerificationOpen(false);
+          handleVerifiedDownload();
+        }}
+      />
     </div>
   );
 }
