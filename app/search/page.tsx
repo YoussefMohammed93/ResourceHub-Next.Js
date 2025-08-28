@@ -46,6 +46,7 @@ import { HeaderControls } from "@/components/header-controls";
 import { useState, Suspense, useEffect, useCallback, useRef } from "react";
 import { searchApi } from "@/lib/api";
 import { useAuth } from "@/components/auth-provider";
+import { DownloadVerificationSheet } from "@/components/download-verification-sheet";
 
 // Type definitions for API response
 interface ApiSearchResult {
@@ -271,12 +272,22 @@ function SearchContent() {
   const initialType = searchParams.get("type") || "all";
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
+  const [displayedQuery, setDisplayedQuery] = useState(initialQuery); // Query shown in results text
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedFileTypes, setSelectedFileTypes] = useState<string[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>(initialType);
   const [currentPage, setCurrentPage] = useState(1);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [hoveredImage, setHoveredImage] = useState<string | null>(null);
+
+  // Download verification state
+  const [isVerificationSheetOpen, setIsVerificationSheetOpen] = useState(false);
+  const [verificationUrl, setVerificationUrl] = useState("");
+
+  // URL validation regex patterns
+  const urlRegex = /^https?:\/\/.+/i;
+  const domainRegex =
+    /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
 
   // API state
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
@@ -552,15 +563,35 @@ function SearchContent() {
 
   // Handle search button click
   const handleSearch = () => {
-    if (searchQuery.trim()) {
-      // Update URL without page reload
-      const url = new URL(window.location.href);
-      url.searchParams.set("q", searchQuery);
-      window.history.pushState({}, "", url.toString());
+    const trimmedQuery = searchQuery.trim();
+    
+    if (!trimmedQuery) return;
 
-      // Perform search
-      performSearch(searchQuery, 1);
+    // Check if the query is a URL for download verification
+    const isUrl =
+      trimmedQuery.startsWith("http://") || trimmedQuery.startsWith("https://");
+
+    if (
+      isUrl ||
+      urlRegex.test(trimmedQuery) ||
+      domainRegex.test(trimmedQuery)
+    ) {
+      // Open download verification sheet for URLs
+      setVerificationUrl(trimmedQuery);
+      setIsVerificationSheetOpen(true);
+      return;
     }
+
+    // Update URL without page reload
+    const url = new URL(window.location.href);
+    url.searchParams.set("q", searchQuery);
+    window.history.pushState({}, "", url.toString());
+
+    // Update displayed query only when search is performed
+    setDisplayedQuery(trimmedQuery);
+
+    // Perform search
+    performSearch(searchQuery, 1);
   };
 
   // Load initial search results - only once when component mounts
@@ -1832,7 +1863,7 @@ function SearchContent() {
                 <h2 className="text-lg font-semibold text-foreground">
                   {t("search.results.stockImages")}{" "}
                   <span className="text-primary">
-                    {searchQuery || t("search.results.defaultQuery")}
+                    {displayedQuery || t("search.results.defaultQuery")}
                   </span>
                   .
                 </h2>
@@ -1840,7 +1871,7 @@ function SearchContent() {
               <p className="text-muted-foreground">
                 {t("search.results.description", {
                   count: totalResults,
-                  query: searchQuery || t("search.results.defaultQuery"),
+                  query: displayedQuery || t("search.results.defaultQuery"),
                 })}{" "}
                 {t("search.results.vectorsText")}{" "}
               </p>
@@ -2586,6 +2617,13 @@ function SearchContent() {
           </div>
         </main>
       </div>
+
+      {/* Download Verification Sheet */}
+      <DownloadVerificationSheet
+        isOpen={isVerificationSheetOpen}
+        onClose={() => setIsVerificationSheetOpen(false)}
+        downloadUrl={verificationUrl}
+      />
     </div>
   );
 }
