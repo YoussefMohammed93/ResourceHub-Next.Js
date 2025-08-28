@@ -1479,11 +1479,8 @@ export const searchApi = {
       try {
         console.log("Making search API request for:", requestKey);
 
-        // Determine the endpoint based on environment - Updated to use correct search endpoint
-        const endpoint =
-          process.env.NODE_ENV === "production"
-            ? "/v1/search" // Direct API call in production - CORRECT SEARCH ENDPOINT
-            : "/api/search"; // Use proxy in development
+        // Always use the Next.js API proxy to avoid CORS issues
+        const endpoint = "/api/search"; // Use proxy in both development and production
 
         const response = await searchApiClient.get(endpoint, {
           params: {
