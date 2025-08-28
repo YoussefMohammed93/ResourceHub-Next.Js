@@ -272,7 +272,6 @@ function SearchContent() {
   const initialType = searchParams.get("type") || "all";
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [displayedQuery, setDisplayedQuery] = useState(initialQuery); // Query shown in results text
   const [selectedProviders, setSelectedProviders] = useState<string[]>([]);
   const [selectedFileTypes, setSelectedFileTypes] = useState<string[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<string>(initialType);
@@ -586,9 +585,6 @@ function SearchContent() {
     const url = new URL(window.location.href);
     url.searchParams.set("q", searchQuery);
     window.history.pushState({}, "", url.toString());
-
-    // Update displayed query only when search is performed
-    setDisplayedQuery(trimmedQuery);
 
     // Perform search
     performSearch(searchQuery, 1);
@@ -1863,7 +1859,7 @@ function SearchContent() {
                 <h2 className="text-lg font-semibold text-foreground">
                   {t("search.results.stockImages")}{" "}
                   <span className="text-primary">
-                    {displayedQuery || t("search.results.defaultQuery")}
+                    {searchQuery || t("search.results.defaultQuery")}
                   </span>
                   .
                 </h2>
@@ -1871,7 +1867,7 @@ function SearchContent() {
               <p className="text-muted-foreground">
                 {t("search.results.description", {
                   count: totalResults,
-                  query: displayedQuery || t("search.results.defaultQuery"),
+                  query: searchQuery || t("search.results.defaultQuery"),
                 })}{" "}
                 {t("search.results.vectorsText")}{" "}
               </p>

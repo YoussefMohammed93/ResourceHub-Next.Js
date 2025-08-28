@@ -33,6 +33,7 @@ import {
   Info,
 } from "lucide-react";
 import { downloadApi } from "@/lib/api";
+import { downloadFile, DownloadProgress } from "@/lib/download-utils";
 
 interface ApiVerificationResponse {
   success: boolean;
@@ -108,51 +109,147 @@ export function DownloadVerificationSheet({
     }
   };
 
-  const simulateDownloadProgress = () => {
+  const performRealDownload = async () => {
     setDownloadProgress(0);
     setDownloadStatus("preparing");
 
-    // Simulate preparation phase (0-10%)
-    setTimeout(() => {
-      setDownloadStatus("downloading");
-      setDownloadProgress(10);
-    }, 500);
+    try {
+      // First, create the download task via API
+      const response = await downloadApi.createDownload({ downloadUrl });
+      
+      if (!response.success) {
+        throw new Error(response.error?.message || "Failed to create download task");
+      }
 
-    // Simulate download progress with realistic increments
-    const progressInterval = setInterval(
-      () => {
-        setDownloadProgress((prev) => {
-          if (prev >= 95) {
-            clearInterval(progressInterval);
-            // Final completion phase
-            setTimeout(() => {
+      const taskId = response.data?.task_id;
+      if (!taskId) {
+        throw new Error("No task ID received from server");
+      }
+
+      // Start polling for task completion
+      setDownloadStatus("downloading");
+      
+      const pollTaskStatus = async (retryCount = 0): Promise<void> => {
+        try {
+          const taskResponse = await downloadApi.getDownloadTasks(taskId);
+          
+          console.log("Task response:", taskResponse);
+          
+          if (!taskResponse.success) {
+            throw new Error(taskResponse.error?.message || "Failed to get task status");
+          }
+
+          // According to download.yaml, the response structure is { success: boolean, data: array }
+          const tasks = taskResponse.data?.data || taskResponse.data;
+          console.log("Tasks array:", tasks);
+
+          if (!Array.isArray(tasks)) {
+            // If it's not an array, it might be a single task object
+            const singleTask = taskResponse.data;
+            if (singleTask && typeof singleTask === 'object') {
+              console.log("Single task:", singleTask);
+              await handleTaskData(singleTask);
+              return;
+            }
+            throw new Error("Invalid task response format");
+          }
+
+          if (tasks.length === 0) {
+            // Task might not be ready yet, retry a few times
+            if (retryCount < 5) {
+              console.log(`Task not found, retrying... (${retryCount + 1}/5)`);
+              setTimeout(() => pollTaskStatus(retryCount + 1), 3000);
+              return;
+            }
+            throw new Error("Task not found after multiple attempts");
+          }
+
+          const task = tasks.find(t => t.data?.id === taskId) || tasks[0];
+          console.log("Selected task:", task);
+
+          await handleTaskData(task);
+
+        } catch (error) {
+          console.error("Task polling error:", error);
+          const errorMessage = error instanceof Error ? error.message : "Failed to check download status";
+          setError(errorMessage);
+          setDownloadStatus("failed");
+          setIsDownloading(false);
+        }
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const handleTaskData = async (task: any): Promise<void> => {
+        if (!task) {
+          throw new Error("Task data is invalid");
+        }
+
+        // Safely extract progress and status with fallbacks
+        const progress = task.progress?.progress ?? task.progress ?? 0;
+        const status = task.progress?.status ?? task.status ?? "pending";
+
+        console.log("Progress:", progress, "Status:", status);
+
+        // Update progress
+        setDownloadProgress(Math.min(95, progress)); // Cap at 95% until file download
+
+        if (status === "completed" && task.download?.downloadUrl) {
+          // Task completed, now download the file directly
+          await downloadFile(task.download.downloadUrl, {
+            filename: task.download?.filename,
+            onProgress: (progress: DownloadProgress) => {
+              // File download progress (separate from task progress)
+              setDownloadProgress(Math.max(95, progress.percentage));
+            },
+            onComplete: (filename: string) => {
               setDownloadProgress(100);
               setDownloadStatus("completed");
               
-              // Show success toast
+              // Show success toast with filename
               import("sonner").then(({ toast }) => {
-                toast.success(t("download.verification.progress.fileDownloadedSuccessfully"), {
-                  duration: 4000,
-                });
+                toast.success(
+                  t("download.verification.progress.fileDownloadedSuccessfully") + 
+                  ` (${filename})`,
+                  {
+                    duration: 5000,
+                    description: t("download.verification.progress.fileSavedToDevice"),
+                  }
+                );
               });
               
+              // Close the sheet after a short delay
               setTimeout(() => {
                 setIsDownloading(false);
                 setDownloadStatus("idle");
                 setDownloadProgress(0);
                 onClose();
-              }, 1500);
-            }, 800);
-            return 95;
-          }
+              }, 2000);
+            },
+            onError: (error: Error) => {
+              console.error("File download error:", error);
+              setError(error.message || "File download failed");
+              setDownloadStatus("failed");
+              setIsDownloading(false);
+            }
+          });
+        } else if (status === "failed") {
+          throw new Error("Download task failed on server");
+        } else {
+          // Task still in progress, poll again
+          setTimeout(() => pollTaskStatus(), 2000); // Poll every 2 seconds
+        }
+      };
 
-          // Variable progress increments for realistic feel
-          const increment = Math.random() * 8 + 2; // 2-10% increments
-          return Math.min(prev + increment, 95);
-        });
-      },
-      400 + Math.random() * 600
-    ); // 400-1000ms intervals
+      // Start polling
+      await pollTaskStatus();
+      
+    } catch (error) {
+      console.error("Download preparation error:", error);
+      const errorMessage = error instanceof Error ? error.message : "Download failed";
+      setError(errorMessage);
+      setDownloadStatus("failed");
+      setIsDownloading(false);
+    }
   };
 
   const handleDownload = async () => {
@@ -161,23 +258,8 @@ export function DownloadVerificationSheet({
     setIsDownloading(true);
     setError(null);
 
-    try {
-      const response = await downloadApi.createDownload({ downloadUrl });
-
-      if (response.success) {
-        // Start progress simulation
-        simulateDownloadProgress();
-      } else {
-        setError(response.error?.message || "Download failed");
-        setIsDownloading(false);
-        setDownloadStatus("failed");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Network error occurred");
-      setIsDownloading(false);
-      setDownloadStatus("failed");
-    }
+    // Start the real download process
+    await performRealDownload();
   };
 
   const getStatusIcon = (status: boolean) => {

@@ -6,7 +6,6 @@ import {
   Download,
   Filter,
   TrendingUp,
-  Settings,
   Activity,
   Search,
   Lock,
@@ -575,11 +574,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-              <Separator />
-              <Button className="w-full" variant="outline">
-                <Settings className="w-4 h-4" />
-                {t("profile.subscription.manageSubscription")}
-              </Button>
             </CardContent>
           </Card>
 
