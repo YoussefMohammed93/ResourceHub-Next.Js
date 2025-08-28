@@ -33,7 +33,6 @@ import {
   Info,
 } from "lucide-react";
 import { downloadApi } from "@/lib/api";
-import { useLanguage } from "./i18n-provider";
 
 interface ApiVerificationResponse {
   success: boolean;
@@ -77,7 +76,6 @@ export function DownloadVerificationSheet({
   downloadUrl,
 }: DownloadVerificationSheetProps) {
   const { t } = useTranslation("common");
-  const { language } = useLanguage();
   const [isVerifying, setIsVerifying] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0);
@@ -131,17 +129,10 @@ export function DownloadVerificationSheet({
               setDownloadProgress(100);
               setDownloadStatus("completed");
               
-              // Show success toast in Arabic and English
+              // Show success toast
               import("sonner").then(({ toast }) => {
-                const arabicMessage = "تم تحميل الملف بنجاح! ✅";
-                const englishMessage = "File downloaded successfully! ✅";
-                const message = language === "ar" ? arabicMessage : englishMessage;
-                
-                toast.success(message, {
+                toast.success(t("download.verification.progress.fileDownloadedSuccessfully"), {
                   duration: 4000,
-                  style: {
-                    direction: language === "ar" ? "rtl" : "ltr",
-                  },
                 });
               });
               
@@ -203,6 +194,28 @@ export function DownloadVerificationSheet({
     verificationData?.data?.is_allowed &&
     verificationData?.data?.can_afford;
 
+  // Get detailed failure reasons
+  const getFailureReasons = () => {
+    if (!verificationData?.data) return [];
+    
+    const reasons = [];
+    const data = verificationData.data;
+    
+    if (!data.is_supported) {
+      reasons.push('siteNotSupported');
+    }
+    if (!data.is_allowed) {
+      reasons.push('downloadNotAllowed');
+    }
+    if (!data.can_afford) {
+      reasons.push('insufficientCredits');
+    }
+    
+    return reasons;
+  };
+
+  const failureReasons = getFailureReasons();
+
   const hasSubscription =
     verificationData?.subscription &&
     typeof verificationData.subscription === "object";
@@ -219,8 +232,7 @@ export function DownloadVerificationSheet({
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent
-        className="w-full sm:w-[90vw] sm:!max-w-2xl overflow-y-auto bg-muted/75"
-        side={language === "ar" ? "left" : "right"}
+        className="w-full sm:w-[90vw] sm:!max-w-lg overflow-y-auto bg-muted/75"
       >
         <SheetHeader className="pb-6">
           <SheetTitle className="flex items-center gap-3 text-xl">
@@ -230,7 +242,7 @@ export function DownloadVerificationSheet({
             {t("download.verification.title")}
           </SheetTitle>
           <SheetDescription
-            className={`text-base text-muted-foreground ${language === "ar" ? "text-right" : "text-left"}`}
+            className={`text-base text-muted-foreground`}
           >
             {t("download.verification.description")}
           </SheetDescription>
@@ -413,21 +425,8 @@ export function DownloadVerificationSheet({
                               : t(
                                   "download.verification.status.downloadNotAvailableDescription",
                                   {
-                                    issues: [
-                                      !verificationData.data.is_supported &&
-                                        t(
-                                          "download.verification.reasons.siteNotSupported"
-                                        ),
-                                      !verificationData.data.is_allowed &&
-                                        t(
-                                          "download.verification.reasons.downloadNotAllowed"
-                                        ),
-                                      !verificationData.data.can_afford &&
-                                        t(
-                                          "download.verification.reasons.insufficientCredits"
-                                        ),
-                                    ]
-                                      .filter(Boolean)
+                                    issues: failureReasons
+                                      .map((reason) => t(`download.verification.reasons.${reason}`))
                                       .join(", "),
                                   }
                                 )}
@@ -445,6 +444,53 @@ export function DownloadVerificationSheet({
                     </div>
                   </CardContent>
                 </Card>
+
+                {/* Display detailed failure reasons */}
+                {!canDownload && failureReasons.length > 0 && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-destructive">
+                        <AlertTriangle className="w-5 h-5" />
+                        {t("download.verification.issuesTitle")}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {failureReasons.map((reason, index) => {
+                          const reasonKey = `download.verification.detailedReasons.${reason}`;
+                          return (
+                            <div key={index} className="border rounded-lg p-4 bg-muted/30">
+                              <div className="flex items-start gap-3">
+                                <div className="flex-shrink-0 mt-0.5">
+                                  <div className="w-2 h-2 bg-destructive rounded-full" />
+                                </div>
+                                <div className="flex-1 space-y-2">
+                                  <h4 className="font-medium text-sm">
+                                    {t(`${reasonKey}.title`)}
+                                  </h4>
+                                  <p className="text-sm text-muted-foreground">
+                                    {t(`${reasonKey}.description`, {
+                                      requiredCredits: verificationData?.data?.site?.price || 0,
+                                      availableCredits: subscriptionData?.credits?.remaining || 0,
+                                      expiryDate: subscriptionData?.until || '',
+                                      dailyLimit: 10,
+                                      resetTime: '24 hours',
+                                      fileSize: '50MB',
+                                      maxSize: '100MB'
+                                    })}
+                                  </p>
+                                  <p className="text-sm font-medium text-primary">
+                                    {t(`${reasonKey}.suggestion`)}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
                 {/* Site Information */}
                 <Card>

@@ -1756,6 +1756,53 @@
         "downloadNotAllowed": "Download not allowed",
         "insufficientCredits": "Insufficient credits"
       },
+      "detailedReasons": {
+        "siteNotSupported": {
+          "title": "Platform Not Supported",
+          "description": "This website is not currently supported by our platform. We are constantly adding new platforms to our service.",
+          "suggestion": "Please try content from supported platforms like Freepik, Shutterstock, or Adobe Stock."
+        },
+        "downloadNotAllowed": {
+          "title": "Download Not Permitted",
+          "description": "Your current subscription plan does not include access to this platform or content type.",
+          "suggestion": "Consider upgrading your plan to access this content, or contact support for assistance."
+        },
+        "insufficientCredits": {
+          "title": "Insufficient Credits",
+          "description": "You don't have enough credits to download this content. This download requires {{requiredCredits}} credits, but you only have {{availableCredits}} remaining.",
+          "suggestion": "You can purchase more credits or wait for your subscription to renew to get additional credits."
+        },
+        "subscriptionExpired": {
+          "title": "Subscription Expired",
+          "description": "Your subscription has expired on {{expiryDate}}. You need an active subscription to download content.",
+          "suggestion": "Please renew your subscription to continue downloading premium content."
+        },
+        "accountSuspended": {
+          "title": "Account Suspended",
+          "description": "Your account has been temporarily suspended due to policy violations or payment issues.",
+          "suggestion": "Please contact our support team to resolve this issue and restore your account access."
+        },
+        "contentUnavailable": {
+          "title": "Content Unavailable",
+          "description": "This content is no longer available on the source platform or has been removed by the creator.",
+          "suggestion": "Try searching for similar content or browse our recommended alternatives."
+        },
+        "dailyLimitReached": {
+          "title": "Daily Download Limit Reached",
+          "description": "You have reached your daily download limit of {{dailyLimit}} downloads. Your limit will reset in {{resetTime}}.",
+          "suggestion": "Wait for the limit to reset or upgrade to a plan with higher daily limits."
+        },
+        "fileTooBig": {
+          "title": "File Size Too Large",
+          "description": "This file ({{fileSize}}) exceeds your plan's maximum download size limit of {{maxSize}}.",
+          "suggestion": "Upgrade to a premium plan for larger file downloads or choose a smaller version."
+        },
+        "regionRestricted": {
+          "title": "Geographic Restriction",
+          "description": "This content is not available in your region due to licensing restrictions.",
+          "suggestion": "Try browsing other available content or contact support for region-specific alternatives."
+        }
+      },
       "error": {
         "title": "Verification Failed",
         "verificationFailed": "Verification Failed",

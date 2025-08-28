@@ -47,6 +47,7 @@ import {
 import { searchApi, type ProviderDataRequest, type FileData } from "@/lib/api";
 import { RelatedFilesSection } from "@/components/media/related-files-section";
 import { useAuth } from "@/components/auth-provider";
+import { DownloadVerificationSheet } from "@/components/download-verification-sheet";
 
 // Type definitions for search result (matching the search page)
 interface SearchResult {
@@ -77,6 +78,7 @@ export default function ImageDetailsPage() {
   const [isVideoLoading, setIsVideoLoading] = useState(false);
   const [isAudioLoading, setIsAudioLoading] = useState(false);
   const [showAllKeywords, setShowAllKeywords] = useState(false);
+  const [isDownloadSheetOpen, setIsDownloadSheetOpen] = useState(false);
 
   // Enhanced provider data state
   const [fileData, setFileData] = useState<FileData | null>(null);
@@ -84,7 +86,7 @@ export default function ImageDetailsPage() {
   const [providerDataError, setProviderDataError] = useState<string | null>(
     null
   );
-  const [isDownloading, setIsDownloading] = useState(false);
+  const [isDownloading] = useState(false);
 
   // Map provider names to match the API specification
   const mapProviderName = useCallback((providerName: string): string => {
@@ -159,34 +161,16 @@ export default function ImageDetailsPage() {
     [mapProviderName]
   );
 
-  // Handle media download
-  const handleDownload = useCallback(async () => {
+  // Handle download button click - opens verification sheet
+  const handleDownload = useCallback(() => {
     if (!imageData) return;
+    setIsDownloadSheetOpen(true);
+  }, [imageData]);
 
-    setIsDownloading(true);
-    try {
-      // Use the mapped provider name for consistency
-      const mappedProvider = mapProviderName(imageData.provider);
-
-      const response = await searchApi.submitMediaDownload({
-        link: imageData.url,
-        id: imageData.file_id,
-        website: mappedProvider,
-      });
-
-      if (response.success) {
-        console.log("Download request submitted successfully:", response.data);
-        // You could show a success notification here
-      } else {
-        console.error("Download failed:", response.error?.message);
-        // You could show an error notification here
-      }
-    } catch (error) {
-      console.error("Download error:", error);
-    } finally {
-      setIsDownloading(false);
-    }
-  }, [imageData, mapProviderName]);
+  // Handle closing the download verification sheet
+  const handleCloseDownloadSheet = useCallback(() => {
+    setIsDownloadSheetOpen(false);
+  }, []);
 
   // Check if high resolution data is available and valid
   const isHighResolutionAvailable = useCallback(
@@ -2859,6 +2843,13 @@ export default function ImageDetailsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Download Verification Sheet */}
+      <DownloadVerificationSheet
+        isOpen={isDownloadSheetOpen}
+        onClose={handleCloseDownloadSheet}
+        downloadUrl={imageData?.url || ""}
+      />
     </div>
   );
 }
