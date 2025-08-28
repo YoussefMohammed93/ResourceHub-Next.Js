@@ -1479,8 +1479,11 @@ export const searchApi = {
       try {
         console.log("Making search API request for:", requestKey);
 
-        // Always use the Next.js API proxy to avoid CORS issues
-        const endpoint = "/api/search"; // Use proxy in both development and production
+        // Determine the endpoint based on environment - Updated to use correct search endpoint
+        const endpoint =
+          process.env.NODE_ENV === "production"
+            ? "/v1/search" // Direct API call in production - CORRECT SEARCH ENDPOINT
+            : "/api/search"; // Use proxy in development
 
         const response = await searchApiClient.get(endpoint, {
           params: {
@@ -1856,17 +1859,20 @@ export interface DownloadVerifyResponse {
   };
 }
 
-export interface DownloadVerifyApiResponse extends ApiResponse<DownloadVerifyResponse> {
-  subscription?: boolean | {
-    active: boolean;
-    plan: string;
-    credits: {
-      remaining: number;
-      plan: number;
-    };
-    until: string;
-    allowed_sites: string[];
-  };
+export interface DownloadVerifyApiResponse
+  extends ApiResponse<DownloadVerifyResponse> {
+  subscription?:
+    | boolean
+    | {
+        active: boolean;
+        plan: string;
+        credits: {
+          remaining: number;
+          plan: number;
+        };
+        until: string;
+        allowed_sites: string[];
+      };
 }
 
 export interface DownloadCreateRequest {
@@ -1922,7 +1928,8 @@ export const downloadApi = {
         success: false,
         error: {
           id: 2,
-          message: "Download URL is missing. Please provide a valid download URL.",
+          message:
+            "Download URL is missing. Please provide a valid download URL.",
         },
       };
     }
