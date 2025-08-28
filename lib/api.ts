@@ -1482,7 +1482,7 @@ export const searchApi = {
         // Determine the endpoint based on environment - Updated to use correct search endpoint
         const endpoint =
           process.env.NODE_ENV === "production"
-            ? "/v1/search" // Direct API call in production - CORRECT SEARCH ENDPOINT
+            ? "/search" // Direct API call in production - CORRECT SEARCH ENDPOINT
             : "/api/search"; // Use proxy in development
 
         const response = await searchApiClient.get(endpoint, {
