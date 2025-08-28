@@ -1479,10 +1479,10 @@ export const searchApi = {
       try {
         console.log("Making search API request for:", requestKey);
 
-        // Determine the endpoint based on environment - Updated to use new providers/search endpoint
+        // Determine the endpoint based on environment - Updated to use correct search endpoint
         const endpoint =
           process.env.NODE_ENV === "production"
-            ? "/v1/download/tasks" // Direct API call in production - NEW ENDPOINT
+            ? "/v1/search" // Direct API call in production - CORRECT SEARCH ENDPOINT
             : "/api/search"; // Use proxy in development
 
         const response = await searchApiClient.get(endpoint, {
