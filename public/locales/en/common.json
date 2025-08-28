@@ -1692,5 +1692,76 @@
     "scrollToTop": "Scroll to top",
     "type": "Type",
     "dimensions": "Dimensions"
+  },
+  "download": {
+    "verification": {
+      "title": "Download Verification",
+      "description": "Verify download eligibility and view site information",
+      "checking": "Verifying download eligibility...",
+      "checkingDescription": "Please wait while we verify your download...",
+      "downloading": "Starting download...",
+      "startDownload": "Start Download",
+      "cannotDownload": "Cannot Download",
+      "retry": "Try Again",
+      "close": "Close",
+      "status": {
+        "title": "Download Status",
+        "supported": "Supported",
+        "allowed": "Allowed",
+        "affordable": "Affordable",
+        "readyToDownload": "Ready to Download",
+        "downloadNotAvailable": "Download Not Available",
+        "readyToDownloadDescription": "All verification checks have passed successfully. You can proceed with downloading this content.",
+        "downloadNotAvailableDescription": "Download cannot proceed due to the following issues: {{issues}}.",
+        "supportedDescription": "Platform is supported",
+        "notSupportedDescription": "Platform not supported",
+        "allowedDescription": "Download is permitted",
+        "notAllowedDescription": "Download not permitted",
+        "affordableDescription": "Sufficient credits available",
+        "notAffordableDescription": "Insufficient credits"
+      },
+      "site": {
+        "title": "Site Information",
+        "credits": "Credits",
+        "lastReset": "Last reset: {{date}}",
+        "external": "External"
+      },
+      "subscription": {
+        "title": "Subscription Details",
+        "active": "Active",
+        "inactive": "Inactive",
+        "credits": "Credits",
+        "expires": "Expires",
+        "daysRemaining": "days remaining",
+        "allowedSites": "Allowed Sites",
+        "allowedSitesCount": "{{count}} sites: {{sites}}",
+        "noActiveSubscription": "No Active Subscription",
+        "noActiveSubscriptionDescription": "You don't have an active subscription plan.",
+        "noInformation": "No subscription information available"
+      },
+      "progress": {
+        "preparing": "Preparing download...",
+        "downloading": "Downloading...",
+        "completed": "Download completed!",
+        "failed": "Download failed",
+        "initializing": "Initializing download process...",
+        "downloadingFromSource": "Downloading file from source...",
+        "fileDownloadedSuccessfully": "File downloaded successfully!",
+        "preparingStatus": "Preparing...",
+        "downloadingProgress": "Downloading {{progress}}%",
+        "completedStatus": "Completed!"
+      },
+      "reasons": {
+        "siteNotSupported": "Site not supported",
+        "downloadNotAllowed": "Download not allowed",
+        "insufficientCredits": "Insufficient credits"
+      },
+      "error": {
+        "title": "Verification Failed",
+        "verificationFailed": "Verification Failed",
+        "unableToVerify": "Unable to verify download eligibility"
+      },
+      "tryAgain": "Try Again"
+    }
   }
 }

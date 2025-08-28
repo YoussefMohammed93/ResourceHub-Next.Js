@@ -74,6 +74,7 @@ import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/components/i18n-provider";
 import { HeaderControls } from "@/components/header-controls";
 import { ImageSearchDialog } from "@/components/image-search-dialog";
+import { DownloadVerificationSheet } from "@/components/download-verification-sheet";
 import { publicApi, type PricingPlan, type Site } from "@/lib/api";
 import { useAnimatedCounter } from "@/hooks/use-animated-counter";
 import {
@@ -710,6 +711,10 @@ export default function HomePage() {
   const [isSearching, setIsSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
+  // Download verification state
+  const [isVerificationSheetOpen, setIsVerificationSheetOpen] = useState(false);
+  const [verificationUrl, setVerificationUrl] = useState("");
+
   // Pricing plans state
   const [pricingPlans, setPricingPlans] = useState<PricingPlan[]>([]);
   const [isLoadingPricing, setIsLoadingPricing] = useState(true);
@@ -726,8 +731,7 @@ export default function HomePage() {
   const [isMobile, setIsMobile] = useState(false);
 
   // URL validation regex patterns
-  const urlRegex =
-    /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/i;
+  const urlRegex = /^https?:\/\/.+/i;
   const domainRegex =
     /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
 
@@ -753,7 +757,7 @@ export default function HomePage() {
       };
     }
 
-    if (trimmedQuery.length > 100) {
+    if (trimmedQuery.length > 2000) {
       return {
         isValid: false,
         cleanedQuery: "",
@@ -761,14 +765,8 @@ export default function HomePage() {
       };
     }
 
-    // Check if it's a URL
-    if (urlRegex.test(trimmedQuery) || domainRegex.test(trimmedQuery)) {
-      return {
-        isValid: false,
-        cleanedQuery: "",
-        error: t("search.errors.urlNotAllowed"),
-      };
-    }
+    // Allow URLs to pass through for download verification
+    // The URL detection will be handled in handleSearch function
 
     // Remove special characters that might cause issues
     const cleanedQuery = trimmedQuery
@@ -795,6 +793,36 @@ export default function HomePage() {
 
     setIsSearching(true);
     setSearchError(null);
+
+    // Check if the query is a URL for download verification
+    const trimmedQuery = searchQuery.trim();
+    console.log("Checking URL:", trimmedQuery);
+    console.log("URL regex:", urlRegex);
+    console.log("URL regex test:", urlRegex.test(trimmedQuery));
+    console.log("Domain regex test:", domainRegex.test(trimmedQuery));
+
+    // Test with a more comprehensive URL check
+    const isUrl =
+      trimmedQuery.startsWith("http://") || trimmedQuery.startsWith("https://");
+    console.log("Simple URL check:", isUrl);
+
+    if (
+      isUrl ||
+      urlRegex.test(trimmedQuery) ||
+      domainRegex.test(trimmedQuery)
+    ) {
+      console.log("Opening verification sheet for URL:", trimmedQuery);
+      console.log("Current sheet state:", isVerificationSheetOpen);
+
+      // Open download verification sheet for URLs
+      setVerificationUrl(trimmedQuery);
+      setIsVerificationSheetOpen(true);
+      setIsSearching(false);
+
+      console.log("After setting state - URL:", trimmedQuery);
+      console.log("After setting state - Sheet open:", true);
+      return;
+    }
 
     try {
       // Build search URL with type filter
@@ -2717,6 +2745,13 @@ export default function HomePage() {
       <FAQSection />
       {/* Footer */}
       <Footer />
+
+      {/* Download Verification Sheet */}
+      <DownloadVerificationSheet
+        isOpen={isVerificationSheetOpen}
+        onClose={() => setIsVerificationSheetOpen(false)}
+        downloadUrl={verificationUrl}
+      />
     </div>
   );
 }

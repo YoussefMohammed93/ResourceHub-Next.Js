@@ -1692,5 +1692,71 @@
     "scrollToTop": "العودة إلى الأعلى",
     "type": "النوع",
     "dimensions": "الأبعاد"
+  },
+  "download": {
+    "verification": {
+      "title": "التحقق من التحميل",
+      "description": "التحقق من أهلية التحميل وعرض معلومات الموقع",
+      "checkingDescription": "التحقق من أهلية التحميل وعرض معلومات الموقع",
+      "checking": "جاري التحقق من أهلية التحميل...",
+      "downloading": "جاري بدء التحميل...",
+      "startDownload": "بدء التحميل",
+      "cannotDownload": "لا يمكن التحميل",
+      "retry": "المحاولة مرة أخرى",
+      "close": "إغلاق",
+      "status": {
+        "title": "حالة التحميل",
+        "supported": "مدعوم",
+        "allowed": "مسموح",
+        "affordable": "متاح",
+        "readyToDownload": "جاهز للتحميل",
+        "downloadNotAvailable": "التحميل غير متاح",
+        "readyToDownloadDescription": "تم اجتياز جميع فحوصات التحقق بنجاح. يمكنك المتابعة مع تحميل هذا المحتوى.",
+        "downloadNotAvailableDescription": "لا يمكن تحميل المحتوى بسبب المشاكل التالية: {{issues}}.",
+        "supportedDescription": "المنصة مدعومة",
+        "notSupportedDescription": "المنصة غير مدعومة",
+        "allowedDescription": "التحميل مسموح",
+        "notAllowedDescription": "التحميل غير مسموح",
+        "affordableDescription": "رصيد كافي متاح",
+        "notAffordableDescription": "رصيد غير كافي"
+      },
+      "site": {
+        "credits": "الرصيد",
+        "lastReset": "آخر إعادة تعيين: {{date}}",
+        "external": "خارجي"
+      },
+      "subscription": {
+        "title": "تفاصيل الاشتراك",
+        "active": "نشط",
+        "inactive": "غير نشط",
+        "credits": "الرصيد",
+        "expires": "ينتهي في",
+        "allowedSites": "المواقع المسموحة",
+        "noActiveSubscription": "لا يوجد اشتراك نشط",
+        "noSubscriptionMessage": "ليس لديك خطة اشتراك نشطة."
+      },
+      "progress": {
+        "preparing": "جاري تحضير التحميل...",
+        "downloading": "جاري التحميل...",
+        "completed": "تم التحميل بنجاح!",
+        "failed": "فشل التحميل",
+        "initializing": "جاري تهيئة عملية التحميل...",
+        "downloadingFromSource": "جاري تحميل الملف من المصدر...",
+        "fileDownloadedSuccessfully": "تم تحميل الملف بنجاح!",
+        "preparingStatus": "جاري التحضير...",
+        "downloadingProgress": "جاري التحميل {{progress}}%",
+        "completedStatus": "مكتمل!"
+      },
+      "reasons": {
+        "notSupported": "الموقع غير مدعوم. ",
+        "notAllowed": "التحميل غير مسموح. ",
+        "cannotAfford": "رصيد غير كافي. "
+      },
+      "error": {
+        "title": "فشل التحقق",
+        "generic": "فشل في التحقق من أهلية التحميل",
+        "network": "حدث خطأ في الشبكة"
+      }
+    }
   }
 }

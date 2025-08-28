@@ -5,30 +5,13 @@ import { shouldUseMockData, mockApiResponses } from "./mock-data";
 
 // Base API URL - use proxy for development, direct API for production
 const getApiBaseUrl = () => {
-  // Always use proxy when running in browser (client-side)
-  if (typeof window !== "undefined") {
-    // In production (Vercel), use direct API URL to avoid proxy issues
-    if (process.env.NODE_ENV === "production") {
-      const directApiUrl =
-        process.env.NEXT_PUBLIC_PRODUCTION_API_URL ||
-        "https://stockaty.virs.tech";
-
-      return directApiUrl;
-    }
-
-    // In development, use the configured proxy URL
-    if (process.env.NEXT_PUBLIC_API_BASE_URL) {
-      return process.env.NEXT_PUBLIC_API_BASE_URL;
-    }
-  }
-
-  // Fallback for server-side requests (shouldn't happen for auth)
-  const fallbackUrl =
+  // Always use direct API URL for download verification as per backend requirements
+  const directApiUrl =
     process.env.NEXT_PUBLIC_PRODUCTION_API_URL ||
     process.env.NEXT_PUBLIC_API_URL ||
     "https://stockaty.virs.tech";
 
-  return fallbackUrl;
+  return directApiUrl;
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -105,6 +88,10 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
       // Also add the token as a custom header in case the backend expects it differently
       config.headers["X-Access-Token"] = token;
+    } else {
+      // For unauthenticated requests, don't send empty Bearer token
+      delete config.headers.Authorization;
+      delete config.headers["X-Access-Token"];
     }
 
     return config;
@@ -1843,6 +1830,279 @@ export interface CookieData {
   icon?: string;
   iconColor?: string;
 }
+
+// Download Verification and Management Types (from details.yaml and download.yaml)
+export interface DownloadVerifyRequest {
+  downloadUrl: string;
+}
+
+export interface DownloadVerifyData {
+  is_supported: boolean;
+  is_allowed: boolean;
+  can_afford: boolean;
+  site: {
+    name: string;
+    url: string;
+    icon: string;
+    price: number;
+    external: boolean;
+    last_reset: string;
+  };
+}
+
+export interface DownloadVerifyResponse {
+  success: boolean;
+  data?: DownloadVerifyData;
+  error?: {
+    id: number | string;
+    message: string;
+  };
+}
+
+export interface DownloadVerifyApiResponse extends ApiResponse<DownloadVerifyResponse> {
+  subscription?: boolean | {
+    active: boolean;
+    plan: string;
+    credits: {
+      remaining: number;
+      plan: number;
+    };
+    until: string;
+    allowed_sites: string[];
+  };
+}
+
+export interface DownloadCreateRequest {
+  downloadUrl: string;
+}
+
+export interface DownloadCreateResponse {
+  message: string;
+  task_id: string;
+}
+
+export interface DownloadTask {
+  type: string;
+  progress: {
+    status: string;
+    progress: number;
+  };
+  data: {
+    id: string;
+    downloadUrl: string;
+    platform_name: string;
+    price: number;
+  };
+  download?: {
+    downloadUrl: string;
+    filename: string;
+  };
+}
+
+export interface DownloadTasksResponse {
+  success: boolean;
+  data?: DownloadTask[];
+  error?: {
+    id: number | string;
+    message: string;
+  };
+}
+
+// Download Management API functions
+export const downloadApi = {
+  // Verify download eligibility (from details.yaml)
+  async verifyDownload(
+    request: DownloadVerifyRequest
+  ): Promise<DownloadVerifyApiResponse> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      const { mockDownloadApi } = await import("./mock-data");
+      return await mockDownloadApi.verifyDownload(request);
+    }
+
+    if (!request.downloadUrl?.trim()) {
+      return {
+        success: false,
+        error: {
+          id: 2,
+          message: "Download URL is missing. Please provide a valid download URL.",
+        },
+      };
+    }
+
+    // Check if user is authenticated
+    const token =
+      localStorage.getItem("access_token") ||
+      sessionStorage.getItem("access_token");
+
+    if (!token) {
+      return {
+        success: false,
+        error: {
+          id: "authentication_required",
+          message: "Please log in to verify download eligibility.",
+        },
+      };
+    }
+
+    try {
+      const response = await apiClient.request({
+        url: "/v1/download/verify",
+        method: "POST",
+        data: {
+          downloadUrl: request.downloadUrl,
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Return the response with subscription field at the top level
+      return {
+        success: response.data.success,
+        data: response.data.data,
+        subscription: response.data.subscription,
+        error: response.data.error,
+      };
+    } catch (error) {
+      console.error("Download verify API error:", error);
+
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data;
+
+        if (error.response?.status === 401) {
+          return {
+            success: false,
+            error: {
+              id: "authentication_required",
+              message: "Your session has expired. Please log in again.",
+            },
+          };
+        }
+
+        return {
+          success: false,
+          error: {
+            id: errorData?.error?.id || "verify_failed",
+            message:
+              errorData?.error?.message ||
+              "Failed to verify download eligibility. Please try again.",
+          },
+        };
+      }
+
+      return {
+        success: false,
+        error: {
+          id: "unknown_error",
+          message: "An unexpected error occurred during verification.",
+        },
+      };
+    }
+  },
+
+  // Create download task (from download.yaml)
+  async createDownload(
+    request: DownloadCreateRequest
+  ): Promise<ApiResponse<DownloadCreateResponse>> {
+    // Use mock data if enabled
+    if (shouldUseMockData()) {
+      const { mockDownloadApi } = await import("./mock-data");
+      return await mockDownloadApi.createDownload(request);
+    }
+
+    if (!request.downloadUrl?.trim()) {
+      return {
+        success: false,
+        error: {
+          id: "missing_url",
+          message: "Download URL is required.",
+        },
+      };
+    }
+
+    try {
+      const response = await apiClient.request({
+        url: "/v1/download/create",
+        method: "POST",
+        data: {
+          downloadUrl: request.downloadUrl,
+        },
+        // Use headers for session instead of cookies
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Download create API error:", error);
+
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data;
+        return {
+          success: false,
+          error: {
+            id: errorData?.error?.id || "create_failed",
+            message:
+              errorData?.error?.message ||
+              "Failed to create download task. Please try again.",
+          },
+        };
+      }
+
+      return {
+        success: false,
+        error: {
+          id: "unknown_error",
+          message: "An unexpected error occurred while creating download.",
+        },
+      };
+    }
+  },
+
+  // Get download tasks (from download.yaml)
+  async getDownloadTasks(
+    taskId?: string
+  ): Promise<ApiResponse<DownloadTasksResponse>> {
+    try {
+      const params = taskId ? { task_id: taskId } : {};
+      const response = await apiClient.request({
+        url: "/v1/download/tasks",
+        method: "GET",
+        params,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Download tasks API error:", error);
+
+      if (axios.isAxiosError(error)) {
+        const errorData = error.response?.data;
+        return {
+          success: false,
+          error: {
+            id: errorData?.error?.id || "tasks_failed",
+            message:
+              errorData?.error?.message ||
+              "Failed to retrieve download tasks. Please try again.",
+          },
+        };
+      }
+
+      return {
+        success: false,
+        error: {
+          id: "unknown_error",
+          message: "An unexpected error occurred while fetching tasks.",
+        },
+      };
+    }
+  },
+};
 
 // Cookie Management API functions
 export const cookieApi = {
